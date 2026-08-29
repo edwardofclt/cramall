@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import { Character } from '../characters/Character';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { SUBJECTS } from '../content/subjects';
-import { isLessonPassed, isLessonReady, lessonStars, subjectCompletion, upNext } from '../progress/logic';
+import { isLessonPassed, isLessonReady, isUnitComplete, lessonStars, subjectCompletion, upNext } from '../progress/logic';
 import { useProgress } from '../progress/ProgressContext';
 import type { SaveData } from '../progress/storage';
 
@@ -13,8 +13,24 @@ const STATE_LABEL: Record<NodeState, string> = {
   passed: 'passed',
   start: 'start here',
   ready: 'ready to play',
-  locked: 'not ready yet — take a peek',
+  locked: 'not ready yet',
 };
+
+function lockedReason(save: SaveData, subject: Subject, lesson: Lesson): string {
+  const unit = subject.units.find((candidate) => candidate.id === lesson.unitId);
+  if (!unit) return 'finish the previous lesson first';
+
+  const incompletePrerequisite = unit.prerequisiteUnitIds
+    .map((id) => subject.units.find((candidate) => candidate.id === id))
+    .find((candidate) => candidate && candidate.lessons.length > 0 && !isUnitComplete(save, candidate));
+  if (incompletePrerequisite) return `finish ${incompletePrerequisite.title} first`;
+
+  const lessonIndex = unit.lessons.findIndex((candidate) => candidate.id === lesson.id);
+  const previousLesson = lessonIndex > 0 ? unit.lessons[lessonIndex - 1] : undefined;
+  return previousLesson
+    ? `finish ${previousLesson.title} first`
+    : 'finish the previous lesson first';
+}
 
 function nodeState(
   save: SaveData,
@@ -43,7 +59,11 @@ function LessonNode({
   const state = nodeState(save, subject, lesson, next);
   const stars = state === 'passed' ? lessonStars(save.lessons[lesson.id]) : 0;
   const label =
-    state === 'passed' ? `passed, ${stars} stars` : STATE_LABEL[state];
+    state === 'passed'
+      ? `passed, ${stars} stars`
+      : state === 'locked'
+        ? `${lockedReason(save, subject, lesson)} — take a peek`
+        : STATE_LABEL[state];
   // Soft lock: a not-ready lesson is still reachable, just flagged as a peek so the
   // lesson player can show its "sneak peek" banner.
   const to = state === 'locked' ? `/lesson/${lesson.id}?peek=1` : `/lesson/${lesson.id}`;
@@ -57,7 +77,7 @@ function LessonNode({
         aria-label={`${lesson.title} — ${label}`}
       >
         <span className="lesson-node-circle" aria-hidden="true">
-          {state === 'passed' ? '✓' : state === 'locked' ? '🔒' : index + 1}
+          {state === 'passed' ? '✓' : index + 1}
         </span>
         <span className="lesson-node-body">
           <span className="lesson-node-title">{lesson.title}</span>
@@ -74,7 +94,7 @@ function LessonNode({
           )}
           {state === 'locked' && (
             <span className="badge badge-small" aria-hidden="true">
-              🔒 Not ready yet
+              🔒 {lockedReason(save, subject, lesson)}
             </span>
           )}
         </span>

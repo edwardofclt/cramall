@@ -492,6 +492,7 @@ body {
   border-width: 0.75rem 0.75rem 0 0.75rem;
   border-style: solid;
   border-color: var(--c-card) transparent transparent transparent;
+  filter: drop-shadow(0 2px 1px rgba(76, 54, 31, 0.2));
 }
 
 .speech-bubble-right::after {

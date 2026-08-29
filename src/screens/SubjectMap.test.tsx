@@ -80,7 +80,7 @@ function renderMap(save: SaveData, entry = '/subject/math') {
 }
 
 function lessonLink(title: string) {
-  return screen.getByRole('link', { name: new RegExp(title, 'i') });
+  return screen.getByText(title, { selector: '.lesson-node-title' }).closest('a')!;
 }
 
 describe('SubjectMap', () => {
@@ -123,10 +123,16 @@ describe('SubjectMap', () => {
     const later = lessonLink('Rounding Rodeo');
     expect(later).toHaveAttribute('href', `/lesson/${L3}?peek=1`);
     expect(later).toHaveAttribute('data-state', 'locked');
-    expect(later).toHaveAccessibleName(/not ready/i);
+    expect(later).toHaveAccessibleName(/finish comparing numbers first/i);
+    expect(later).toHaveTextContent(/finish comparing numbers first/i);
+    expect(later).toHaveTextContent('🔒');
+    expect(later).not.toHaveTextContent('🔒🔒');
 
     // A lesson in a unit whose prerequisite unit is unfinished is locked too.
-    expect(lessonLink('Adding It Up')).toHaveAttribute('href', `/lesson/${U2L1}?peek=1`);
+    const nextUnit = lessonLink('Adding It Up');
+    expect(nextUnit).toHaveAttribute('href', `/lesson/${U2L1}?peek=1`);
+    expect(nextUnit).toHaveAccessibleName(/finish place value party first/i);
+    expect(nextUnit).toHaveTextContent(/finish place value party first/i);
   });
 
   test('a unit with no lessons yet shows a Coming soon chip', () => {
