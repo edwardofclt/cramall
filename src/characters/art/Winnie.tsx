@@ -115,10 +115,8 @@ export function Winnie({ pose }: { pose: Pose }) {
         <Eye x={82} dy={s.pupil} t={t} />
         <Eye x={118} dy={s.pupil} t={t} />
 
-        <>
-          <Bill open={s.open} />
-          <Mood pose={pose} />
-          </>
+        <Bill open={s.open} />
+        <Mood pose={pose} />
 
         <g stroke={FRAME} strokeWidth={3.2} fill="rgba(255,255,255,0.2)">
           <circle cx={82} cy={64} r={13} />

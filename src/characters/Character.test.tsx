@@ -95,8 +95,36 @@ describe('DialoguePlayer', () => {
     expect(screen.getByTestId('character-nutty')).toHaveAttribute('data-pose', 'talk');
 
     await user.click(nextButton());
-    await screen.findByText('Second line');
 
+    expect(await screen.findByText('Second line')).toHaveClass('speech-bubble-right');
     expect(screen.queryByTestId('character-nutty')).toBeNull();
+  });
+
+  test('starts over when a different dialogue is swapped in', async () => {
+    const user = userEvent.setup();
+    const onDone = vi.fn();
+    const { rerender } = render(<DialoguePlayer lines={LINES} onDone={onDone} />);
+
+    await user.click(nextButton());
+    await screen.findByText('Second line');
+    await user.click(nextButton());
+    expect(onDone).toHaveBeenCalledTimes(1);
+
+    const nextLines: DialogueLine[] = [
+      { speaker: 'winnie', text: 'New one', pose: 'talk' },
+      { speaker: 'kid', text: 'New two' },
+      { speaker: 'winnie', text: 'New three', pose: 'cheer' },
+    ];
+    rerender(<DialoguePlayer lines={nextLines} onDone={onDone} />);
+
+    expect(await screen.findByText('New one')).toBeInTheDocument();
+    expect(screen.queryByText('Second line')).toBeNull();
+
+    await user.click(nextButton());
+    await screen.findByText('New two');
+    await user.click(nextButton());
+    await screen.findByText('New three');
+    await user.click(nextButton());
+    expect(onDone).toHaveBeenCalledTimes(2);
   });
 });

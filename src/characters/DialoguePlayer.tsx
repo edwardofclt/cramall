@@ -14,15 +14,27 @@ export type DialoguePlayerProps = {
 
 export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProps) {
   const [index, setIndex] = useState(0);
+  const [run, setRun] = useState({ lines, id: 0 });
   const done = useRef(false);
-  const empty = lines.length === 0;
+
+  // A swapped-in dialogue has to start over — otherwise the old index carries
+  // across (opening mid-array, or rendering nothing when the new array is
+  // shorter) and the spent `done` guard means onDone can never fire again.
+  // Resetting during render is React's "adjust state on prop change" pattern:
+  // it re-renders before committing, so the stale line never paints. `run.id`
+  // also feeds the AnimatePresence key so the swap animates like any advance.
+  if (run.lines !== lines) {
+    setRun({ lines, id: run.id + 1 });
+    setIndex(0);
+    done.current = false;
+  }
 
   useEffect(() => {
-    if (empty && !done.current) {
+    if (lines.length === 0 && !done.current) {
       done.current = true;
       onDone();
     }
-  }, [empty, onDone]);
+  }, [lines, onDone]);
 
   const reduced = useReducedMotionPref();
   const line = lines[index];
@@ -47,7 +59,7 @@ export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProp
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       <AnimatePresence mode="wait">
         <motion.div
-          key={index}
+          key={`${run.id}-${index}`}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0, transition: swap }}
           exit={{ opacity: 0, y: -10, transition: swap }}
