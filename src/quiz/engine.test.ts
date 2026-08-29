@@ -1,0 +1,245 @@
+import { expect, test } from 'vitest';
+import type { Question } from '../content/schema';
+import {
+  buildResult,
+  gradeAnswer,
+  normalizeText,
+  sampleQuiz,
+  shuffleChoices,
+} from './engine';
+
+// --- fixtures ---
+
+function choiceQ(id: string, over: Partial<Question> = {}): Question {
+  return {
+    id,
+    type: 'multiple-choice',
+    prompt: `${id}?`,
+    choices: [
+      { id: 'a', text: 'A' },
+      { id: 'b', text: 'B' },
+      { id: 'c', text: 'C' },
+      { id: 'd', text: 'D' },
+    ],
+    correctChoiceId: 'a',
+    explanation: 'because',
+    conceptTag: 'concept-a',
+    reviewCardId: `${id}-card`,
+    ...over,
+  } as Question;
+}
+
+function fillQ(id: string, over: Partial<Question> = {}): Question {
+  return {
+    id,
+    type: 'fill-blank',
+    prompt: `${id}?`,
+    acceptedAnswers: ['1204'],
+    explanation: 'because',
+    conceptTag: 'concept-b',
+    reviewCardId: `${id}-card`,
+    ...over,
+  } as Question;
+}
+
+function sortQ(id: string, over: Partial<Question> = {}): Question {
+  return {
+    id,
+    type: 'sort',
+    prompt: `${id}?`,
+    items: [
+      { id: 'i1', text: 'One' },
+      { id: 'i2', text: 'Two' },
+      { id: 'i3', text: 'Three' },
+    ],
+    correctOrder: ['i1', 'i2', 'i3'],
+    explanation: 'because',
+    conceptTag: 'concept-c',
+    reviewCardId: `${id}-card`,
+    ...over,
+  } as Question;
+}
+
+/** Simple deterministic LCG so tests get a reproducible () => number sequence, independent of Math.random. */
+function makeLcg(seed: number): () => number {
+  let state = seed;
+  return () => {
+    // Numerical Recipes LCG constants.
+    state = (state * 1664525 + 1013904223) % 4294967296;
+    return state / 4294967296;
+  };
+}
+
+function pool(n: number): Question[] {
+  return Array.from({ length: n }, (_, i) => choiceQ(`q${i}`));
+}
+
+// --- sampleQuiz ---
+
+test('sampleQuiz: returns 10 unique questions from a larger pool by default', () => {
+  const result = sampleQuiz(pool(15));
+  expect(result).toHaveLength(10);
+  const ids = new Set(result.map((q) => q.id));
+  expect(ids.size).toBe(10);
+});
+
+test('sampleQuiz: is deterministic given the same seeded rng sequence', () => {
+  const source = pool(15);
+  const a = sampleQuiz(source, 10, makeLcg(42));
+  const b = sampleQuiz(source, 10, makeLcg(42));
+  expect(a.map((q) => q.id)).toEqual(b.map((q) => q.id));
+});
+
+test('sampleQuiz: a different seed produces a different order (sanity check on shuffle)', () => {
+  const source = pool(15);
+  const a = sampleQuiz(source, 10, makeLcg(42));
+  const b = sampleQuiz(source, 10, makeLcg(7));
+  expect(a.map((q) => q.id)).not.toEqual(b.map((q) => q.id));
+});
+
+test('sampleQuiz: throws when pool is smaller than n (pool of 9, default n=10)', () => {
+  expect(() => sampleQuiz(pool(9))).toThrow(Error);
+});
+
+test('sampleQuiz: respects an explicit n', () => {
+  const result = sampleQuiz(pool(5), 3, makeLcg(1));
+  expect(result).toHaveLength(3);
+});
+
+test('sampleQuiz: does not mutate the original pool array', () => {
+  const source = pool(12);
+  const beforeIds = source.map((q) => q.id);
+  sampleQuiz(source, 10, makeLcg(3));
+  expect(source.map((q) => q.id)).toEqual(beforeIds);
+});
+
+// --- shuffleChoices ---
+
+test('shuffleChoices: reorders choices but leaves other fields untouched', () => {
+  const original = choiceQ('q1');
+  const shuffled = shuffleChoices(original, makeLcg(9));
+  expect(shuffled).not.toBe(original);
+  expect(shuffled.id).toBe(original.id);
+  if (shuffled.type === 'multiple-choice') {
+    const sameSet = new Set(shuffled.choices.map((c) => c.id));
+    expect(sameSet).toEqual(new Set(['a', 'b', 'c', 'd']));
+    expect(shuffled.correctChoiceId).toBe('a');
+  }
+});
+
+test('shuffleChoices: reorders items for a sort question', () => {
+  const original = sortQ('q1');
+  const shuffled = shuffleChoices(original, makeLcg(9));
+  expect(shuffled).not.toBe(original);
+  if (shuffled.type === 'sort') {
+    const sameSet = new Set(shuffled.items.map((i) => i.id));
+    expect(sameSet).toEqual(new Set(['i1', 'i2', 'i3']));
+    expect(shuffled.correctOrder).toEqual(['i1', 'i2', 'i3']);
+  }
+});
+
+test('shuffleChoices: fill-blank question is returned as-is', () => {
+  const original = fillQ('q1');
+  const shuffled = shuffleChoices(original, makeLcg(9));
+  expect(shuffled).toEqual(original);
+});
+
+// --- gradeAnswer ---
+
+test('gradeAnswer: multiple-choice correct answer', () => {
+  expect(gradeAnswer(choiceQ('q1'), 'a')).toBe(true);
+});
+
+test('gradeAnswer: multiple-choice wrong answer', () => {
+  expect(gradeAnswer(choiceQ('q1'), 'b')).toBe(false);
+});
+
+test('gradeAnswer: true-false correct answer', () => {
+  const q = choiceQ('q1', {
+    type: 'true-false',
+    choices: [{ id: 't', text: 'True' }, { id: 'f', text: 'False' }],
+    correctChoiceId: 't',
+  });
+  expect(gradeAnswer(q, 't')).toBe(true);
+  expect(gradeAnswer(q, 'f')).toBe(false);
+});
+
+test('gradeAnswer: fill-blank accepts " 1,204 " for accepted ["1204"] via normalizeText', () => {
+  expect(gradeAnswer(fillQ('q1'), ' 1,204 ')).toBe(true);
+});
+
+test('gradeAnswer: fill-blank rejects an unmatched answer', () => {
+  expect(gradeAnswer(fillQ('q1'), '1205')).toBe(false);
+});
+
+test('gradeAnswer: sort requires exact order, permutations fail', () => {
+  const q = sortQ('q1');
+  expect(gradeAnswer(q, ['i1', 'i2', 'i3'])).toBe(true);
+  expect(gradeAnswer(q, ['i2', 'i1', 'i3'])).toBe(false);
+  expect(gradeAnswer(q, ['i1', 'i2'])).toBe(false);
+});
+
+// --- normalizeText ---
+
+test('normalizeText: trims, lowercases, collapses whitespace, strips commas', () => {
+  expect(normalizeText(' 1,204 ')).toBe('1204');
+  expect(normalizeText('  Hello   World  ')).toBe('hello world');
+  expect(normalizeText('A,B,C')).toBe('abc');
+});
+
+// --- buildResult ---
+
+test('buildResult: score counts correct answers, total is question count', () => {
+  const questions = [choiceQ('q1'), choiceQ('q2'), choiceQ('q3')];
+  const answers = ['a', 'a', 'wrong'];
+  const result = buildResult(questions, answers);
+  expect(result.total).toBe(3);
+  expect(result.score).toBe(2);
+});
+
+test('buildResult: groups two misses with the same conceptTag into one MissGroup with count 2', () => {
+  const q1 = choiceQ('q1', { conceptTag: 'fractions', reviewCardId: 'card-1' });
+  const q2 = choiceQ('q2', { conceptTag: 'fractions', reviewCardId: 'card-2' });
+  const questions = [q1, q2];
+  const answers = ['wrong', 'wrong'];
+  const result = buildResult(questions, answers);
+  expect(result.missed).toEqual([
+    { conceptTag: 'fractions', reviewCardId: 'card-1', count: 2 },
+  ]);
+});
+
+test('buildResult: missed groups are sorted by count descending', () => {
+  const q1 = choiceQ('q1', { conceptTag: 'rare', reviewCardId: 'card-rare' });
+  const q2 = choiceQ('q2', { conceptTag: 'common', reviewCardId: 'card-common-1' });
+  const q3 = choiceQ('q3', { conceptTag: 'common', reviewCardId: 'card-common-2' });
+  const q4 = choiceQ('q4', { conceptTag: 'common', reviewCardId: 'card-common-3' });
+  const questions = [q1, q2, q3, q4];
+  const answers = ['wrong', 'wrong', 'wrong', 'wrong'];
+  const result = buildResult(questions, answers);
+  expect(result.missed).toEqual([
+    { conceptTag: 'common', reviewCardId: 'card-common-1', count: 3 },
+    { conceptTag: 'rare', reviewCardId: 'card-rare', count: 1 },
+  ]);
+});
+
+test('buildResult: ties are broken by first-encountered order (stable sort)', () => {
+  const q1 = choiceQ('q1', { conceptTag: 'first', reviewCardId: 'card-first' });
+  const q2 = choiceQ('q2', { conceptTag: 'second', reviewCardId: 'card-second' });
+  const questions = [q1, q2];
+  const answers = ['wrong', 'wrong'];
+  const result = buildResult(questions, answers);
+  expect(result.missed.map((m) => m.conceptTag)).toEqual(['first', 'second']);
+});
+
+test('buildResult: score equals total minus the sum of missed counts', () => {
+  const q1 = choiceQ('q1', { conceptTag: 'a' });
+  const q2 = choiceQ('q2', { conceptTag: 'a' });
+  const q3 = choiceQ('q3', { conceptTag: 'b' });
+  const q4 = choiceQ('q4', { conceptTag: 'c' });
+  const questions = [q1, q2, q3, q4];
+  const answers = ['wrong', 'wrong', 'wrong', 'a']; // q4 correct, rest wrong across 3 concept tags
+  const result = buildResult(questions, answers);
+  const missedSum = result.missed.reduce((sum, m) => sum + m.count, 0);
+  expect(result.score).toBe(result.total - missedSum);
+  expect(result.score).toBe(1);
+});
