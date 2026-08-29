@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { expect, test } from 'vitest';
 import { LessonSchema, validateLesson, type Lesson, type Question } from './schema';
 
 function q(id: string, over: Partial<Question> = {}): Question {
@@ -47,4 +47,14 @@ test('duplicate question ids are reported', () => {
   const l = makeLesson();
   l.quiz.pool[1]!.id = l.quiz.pool[0]!.id;
   expect(validateLesson(l).join()).toMatch(/duplicate/i);
+});
+test('sort correctOrder with duplicates is reported', () => {
+  const l = makeLesson();
+  l.quiz.pool[0] = {
+    id: 'les-q0', type: 'sort', prompt: 'Order these',
+    items: [{ id: 'a', text: '1' }, { id: 'b', text: '2' }],
+    correctOrder: ['a', 'a'],
+    explanation: 'x', conceptTag: 'adding', reviewCardId: 'les-c1',
+  };
+  expect(validateLesson(l).join()).toMatch(/permutation/);
 });

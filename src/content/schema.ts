@@ -114,7 +114,12 @@ export function validateLesson(lesson: Lesson): string[] {
     }
     if (q.type === 'sort') {
       const itemIds = new Set(q.items.map((i) => i.id));
-      if (q.correctOrder.length !== q.items.length || !q.correctOrder.every((id) => itemIds.has(id)))
+      const unique = new Set(q.correctOrder);
+      if (
+        q.correctOrder.length !== q.items.length ||
+        unique.size !== q.correctOrder.length ||
+        !q.correctOrder.every((id) => itemIds.has(id))
+      )
         errors.push(`${q.id}: correctOrder must be a permutation of item ids`);
     }
   }
