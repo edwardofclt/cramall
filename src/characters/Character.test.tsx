@@ -23,6 +23,19 @@ describe('Character', () => {
     expect(screen.getByRole('img')).toHaveAccessibleName(new RegExp(guide, 'i'));
   });
 
+  test.each(GUIDES)('%s renders its approved illustrated asset', (guide) => {
+    const { container } = render(<Character guide={guide} pose="idle" size={96} />);
+    const art = container.querySelector('image');
+    expect(art).not.toBeNull();
+    expect(art).toHaveAttribute('data-character-asset', guide);
+    expect(art?.getAttribute('href')).toMatch(new RegExp(`/${guide}\\.png$`));
+  });
+
+  test('the reading guide is identified as a river otter', () => {
+    render(<Character guide="winnie" pose="idle" size={96} />);
+    expect(screen.getByRole('img')).toHaveAccessibleName(/winnie the river otter/i);
+  });
+
   test.each(POSES)('every guide renders the %s pose', (pose) => {
     render(
       <>

@@ -12,7 +12,7 @@ const ART: Record<GuideId, ComponentType<{ pose: Pose }>> = {
 
 export const GUIDE_NAMES: Record<GuideId, string> = {
   nutty: 'Nutty the fox squirrel',
-  winnie: 'Winnie the wren',
+  winnie: 'Winnie the river otter',
   sandy: 'Sandy the sea turtle',
 };
 
