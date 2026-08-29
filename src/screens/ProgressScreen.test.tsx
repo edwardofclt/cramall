@@ -65,12 +65,19 @@ describe('ProgressScreen', () => {
     expect(screen.getByTestId('badge-streak-3')).toHaveAttribute('data-state', 'locked');
   });
 
-  test('subjects without authored lessons show an empty state instead of a zero-range progressbar', () => {
+  test('subjects with authored lessons show zero completion progressbars before any attempts', () => {
     renderProgress();
 
-    expect(screen.queryByRole('progressbar', { name: /reading completion/i })).toBeNull();
-    expect(screen.queryByRole('progressbar', { name: /science completion/i })).toBeNull();
-    expect(screen.getAllByText(/no authored lessons yet/i)).toHaveLength(2);
+    expect(screen.getByRole('progressbar', { name: /reading completion/i })).toHaveAttribute(
+      'aria-valuemax',
+      '2',
+    );
+    expect(screen.getByRole('progressbar', { name: /science completion/i })).toHaveAttribute(
+      'aria-valuemax',
+      '3',
+    );
+    expect(screen.getAllByRole('progressbar')).toHaveLength(3);
+    expect(screen.queryByText(/no authored lessons yet/i)).toBeNull();
   });
 
   test('shows locked badges until their conditions are met', () => {

@@ -13,6 +13,16 @@ const expectedLessons = [
   },
 ] as const;
 
+const expectedPassages = [
+  '“Nia stepped onto the boardwalk. Beyond the reeds, a white egret lifted one wing, balanced, and dipped its beak into the shining water.”',
+  '“Is that the harbor light?” Tomas asked. A golden blink answered through the fog. “We found the way!”',
+] as const;
+
+const expectedPassageQuestionIds = [
+  ['reading-u01-l01-q09', 'reading-u01-l01-q10', 'reading-u01-l01-q11', 'reading-u01-l01-q12'],
+  ['reading-u01-l02-q01', 'reading-u01-l02-q02', 'reading-u01-l02-q10', 'reading-u01-l02-q11'],
+] as const;
+
 function normalizedVisibleText(value: string): string {
   return value
     .normalize('NFKC')
@@ -59,6 +69,24 @@ describe('Reading unit 1 fluency lessons', () => {
           (_, index) => `${lesson.id}-q${String(index + 1).padStart(2, '0')}`,
         ),
       );
+    }
+  });
+
+  test('gives each lesson an original readable passage and four passage-dependent checks', () => {
+    const passages = unit01Lessons.map((lesson) => {
+      const firstStep = lesson.workedExample.steps[0] ?? '';
+      return firstStep.slice(firstStep.indexOf('“'));
+    });
+
+    expect(passages).toEqual(expectedPassages);
+    expect(new Set(passages).size).toBe(unit01Lessons.length);
+    for (const passage of passages) expect(passage.length).toBeGreaterThanOrEqual(90);
+
+    for (const [index, lesson] of unit01Lessons.entries()) {
+      const passage = expectedPassages[index];
+      const passageQuestions = lesson.quiz.pool.filter(({ prompt }) => prompt.includes(passage));
+      expect(passageQuestions.map(({ id }) => id)).toEqual(expectedPassageQuestionIds[index]);
+      expect(passageQuestions.every(({ prompt }) => /what|which|true or false/i.test(prompt))).toBe(true);
     }
   });
 
