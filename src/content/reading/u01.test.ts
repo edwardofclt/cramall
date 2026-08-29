@@ -28,6 +28,11 @@ function visibleAnswers(question: Question): Array<{ id: string; text: string }>
   return question.acceptedAnswers.map((text, index) => ({ id: `accepted-${index}`, text }));
 }
 
+function correctChoiceText(question: Question): string {
+  if (!('choices' in question)) throw new Error(`${question.id} must be a choice question`);
+  return question.choices.find(({ id }) => id === question.correctChoiceId)?.text ?? '';
+}
+
 describe('Reading unit 1 fluency lessons', () => {
   test('exports the exact two requested lessons and standards metadata', () => {
     expect(unit01Lessons.map(({ id, title }) => ({ id, title }))).toEqual(expectedLessons);
@@ -82,6 +87,39 @@ describe('Reading unit 1 fluency lessons', () => {
           answers.length,
         );
       }
+    }
+  });
+
+  test('keeps the reviewed prompts, examples, and review targets semantically aligned', () => {
+    const [accuracyLesson, expressionLesson] = unit01Lessons;
+    const accuracyQuestion = accuracyLesson.quiz.pool[0];
+    const intonationQuestion = expressionLesson.quiz.pool[0];
+    const practiceQuestion = expressionLesson.quiz.pool[9];
+    const accuracyInference = accuracyLesson.workedExample.steps[
+      accuracyLesson.workedExample.steps.length - 1
+    ] ?? '';
+
+    expect(accuracyQuestion.conceptTag).toBe('reading-accuracy');
+    expect(accuracyQuestion.reviewCardId).toBe('reading-u01-l01-c1');
+    expect(correctChoiceText(accuracyQuestion)).toMatch(/check.*letter.*reread/i);
+
+    expect(intonationQuestion.conceptTag).toBe('intonation-and-punctuation');
+    expect(intonationQuestion.reviewCardId).toBe('reading-u01-l02-c2');
+
+    expect(accuracyInference).not.toMatch(/shallow water/i);
+    expect(accuracyInference).toMatch(/may.*(drinking|food)/i);
+    expect(correctChoiceText(practiceQuestion)).toMatch(/read.*expression.*intonation/i);
+  });
+
+  test('no option id holds more than 60 percent of multiple-choice answer keys', () => {
+    for (const lesson of unit01Lessons) {
+      const keys = lesson.quiz.pool
+        .filter((question) => question.type === 'multiple-choice')
+        .map((question) => question.correctChoiceId);
+      const counts = new Map<string, number>();
+      for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
+
+      expect(Math.max(...counts.values()) / keys.length).toBeLessThanOrEqual(0.6);
     }
   });
 });
