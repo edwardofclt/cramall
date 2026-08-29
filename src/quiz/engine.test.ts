@@ -115,33 +115,39 @@ test('sampleQuiz: does not mutate the original pool array', () => {
 
 // --- shuffleChoices ---
 
-test('shuffleChoices: reorders choices but leaves other fields untouched', () => {
+// Exact orders below are the actual output of the engine's Fisher-Yates shuffle driven by
+// makeLcg(9), verified independently against the same algorithm — not just "changed from input".
+// This catches a no-op (or otherwise broken) shuffle that a set-equality check would miss.
+
+test('shuffleChoices: choices land in the exact seed-determined order (not a no-op)', () => {
   const original = choiceQ('q1');
   const shuffled = shuffleChoices(original, makeLcg(9));
   expect(shuffled).not.toBe(original);
   expect(shuffled.id).toBe(original.id);
   if (shuffled.type === 'multiple-choice') {
-    const sameSet = new Set(shuffled.choices.map((c) => c.id));
-    expect(sameSet).toEqual(new Set(['a', 'b', 'c', 'd']));
+    expect(shuffled.choices.map((c) => c.id)).toEqual(['c', 'b', 'd', 'a']);
     expect(shuffled.correctChoiceId).toBe('a');
+  } else {
+    throw new Error('expected multiple-choice question');
   }
 });
 
-test('shuffleChoices: reorders items for a sort question', () => {
+test('shuffleChoices: sort items land in the exact seed-determined order (not a no-op)', () => {
   const original = sortQ('q1');
   const shuffled = shuffleChoices(original, makeLcg(9));
   expect(shuffled).not.toBe(original);
   if (shuffled.type === 'sort') {
-    const sameSet = new Set(shuffled.items.map((i) => i.id));
-    expect(sameSet).toEqual(new Set(['i1', 'i2', 'i3']));
+    expect(shuffled.items.map((i) => i.id)).toEqual(['i2', 'i3', 'i1']);
     expect(shuffled.correctOrder).toEqual(['i1', 'i2', 'i3']);
+  } else {
+    throw new Error('expected sort question');
   }
 });
 
-test('shuffleChoices: fill-blank question is returned as-is', () => {
+test('shuffleChoices: fill-blank question is returned as-is (same reference, untouched)', () => {
   const original = fillQ('q1');
   const shuffled = shuffleChoices(original, makeLcg(9));
-  expect(shuffled).toEqual(original);
+  expect(shuffled).toBe(original);
 });
 
 // --- gradeAnswer ---
@@ -177,6 +183,15 @@ test('gradeAnswer: sort requires exact order, permutations fail', () => {
   expect(gradeAnswer(q, ['i1', 'i2', 'i3'])).toBe(true);
   expect(gradeAnswer(q, ['i2', 'i1', 'i3'])).toBe(false);
   expect(gradeAnswer(q, ['i1', 'i2'])).toBe(false);
+});
+
+test('gradeAnswer: returns false (not throws) for a type-mismatched Answer shape', () => {
+  // string[] given to a fill-blank question (expects a string)
+  expect(() => gradeAnswer(fillQ('q1'), ['1204'])).not.toThrow();
+  expect(gradeAnswer(fillQ('q1'), ['1204'])).toBe(false);
+  // string given to a sort question (expects string[])
+  expect(() => gradeAnswer(sortQ('q1'), 'i1,i2,i3')).not.toThrow();
+  expect(gradeAnswer(sortQ('q1'), 'i1,i2,i3')).toBe(false);
 });
 
 // --- normalizeText ---
@@ -229,6 +244,20 @@ test('buildResult: ties are broken by first-encountered order (stable sort)', ()
   const answers = ['wrong', 'wrong'];
   const result = buildResult(questions, answers);
   expect(result.missed.map((m) => m.conceptTag)).toEqual(['first', 'second']);
+});
+
+test('buildResult: a missing (undefined) answer counts that question as missed', () => {
+  const q1 = choiceQ('q1', { conceptTag: 'fractions', reviewCardId: 'card-1' });
+  const q2 = choiceQ('q2', { conceptTag: 'decimals', reviewCardId: 'card-2' });
+  const questions = [q1, q2];
+  // answers[0] is left unanswered (undefined); q2 is answered correctly.
+  const answers: (string | undefined)[] = [undefined, 'a'];
+  const result = buildResult(questions, answers as unknown as string[]);
+  expect(result.score).toBe(1);
+  expect(result.total).toBe(2);
+  expect(result.missed).toEqual([
+    { conceptTag: 'fractions', reviewCardId: 'card-1', count: 1 },
+  ]);
 });
 
 test('buildResult: score equals total minus the sum of missed counts', () => {
