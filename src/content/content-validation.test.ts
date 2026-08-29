@@ -1,5 +1,28 @@
+import { lessonsByUnit as mathLessons } from './math';
+import { lessonsByUnit as readingLessons } from './reading';
+import { lessonsByUnit as scienceLessons } from './science';
 import { allLessons, SUBJECTS, getSubject } from './subjects';
-import { validateLesson } from './schema';
+import * as contentSchema from './schema';
+import { validateLesson, type Lesson, type Subject, type SubjectId } from './schema';
+
+const REGISTRIES: Record<SubjectId, Record<string, Lesson[]>> = {
+  math: mathLessons,
+  reading: readingLessons,
+  science: scienceLessons,
+};
+
+function catalogErrors(
+  subjects: Subject[],
+  registries: Record<SubjectId, Record<string, Lesson[]>>,
+): string[] {
+  const validate = (contentSchema as typeof contentSchema & {
+    validateContentCatalog?: (
+      subjects: Subject[],
+      registries: Record<SubjectId, Record<string, Lesson[]>>,
+    ) => string[];
+  }).validateContentCatalog;
+  return validate?.(subjects, registries) ?? ['validateContentCatalog is missing'];
+}
 
 type ReviewLinkLesson = {
   quiz: { pool: Array<{ conceptTag: string; reviewCardId: string }> };
@@ -24,6 +47,50 @@ test('math unit 1 has its two pilot lessons', () => {
 test('every authored lesson passes cross-reference validation', () => {
   const errors = allLessons().flatMap(validateLesson);
   expect(errors).toEqual([]);
+});
+
+test('the permanent catalog identity and registration gates accept current authored content', () => {
+  expect(catalogErrors(SUBJECTS, REGISTRIES)).toEqual([]);
+});
+
+test('a lesson registered twice is rejected even if one copy would be consumed', () => {
+  const first = allLessons()[0]!;
+  const registries = {
+    ...REGISTRIES,
+    math: { ...REGISTRIES.math, 'math-u02': [first] },
+  };
+
+  expect(catalogErrors(SUBJECTS, registries).join('\n')).toMatch(/registered.*exactly once/i);
+});
+
+test('an invalid registry key and an unconsumed registered lesson are both rejected', () => {
+  const orphan: Lesson = {
+    ...allLessons()[0]!,
+    id: 'math-u99-l01',
+    unitId: 'math-u99',
+    learnCards: [],
+    quiz: { passThreshold: 8, pool: [] },
+  };
+  const registries = {
+    ...REGISTRIES,
+    math: { ...REGISTRIES.math, 'math-u99': [orphan] },
+  };
+
+  const errors = catalogErrors(SUBJECTS, registries).join('\n');
+  expect(errors).toMatch(/registry key.*real unit/i);
+  expect(errors).toMatch(/consumed.*exactly once/i);
+});
+
+test('global lesson, card, and question identities cannot collide', () => {
+  const subjects = structuredClone(SUBJECTS);
+  const source = subjects[0]!.units[0]!.lessons[0]!;
+  subjects[0]!.units[1]!.lessons.push({ ...source, unitId: subjects[0]!.units[1]!.id });
+
+  const errors = catalogErrors(subjects, REGISTRIES).join('\n');
+
+  expect(errors).toMatch(/duplicate lesson id/i);
+  expect(errors).toMatch(/duplicate learn card id/i);
+  expect(errors).toMatch(/duplicate question id/i);
 });
 
 test('every authored lesson belongs to a real unit and covers its indicators only', () => {

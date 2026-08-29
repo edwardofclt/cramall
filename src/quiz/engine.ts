@@ -13,12 +13,27 @@ function shuffle<T>(arr: T[], rng: () => number): T[] {
   return arr;
 }
 
-/** Fisher-Yates shuffle a copy of `pool` and take the first `n`. Throws if the pool is too small. */
-export function sampleQuiz(pool: Question[], n = 10, rng: () => number = Math.random): Question[] {
+/** Fisher-Yates shuffle a copy of `pool` and take the first `n`. Throws if the pool is too small.
+ * When prior ids are supplied, a retry gets at least one replacement whenever one exists. */
+export function sampleQuiz(
+  pool: Question[],
+  n = 10,
+  rng: () => number = Math.random,
+  previousIds: readonly string[] = [],
+): Question[] {
   if (pool.length < n) {
     throw new Error(`quiz pool has ${pool.length} questions, need at least ${n}`);
   }
-  return shuffle([...pool], rng).slice(0, n);
+  const sampled = shuffle([...pool], rng).slice(0, n);
+  if (n === 0 || previousIds.length === 0) return sampled;
+
+  const previous = new Set(previousIds);
+  if (sampled.some(({ id }) => !previous.has(id))) return sampled;
+  const replacements = pool.filter(({ id }) => !previous.has(id));
+  if (replacements.length === 0) return sampled;
+
+  sampled[sampled.length - 1] = shuffle(replacements, rng)[0]!;
+  return sampled;
 }
 
 /** Returns a new question with its choices (or sort items) reordered. Fill-blank is returned as-is. */

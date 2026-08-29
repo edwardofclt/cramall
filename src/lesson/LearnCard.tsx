@@ -1,8 +1,10 @@
-import { DialoguePlayer } from '../characters/DialoguePlayer';
+import { useState } from 'react';
 import type { LearnCard as LearnCardData, RichBlock } from '../content/schema';
 import { WidgetFrame } from '../widgets/WidgetFrame';
+import type { WidgetEventHandler } from '../widgets/registry';
 import { ReadAloudButton } from './ReadAloudButton';
 import { RichText, speechText } from './Rich';
+import { AnnouncingDialogue } from './AnnouncingDialogue';
 
 function Block({ block }: { block: RichBlock }) {
   if (block.kind === 'example') {
@@ -38,15 +40,12 @@ function Block({ block }: { block: RichBlock }) {
 
 export type LearnCardProps = {
   card: LearnCardData;
-  /**
-   * Runs when the card's dialogue reaches its last line, so that Next carries on to the
-   * next stage instead of dead-ending. The dialogue never gates the card: every block is
-   * on screen and readable the whole time it plays.
-   */
-  onDialogueDone: () => void;
+  onWidgetEvent: WidgetEventHandler;
+  onDialogueAnnouncement: (text: string) => void;
 };
 
-export function LearnCard({ card, onDialogueDone }: LearnCardProps) {
+export function LearnCard({ card, onWidgetEvent, onDialogueAnnouncement }: LearnCardProps) {
+  const [dialogueDone, setDialogueDone] = useState(false);
   const spoken = speechText([card.title, ...card.blocks.map((b) => b.text)]);
 
   return (
@@ -58,15 +57,20 @@ export function LearnCard({ card, onDialogueDone }: LearnCardProps) {
         <ReadAloudButton text={spoken} />
       </div>
 
-      {card.dialogue && card.dialogue.length > 0 && (
-        <DialoguePlayer lines={card.dialogue} onDone={onDialogueDone} size={110} />
+      {!dialogueDone && card.dialogue && card.dialogue.length > 0 && (
+        <AnnouncingDialogue
+          lines={card.dialogue}
+          onDone={() => setDialogueDone(true)}
+          onAnnouncement={onDialogueAnnouncement}
+          size={110}
+        />
       )}
 
       {card.blocks.map((block, index) => (
         <Block key={index} block={block} />
       ))}
 
-      {card.widget && <WidgetFrame type={card.widget.type} config={card.widget.config} />}
+      {card.widget && <WidgetFrame {...card.widget} onEvent={onWidgetEvent} />}
     </section>
   );
 }

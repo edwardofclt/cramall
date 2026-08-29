@@ -155,7 +155,10 @@ export function SubjectMap() {
   return (
     <div
       className="page stack"
-      style={{ '--accent': subject.color } as CSSProperties}
+      style={{
+        '--accent': subject.color,
+        '--accent-action': subject.actionColor,
+      } as CSSProperties}
     >
       <Link className="link-quiet" to="/">
         ← Back to subjects

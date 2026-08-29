@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, test, vi } from 'vitest';
@@ -28,7 +28,7 @@ const { FIXTURE } = vi.hoisted(() => {
           { kind: 'example', text: '482 is 4 hundreds, 8 tens, 2 ones' },
           { kind: 'tip', text: 'Say the number out loud.' },
         ],
-        widget: { type: 'place-value-builder', config: { start: 482 } },
+        widget: { type: 'place-value-builder', config: { target: 482 } },
       },
       {
         id: 'card-compare',
@@ -58,6 +58,7 @@ const { FIXTURE } = vi.hoisted(() => {
     title: 'Math',
     guide: 'nutty',
     color: '#f59e0b',
+    actionColor: '#92400e',
     units: [unit],
   };
 
@@ -126,7 +127,7 @@ describe('LessonPlayer', () => {
     renderPlayer();
 
     expect(screen.getByRole('heading', { name: 'Reading Big Numbers' })).toBeInTheDocument();
-    expect(screen.getByText('Big numbers are just acorn piles!')).toBeInTheDocument();
+    expect(screen.getAllByText('Big numbers are just acorn piles!')).toHaveLength(2);
     expect(screen.getByTestId('character-nutty')).toBeInTheDocument();
     expect(screen.queryByText('Every digit has a place')).toBeNull();
     // Nowhere to go back to from the first stage.
@@ -145,6 +146,33 @@ describe('LessonPlayer', () => {
     expect(nav().getByRole('button', { name: /back/i })).toBeInTheDocument();
   });
 
+  test('the active lesson stage receives focus on entry and every stage change', async () => {
+    const user = userEvent.setup();
+    renderPlayer();
+
+    await waitFor(() => expect(screen.getByTestId('lesson-stage')).toHaveFocus());
+    const introStage = screen.getByTestId('lesson-stage');
+    await clickNext(user);
+    await screen.findByRole('heading', { name: 'Every digit has a place' });
+
+    await waitFor(() => expect(screen.getByTestId('lesson-stage')).toHaveFocus());
+    expect(screen.getByTestId('lesson-stage')).not.toBe(introStage);
+  });
+
+  test('one persistent polite region announces each dialogue line', async () => {
+    const user = userEvent.setup();
+    renderPlayer();
+    const liveRegion = screen.getByTestId('dialogue-live-region');
+
+    await waitFor(() => expect(liveRegion).toHaveTextContent('Big numbers are just acorn piles!'));
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    await waitFor(() => expect(liveRegion).toHaveTextContent('Show me how!'));
+    expect(screen.getByTestId('dialogue-live-region')).toBe(liveRegion);
+    expect(liveRegion).toHaveAttribute('aria-live', 'polite');
+    expect(liveRegion).toHaveAttribute('aria-atomic', 'true');
+  });
+
   test('finishing the intro dialogue advances on its own', async () => {
     const user = userEvent.setup();
     renderPlayer();
@@ -159,7 +187,7 @@ describe('LessonPlayer', () => {
     await settleWidget();
   });
 
-  test("a card's dialogue hands off to the next stage when it runs out", async () => {
+  test("finishing a card's dialogue keeps its teaching and widget on screen until lesson Next", async () => {
     const user = userEvent.setup();
     renderPlayer();
     await clickNext(user);
@@ -168,9 +196,15 @@ describe('LessonPlayer', () => {
     // The blocks are readable the whole time the dialogue plays — it never gates them.
     expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
 
-    // The card dialogue is one line, so its own Next finishes it.
+    // The card dialogue is one line, so its own Next finishes only that local exchange.
     await user.click(screen.getByRole('button', { name: 'Next' }));
 
+    expect(screen.getByRole('heading', { name: 'Every digit has a place' })).toBeInTheDocument();
+    expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
+    expect(screen.getByTestId('widget-place-value-builder')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Compare from the left' })).toBeNull();
+
+    await clickNext(user);
     expect(await screen.findByRole('heading', { name: 'Compare from the left' })).toBeInTheDocument();
   });
 
@@ -189,7 +223,7 @@ describe('LessonPlayer', () => {
     expect(tip).toHaveTextContent('Say the number out loud.');
     expect(tip).toHaveTextContent('💡');
     // The card's own dialogue sits above the blocks, no gating.
-    expect(screen.getByText('Watch the places line up.')).toBeInTheDocument();
+    expect(screen.getAllByText('Watch the places line up.')).toHaveLength(2);
   });
 
   test('a card widget renders inside the widget frame', async () => {
@@ -210,7 +244,7 @@ describe('LessonPlayer', () => {
   test('an unknown ?card= id falls back to the intro', () => {
     renderPlayer(`/lesson/${LESSON_ID}?card=nope`);
 
-    expect(screen.getByText('Big numbers are just acorn piles!')).toBeInTheDocument();
+    expect(screen.getAllByText('Big numbers are just acorn piles!')).toHaveLength(2);
   });
 
   test('walks intro → cards → worked example → outro and offers the quiz', async () => {
@@ -274,19 +308,22 @@ describe('LessonPlayer', () => {
     const user = userEvent.setup();
     renderPlayer(`/lesson/${LESSON_ID}?peek=1`);
 
-    const banner = screen.getByRole('status');
+    const dismiss = screen.getByRole('button', { name: /dismiss sneak peek/i });
+    const banner = dismiss.closest<HTMLElement>('.peek-banner');
+    expect(banner).not.toBeNull();
+    if (!banner) throw new Error('peek banner is missing');
     expect(banner).toHaveTextContent(/not ready yet/i);
     expect(banner).toHaveTextContent(/sneak peek/i);
 
     await user.click(within(banner).getByRole('button', { name: /dismiss/i }));
 
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.queryByRole('button', { name: /dismiss sneak peek/i })).toBeNull();
   });
 
   test('no peek banner on a normal visit', () => {
     renderPlayer();
 
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.queryByRole('button', { name: /dismiss sneak peek/i })).toBeNull();
   });
 
   test('offers a way back to the subject map', () => {
@@ -366,6 +403,35 @@ describe('LessonPlayer', () => {
       expect(cancel).toHaveBeenCalledTimes(2);
       expect(speak).toHaveBeenCalledTimes(1);
       expect(screen.getByRole('button', { name: /read aloud/i })).toBeInTheDocument();
+    });
+
+    test('detaches utterance callbacks before cancelling an active voice', async () => {
+      let active: { onend: (() => void) | null; onerror: (() => void) | null } | null = null;
+      const callbackStates: Array<[unknown, unknown] | null> = [];
+      class FakeUtterance {
+        rate = 1;
+        onend: (() => void) | null = null;
+        onerror: (() => void) | null = null;
+        constructor(public text: string) {}
+      }
+      Object.defineProperty(window, 'speechSynthesis', {
+        configurable: true,
+        value: {
+          speak: (utterance: FakeUtterance) => { active = utterance; },
+          cancel: () => callbackStates.push(active ? [active.onend, active.onerror] : null),
+        },
+      });
+      Object.defineProperty(window, 'SpeechSynthesisUtterance', {
+        configurable: true,
+        value: FakeUtterance,
+      });
+      const user = userEvent.setup();
+      renderPlayer(`/lesson/${LESSON_ID}?card=card-compare`);
+
+      await user.click(screen.getByRole('button', { name: /read aloud/i }));
+      await user.click(screen.getByRole('button', { name: /stop reading/i }));
+
+      expect(callbackStates[callbackStates.length - 1]).toEqual([null, null]);
     });
 
     test('the button offers to read again once the voice finishes on its own', async () => {

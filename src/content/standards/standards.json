@@ -171,6 +171,7 @@
         "strand": "Patterns, Algebra, and Functional Reasoning"
       }
     ],
+    "crossCuttingExpectations": [],
     "units": [
       {
         "number": 1,
@@ -429,6 +430,38 @@
         "strand": "Research"
       }
     ],
+    "crossCuttingExpectations": [
+      {
+        "code": "ELA.4.OE.1",
+        "text": "Read and write for a variety of purposes, including academic and personal, for extended periods of time.",
+        "strand": "Overarching Expectations"
+      },
+      {
+        "code": "ELA.4.OE.2",
+        "text": "Acquire, refine, and share knowledge through a variety of multimedia literacies to include written, oral, visual, digital, and interactive texts.",
+        "strand": "Overarching Expectations"
+      },
+      {
+        "code": "ELA.4.OE.3",
+        "text": "Make inferences to support comprehension.",
+        "strand": "Overarching Expectations"
+      },
+      {
+        "code": "ELA.4.OE.4",
+        "text": "Collaborate with others and use active listening skills.",
+        "strand": "Overarching Expectations"
+      },
+      {
+        "code": "ELA.4.OE.5",
+        "text": "Cite evidence to explain and justify reasoning.",
+        "strand": "Overarching Expectations"
+      },
+      {
+        "code": "ELA.4.OE.6",
+        "text": "Create quality work by adhering to an accepted format.",
+        "strand": "Overarching Expectations"
+      }
+    ],
     "units": [
       {
         "number": 1,
@@ -628,6 +661,7 @@
         "strand": "Earth and Human Activity (ESS3)"
       }
     ],
+    "crossCuttingExpectations": [],
     "units": [
       {
         "number": 1,

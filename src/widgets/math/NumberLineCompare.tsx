@@ -25,17 +25,24 @@ function valueAtPointer(
   pageX: number,
   min: number,
   max: number,
+  step: number,
 ): number | null {
   if (!svg) return null;
   const rect = svg.getBoundingClientRect();
   if (rect.width === 0) return null;
   const userX = ((pageX - (rect.left + window.scrollX)) / rect.width) * W;
   const ratio = (userX - PAD) / (W - PAD * 2);
-  return clamp(Math.round(min + ratio * (max - min)), min, max);
+  return snapToStep(min + ratio * (max - min), min, max, step);
 }
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
+}
+
+function snapToStep(value: number, min: number, max: number, step: number): number {
+  const snapped = min + Math.round((value - min) / step) * step;
+  // Decimal steps otherwise accumulate values such as 0.5000000000000001.
+  return clamp(Number(snapped.toFixed(10)), min, max);
 }
 
 /** Ticks a fourth grader can count: at most ~11 of them, on friendly intervals. */
@@ -59,24 +66,27 @@ function tickValues(min: number, max: number): number[] {
 
 const DEFAULTS = { min: 0, max: 100, a: 25, b: 52 };
 
-function toWhole(raw: unknown, fallback: number): number {
+function toFinite(raw: unknown, fallback: number): number {
   const n = typeof raw === 'number' ? raw : typeof raw === 'string' && raw.trim() !== '' ? Number(raw) : Number.NaN;
-  return Number.isFinite(n) ? Math.round(n) : fallback;
+  return Number.isFinite(n) ? n : fallback;
 }
 
 function readConfig(config: Record<string, unknown>) {
-  let min = toWhole(config.min, DEFAULTS.min);
-  let max = toWhole(config.max, DEFAULTS.max);
+  let min = toFinite(config.min, DEFAULTS.min);
+  let max = toFinite(config.max, DEFAULTS.max);
   // A backwards or degenerate line has nothing to drag along — fall back whole.
   if (!(max > min)) {
     min = DEFAULTS.min;
     max = DEFAULTS.max;
   }
+  const rawStep = toFinite(config.step, 1);
+  const step = rawStep > 0 ? rawStep : 1;
   return {
     min,
     max,
-    a: clamp(toWhole(config.a, DEFAULTS.a), min, max),
-    b: clamp(toWhole(config.b, DEFAULTS.b), min, max),
+    step,
+    a: snapToStep(toFinite(config.a, DEFAULTS.a), min, max, step),
+    b: snapToStep(toFinite(config.b, DEFAULTS.b), min, max, step),
   };
 }
 
@@ -97,6 +107,7 @@ function Marker({
   value,
   min,
   max,
+  step,
   reduced,
   svgRef,
   onDragTo,
@@ -105,6 +116,7 @@ function Marker({
   value: number;
   min: number;
   max: number;
+  step: number;
   reduced: boolean;
   svgRef: RefObject<SVGSVGElement>;
   onDragTo: (value: number) => void;
@@ -115,7 +127,7 @@ function Marker({
   const pillY = above ? 8 : 212;
 
   const handleDrag = (_event: unknown, info: PanInfo) => {
-    const next = valueAtPointer(svgRef.current, info.point.x, min, max);
+    const next = valueAtPointer(svgRef.current, info.point.x, min, max, step);
     if (next !== null && next !== value) onDragTo(next);
   };
 
@@ -137,8 +149,6 @@ function Marker({
       animate={{ x: pxOf(value, min, max) }}
       transition={reduced ? { duration: 0 } : springy}
       style={{ touchAction: 'none', cursor: reduced ? 'default' : 'grab' }}
-      role="img"
-      aria-label={`Marker ${letter} at ${value}`}
     >
       {/* Fat invisible handle: little fingers should not have to hit the shape exactly. */}
       <rect
@@ -182,12 +192,14 @@ function Stepper({
   value,
   min,
   max,
+  step,
   onMove,
 }: {
   letter: 'A' | 'B';
   value: number;
   min: number;
   max: number;
+  step: number;
   onMove: (next: number) => void;
 }) {
   return (
@@ -199,7 +211,7 @@ function Stepper({
         type="button"
         className="btn nl-nudge"
         aria-label={`Move ${letter} left`}
-        onClick={() => onMove(value - 1)}
+        onClick={() => onMove(value - step)}
         disabled={value <= min}
       >
         <span aria-hidden="true">←</span>
@@ -211,7 +223,7 @@ function Stepper({
         type="button"
         className="btn nl-nudge"
         aria-label={`Move ${letter} right`}
-        onClick={() => onMove(value + 1)}
+        onClick={() => onMove(value + step)}
         disabled={value >= max}
       >
         <span aria-hidden="true">→</span>
@@ -225,10 +237,13 @@ function Stepper({
  * markers (or nudge them with the arrow buttons) and then say how the numbers compare —
  * the check always uses where the markers are *now*, so moving one re-asks the question.
  */
-export default function NumberLineCompare({ config }: WidgetProps) {
+export default function NumberLineCompare({
+  config,
+  onEvent,
+}: WidgetProps<'number-line-compare'>) {
   const reduced = useReducedMotionPref();
   const settings = readConfig(config);
-  const { min, max } = settings;
+  const { min, max, step } = settings;
 
   const svgRef = useRef<SVGSVGElement>(null);
   const board = useAnimationControls();
@@ -236,26 +251,40 @@ export default function NumberLineCompare({ config }: WidgetProps) {
   const [b, setB] = useState(settings.b);
   const [choice, setChoice] = useState<Sym | null>(null);
   const [attempts, setAttempts] = useState(0);
+  const [completed, setCompleted] = useState(false);
 
   // A card handing this widget different numbers starts a fresh question.
   useEffect(() => {
     setA(settings.a);
     setB(settings.b);
     setChoice(null);
-  }, [settings.a, settings.b, min, max]);
+    setCompleted(false);
+  }, [settings.a, settings.b, min, max, step]);
 
   const truth: Sym = a < b ? '<' : a > b ? '>' : '=';
   const state = choice === null ? 'choosing' : choice === truth ? 'correct' : 'incorrect';
 
-  const move = (setter: (value: number) => void) => (next: number) => {
-    setter(clamp(next, min, max));
+  const move = (marker: 'A' | 'B', setter: (value: number) => void) => (raw: number) => {
+    const next = snapToStep(raw, min, max, step);
+    setter(next);
     // The answer was about the old picture; ask again now that the picture changed.
     setChoice(null);
+    onEvent({ type: 'interaction', action: 'move-marker' });
+    onEvent({
+      type: 'change',
+      value: marker === 'A' ? { a: next, b, choice: null } : { a, b: next, choice: null },
+    });
   };
 
   const choose = (symbol: Sym) => {
     setChoice(symbol);
     setAttempts((n) => n + 1);
+    onEvent({ type: 'interaction', action: 'choose-comparison' });
+    onEvent({ type: 'change', value: { a, b, choice: symbol } });
+    if (symbol === truth && !completed) {
+      setCompleted(true);
+      onEvent({ type: 'complete', value: { a, b, choice: symbol } });
+    }
     if (reduced) return;
     board.start(
       symbol === truth
@@ -271,6 +300,7 @@ export default function NumberLineCompare({ config }: WidgetProps) {
       className="card widget-experiment nl"
       data-testid="widget-number-line-compare"
       data-state={state}
+      data-complete={completed ? 'yes' : 'no'}
     >
       <div className="widget-head">
         <h3 className="widget-title">
@@ -318,25 +348,27 @@ export default function NumberLineCompare({ config }: WidgetProps) {
             value={a}
             min={min}
             max={max}
+            step={step}
             reduced={reduced}
             svgRef={svgRef}
-            onDragTo={move(setA)}
+            onDragTo={move('A', setA)}
           />
           <Marker
             letter="B"
             value={b}
             min={min}
             max={max}
+            step={step}
             reduced={reduced}
             svgRef={svgRef}
-            onDragTo={move(setB)}
+            onDragTo={move('B', setB)}
           />
         </svg>
       </motion.div>
 
       <div className="nl-steppers" role="group" aria-label="Move the markers">
-        <Stepper letter="A" value={a} min={min} max={max} onMove={move(setA)} />
-        <Stepper letter="B" value={b} min={min} max={max} onMove={move(setB)} />
+        <Stepper letter="A" value={a} min={min} max={max} step={step} onMove={move('A', setA)} />
+        <Stepper letter="B" value={b} min={min} max={max} step={step} onMove={move('B', setB)} />
       </div>
 
       <p className="nl-sentence" data-testid="nl-sentence">

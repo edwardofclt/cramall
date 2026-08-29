@@ -4,6 +4,8 @@ import {
   exportSave,
   importSave,
   loadSave,
+  loadSaveResult,
+  migrateSave,
   persist,
   recordAttempt,
   setParentChecked,
@@ -19,6 +21,15 @@ beforeEach(() => {
 
 function attempt(over: Partial<Attempt> = {}): Attempt {
   return { date: '2026-01-01', score: 5, total: 10, missedConceptTags: [], ...over };
+}
+
+function validSave() {
+  return recordAttempt(
+    defaultSave(),
+    'math-u01-l01',
+    attempt({ score: 9, missedConceptTags: ['place-value'] }),
+    8,
+  );
 }
 
 test('defaultSave() has version 1, default settings, and empty progress', () => {
@@ -41,9 +52,33 @@ test('loadSave() returns defaultSave() when nothing is stored', () => {
 });
 
 test('persist() then loadSave() roundtrips a SaveData', () => {
-  const save = recordAttempt(defaultSave(), 'les-1', attempt({ score: 9 }), 8);
+  const save = validSave();
   persist(save);
   expect(loadSave()).toEqual(save);
+});
+
+test('the persisted save uses the literal versioned key cramall.v1', () => {
+  const save = validSave();
+
+  expect(persist(save)).toBe(true);
+
+  expect(window.localStorage.getItem('cramall.v1')).toBe(JSON.stringify(save));
+});
+
+test('loadSave reads a valid save even when all storage writes are blocked', () => {
+  const save = validSave();
+  window.localStorage.setItem(KEY, JSON.stringify(save));
+  const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
+  const original = storagePrototype.setItem;
+  storagePrototype.setItem = () => {
+    throw new Error('QuotaExceededError');
+  };
+  try {
+    expect(storageAvailable()).toBe(false);
+    expect(loadSave()).toEqual(save);
+  } finally {
+    storagePrototype.setItem = original;
+  }
 });
 
 test('corrupt JSON in localStorage falls back to defaultSave()', () => {
@@ -68,7 +103,7 @@ test('persist() never throws even when localStorage.setItem throws (quota/privat
   }
 });
 
-test('persist() reports false when the real save write fails after a successful probe', () => {
+test('persist() reports false when the real save write fails', () => {
   const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
   const original = storagePrototype.setItem;
   storagePrototype.setItem = function (key, value) {
@@ -78,6 +113,25 @@ test('persist() reports false when the real save write fails after a successful 
   try {
     expect(storageAvailable()).toBe(true);
     expect(persist(defaultSave())).toBe(false);
+  } finally {
+    storagePrototype.setItem = original;
+  }
+});
+
+test('persist() trusts the real save write even when a probe key would be rejected', () => {
+  const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
+  const original = storagePrototype.setItem;
+  const keys: string[] = [];
+  storagePrototype.setItem = function (key, value) {
+    keys.push(key);
+    if (key !== KEY) throw new Error('probe keys are blocked');
+    return original.call(this, key, value);
+  };
+  try {
+    const save = validSave();
+    expect(persist(save)).toBe(true);
+    expect(keys).toEqual([KEY]);
+    expect(window.localStorage.getItem(KEY)).toBe(JSON.stringify(save));
   } finally {
     storagePrototype.setItem = original;
   }
@@ -152,6 +206,15 @@ test('streak: day boundary is computed via UTC date parts, not local timezone dr
   expect(save.streak.count).toBe(2);
 });
 
+test('streak: an older attempt never rewinds the last active date or count', () => {
+  let save = recordAttempt(defaultSave(), 'les-1', attempt({ date: '2026-03-10' }), 8);
+  save = recordAttempt(save, 'les-2', attempt({ date: '2026-03-11' }), 8);
+
+  save = recordAttempt(save, 'les-3', attempt({ date: '2026-03-09' }), 8);
+
+  expect(save.streak).toEqual({ lastActiveDate: '2026-03-11', count: 2 });
+});
+
 test('setParentChecked sets a lesson checked flag without mutating the original', () => {
   const original = defaultSave();
   const updated = setParentChecked(original, 'les-1', true);
@@ -181,4 +244,47 @@ test('importSave(exportSave(s)) roundtrips a save built with recordAttempt and s
   save = setParentChecked(save, 'les-1', true);
   const roundtripped = importSave(exportSave(save));
   expect(roundtripped).toEqual(save);
+});
+
+test('migrateSave explicitly accepts current v1 data and rejects unsupported versions', () => {
+  const save = validSave();
+  expect(migrateSave(save)).toEqual(save);
+  expect(() => migrateSave({ ...save, version: 2 })).toThrow(/unsupported save version/i);
+});
+
+test.each([
+  ['negative score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = -1; }],
+  ['score over total', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = 11; }],
+  ['zero total', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.total = 0; }],
+  ['fractional score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = 8.5; }],
+  ['impossible date', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.date = '2026-02-30'; }],
+  ['wrong best score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.bestScore = 8; }],
+  ['wrong derived status', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.status = 'in-progress'; }],
+  ['empty date with a positive streak', (save: ReturnType<typeof validSave>) => { save.streak.lastActiveDate = ''; }],
+  ['streak date unrelated to attempts', (save: ReturnType<typeof validSave>) => { save.streak.lastActiveDate = '2026-01-02'; }],
+  ['negative streak count', (save: ReturnType<typeof validSave>) => { save.streak.count = -1; }],
+])('importSave rejects v1 data with %s', (_label, mutate) => {
+  const save = validSave();
+  mutate(save);
+  expect(() => importSave(JSON.stringify(save))).toThrow('invalid save file');
+});
+
+test('loadSaveResult surfaces invalid stored data while leaving it untouched', () => {
+  const invalid = '{"version":1,"broken":true}';
+  window.localStorage.setItem(KEY, invalid);
+
+  const loaded = loadSaveResult();
+
+  expect(loaded.save).toEqual(defaultSave());
+  expect(loaded.issue).toMatch(/invalid/i);
+  expect(window.localStorage.getItem(KEY)).toBe(invalid);
+});
+
+test('loadSaveResult distinguishes an unsupported stored version', () => {
+  window.localStorage.setItem(KEY, JSON.stringify({ ...validSave(), version: 9 }));
+
+  const loaded = loadSaveResult();
+
+  expect(loaded.save).toEqual(defaultSave());
+  expect(loaded.issue).toMatch(/unsupported version/i);
 });

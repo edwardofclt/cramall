@@ -36,7 +36,10 @@ function QuizNotFound() {
 /** A lesson whose author has not written ten questions yet still has to land softly. */
 function QuizNotReady({ lesson, subject }: { lesson: Lesson; subject: Subject }) {
   return (
-    <div className="page stack" style={{ '--accent': subject.color } as CSSProperties}>
+    <div
+      className="page stack"
+      style={{ '--accent': subject.color, '--accent-action': subject.actionColor } as CSSProperties}
+    >
       <Link className="link-quiet" to={`/lesson/${lesson.id}`}>
         ← Back to the lesson
       </Link>
@@ -86,21 +89,23 @@ type RunProps = {
   lesson: Lesson;
   subject: Subject;
   rng: () => number;
-  onTryAgain: () => void;
+  previousQuestionIds: readonly string[];
+  onTryAgain: (questionIds: string[]) => void;
 };
 
 /**
  * One attempt: ten questions sampled once, answered one at a time, then the results.
  * Everything about the attempt lives in here, so "try again" is a remount and nothing else.
  */
-function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
+function QuizRun({ lesson, subject, rng, previousQuestionIds, onTryAgain }: RunProps) {
   const { recordAttempt } = useProgress();
   const reduced = useReducedMotionPref();
 
   // Sampled and shuffled exactly once, in a state initialiser: re-running it on a render
   // would swap the question out from under a kid who is mid-answer.
   const [questions] = useState(() =>
-    sampleQuiz(lesson.quiz.pool, QUIZ_LENGTH, rng).map((question) => shuffleChoices(question, rng)),
+    sampleQuiz(lesson.quiz.pool, QUIZ_LENGTH, rng, previousQuestionIds)
+      .map((question) => shuffleChoices(question, rng)),
   );
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [index, setIndex] = useState(0);
@@ -164,7 +169,10 @@ function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
   const question = questions[index]!;
 
   return (
-    <div className="page stack quiz-page" style={{ '--accent': subject.color } as CSSProperties}>
+    <div
+      className="page stack quiz-page"
+      style={{ '--accent': subject.color, '--accent-action': subject.actionColor } as CSSProperties}
+    >
       <div className="quiz-topbar">
         <Link className="link-quiet" to={`/lesson/${lesson.id}`}>
           ← Back to the lesson
@@ -190,7 +198,7 @@ function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
               lesson={lesson}
               subject={subject}
               result={result}
-              onTryAgain={onTryAgain}
+              onTryAgain={() => onTryAgain(questions.map(({ id }) => id))}
             />
           </motion.div>
         ) : (
@@ -211,15 +219,23 @@ function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
 }
 
 /** Holds the attempt counter so "Try again" remounts the run with a fresh sample. */
-function QuizAttempts({ lesson, subject, rng }: Omit<RunProps, 'onTryAgain'>) {
-  const [attempt, setAttempt] = useState(0);
+function QuizAttempts({
+  lesson,
+  subject,
+  rng,
+}: Omit<RunProps, 'onTryAgain' | 'previousQuestionIds'>) {
+  const [attempt, setAttempt] = useState({ number: 0, previousQuestionIds: [] as string[] });
   return (
     <QuizRun
-      key={attempt}
+      key={attempt.number}
       lesson={lesson}
       subject={subject}
       rng={rng}
-      onTryAgain={() => setAttempt((current) => current + 1)}
+      previousQuestionIds={attempt.previousQuestionIds}
+      onTryAgain={(previousQuestionIds) => setAttempt((current) => ({
+        number: current.number + 1,
+        previousQuestionIds,
+      }))}
     />
   );
 }

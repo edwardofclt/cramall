@@ -1,27 +1,42 @@
 import { expect, test } from 'vitest';
-import { LessonSchema, validateLesson, type Lesson, type Question } from './schema';
+import {
+  LessonSchema,
+  WidgetRefSchema,
+  validateLesson,
+  type Lesson,
+  type Question,
+} from './schema';
 
 function q(id: string, over: Partial<Question> = {}): Question {
   return {
     id, type: 'multiple-choice', prompt: '2+2?',
     choices: [{ id: 'a', text: '4' }, { id: 'b', text: '5' }],
     correctChoiceId: 'a', explanation: 'Because 2+2=4.',
-    conceptTag: 'adding', reviewCardId: 'les-c1', ...over,
+    conceptTag: 'adding', reviewCardId: 'math-u01-l01-c1', ...over,
   } as Question;
 }
 function makeLesson(): Lesson {
   return {
-    id: 'les', unitId: 'math-u01', title: 'T', indicatorCodes: ['4.NR.1.1'],
+    id: 'math-u01-l01', unitId: 'math-u01', title: 'T', indicatorCodes: ['4.NR.1.1'],
     intro: [{ speaker: 'nutty', text: 'Hi!' }],
-    learnCards: [{ id: 'les-c1', title: 'Card', blocks: [{ kind: 'text', text: 'Learn.' }] }],
+    learnCards: [{ id: 'math-u01-l01-c1', title: 'Card', blocks: [{ kind: 'text', text: 'Learn.' }] }],
     workedExample: { title: 'Try it', steps: ['Step one.'] },
-    quiz: { passThreshold: 8, pool: Array.from({ length: 13 }, (_, i) => q(`les-q${i}`)) },
+    quiz: {
+      passThreshold: 8,
+      pool: Array.from({ length: 13 }, (_, i) => q(`math-u01-l01-q${String(i + 1).padStart(2, '0')}`)),
+    },
   };
 }
 
 test('valid lesson parses and validates clean', () => {
   expect(LessonSchema.parse(makeLesson())).toBeTruthy();
   expect(validateLesson(makeLesson())).toEqual([]);
+});
+test('lesson schema preserves the shared pass threshold of 8', () => {
+  const lesson = makeLesson();
+  const invalid = { ...lesson, quiz: { ...lesson.quiz, passThreshold: 7 } };
+
+  expect(LessonSchema.safeParse(invalid).success).toBe(false);
 });
 test('bad reviewCardId is reported', () => {
   const l = makeLesson();
@@ -40,7 +55,7 @@ test('multiple-choice correctChoiceId must be a real choice', () => {
 });
 test('unknown widget type is reported', () => {
   const l = makeLesson();
-  l.learnCards[0]!.widget = { type: 'made-up', config: {} };
+  (l.learnCards[0] as { widget?: unknown }).widget = { type: 'made-up', config: {} };
   expect(validateLesson(l).join()).toMatch(/made-up/);
 });
 test('duplicate question ids are reported', () => {
@@ -50,16 +65,116 @@ test('duplicate question ids are reported', () => {
 });
 test('duplicate learn card ids are reported', () => {
   const l = makeLesson();
-  l.learnCards.push({ id: 'les-c1', title: 'Copy', blocks: [{ kind: 'text', text: 'Again.' }] });
+  l.learnCards.push({ id: 'math-u01-l01-c1', title: 'Copy', blocks: [{ kind: 'text', text: 'Again.' }] });
   expect(validateLesson(l).join()).toMatch(/duplicate learn card/i);
 });
 test('sort correctOrder with duplicates is reported', () => {
   const l = makeLesson();
   l.quiz.pool[0] = {
-    id: 'les-q0', type: 'sort', prompt: 'Order these',
+    id: 'math-u01-l01-q01', type: 'sort', prompt: 'Order these',
     items: [{ id: 'a', text: '1' }, { id: 'b', text: '2' }],
     correctOrder: ['a', 'a'],
-    explanation: 'x', conceptTag: 'adding', reviewCardId: 'les-c1',
+    explanation: 'x', conceptTag: 'adding', reviewCardId: 'math-u01-l01-c1',
   };
   expect(validateLesson(l).join()).toMatch(/permutation/);
+});
+
+test.each([
+  ['lesson', (lesson: Lesson) => { lesson.id = 'Math U1 Lesson 1'; }],
+  ['unit reference', (lesson: Lesson) => { lesson.unitId = 'math-unit-one'; }],
+  ['learn card', (lesson: Lesson) => { lesson.learnCards[0]!.id = 'card one'; }],
+  ['question', (lesson: Lesson) => { lesson.quiz.pool[0]!.id = 'question one'; }],
+])('rejects a non-canonical %s id', (_label, mutate) => {
+  const lesson = makeLesson();
+  mutate(lesson);
+  expect(validateLesson(lesson).join('\n')).toMatch(/id|invalid/i);
+});
+
+test('card and question ids must be owned by their lesson id', () => {
+  const lesson = makeLesson();
+  lesson.learnCards[0]!.id = 'math-u02-l01-c1';
+  lesson.quiz.pool[0]!.id = 'math-u02-l01-q01';
+
+  const errors = validateLesson(lesson).join('\n');
+
+  expect(errors).toMatch(/card.*belong/i);
+  expect(errors).toMatch(/question.*belong/i);
+});
+
+test('multiple-choice rejects duplicate choice ids and normalized visible answers', () => {
+  const lesson = makeLesson();
+  const question = lesson.quiz.pool[0];
+  if (question?.type !== 'multiple-choice') throw new Error('fixture must be multiple-choice');
+  question.choices = [
+    { id: 'same', text: '1,000' },
+    { id: 'same', text: '1000' },
+  ];
+  question.correctChoiceId = 'same';
+
+  const errors = validateLesson(lesson).join('\n');
+
+  expect(errors).toMatch(/duplicate choice id/i);
+  expect(errors).toMatch(/duplicate choice text/i);
+});
+
+test('sort rejects duplicate item ids and normalized visible item text', () => {
+  const lesson = makeLesson();
+  lesson.quiz.pool[0] = {
+    id: 'math-u01-l01-q01',
+    type: 'sort',
+    prompt: 'Order these',
+    items: [
+      { id: 'same', text: 'Twelve' },
+      { id: 'same', text: ' twelve ' },
+    ],
+    correctOrder: ['same', 'same'],
+    explanation: 'Order by value.',
+    conceptTag: 'adding',
+    reviewCardId: 'math-u01-l01-c1',
+  };
+
+  const errors = validateLesson(lesson).join('\n');
+
+  expect(errors).toMatch(/duplicate sort item id/i);
+  expect(errors).toMatch(/duplicate sort item text/i);
+});
+
+test('place-value widget config rejects invalid periods and targets outside its columns', () => {
+  expect(() => WidgetRefSchema.parse({
+    type: 'place-value-builder',
+    config: { periods: 4 },
+  })).toThrow();
+  expect(() => WidgetRefSchema.parse({
+    type: 'place-value-builder',
+    config: { periods: 2, target: 1_000_000 },
+  })).toThrow();
+});
+
+test('number-line widget config enforces ascending bounds and marker ranges', () => {
+  expect(() => WidgetRefSchema.parse({
+    type: 'number-line-compare',
+    config: { min: 10, max: 10, a: 10, b: 10 },
+  })).toThrow();
+  expect(() => WidgetRefSchema.parse({
+    type: 'number-line-compare',
+    config: { min: 0, max: 10, a: -1, b: 5 },
+  })).toThrow();
+});
+
+test('number-line fractional step must be positive and align both marker values', () => {
+  expect(WidgetRefSchema.parse({
+    type: 'number-line-compare',
+    config: { min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25 },
+  })).toBeTruthy();
+  expect(() => WidgetRefSchema.parse({
+    type: 'number-line-compare',
+    config: { min: 0, max: 1, a: 0.3, b: 0.75, step: 0.25 },
+  })).toThrow();
+});
+
+test('widget configs reject unknown keys instead of silently accepting author typos', () => {
+  expect(() => WidgetRefSchema.parse({
+    type: 'place-value-builder',
+    config: { periods: 3, start: 482 },
+  })).toThrow();
 });

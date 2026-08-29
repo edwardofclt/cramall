@@ -7,6 +7,7 @@ import {
   isLessonReady,
   isUnitComplete,
   isUnitReady,
+  effectiveStreak,
   lessonStars,
   subjectCompletion,
   upNext,
@@ -46,7 +47,9 @@ function makeSubject(): Subject {
   const u2l2 = makeLesson('u2-l2', 'u2');
   const unit1 = makeUnit({ id: 'u1', number: 1, lessons: [u1l1, u1l2] });
   const unit2 = makeUnit({ id: 'u2', number: 2, lessons: [u2l1, u2l2], prerequisiteUnitIds: ['u1'] });
-  return { id: 'math', title: 'Math', guide: 'nutty', color: '#000', units: [unit1, unit2] };
+  return {
+    id: 'math', title: 'Math', guide: 'nutty', color: '#000', actionColor: '#000', units: [unit1, unit2],
+  };
 }
 
 function passLesson(save: SaveData, lessonId: string, score = 10): SaveData {
@@ -211,7 +214,9 @@ test('subjectCompletion: counts passed lessons across all units', () => {
 test('a prerequisite unit with zero lessons is treated as complete and does not block readiness', () => {
   const emptyUnit = makeUnit({ id: 'u0', number: 0, lessons: [] });
   const blockedUnit = makeUnit({ id: 'u1', number: 1, lessons: [makeLesson('u1-l1', 'u1')], prerequisiteUnitIds: ['u0'] });
-  const subject: Subject = { id: 'math', title: 'Math', guide: 'nutty', color: '#000', units: [emptyUnit, blockedUnit] };
+  const subject: Subject = {
+    id: 'math', title: 'Math', guide: 'nutty', color: '#000', actionColor: '#000', units: [emptyUnit, blockedUnit],
+  };
   const save = defaultSave();
   expect(isUnitReady(save, subject, blockedUnit)).toBe(true);
   expect(isLessonReady(save, subject, blockedUnit.lessons[0]!)).toBe(true);
@@ -235,8 +240,49 @@ test('isLessonReady is false (fails closed) for a lesson missing from its resolv
 // --- empty subject (no units) ---
 
 test('a subject with no units: upNext is null and subjectCompletion is {passed: 0, total: 0}', () => {
-  const subject: Subject = { id: 'math', title: 'Math', guide: 'nutty', color: '#000', units: [] };
+  const subject: Subject = {
+    id: 'math', title: 'Math', guide: 'nutty', color: '#000', actionColor: '#000', units: [],
+  };
   const save = defaultSave();
   expect(upNext(save, subject)).toBeNull();
   expect(subjectCompletion(save, subject)).toEqual({ passed: 0, total: 0 });
+});
+
+describe('effectiveStreak', () => {
+  test('keeps the stored streak active on the same day', () => {
+    const save = defaultSave();
+    save.streak = { lastActiveDate: '2026-08-29', count: 4 };
+    expect(effectiveStreak(save, '2026-08-29')).toBe(4);
+  });
+
+  test('keeps the stored streak active through yesterday', () => {
+    const save = defaultSave();
+    save.streak = { lastActiveDate: '2026-08-28', count: 4 };
+    expect(effectiveStreak(save, '2026-08-29')).toBe(4);
+  });
+
+  test('expires the stored streak after a missed day', () => {
+    const save = defaultSave();
+    save.streak = { lastActiveDate: '2026-08-27', count: 4 };
+    expect(effectiveStreak(save, '2026-08-29')).toBe(0);
+  });
+
+  test('returns zero for an empty streak', () => {
+    expect(effectiveStreak(defaultSave(), '2026-08-29')).toBe(0);
+  });
+
+  test.each(['not-a-date', '2026-02-30', '2026-08-30'])(
+    'returns zero for malformed or future last-active date %s',
+    (lastActiveDate) => {
+      const save = defaultSave();
+      save.streak = { lastActiveDate, count: 4 };
+      expect(effectiveStreak(save, '2026-08-29')).toBe(0);
+    },
+  );
+
+  test('returns zero when today itself is malformed', () => {
+    const save = defaultSave();
+    save.streak = { lastActiveDate: '2026-08-29', count: 4 };
+    expect(effectiveStreak(save, 'tomorrow-ish')).toBe(0);
+  });
 });

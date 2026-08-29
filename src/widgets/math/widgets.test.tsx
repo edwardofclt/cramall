@@ -1,10 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import NumberLineCompare from './NumberLineCompare';
 import PlaceValueBuilder, { numberToWords } from './PlaceValueBuilder';
 
 type User = ReturnType<typeof userEvent.setup>;
+const noEvent = () => {};
 
 /** Taps the same button `times` times — the kid's actual interaction, one poke at a time. */
 async function tap(user: User, name: string, times = 1) {
@@ -37,7 +38,7 @@ describe('numberToWords', () => {
 
 describe('PlaceValueBuilder', () => {
   test('starts empty, in the building state, with all three forms of zero', () => {
-    render(<PlaceValueBuilder config={{}} />);
+    render(<PlaceValueBuilder config={{}} onEvent={noEvent} />);
 
     const root = screen.getByTestId('widget-place-value-builder');
     expect(root).toHaveAttribute('data-state', 'building');
@@ -48,7 +49,7 @@ describe('PlaceValueBuilder', () => {
 
   test('building the target number matches it and celebrates', async () => {
     const user = userEvent.setup();
-    render(<PlaceValueBuilder config={{ target: 340 }} />);
+    render(<PlaceValueBuilder config={{ target: 340 }} onEvent={noEvent} />);
 
     await tap(user, 'Add one to the hundreds place', 3);
     await tap(user, 'Add one to the tens place', 4);
@@ -62,7 +63,7 @@ describe('PlaceValueBuilder', () => {
 
   test('stays in the building state until the number is exactly the target', async () => {
     const user = userEvent.setup();
-    render(<PlaceValueBuilder config={{ target: 340 }} />);
+    render(<PlaceValueBuilder config={{ target: 340 }} onEvent={noEvent} />);
 
     await tap(user, 'Add one to the hundreds place', 3);
 
@@ -74,7 +75,8 @@ describe('PlaceValueBuilder', () => {
 
   test('a matched number can be un-built again', async () => {
     const user = userEvent.setup();
-    render(<PlaceValueBuilder config={{ target: 40 }} />);
+    const onEvent = vi.fn();
+    render(<PlaceValueBuilder config={{ target: 40 }} onEvent={onEvent} />);
 
     await tap(user, 'Add one to the tens place', 4);
     expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-state', 'matched');
@@ -82,12 +84,39 @@ describe('PlaceValueBuilder', () => {
     await tap(user, 'Take one from the tens place');
 
     expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-state', 'building');
+    expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-complete', 'yes');
     expect(screen.getByTestId('pv-standard')).toHaveTextContent('30');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  });
+
+  test('emits typed interaction, change, and one latched completion event', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    render(<PlaceValueBuilder config={{ target: 1 }} onEvent={onEvent} />);
+
+    await tap(user, 'Add one to the ones place');
+
+    expect(onEvent.mock.calls.map(([event]) => event.type)).toEqual([
+      'interaction',
+      'change',
+      'complete',
+    ]);
+    expect(onEvent).toHaveBeenLastCalledWith({ type: 'complete', value: 1 });
+  });
+
+  test('target zero does not complete or celebrate merely by mounting', () => {
+    const onEvent = vi.fn();
+    render(<PlaceValueBuilder config={{ target: 0 }} onEvent={onEvent} />);
+
+    expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-state', 'building');
+    expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-complete', 'no');
+    expect(screen.queryByText(/you built it/i)).toBeNull();
+    expect(onEvent).not.toHaveBeenCalled();
   });
 
   test('groups big numbers with commas and reads them correctly', async () => {
     const user = userEvent.setup();
-    render(<PlaceValueBuilder config={{}} />);
+    render(<PlaceValueBuilder config={{}} onEvent={noEvent} />);
 
     await tap(user, 'Add one to the thousands place', 1);
     await tap(user, 'Add one to the hundreds place', 2);
@@ -101,7 +130,7 @@ describe('PlaceValueBuilder', () => {
 
   test('digits clamp at 0 and 9 instead of wrapping', async () => {
     const user = userEvent.setup();
-    render(<PlaceValueBuilder config={{}} />);
+    render(<PlaceValueBuilder config={{}} onEvent={noEvent} />);
 
     expect(screen.getByRole('button', { name: 'Take one from the ones place' })).toBeDisabled();
 
@@ -113,7 +142,7 @@ describe('PlaceValueBuilder', () => {
   });
 
   test('shows ones through hundred thousands by default', () => {
-    render(<PlaceValueBuilder config={{}} />);
+    render(<PlaceValueBuilder config={{}} onEvent={noEvent} />);
 
     expect(screen.getAllByTestId('pv-column')).toHaveLength(6);
     expect(screen.getByTestId('pv-digit-hundred-thousands')).toBeInTheDocument();
@@ -121,14 +150,14 @@ describe('PlaceValueBuilder', () => {
   });
 
   test('three periods reaches the hundred millions', () => {
-    render(<PlaceValueBuilder config={{ periods: 3 }} />);
+    render(<PlaceValueBuilder config={{ periods: 3 }} onEvent={noEvent} />);
 
     expect(screen.getAllByTestId('pv-column')).toHaveLength(9);
     expect(screen.getByTestId('pv-digit-hundred-millions')).toBeInTheDocument();
   });
 
   test('survives a nonsense config instead of crashing the lesson', () => {
-    render(<PlaceValueBuilder config={{ target: 'banana', periods: 47, start: 482 }} />);
+    render(<PlaceValueBuilder config={{ target: 'banana', periods: 47, start: 482 } as never} onEvent={noEvent} />);
 
     expect(screen.getAllByTestId('pv-column')).toHaveLength(6);
     expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-state', 'building');
@@ -139,7 +168,7 @@ describe('NumberLineCompare', () => {
   const CONFIG = { min: 0, max: 100, a: 25, b: 52 };
 
   test('starts in the choosing state with both markers on the line', () => {
-    render(<NumberLineCompare config={CONFIG} />);
+    render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
 
     const root = screen.getByTestId('widget-number-line-compare');
     expect(root).toHaveAttribute('data-state', 'choosing');
@@ -150,7 +179,7 @@ describe('NumberLineCompare', () => {
 
   test('choosing the right symbol is correct and cheers', async () => {
     const user = userEvent.setup();
-    render(<NumberLineCompare config={CONFIG} />);
+    render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
 
     await tap(user, 'less than');
 
@@ -160,7 +189,7 @@ describe('NumberLineCompare', () => {
 
   test('a wrong symbol says try again and lets the kid keep trying', async () => {
     const user = userEvent.setup();
-    render(<NumberLineCompare config={CONFIG} />);
+    render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
 
     await tap(user, 'greater than');
 
@@ -176,7 +205,7 @@ describe('NumberLineCompare', () => {
 
   test('the steppers move a marker and the comparison uses where it lands', async () => {
     const user = userEvent.setup();
-    render(<NumberLineCompare config={{ min: 0, max: 100, a: 25, b: 27 }} />);
+    render(<NumberLineCompare config={{ min: 0, max: 100, a: 25, b: 27 }} onEvent={noEvent} />);
 
     await tap(user, 'Move A right', 2);
 
@@ -190,7 +219,7 @@ describe('NumberLineCompare', () => {
 
   test('markers stop at the ends of the line', async () => {
     const user = userEvent.setup();
-    render(<NumberLineCompare config={{ min: 0, max: 5, a: 0, b: 5 }} />);
+    render(<NumberLineCompare config={{ min: 0, max: 5, a: 0, b: 5 }} onEvent={noEvent} />);
 
     expect(screen.getByRole('button', { name: 'Move A left' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Move B right' })).toBeDisabled();
@@ -203,7 +232,8 @@ describe('NumberLineCompare', () => {
 
   test('moving a marker after an answer asks the question again', async () => {
     const user = userEvent.setup();
-    render(<NumberLineCompare config={CONFIG} />);
+    const onEvent = vi.fn();
+    render(<NumberLineCompare config={CONFIG} onEvent={onEvent} />);
 
     await tap(user, 'less than');
     expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-state', 'correct');
@@ -211,11 +241,33 @@ describe('NumberLineCompare', () => {
     await tap(user, 'Move A right');
 
     expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-state', 'choosing');
+    expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'yes');
     expect(screen.queryByTestId('nl-feedback')).toBeNull();
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  });
+
+  test('fractional step nudges and snaps markers without rounding them to whole numbers', async () => {
+    const user = userEvent.setup();
+    render(
+      <NumberLineCompare
+        config={{ min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25 }}
+        onEvent={noEvent}
+      />,
+    );
+
+    await tap(user, 'Move A right');
+
+    expect(screen.getByTestId('marker-a-value')).toHaveTextContent('0.5');
+  });
+
+  test('the number line exposes one image role rather than nested image roles', () => {
+    render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
+
+    expect(screen.getAllByRole('img')).toHaveLength(1);
   });
 
   test('survives a nonsense config by falling back to a sane line', () => {
-    render(<NumberLineCompare config={{ min: 'x', max: null, a: undefined, b: {} }} />);
+    render(<NumberLineCompare config={{ min: 'x', max: null, a: undefined, b: {} } as never} onEvent={noEvent} />);
 
     expect(screen.getByTestId('marker-a-value')).toHaveTextContent('25');
     expect(screen.getByTestId('marker-b-value')).toHaveTextContent('52');

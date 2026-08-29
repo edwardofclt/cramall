@@ -118,6 +118,7 @@ const { FIXTURE, THIN, EXACT } = vi.hoisted(() => {
     title: 'Math',
     guide: 'nutty',
     color: '#f59e0b',
+    actionColor: '#92400e',
     units: [unit],
   };
 
@@ -197,12 +198,12 @@ function readSave(): SaveData {
   return JSON.parse(screen.getByTestId('save').textContent ?? '{}') as SaveData;
 }
 
-function renderQuiz(lessonId = LESSON_ID) {
+function renderQuiz(lessonId = LESSON_ID, rng: () => number = seededRng()) {
   return render(
     <ProgressProvider>
       <MemoryRouter initialEntries={[`/lesson/${lessonId}/quiz`]}>
         <Routes>
-          <Route path="/lesson/:lessonId/quiz" element={<QuickCheck rng={seededRng()} />} />
+          <Route path="/lesson/:lessonId/quiz" element={<QuickCheck rng={rng} />} />
           <Route path="/lesson/:lessonId" element={<h1>Lesson screen</h1>} />
           <Route path="/subject/:subjectId" element={<h1>Subject map</h1>} />
           <Route path="/" element={<h1>Home screen</h1>} />
@@ -545,6 +546,18 @@ describe('QuickCheck', () => {
     expect(lessonProgress?.attempts).toHaveLength(2);
     expect(lessonProgress?.bestScore).toBe(10);
     expect(lessonProgress?.status).toBe('passed');
+  });
+
+  test('a retry replaces at least one question even when randomness repeats exactly', async () => {
+    const user = userEvent.setup();
+    renderQuiz(LESSON_ID, () => 0);
+    const first = await playRun(user);
+
+    await user.click(screen.getByRole('button', { name: /try again/i }));
+    const second = await playRun(user);
+    const firstIds = new Set(first.map(({ id }) => id));
+
+    expect(second.some(({ id }) => !firstIds.has(id))).toBe(true);
   });
 
   describe('a fast finger on Next', () => {

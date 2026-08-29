@@ -4,12 +4,15 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { cardVariants } from '../app/motion';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import { Character } from '../characters/Character';
-import { DialoguePlayer } from '../characters/DialoguePlayer';
 import type { LearnCard as LearnCardData, Lesson, Subject, Unit } from '../content/schema';
 import { findLesson } from '../content/subjects';
 import { LearnCard } from './LearnCard';
 import { ReadAloudButton } from './ReadAloudButton';
 import { RichText, speechText } from './Rich';
+import type { WidgetEventHandler } from '../widgets/registry';
+import { AnnouncingDialogue } from './AnnouncingDialogue';
+
+const ignoreWidgetEvent: WidgetEventHandler = () => {};
 
 type Stage =
   | { key: 'intro' }
@@ -140,6 +143,7 @@ function LessonStages({
     return found === -1 ? 0 : found;
   });
   const [peekDismissed, setPeekDismissed] = useState(false);
+  const [dialogueAnnouncement, setDialogueAnnouncement] = useState('');
 
   const reduced = useReducedMotionPref();
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
@@ -149,12 +153,18 @@ function LessonStages({
   const goBack = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
 
   const stage = stages[step];
+  const focusStage = useCallback((node: HTMLDivElement | null) => {
+    node?.focus();
+  }, []);
   const animation = reduced
     ? {}
     : { variants: cardVariants, initial: 'initial', animate: 'enter', exit: 'exit' };
 
   return (
-    <div className="page stack" style={{ '--accent': subject.color } as CSSProperties}>
+    <div
+      className="page stack"
+      style={{ '--accent': subject.color, '--accent-action': subject.actionColor } as CSSProperties}
+    >
       {showPeek && <PeekBanner onDismiss={() => setPeekDismissed(true)} />}
 
       <Link className="link-quiet" to={`/subject/${subject.id}`}>
@@ -170,12 +180,39 @@ function LessonStages({
         <ProgressDots step={step} total={stages.length} />
       </header>
 
+      <p
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="dialogue-live-region"
+      >
+        {dialogueAnnouncement}
+      </p>
+
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div key={stage.key} className="stack" {...animation}>
+        <motion.div
+          key={stage.key}
+          ref={focusStage}
+          className="stack"
+          tabIndex={-1}
+          data-testid="lesson-stage"
+          {...animation}
+        >
           {stage.key === 'intro' && (
-            <DialoguePlayer lines={lesson.intro} onDone={goNext} />
+            <AnnouncingDialogue
+              lines={lesson.intro}
+              onDone={goNext}
+              onAnnouncement={setDialogueAnnouncement}
+            />
           )}
-          {'card' in stage && <LearnCard card={stage.card} onDialogueDone={goNext} />}
+          {'card' in stage && (
+            <LearnCard
+              card={stage.card}
+              onWidgetEvent={ignoreWidgetEvent}
+              onDialogueAnnouncement={setDialogueAnnouncement}
+            />
+          )}
           {stage.key === 'worked' && <WorkedExample worked={lesson.workedExample} />}
           {stage.key === 'outro' && <Outro lesson={lesson} subject={subject} />}
         </motion.div>

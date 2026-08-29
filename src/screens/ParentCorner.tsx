@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
-import standardsData from '../content/standards/standards.json';
-import { allLessons } from '../content/subjects';
+import { allLessons, standards } from '../content/subjects';
 import { exportSave } from '../progress/storage';
 import { useProgress } from '../progress/ProgressContext';
 
-type StandardsSource = { document: { title: string; url: string } };
+const MAX_IMPORT_BYTES = 1024 * 1024;
+type ParentMessage = { text: string; kind: 'status' | 'alert' };
 
 function lessonStatus(status: 'in-progress' | 'passed' | undefined): string {
   if (status === 'passed') return 'Passed';
@@ -15,7 +15,7 @@ function lessonStatus(status: 'in-progress' | 'passed' | undefined): string {
 
 export function ParentCorner() {
   const { save, setParentChecked, importJson, reset } = useProgress();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState<ParentMessage | null>(null);
   const [confirmation, setConfirmation] = useState('');
   const importRequest = useRef(0);
   const activeReader = useRef<FileReader | null>(null);
@@ -39,14 +39,19 @@ export function ParentCorner() {
     anchor.href = url;
     anchor.download = 'cramall-progress.json';
     anchor.click();
-    URL.revokeObjectURL(url);
-    setMessage('Progress exported.');
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    setMessage({ text: 'Progress exported.', kind: 'status' });
   };
 
   const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     const request = invalidateImport();
+    if (file.size > MAX_IMPORT_BYTES) {
+      setMessage({ text: 'That progress file is too large. Choose a JSON file no larger than 1 MiB.', kind: 'alert' });
+      event.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     activeReader.current = reader;
     reader.onload = () => {
@@ -55,16 +60,19 @@ export function ParentCorner() {
       try {
         const json = typeof reader.result === 'string' ? reader.result : '';
         importJson(json);
-        setMessage('Progress imported.');
+        setMessage({ text: 'Progress imported.', kind: 'status' });
       } catch (error: unknown) {
-        setMessage(error instanceof Error ? error.message : 'invalid save file');
+        setMessage({
+          text: error instanceof Error ? error.message : 'invalid save file',
+          kind: 'alert',
+        });
       }
       event.target.value = '';
     };
     reader.onerror = () => {
       if (request !== importRequest.current) return;
       activeReader.current = null;
-      setMessage('Unable to read the selected file.');
+      setMessage({ text: 'Unable to read the selected file.', kind: 'alert' });
       event.target.value = '';
     };
     reader.readAsText(file);
@@ -75,10 +83,10 @@ export function ParentCorner() {
     invalidateImport();
     reset();
     setConfirmation('');
-    setMessage('Progress reset.');
+    setMessage({ text: 'Progress reset.', kind: 'status' });
   };
 
-  const standardSources = Object.values(standardsData as Record<string, StandardsSource>);
+  const standardSources = Object.values(standards);
 
   return (
     <div className="page stack parent-corner">
@@ -121,7 +129,11 @@ export function ParentCorner() {
           <label className="btn" htmlFor="progress-import">Import progress file</label>
           <input id="progress-import" className="sr-only" type="file" accept="application/json,.json" onChange={handleImport} />
         </div>
-        {message && <p role="alert" className="parent-message">{message}</p>}
+        {message && (
+          <p role={message.kind} className="parent-message">
+            {message.text}
+          </p>
+        )}
       </section>
 
       <section className="card stack" aria-labelledby="reset-heading">

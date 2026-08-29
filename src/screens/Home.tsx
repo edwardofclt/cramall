@@ -5,7 +5,7 @@ import { springy } from '../app/motion';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import { Character } from '../characters/Character';
 import { SUBJECTS, allLessons } from '../content/subjects';
-import { lessonStars, subjectCompletion } from '../progress/logic';
+import { effectiveStreak, lessonStars, localDateIso, subjectCompletion } from '../progress/logic';
 import { useProgress } from '../progress/ProgressContext';
 
 const MotionLink = motion.create(Link);
@@ -13,7 +13,7 @@ const MotionLink = motion.create(Link);
 export function Home() {
   const { save } = useProgress();
   const reduced = useReducedMotionPref();
-  const streak = save.streak.count;
+  const streak = effectiveStreak(save, localDateIso());
   const totalStars = allLessons().reduce((total, lesson) => total + lessonStars(save.lessons[lesson.id]), 0);
 
   const hover = reduced ? undefined : { scale: 1.04, y: -4 };
@@ -57,7 +57,10 @@ export function Home() {
               key={subject.id}
               to={`/subject/${subject.id}`}
               className="card subject-card"
-              style={{ '--accent': subject.color } as CSSProperties}
+              style={{
+                '--accent': subject.color,
+                '--accent-action': subject.actionColor,
+              } as CSSProperties}
               aria-label={`${subject.title} — ${passed} of ${total} lessons done`}
               whileHover={hover}
               whileTap={tap}

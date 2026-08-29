@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { allLessons, getSubject } from '../content/subjects';
 import { ProgressProvider } from '../progress/ProgressContext';
-import { defaultSave, persist, type SaveData } from '../progress/storage';
+import { defaultSave, persist, recordAttempt, type SaveData } from '../progress/storage';
 import { ProgressScreen } from './ProgressScreen';
 
 function renderProgress(save: SaveData = defaultSave()) {
@@ -20,12 +20,23 @@ describe('ProgressScreen', () => {
     window.localStorage.clear();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   test('derives stars, subject completion, and earned badges from current progress', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 7, 29, 12));
     const [first, second] = allLessons();
-    const save = defaultSave();
-    save.lessons[first!.id] = { status: 'passed', bestScore: 10, attempts: [] };
-    save.lessons[second!.id] = { status: 'passed', bestScore: 9, attempts: [] };
-    save.streak = { lastActiveDate: '2026-08-29', count: 7 };
+    let save = defaultSave();
+    for (const day of [23, 24, 25, 26, 27, 28]) {
+      save = recordAttempt(save, first!.id, {
+        date: `2026-08-${day}`, score: 10, total: 10, missedConceptTags: [],
+      }, 8);
+    }
+    save = recordAttempt(save, second!.id, {
+      date: '2026-08-29', score: 9, total: 10, missedConceptTags: [],
+    }, 8);
     renderProgress(save);
 
     expect(screen.getByLabelText('5 total stars')).toBeInTheDocument();
@@ -36,6 +47,30 @@ describe('ProgressScreen', () => {
     for (const badge of ['first-pass', 'perfect-10', 'unit-complete', 'streak-3', 'streak-7']) {
       expect(screen.getByTestId(`badge-${badge}`)).toHaveAttribute('data-state', 'earned');
     }
+  });
+
+  test('stale streaks do not earn display badges', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 7, 29, 12));
+    let save = defaultSave();
+    for (const day of [24, 25, 26, 27]) {
+      save = recordAttempt(save, `lesson-${day}`, {
+        date: `2026-08-${day}`, score: 5, total: 10, missedConceptTags: [],
+      }, 8);
+    }
+
+    renderProgress(save);
+
+    expect(screen.getByText(/0 day streak/i)).toBeInTheDocument();
+    expect(screen.getByTestId('badge-streak-3')).toHaveAttribute('data-state', 'locked');
+  });
+
+  test('subjects without authored lessons show an empty state instead of a zero-range progressbar', () => {
+    renderProgress();
+
+    expect(screen.queryByRole('progressbar', { name: /reading completion/i })).toBeNull();
+    expect(screen.queryByRole('progressbar', { name: /science completion/i })).toBeNull();
+    expect(screen.getAllByText(/no authored lessons yet/i)).toHaveLength(2);
   });
 
   test('shows locked badges until their conditions are met', () => {

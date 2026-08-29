@@ -1,5 +1,6 @@
 import { Component, Suspense, type ErrorInfo, type ReactNode } from 'react';
-import { widgetRegistry } from './registry';
+import type { WidgetRef } from '../content/schema';
+import { widgetRegistry, type WidgetEventHandler } from './registry';
 
 /** A widget that breaks is never allowed to break the lesson — this is what shows instead. */
 function NappingWidget() {
@@ -31,18 +32,14 @@ class WidgetErrorBoundary extends Component<BoundaryProps, BoundaryState> {
   }
 }
 
-export type WidgetFrameProps = {
-  /** Widget type from the lesson card, e.g. `place-value-builder`. */
-  type: string;
-  config: Record<string, unknown>;
-};
+export type WidgetFrameProps = WidgetRef & { onEvent: WidgetEventHandler };
 
 /**
  * Loads a widget by type: lazily (so widget code stays out of the first paint) and behind
  * an error boundary (so a crash degrades to a friendly card). An unknown type is treated
  * the same as a crash — content referencing a widget nobody built still renders a lesson.
  */
-export function WidgetFrame({ type, config }: WidgetFrameProps) {
+export function WidgetFrame({ type, config, onEvent }: WidgetFrameProps) {
   const Widget = widgetRegistry[type];
   if (!Widget) return <NappingWidget />;
 
@@ -57,7 +54,7 @@ export function WidgetFrame({ type, config }: WidgetFrameProps) {
           </div>
         }
       >
-        <Widget config={config} />
+        <Widget config={config} onEvent={onEvent} />
       </Suspense>
     </WidgetErrorBoundary>
   );

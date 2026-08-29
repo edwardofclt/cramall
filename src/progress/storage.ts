@@ -12,32 +12,150 @@ export type SaveData = {
 };
 
 const STORAGE_KEY = 'cramall.v1';
+const PASS_THRESHOLD = 8;
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const STORAGE_PROBE_KEY = '__cramall_storage_probe__';
+
+/** Strict calendar-date parser shared by storage validation and streak calculations. */
+function dateUtc(value: string): number | null {
+  const match = ISO_DATE.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < 2000 || year > 2100) return null;
+  const utc = Date.UTC(year, month - 1, day);
+  const parsed = new Date(utc);
+  return parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+    ? utc
+    : null;
+}
+
+const IsoDateSchema = z.string().refine((value) => dateUtc(value) !== null, {
+  message: 'expected a real yyyy-mm-dd date from 2000 through 2100',
+});
 
 const AttemptSchema = z.object({
-  date: z.string(),
-  score: z.number(),
-  total: z.number(),
-  missedConceptTags: z.array(z.string()),
+  date: IsoDateSchema,
+  score: z.number().int().min(0).max(10),
+  total: z.literal(10),
+  missedConceptTags: z.array(z.string().min(1).max(100)).max(10),
+}).strict().superRefine((attempt, context) => {
+  if (attempt.score > attempt.total) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['score'],
+      message: 'score cannot exceed total',
+    });
+  }
 });
 
 const LessonProgressSchema = z.object({
   status: z.enum(['in-progress', 'passed']),
-  bestScore: z.number(),
-  attempts: z.array(AttemptSchema),
+  bestScore: z.number().int().min(0).max(10),
+  attempts: z.array(AttemptSchema).min(1),
+}).strict().superRefine((progress, context) => {
+  const bestScore = Math.max(...progress.attempts.map((attempt) => attempt.score));
+  if (progress.bestScore !== bestScore) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['bestScore'],
+      message: `bestScore must equal the highest attempt score (${bestScore})`,
+    });
+  }
+  const derivedStatus = progress.attempts.some((attempt) => attempt.score >= PASS_THRESHOLD)
+    ? 'passed'
+    : 'in-progress';
+  if (progress.status !== derivedStatus) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['status'],
+      message: `status must be ${derivedStatus} for these attempts`,
+    });
+  }
 });
 
 const SettingsSchema = z.object({
   soundOn: z.boolean(),
   ttsOn: z.boolean(),
-});
+}).strict();
+
+function deriveStreak(lessons: Record<string, LessonProgress>): SaveData['streak'] {
+  const dates = [...new Set(
+    Object.values(lessons).flatMap((progress) =>
+      progress.attempts.map((attempt) => attempt.date),
+    ),
+  )].sort();
+  if (dates.length === 0) return { lastActiveDate: '', count: 0 };
+
+  const lastActiveDate = dates[dates.length - 1]!;
+  let count = 1;
+  for (let index = dates.length - 1; index > 0; index -= 1) {
+    if (dayDiff(dates[index - 1]!, dates[index]!) !== 1) break;
+    count += 1;
+  }
+  return { lastActiveDate, count };
+}
 
 const SaveDataSchema = z.object({
   version: z.literal(1),
   settings: SettingsSchema,
   lessons: z.record(LessonProgressSchema),
-  streak: z.object({ lastActiveDate: z.string(), count: z.number() }),
+  streak: z.object({
+    lastActiveDate: z.union([z.literal(''), IsoDateSchema]),
+    count: z.number().int().min(0).max(36_600),
+  }).strict(),
   parentChecked: z.record(z.boolean()),
+}).strict().superRefine((save, context) => {
+  const maximumPossible = deriveStreak(save.lessons);
+  const validEmpty = maximumPossible.count === 0 &&
+    save.streak.lastActiveDate === '' &&
+    save.streak.count === 0;
+  const validActive = maximumPossible.count > 0 &&
+    save.streak.lastActiveDate === maximumPossible.lastActiveDate &&
+    save.streak.count >= 1 &&
+    // A late, older-dated attempt is recorded but deliberately does not retroactively
+    // increase the live streak. It can therefore be below the history-derived maximum.
+    save.streak.count <= maximumPossible.count;
+  if (!validEmpty && !validActive) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['streak'],
+      message: `streak must end on the latest attempt date with a consistent count (maximum ${maximumPossible.count})`,
+    });
+  }
 });
+
+class UnsupportedSaveVersionError extends Error {
+  constructor(version: unknown) {
+    super(`unsupported save version: ${String(version)}`);
+  }
+}
+
+/**
+ * Version-dispatch boundary for stored/imported data. New migrations belong in this
+ * switch; current v1 exports pass through unchanged after strict invariant validation.
+ */
+export function migrateSave(value: unknown): SaveData {
+  if (typeof value !== 'object' || value === null || !('version' in value)) {
+    return SaveDataSchema.parse(value);
+  }
+  const version = (value as { version?: unknown }).version;
+  switch (version) {
+    case 1:
+      return SaveDataSchema.parse(value);
+    default:
+      throw new UnsupportedSaveVersionError(version);
+  }
+}
+
+export type LoadSaveResult = {
+  save: SaveData;
+  issue: string | null;
+  storageReadable: boolean;
+};
 
 export function defaultSave(): SaveData {
   return {
@@ -53,31 +171,62 @@ export function defaultSave(): SaveData {
 export function storageAvailable(): boolean {
   try {
     if (typeof window === 'undefined' || !window.localStorage) return false;
-    const probeKey = '__cramall_storage_probe__';
-    window.localStorage.setItem(probeKey, '1');
-    window.localStorage.removeItem(probeKey);
+    window.localStorage.setItem(STORAGE_PROBE_KEY, '1');
+    window.localStorage.removeItem(STORAGE_PROBE_KEY);
     return true;
   } catch {
     return false;
   }
 }
 
-export function loadSave(): SaveData {
+export function loadSaveResult(): LoadSaveResult {
+  let raw: string | null;
   try {
-    if (!storageAvailable()) return defaultSave();
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw === null) return defaultSave();
-    return SaveDataSchema.parse(JSON.parse(raw));
+    if (typeof window === 'undefined' || !window.localStorage) {
+      return {
+        save: defaultSave(),
+        issue: 'Browser storage is unavailable, so progress is saved only while this tab is open.',
+        storageReadable: false,
+      };
+    }
+    // Reads are intentionally independent of write availability. A full or read-only
+    // store can still contain the learner's valid save and must never hide it.
+    raw = window.localStorage.getItem(STORAGE_KEY);
   } catch {
-    return defaultSave();
+    return {
+      save: defaultSave(),
+      issue: 'Browser storage could not be read, so progress is saved only while this tab is open.',
+      storageReadable: false,
+    };
   }
+
+  if (raw === null) return { save: defaultSave(), issue: null, storageReadable: true };
+
+  try {
+    return { save: migrateSave(JSON.parse(raw)), issue: null, storageReadable: true };
+  } catch (error) {
+    return {
+      save: defaultSave(),
+      issue:
+        error instanceof UnsupportedSaveVersionError
+          ? 'Stored progress uses an unsupported version and was not loaded.'
+          : 'Stored progress is invalid and was not loaded.',
+      storageReadable: true,
+    };
+  }
+}
+
+export function loadSave(): SaveData {
+  return loadSaveResult().save;
 }
 
 /** Returns whether this specific save write succeeded; quota/private-mode failures never throw. */
 export function persist(save: SaveData): boolean {
   try {
-    if (!storageAvailable()) return false;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+    const valid = migrateSave(save);
+    // This real write is authoritative. A temporary probe could fail under quota even
+    // when overwriting the existing save key is still permitted.
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
     return true;
   } catch {
     return false;
@@ -86,10 +235,9 @@ export function persist(save: SaveData): boolean {
 
 /** Day difference (UTC) between two yyyy-mm-dd strings, from -> to. */
 function dayDiff(from: string, to: string): number {
-  const [fy, fm, fd] = from.split('-').map(Number);
-  const [ty, tm, td] = to.split('-').map(Number);
-  const fromUtc = Date.UTC(fy!, fm! - 1, fd!);
-  const toUtc = Date.UTC(ty!, tm! - 1, td!);
+  const fromUtc = dateUtc(from);
+  const toUtc = dateUtc(to);
+  if (fromUtc === null || toUtc === null) return Number.NaN;
   return Math.round((toUtc - fromUtc) / 86_400_000);
 }
 
@@ -99,10 +247,14 @@ export function recordAttempt(
   attempt: Attempt,
   passThreshold: number,
 ): SaveData {
+  const parsedAttempt = AttemptSchema.parse(attempt);
+  if (passThreshold !== PASS_THRESHOLD) {
+    throw new Error(`passThreshold must be ${PASS_THRESHOLD}`);
+  }
   const existing = save.lessons[lessonId];
-  const attempts = existing ? [...existing.attempts, attempt] : [attempt];
-  const bestScore = existing ? Math.max(existing.bestScore, attempt.score) : attempt.score;
-  const everPassed = existing?.status === 'passed' || attempt.score >= passThreshold;
+  const attempts = existing ? [...existing.attempts, parsedAttempt] : [parsedAttempt];
+  const bestScore = Math.max(...attempts.map((item) => item.score));
+  const everPassed = attempts.some((item) => item.score >= passThreshold);
 
   const lessonProgress: LessonProgress = {
     status: everPassed ? 'passed' : 'in-progress',
@@ -110,23 +262,24 @@ export function recordAttempt(
     attempts,
   };
 
-  let streak: SaveData['streak'];
-  if (!save.streak.lastActiveDate) {
-    streak = { lastActiveDate: attempt.date, count: 1 };
-  } else {
-    const diff = dayDiff(save.streak.lastActiveDate, attempt.date);
-    if (diff === 0) {
-      streak = { lastActiveDate: attempt.date, count: save.streak.count };
-    } else if (diff === 1) {
-      streak = { lastActiveDate: attempt.date, count: save.streak.count + 1 };
-    } else {
-      streak = { lastActiveDate: attempt.date, count: 1 };
-    }
-  }
+  const lessons = { ...save.lessons, [lessonId]: lessonProgress };
+  const diff = save.streak.lastActiveDate
+    ? dayDiff(save.streak.lastActiveDate, parsedAttempt.date)
+    : Number.NaN;
+  const streak = !save.streak.lastActiveDate
+    ? { lastActiveDate: parsedAttempt.date, count: 1 }
+    : diff < 0
+      ? save.streak
+      : diff === 0
+        ? { lastActiveDate: parsedAttempt.date, count: save.streak.count }
+        : diff === 1
+          ? { lastActiveDate: parsedAttempt.date, count: save.streak.count + 1 }
+          : { lastActiveDate: parsedAttempt.date, count: 1 };
 
   return {
     ...save,
-    lessons: { ...save.lessons, [lessonId]: lessonProgress },
+    lessons,
+    // A clock that moves backward records learning without rewinding the live streak.
     streak,
   };
 }
@@ -139,12 +292,12 @@ export function setParentChecked(save: SaveData, lessonId: string, checked: bool
 }
 
 export function exportSave(save: SaveData): string {
-  return JSON.stringify(save, null, 2);
+  return JSON.stringify(migrateSave(save), null, 2);
 }
 
 export function importSave(json: string): SaveData {
   try {
-    return SaveDataSchema.parse(JSON.parse(json));
+    return migrateSave(JSON.parse(json));
   } catch {
     throw new Error('invalid save file');
   }

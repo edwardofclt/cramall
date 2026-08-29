@@ -1,34 +1,46 @@
 import standardsData from './standards/standards.json';
-import type { Unit, Subject, SubjectId, GuideId, Lesson } from './schema';
+import { StandardsDataSchema, type StandardsUnit } from './standards/schema';
+import {
+  validateContentCatalog,
+  type Unit,
+  type Subject,
+  type SubjectId,
+  type GuideId,
+  type Lesson,
+} from './schema';
 import { lessonsByUnit as mathLessons } from './math';
 import { lessonsByUnit as readingLessons } from './reading';
 import { lessonsByUnit as scienceLessons } from './science';
 
-type StandardsIndicator = { code: string; text: string; strand: string };
-type StandardsUnit = {
-  number: number;
-  title: string;
-  indicatorCodes: string[];
-  prerequisiteUnits: number[];
-};
-type StandardsSubject = {
-  document: { title: string; url: string };
-  indicators: StandardsIndicator[];
-  units: StandardsUnit[];
-};
-type StandardsData = Record<SubjectId, StandardsSubject>;
-
-const standards = standardsData as StandardsData;
+export const standards = StandardsDataSchema.parse(standardsData);
 
 const SUBJECT_ORDER: SubjectId[] = ['math', 'reading', 'science'];
 
 const SUBJECT_META: Record<
   SubjectId,
-  { title: string; guide: GuideId; color: string; lessonsByUnit: Record<string, Lesson[]> }
+  {
+    title: string;
+    guide: GuideId;
+    color: string;
+    actionColor: string;
+    lessonsByUnit: Record<string, Lesson[]>;
+  }
 > = {
-  math: { title: 'Math', guide: 'nutty', color: '#f59e0b', lessonsByUnit: mathLessons },
-  reading: { title: 'Reading', guide: 'winnie', color: '#8b5cf6', lessonsByUnit: readingLessons },
-  science: { title: 'Science', guide: 'sandy', color: '#10b981', lessonsByUnit: scienceLessons },
+  math: {
+    title: 'Math', guide: 'nutty', color: '#f59e0b', actionColor: '#92400e', lessonsByUnit: mathLessons,
+  },
+  reading: {
+    title: 'Reading', guide: 'winnie', color: '#8b5cf6', actionColor: '#6d28d9', lessonsByUnit: readingLessons,
+  },
+  science: {
+    title: 'Science', guide: 'sandy', color: '#10b981', actionColor: '#047857', lessonsByUnit: scienceLessons,
+  },
+};
+
+export const CONTENT_REGISTRIES: Record<SubjectId, Record<string, Lesson[]>> = {
+  math: mathLessons,
+  reading: readingLessons,
+  science: scienceLessons,
 };
 
 function unitId(subjectId: SubjectId, number: number): string {
@@ -60,11 +72,17 @@ function buildSubject(subjectId: SubjectId): Subject {
     title: meta.title,
     guide: meta.guide,
     color: meta.color,
+    actionColor: meta.actionColor,
     units: data.units.map((u) => buildUnit(subjectId, u, meta.lessonsByUnit)),
   };
 }
 
 export const SUBJECTS: Subject[] = SUBJECT_ORDER.map(buildSubject);
+
+const catalogErrors = validateContentCatalog(SUBJECTS, CONTENT_REGISTRIES);
+if (catalogErrors.length > 0) {
+  throw new Error(`Invalid content catalog:\n${catalogErrors.join('\n')}`);
+}
 
 export function getSubject(id: SubjectId): Subject {
   const subject = SUBJECTS.find((s) => s.id === id);

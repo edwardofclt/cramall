@@ -30,15 +30,20 @@ function SpeakingButton({ text }: ReadAloudButtonProps) {
   const [speaking, setSpeaking] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  function releaseUtterance() {
+    const utterance = utteranceRef.current;
+    if (utterance) {
+      utterance.onend = null;
+      utterance.onerror = null;
+    }
+    utteranceRef.current = null;
+  }
+
   // Speech outlives React: without this, walking to the next card leaves the old card
   // reading over the new screen with nothing left on screen to stop it.
   useEffect(
     () => () => {
-      if (utteranceRef.current) {
-        utteranceRef.current.onend = null;
-        utteranceRef.current.onerror = null;
-        utteranceRef.current = null;
-      }
+      releaseUtterance();
       // Gated like every other call: teardown must never be the thing that throws.
       if (canSpeak()) window.speechSynthesis.cancel();
     },
@@ -47,8 +52,8 @@ function SpeakingButton({ text }: ReadAloudButtonProps) {
 
   function toggle() {
     // Cancel first either way: a second tap stops, and a fresh tap never stacks voices.
+    releaseUtterance();
     window.speechSynthesis.cancel();
-    utteranceRef.current = null;
 
     if (speaking) {
       setSpeaking(false);

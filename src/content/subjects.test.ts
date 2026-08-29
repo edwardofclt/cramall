@@ -1,4 +1,4 @@
-import { SUBJECTS, getSubject, findLesson, indicatorText } from './subjects';
+import { SUBJECTS, getSubject, findLesson, indicatorText, standards } from './subjects';
 
 test('three subjects with correct guides and unit counts', () => {
   expect(SUBJECTS.map((s) => s.id)).toEqual(['math', 'reading', 'science']);
@@ -17,6 +17,10 @@ test('unit ids and prerequisites resolve', () => {
 test('reading units contain no OE codes', () => {
   const codes = getSubject('reading').units.flatMap((u) => u.indicatorCodes);
   expect(codes.some((c) => c.includes('.OE.'))).toBe(false);
+});
+test('subjects consume schema-validated standards with all reading OE metadata', () => {
+  expect(standards.reading.crossCuttingExpectations.map((expectation) => expectation.code))
+    .toEqual(Array.from({ length: 6 }, (_, index) => `ELA.4.OE.${index + 1}`));
 });
 test('indicator text lookup works', () => {
   expect(indicatorText('4.NR.1.1')).toMatch(/millions/i);

@@ -113,6 +113,23 @@ test('sampleQuiz: does not mutate the original pool array', () => {
   expect(source.map((q) => q.id)).toEqual(beforeIds);
 });
 
+test('sampleQuiz: a retry guarantees one replacement when the pool permits it', () => {
+  const source = pool(13);
+  const first = sampleQuiz(source, 10, () => 0);
+  const retry = sampleQuiz(source, 10, () => 0, first.map(({ id }) => id));
+  const firstIds = new Set(first.map(({ id }) => id));
+
+  expect(retry).toHaveLength(10);
+  expect(new Set(retry.map(({ id }) => id)).size).toBe(10);
+  expect(retry.some(({ id }) => !firstIds.has(id))).toBe(true);
+});
+
+test('sampleQuiz: exact-size pools remain valid when no replacement exists', () => {
+  const source = pool(10);
+  const first = sampleQuiz(source, 10, () => 0);
+  expect(sampleQuiz(source, 10, () => 0, first.map(({ id }) => id))).toHaveLength(10);
+});
+
 // --- shuffleChoices ---
 
 // Exact orders below are the actual output of the engine's Fisher-Yates shuffle driven by

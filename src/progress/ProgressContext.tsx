@@ -2,11 +2,10 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import {
   defaultSave,
   importSave,
-  loadSave,
+  loadSaveResult,
   persist,
   recordAttempt as recordAttemptPure,
   setParentChecked as setParentCheckedPure,
-  storageAvailable,
   type Attempt,
   type SaveData,
   type Settings,
@@ -30,8 +29,14 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
  * touches storage directly.
  */
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState(() => ({ save: loadSave(), canPersist: storageAvailable() }));
-  const { save, canPersist } = state;
+  const [state, setState] = useState(() => {
+    const loaded = loadSaveResult();
+    return {
+      save: loaded.save,
+      notice: loaded.issue,
+    };
+  });
+  const { save, notice } = state;
 
   // Actions derive the next save from the *latest* state inside the updater, so several of
   // them can fire in one tick without clobbering each other, and so none of them close over
@@ -42,7 +47,13 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const commit = useCallback((derive: (current: SaveData) => SaveData) => {
     setState((current) => {
       const next = derive(current.save);
-      return { save: next, canPersist: persist(next) };
+      const saved = persist(next);
+      return {
+        save: next,
+        notice: saved
+          ? null
+          : 'Progress is saved only while this tab is open because browser storage is unavailable.',
+      };
     });
   }, []);
 
@@ -85,9 +96,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   return (
     <ProgressContext.Provider value={value}>
-      {!canPersist && (
+      {notice && (
         <div className="storage-notice" role="alert">
-          Progress is saved only while this tab is open because browser storage is unavailable.
+          {notice}
         </div>
       )}
       {children}

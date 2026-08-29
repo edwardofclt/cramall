@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import { pageVariants } from './app/motion';
@@ -14,10 +14,14 @@ import { SubjectMap } from './screens/SubjectMap';
 /** Wraps a routed screen so it slides in/out with the shared page transition. */
 function Page({ children }: { children: ReactNode }) {
   const reduced = useReducedMotionPref();
+  const mainRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    mainRef.current?.focus();
+  }, []);
   const animation = reduced
     ? {}
     : { variants: pageVariants, initial: 'initial', animate: 'enter', exit: 'exit' };
-  return <motion.main {...animation}>{children}</motion.main>;
+  return <motion.main ref={mainRef} tabIndex={-1} {...animation}>{children}</motion.main>;
 }
 
 /** Placeholder for routes that later tasks fill in (lesson, quiz, progress, parent). */

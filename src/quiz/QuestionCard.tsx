@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import { Character } from '../characters/Character';
@@ -9,6 +9,24 @@ import { gradeAnswer, type Answer } from './engine';
 
 type Submission = { answer: Answer; correct: boolean };
 type SubmitFn = (answer: Answer) => void;
+
+export function questionSpeechText(question: Question): string {
+  if (question.type === 'multiple-choice' || question.type === 'true-false') {
+    return speechText([
+      question.prompt,
+      'Choose one answer.',
+      `Choices: ${question.choices.map(({ text }) => text).join('; ')}.`,
+    ]);
+  }
+  if (question.type === 'sort') {
+    return speechText([
+      question.prompt,
+      'Tap the items in order, then choose Check.',
+      `Items: ${question.items.map(({ text }) => text).join('; ')}.`,
+    ]);
+  }
+  return speechText([question.prompt, 'Type your answer, then choose Check.']);
+}
 
 export type QuestionCardProps = {
   question: Question;
@@ -41,7 +59,12 @@ export function QuestionCard({
   onNext,
 }: QuestionCardProps) {
   const [submitted, setSubmitted] = useState<Submission | null>(null);
+  const cardRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotionPref();
+
+  useEffect(() => {
+    cardRef.current?.focus();
+  }, []);
 
   const submit: SubmitFn = (answer) => {
     // Belt and braces: every input is disabled after the first answer, but a stray
@@ -64,7 +87,9 @@ export function QuestionCard({
 
   return (
     <motion.section
+      ref={cardRef}
       className="card stack quiz-card"
+      tabIndex={-1}
       data-testid="quiz-card"
       data-tone={tone}
       data-shake={shaking ? 'yes' : undefined}
@@ -75,8 +100,20 @@ export function QuestionCard({
         <h2 className="quiz-prompt" data-testid="quiz-prompt">
           {question.prompt}
         </h2>
-        <ReadAloudButton text={speechText([question.prompt])} />
+        <ReadAloudButton text={questionSpeechText(question)} />
       </div>
+
+      <p
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        data-testid="quiz-feedback-status"
+      >
+        {submitted
+          ? `${submitted.correct ? 'Correct.' : 'Incorrect.'} ${question.explanation}`
+          : ''}
+      </p>
 
       {(question.type === 'multiple-choice' || question.type === 'true-false') && (
         <ChoiceBody question={question} submitted={submitted} submit={submit} />
@@ -93,15 +130,12 @@ export function QuestionCard({
           className="quiz-feedback"
           data-testid="quiz-feedback"
           data-tone={tone}
-          role="status"
         >
           <div className="quiz-feedback-body">
             <p className="quiz-feedback-title">
               {submitted.correct ? 'Nice! ✓' : 'Not quite — here’s the trick:'}
             </p>
-            {!submitted.correct && (
-              <p className="quiz-feedback-why">{question.explanation}</p>
-            )}
+            <p className="quiz-feedback-why">{question.explanation}</p>
           </div>
           <button
             type="button"
@@ -244,6 +278,9 @@ function SortBody({
                 className="btn quiz-sort-item"
                 data-testid={`sort-item-${item.id}`}
                 data-position={picked ? position + 1 : undefined}
+                aria-label={picked
+                  ? `${item.text}, selected position ${position + 1}`
+                  : `${item.text}, not selected`}
                 disabled={locked || picked}
                 onClick={() => setOrder((current) => [...current, item.id])}
               >

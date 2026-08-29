@@ -171,26 +171,49 @@ function Column({
  * forms change together — the point is seeing that "3 in the hundreds place" *is* 300.
  * With a `target` in the config the widget celebrates the exact match.
  */
-export default function PlaceValueBuilder({ config }: WidgetProps) {
+export default function PlaceValueBuilder({
+  config,
+  onEvent,
+}: WidgetProps<'place-value-builder'>) {
   const reduced = useReducedMotionPref();
   const periods = readPeriods(config.periods);
   const columns = periods * 3;
   const target = readTarget(config.target, columns);
 
   const [digits, setDigits] = useState<number[]>(() => Array<number>(columns).fill(0));
+  const [interacted, setInteracted] = useState(false);
+  const [completed, setCompleted] = useState(false);
 
   // A card that swaps its config mid-flight gets a matching set of columns back.
   useEffect(() => {
-    setDigits((prev) => (prev.length === columns ? prev : Array<number>(columns).fill(0)));
-  }, [columns]);
+    setDigits(Array<number>(columns).fill(0));
+    setInteracted(false);
+    setCompleted(false);
+  }, [columns, target]);
 
   const places = digits.length === columns ? digits : Array<number>(columns).fill(0);
   const value = places.reduce((sum, digit, index) => sum + digit * 10 ** index, 0);
-  const matched = target !== null && value === target;
+  // Target zero must not celebrate just because React mounted an all-zero board.
+  const matched = interacted && target !== null && value === target;
+
+  const applyDigits = (next: number[], action: 'change-place' | 'reset') => {
+    const nextValue = next.reduce((sum, digit, index) => sum + digit * 10 ** index, 0);
+    setDigits(next);
+    setInteracted(true);
+    onEvent({ type: 'interaction', action });
+    onEvent({ type: 'change', value: nextValue });
+    if (!completed && target !== null && nextValue === target) {
+      setCompleted(true);
+      onEvent({ type: 'complete', value: nextValue });
+    }
+  };
 
   const bump = (index: number, delta: number) =>
-    setDigits((prev) =>
-      prev.map((digit, i) => (i === index ? Math.min(9, Math.max(0, digit + delta)) : digit)),
+    applyDigits(
+      places.map((digit, i) =>
+        i === index ? Math.min(9, Math.max(0, digit + delta)) : digit,
+      ),
+      'change-place',
     );
 
   const expanded =
@@ -213,6 +236,7 @@ export default function PlaceValueBuilder({ config }: WidgetProps) {
       className="card widget-experiment pv"
       data-testid="widget-place-value-builder"
       data-state={matched ? 'matched' : 'building'}
+      data-complete={completed ? 'yes' : 'no'}
     >
       <div className="widget-head">
         <h3 className="widget-title">
@@ -224,7 +248,7 @@ export default function PlaceValueBuilder({ config }: WidgetProps) {
         <button
           type="button"
           className="btn pv-reset"
-          onClick={() => setDigits(Array<number>(columns).fill(0))}
+          onClick={() => applyDigits(Array<number>(columns).fill(0), 'reset')}
           disabled={value === 0}
         >
           Start over

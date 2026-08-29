@@ -114,8 +114,9 @@ describe('ProgressContext', () => {
   });
 
   test('importJson adopts a valid save file', async () => {
-    const incoming = defaultSave();
-    incoming.lessons[LESSON] = { status: 'passed', bestScore: 10, attempts: [] };
+    const incoming = storage.recordAttempt(defaultSave(), LESSON, {
+      date: '2026-08-29', score: 10, total: 10, missedConceptTags: [],
+    }, 8);
     renderProbe(exportSave(incoming));
 
     await click('import');
@@ -201,7 +202,11 @@ describe('ProgressContext', () => {
   });
 
   test('keeps progress usable and shows a notice when browser storage is unavailable', async () => {
-    const availability = vi.spyOn(storage, 'storageAvailable').mockReturnValue(false);
+    const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
+    const original = storagePrototype.getItem;
+    storagePrototype.getItem = () => {
+      throw new Error('SecurityError');
+    };
     try {
       renderProbe();
 
@@ -209,7 +214,7 @@ describe('ProgressContext', () => {
       await click('record');
       expect(screen.getByTestId('best')).toHaveTextContent('9');
     } finally {
-      availability.mockRestore();
+      storagePrototype.getItem = original;
     }
   });
 
@@ -230,5 +235,16 @@ describe('ProgressContext', () => {
     } finally {
       storagePrototype.setItem = original;
     }
+  });
+
+  test('surfaces invalid stored progress instead of silently presenting it as a fresh save', () => {
+    const raw = '{"version":1,"broken":true}';
+    window.localStorage.setItem('cramall.v1', raw);
+
+    renderProbe();
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/stored progress is invalid/i);
+    expect(screen.getByTestId('best')).toHaveTextContent('none');
+    expect(window.localStorage.getItem('cramall.v1')).toBe(raw);
   });
 });

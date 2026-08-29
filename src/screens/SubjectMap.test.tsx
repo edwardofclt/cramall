@@ -3,7 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { ProgressProvider } from '../progress/ProgressContext';
-import { defaultSave, persist, type SaveData } from '../progress/storage';
+import { defaultSave, persist, recordAttempt, type SaveData } from '../progress/storage';
 import { SubjectMap } from './SubjectMap';
 
 const { FIXTURE } = vi.hoisted(() => {
@@ -39,6 +39,7 @@ const { FIXTURE } = vi.hoisted(() => {
     title: 'Math',
     guide: 'nutty',
     color: '#f59e0b',
+    actionColor: '#92400e',
     units: [
       unit(1, 'Place Value Party', [], ['Reading Big Numbers', 'Comparing Numbers', 'Rounding Rodeo']),
       unit(2, 'Adding Adventures', ['math-u01'], ['Adding It Up']),
@@ -60,9 +61,9 @@ const L3 = 'math-u01-l3';
 const U2L1 = 'math-u02-l1';
 
 function saveWithFirstLessonPassed(): SaveData {
-  const save = defaultSave();
-  save.lessons[L1] = { status: 'passed', bestScore: 10, attempts: [] };
-  return save;
+  return recordAttempt(defaultSave(), L1, {
+    date: '2026-08-29', score: 10, total: 10, missedConceptTags: [],
+  }, 8);
 }
 
 function renderMap(save: SaveData, entry = '/subject/math') {

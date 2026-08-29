@@ -1,6 +1,42 @@
 import type { Lesson, Subject, Unit } from '../content/schema';
 import type { LessonProgress, SaveData } from './storage';
 
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+function dateUtc(value: string): number | null {
+  const match = ISO_DATE.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const utc = Date.UTC(year, month - 1, day);
+  const parsed = new Date(utc);
+  return parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+    ? utc
+    : null;
+}
+
+/** Local calendar date for display-time streak expiry and newly recorded attempts. */
+export function localDateIso(now = new Date()): string {
+  const pad = (part: number) => String(part).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+/**
+ * A streak stays alive on its last active day and through the following day. It expires
+ * on display after a missed day; malformed or future dates fail closed to zero.
+ */
+export function effectiveStreak(save: SaveData, today: string): number {
+  if (save.streak.count <= 0 || save.streak.lastActiveDate === '') return 0;
+  const activeUtc = dateUtc(save.streak.lastActiveDate);
+  const todayUtc = dateUtc(today);
+  if (activeUtc === null || todayUtc === null) return 0;
+  const daysSinceActivity = Math.round((todayUtc - activeUtc) / 86_400_000);
+  return daysSinceActivity === 0 || daysSinceActivity === 1 ? save.streak.count : 0;
+}
+
 export function isLessonPassed(save: SaveData, lessonId: string): boolean {
   return save.lessons[lessonId]?.status === 'passed';
 }
