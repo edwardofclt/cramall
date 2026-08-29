@@ -1,6 +1,21 @@
 import { allLessons, SUBJECTS, getSubject } from './subjects';
 import { validateLesson } from './schema';
 
+type ReviewLinkLesson = {
+  quiz: { pool: Array<{ conceptTag: string; reviewCardId: string }> };
+};
+
+function expectConsistentReviewCards(lessons: ReviewLinkLesson[]) {
+  for (const lesson of lessons) {
+    const reviewCardByTag = new Map<string, string>();
+    for (const question of lesson.quiz.pool) {
+      const firstReviewCardId = reviewCardByTag.get(question.conceptTag);
+      if (firstReviewCardId === undefined) reviewCardByTag.set(question.conceptTag, question.reviewCardId);
+      else expect(question.reviewCardId).toBe(firstReviewCardId);
+    }
+  }
+}
+
 test('math unit 1 has its two pilot lessons', () => {
   expect(getSubject('math').units.find((unit) => unit.id === 'math-u01')?.lessons.map((lesson) => lesson.id))
     .toEqual(['math-u01-l01', 'math-u01-l02']);
@@ -34,11 +49,21 @@ test('every authored lesson uses the shared eight-question pass threshold', () =
 });
 
 test('every concept tag links to one consistent review card', () => {
-  const reviewCardByTag = new Map<string, string>();
-  for (const lesson of allLessons())
-    for (const question of lesson.quiz.pool) {
-      const firstReviewCardId = reviewCardByTag.get(question.conceptTag);
-      if (firstReviewCardId === undefined) reviewCardByTag.set(question.conceptTag, question.reviewCardId);
-      else expect(question.reviewCardId).toBe(firstReviewCardId);
-    }
+  expectConsistentReviewCards(allLessons());
+});
+
+test('a concept tag with different review cards in one lesson is rejected', () => {
+  expect(() => expectConsistentReviewCards([
+    { quiz: { pool: [
+      { conceptTag: 'place-value', reviewCardId: 'math-u99-l01-c1' },
+      { conceptTag: 'place-value', reviewCardId: 'math-u99-l01-c2' },
+    ] } },
+  ])).toThrow();
+});
+
+test('a concept tag may use each lesson’s own review card', () => {
+  expect(() => expectConsistentReviewCards([
+    { quiz: { pool: [{ conceptTag: 'place-value', reviewCardId: 'math-u01-l01-c1' }] } },
+    { quiz: { pool: [{ conceptTag: 'place-value', reviewCardId: 'math-u02-l01-c1' }] } },
+  ])).not.toThrow();
 });
