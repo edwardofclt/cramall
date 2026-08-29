@@ -97,3 +97,8 @@ body {
   border-style: solid;
   border-color: var(--c-card) transparent transparent transparent;
 }
+
+.speech-bubble-right::after {
+  left: auto;
+  right: 2rem;
+}
