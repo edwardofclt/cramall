@@ -32,3 +32,13 @@ test('units with lessons cover all their indicators', () => {
 test('every authored lesson uses the shared eight-question pass threshold', () => {
   for (const lesson of allLessons()) expect(lesson.quiz.passThreshold).toBe(8);
 });
+
+test('every concept tag links to one consistent review card', () => {
+  const reviewCardByTag = new Map<string, string>();
+  for (const lesson of allLessons())
+    for (const question of lesson.quiz.pool) {
+      const firstReviewCardId = reviewCardByTag.get(question.conceptTag);
+      if (firstReviewCardId === undefined) reviewCardByTag.set(question.conceptTag, question.reviewCardId);
+      else expect(question.reviewCardId).toBe(firstReviewCardId);
+    }
+});

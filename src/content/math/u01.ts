@@ -133,8 +133,8 @@ export const unit01Lessons: Lesson[] = [
         {
           id: 'math-u01-l01-q13', type: 'multiple-choice', conceptTag: 'place-value', reviewCardId: 'math-u01-l01-c1',
           prompt: 'Which number has a 9 worth 90,000?',
-          choices: [{ id: 'a', text: '19,204' }, { id: 'b', text: '9,204' }, { id: 'c', text: '190,204' }, { id: 'd', text: '1,902,040' }], correctChoiceId: 'a',
-          explanation: 'In 19,204, the 9 is in the ten-thousands place, so it is worth 90,000.',
+          choices: [{ id: 'a', text: '19,204' }, { id: 'b', text: '9,204' }, { id: 'c', text: '190,204' }, { id: 'd', text: '1,902,040' }], correctChoiceId: 'c',
+          explanation: 'In 190,204, the 9 is in the ten-thousands place, so it is worth 90,000.',
         },
       ],
     },
@@ -192,7 +192,7 @@ export const unit01Lessons: Lesson[] = [
       passThreshold: 8,
       pool: [
         {
-          id: 'math-u01-l02-q01', type: 'multiple-choice', conceptTag: 'compare-symbols', reviewCardId: 'math-u01-l02-c1',
+          id: 'math-u01-l02-q01', type: 'multiple-choice', conceptTag: 'comparison-method', reviewCardId: 'math-u01-l02-c1',
           prompt: 'Which number is greater?', choices: [{ id: 'a', text: '45,210' }, { id: 'b', text: '45,201' }], correctChoiceId: 'a',
           explanation: 'The first different digits are the tens digits, and 1 ten is greater than 0 tens.',
         },
@@ -208,14 +208,14 @@ export const unit01Lessons: Lesson[] = [
           explanation: 'Three hundreds is greater than zero hundreds, so 102,300 is greater.',
         },
         {
-          id: 'math-u01-l02-q04', type: 'multiple-choice', conceptTag: 'compare-symbols', reviewCardId: 'math-u01-l02-c1',
+          id: 'math-u01-l02-q04', type: 'multiple-choice', conceptTag: 'comparison-method', reviewCardId: 'math-u01-l02-c1',
           prompt: 'Which number is smaller?', choices: [{ id: 'a', text: '300,100' }, { id: 'b', text: '299,999' }], correctChoiceId: 'b',
           explanation: 'Two hundred ninety-nine thousand is less than three hundred thousand.',
         },
         {
           id: 'math-u01-l02-q05', type: 'multiple-choice', conceptTag: 'compare-symbols', reviewCardId: 'math-u01-l02-c2',
-          prompt: 'Which comparison is true?', choices: [{ id: 'a', text: '56,789 > 56,789' }, { id: 'b', text: '56,789 = 56,789' }], correctChoiceId: 'b',
-          explanation: 'The numbers match exactly, so they are equal.',
+          prompt: 'Which comparison is true?', choices: [{ id: 'a', text: '56,789 < 56,790' }, { id: 'b', text: '56,789 > 56,790' }], correctChoiceId: 'a',
+          explanation: 'The tens digits show that 56,789 is less than 56,790.',
         },
         {
           id: 'math-u01-l02-q06', type: 'sort', conceptTag: 'ordering', reviewCardId: 'math-u01-l02-c3',
@@ -242,7 +242,7 @@ export const unit01Lessons: Lesson[] = [
           explanation: '10,000 has more digits, so it is greatest; then 9,999 comes before 9,090.',
         },
         {
-          id: 'math-u01-l02-q10', type: 'multiple-choice', conceptTag: 'compare-symbols', reviewCardId: 'math-u01-l02-c1',
+          id: 'math-u01-l02-q10', type: 'multiple-choice', conceptTag: 'comparison-method', reviewCardId: 'math-u01-l02-c1',
           prompt: 'Which digit decides that 63,421 is greater than 62,999?',
           choices: [{ id: 'a', text: 'The 6 in the ten-thousands place' }, { id: 'b', text: 'The 3 and 2 in the thousands place' }, { id: 'c', text: 'The 1 and 9 in the ones place' }], correctChoiceId: 'b',
           explanation: 'The ten-thousands digits match, so the thousands digits 3 and 2 decide it.',

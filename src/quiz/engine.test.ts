@@ -174,6 +174,11 @@ test('gradeAnswer: fill-blank accepts " 1,204 " for accepted ["1204"] via normal
   expect(gradeAnswer(fillQ('q1'), ' 1,204 ')).toBe(true);
 });
 
+test('gradeAnswer: expanded-form fill blanks ignore spacing around plus signs', () => {
+  const question = fillQ('q1', { acceptedAnswers: ['7,000 + 30'] });
+  expect(gradeAnswer(question, '7,000+30')).toBe(true);
+});
+
 test('gradeAnswer: fill-blank rejects an unmatched answer', () => {
   expect(gradeAnswer(fillQ('q1'), '1205')).toBe(false);
 });

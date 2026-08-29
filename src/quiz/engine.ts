@@ -31,13 +31,14 @@ export function shuffleChoices<T extends Question>(question: T, rng: () => numbe
   return { ...q, choices: shuffle([...q.choices], rng) } as T;
 }
 
-/** trim, lowercase, collapse internal whitespace runs to one space, strip commas. */
+/** trim, lowercase, collapse internal whitespace, strip commas, and normalize expanded-form addends. */
 export function normalizeText(s: string): string {
   return s
     .trim()
     .toLowerCase()
     .replace(/\s+/g, ' ')
-    .replace(/,/g, '');
+    .replace(/,/g, '')
+    .replace(/\s*\+\s*/g, '+');
 }
 
 export function gradeAnswer(q: Question, answer: Answer): boolean {
