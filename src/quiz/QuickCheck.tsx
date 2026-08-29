@@ -107,6 +107,13 @@ function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
   const [result, setResult] = useState<QuizResult | null>(null);
   const recorded = useRef(false);
 
+  // Mirrors `index` for handlers that are no longer the current one. `AnimatePresence`
+  // keeps the outgoing card mounted for the length of its exit, still holding the focused
+  // Next button bound to the *previous* index — so a key-repeat or a double-tap can call
+  // an `onNext` that render already moved on from.
+  const indexRef = useRef(index);
+  indexRef.current = index;
+
   function finish(finalAnswers: Answer[]) {
     const built = buildResult(questions, finalAnswers);
     // One attempt per run, guarded by a ref rather than an effect dependency: re-renders
@@ -133,11 +140,22 @@ function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
   }
 
   function handleNext() {
+    // Two guards, for the two ways this fires twice. The ref stops a *stale* Next (the
+    // outgoing card's, bound to an older index): unguarded it skipped a question, which
+    // knocked every later answer out of alignment with the question it graded, and on the
+    // second-to-last question walked `index` off the end of the array into a blank screen.
+    if (indexRef.current !== index) return;
     if (index + 1 >= questions.length) {
+      // Two taps in one tick both pass the ref check; `recorded` keeps it to one attempt
+      // and re-setting the same result is a no-op.
       finish(answers);
-    } else {
-      setIndex((current) => current + 1);
+      return;
     }
+    // ...and the functional updater stops the same-tick repeat, which the ref cannot see
+    // because it only catches up on the next render.
+    setIndex((current) =>
+      current === index ? Math.min(current + 1, questions.length - 1) : current,
+    );
   }
 
   const animation = reduced

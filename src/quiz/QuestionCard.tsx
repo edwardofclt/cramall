@@ -17,8 +17,12 @@ export type QuestionCardProps = {
   /** 0-based position in the run. */
   index: number;
   total: number;
-  /** Fired once, the moment the answer is locked in. */
-  onAnswered: (answer: Answer, correct: boolean) => void;
+  /**
+   * Fired once, the moment the answer is locked in. Deliberately does not report
+   * correctness: the run keeps the raw answers and `buildResult` grades the lot at the
+   * end, so there is exactly one place that decides what counts as right.
+   */
+  onAnswered: (answer: Answer) => void;
   /** Fired when the kid taps Next after reading the feedback. */
   onNext: () => void;
 };
@@ -43,9 +47,8 @@ export function QuestionCard({
     // Belt and braces: every input is disabled after the first answer, but a stray
     // double-fire must never re-grade or double-count the question.
     if (submitted) return;
-    const correct = gradeAnswer(question, answer);
-    setSubmitted({ answer, correct });
-    onAnswered(answer, correct);
+    setSubmitted({ answer, correct: gradeAnswer(question, answer) });
+    onAnswered(answer);
   };
 
   const tone = submitted ? (submitted.correct ? 'correct' : 'incorrect') : undefined;
@@ -54,16 +57,17 @@ export function QuestionCard({
 
   // A miss gives the card a short shake — the "nope, look again" nudge. Reduced motion
   // gets the colour and the words with none of the movement.
-  const shake =
-    submitted && !submitted.correct && !reduced
-      ? { x: [0, -12, 10, -6, 4, 0], transition: { duration: 0.45 } }
-      : { x: 0 };
+  const shaking = submitted !== null && !submitted.correct && !reduced;
+  const shake = shaking
+    ? { x: [0, -12, 10, -6, 4, 0], transition: { duration: 0.45 } }
+    : { x: 0 };
 
   return (
     <motion.section
       className="card stack quiz-card"
       data-testid="quiz-card"
       data-tone={tone}
+      data-shake={shaking ? 'yes' : undefined}
       animate={shake}
     >
       <div className="quiz-prompt-row">

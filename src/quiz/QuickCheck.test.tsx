@@ -7,7 +7,7 @@ import { ProgressProvider, useProgress } from '../progress/ProgressContext';
 import type { SaveData } from '../progress/storage';
 import { QuickCheck } from './QuickCheck';
 
-const { FIXTURE, THIN } = vi.hoisted(() => {
+const { FIXTURE, THIN, EXACT } = vi.hoisted(() => {
   function mc(n: number, conceptTag: string, reviewCardId: string): Question {
     return {
       id: `q${n}`,
@@ -25,6 +25,8 @@ const { FIXTURE, THIN } = vi.hoisted(() => {
     };
   }
 
+  // Thirteen, matching the minimum `validateLesson` enforces on real content — so a run
+  // of ten is a genuine sample and "try again" has something new to draw.
   const pool: Question[] = [
     mc(1, 'rounding-rules', 'card-rounding'),
     mc(2, 'rounding-rules', 'card-rounding'),
@@ -34,6 +36,9 @@ const { FIXTURE, THIN } = vi.hoisted(() => {
     mc(6, 'place-value', 'card-places'),
     mc(7, 'place-value', 'card-places'),
     mc(8, 'place-value', 'card-places'),
+    mc(11, 'comparing', 'card-order'),
+    mc(12, 'comparing', 'card-order'),
+    mc(13, 'comparing', 'card-order'),
     {
       id: 'q9',
       type: 'fill-blank',
@@ -82,6 +87,22 @@ const { FIXTURE, THIN } = vi.hoisted(() => {
     quiz: { passThreshold: 8, pool: pool.slice(0, 4) },
   };
 
+  // Exactly ten, so every question is guaranteed to come up: the tests that drive a
+  // *specific* input type cannot be at the mercy of the sample. Doubles as the boundary
+  // case where pool length equals run length.
+  const exactLesson: Lesson = {
+    ...lesson,
+    id: 'math-u01-l3',
+    title: 'Exactly Ten Lesson',
+    quiz: {
+      passThreshold: 8,
+      pool: [
+        ...pool.filter((q) => q.type !== 'multiple-choice'),
+        ...pool.filter((q) => q.type === 'multiple-choice').slice(0, 8),
+      ],
+    },
+  };
+
   const unit: Unit = {
     id: 'math-u01',
     subjectId: 'math',
@@ -89,7 +110,7 @@ const { FIXTURE, THIN } = vi.hoisted(() => {
     title: 'Place Value Party',
     indicatorCodes: ['4.NSBT.1'],
     prerequisiteUnitIds: [],
-    lessons: [lesson, thinLesson],
+    lessons: [lesson, thinLesson, exactLesson],
   };
 
   const subject: Subject = {
@@ -103,12 +124,13 @@ const { FIXTURE, THIN } = vi.hoisted(() => {
   return {
     FIXTURE: { subject, unit, lesson },
     THIN: { subject, unit, lesson: thinLesson },
+    EXACT: { subject, unit, lesson: exactLesson },
   };
 });
 
 vi.mock('../content/subjects', () => ({
   findLesson: (id: string) =>
-    id === FIXTURE.lesson.id ? FIXTURE : id === THIN.lesson.id ? THIN : null,
+    [FIXTURE, THIN, EXACT].find((found) => found.lesson.id === id) ?? null,
 }));
 
 const LESSON_ID = FIXTURE.lesson.id;
@@ -121,6 +143,42 @@ function seededRng(seed = 20260829): () => number {
     state = (Math.imul(state, 1664525) + 1013904223) >>> 0;
     return state / 4294967296;
   };
+}
+
+/**
+ * framer-motion reads `matchMedia("(prefers-reduced-motion)")` exactly once per module
+ * instance and caches the answer behind a listener, so a per-test stub would only ever
+ * take for whichever test rendered first. One live stub installed here at import time —
+ * before any render — plus the listener it registers, gives per-test control instead.
+ *
+ * Most tests run reduced: the spring transitions are real time, and waiting them out ten
+ * questions at a stretch is what makes this suite slow. Tests that are *about* motion opt
+ * back in with `setReducedMotion(false)`.
+ */
+const reducedMotion = { enabled: false, listeners: [] as Array<() => void> };
+const mediaQueryList = {
+  get matches() {
+    return reducedMotion.enabled;
+  },
+  media: '(prefers-reduced-motion)',
+  onchange: null,
+  addListener: (listener: () => void) => reducedMotion.listeners.push(listener),
+  removeListener: () => {},
+  addEventListener: (_type: string, listener: () => void) =>
+    reducedMotion.listeners.push(listener),
+  removeEventListener: () => {},
+  dispatchEvent: () => false,
+};
+Object.defineProperty(window, 'matchMedia', {
+  configurable: true,
+  writable: true,
+  value: () => mediaQueryList,
+});
+
+/** Must be called before the render under test — the preference is read at mount. */
+function setReducedMotion(enabled: boolean) {
+  reducedMotion.enabled = enabled;
+  for (const listener of reducedMotion.listeners) listener();
 }
 
 function ProgressProbe() {
@@ -207,16 +265,32 @@ async function goNext(user: User) {
   await user.click(await screen.findByTestId('quiz-next'));
 }
 
-/** Plays a whole 10-question run; questions whose conceptTag is in `wrongTags` are missed. */
-async function playRun(user: User, wrongTags: string[] = []) {
-  let previous: string | undefined;
-  for (let i = 0; i < 10; i += 1) {
+type RunOptions = {
+  /** Questions carrying one of these concept tags get a deliberately wrong answer. */
+  wrongTags?: string[];
+  /** Stop after this many questions instead of finishing the run. */
+  count?: number;
+  /**
+   * When resuming a part-played run: the prompt of the question *before* the one this
+   * should start on, so the first wait still has something to move away from.
+   */
+  previous?: string;
+};
+
+/** Plays the run and returns the questions it played, in the order they came up. */
+async function playRun(user: User, options: RunOptions = {}): Promise<Question[]> {
+  const { wrongTags = [], count = 10 } = options;
+  let previous = options.previous;
+  const played: Question[] = [];
+  for (let i = 0; i < count; i += 1) {
     const q = await settledQuestion(previous);
+    played.push(q);
     previous = q.prompt;
     await answerCurrent(user, !wrongTags.includes(q.conceptTag));
     await goNext(user);
   }
-  await screen.findByTestId('quiz-results');
+  if (count === 10) await screen.findByTestId('quiz-results');
+  return played;
 }
 
 /** Answers correctly until the question of `type` is on screen. Returns once it is. */
@@ -232,8 +306,23 @@ async function advanceTo(user: User, type: Question['type']) {
   throw new Error(`no ${type} question appeared in the run`);
 }
 
+/**
+ * Taps Next the way a kid with a fast finger does: twice in one tick, then once more on
+ * the *outgoing* card, which `AnimatePresence` keeps mounted (and focused) while it exits.
+ */
+async function doubleTapNext(user: User) {
+  const next = await screen.findByTestId('quiz-next');
+  await user.dblClick(next);
+  // If this ever stops holding, the stale-handler half of the regression has gone
+  // untested — fail loudly rather than quietly weakening.
+  expect(next.isConnected).toBe(true);
+  await user.click(next);
+}
+
 beforeEach(() => {
   window.localStorage.clear();
+  // Fast by default; the motion tests opt back in.
+  setReducedMotion(true);
 });
 
 describe('QuickCheck', () => {
@@ -277,6 +366,7 @@ describe('QuickCheck', () => {
   });
 
   test('a passing run celebrates with confetti and a cheering guide', async () => {
+    setReducedMotion(false);
     const user = userEvent.setup();
     renderQuiz();
 
@@ -301,49 +391,58 @@ describe('QuickCheck', () => {
     expect(readSave().lessons[LESSON_ID]?.attempts).toHaveLength(1);
   });
 
-  test('three misses of one concept become a single review card linking to that card', async () => {
+  test('repeated misses of one concept become a single review card linking to that card', async () => {
     const user = userEvent.setup();
     renderQuiz();
 
-    await playRun(user, ['rounding-rules']);
+    const played = await playRun(user, { wrongTags: ['rounding-rules'] });
 
-    expect(screen.getByText('7/10')).toBeInTheDocument();
+    // Ten of thirteen: how many rounding questions turn up is the sampler's business.
+    // What must hold is that they collapse into ONE group and every number agrees.
+    const missed = played.filter((q) => q.conceptTag === 'rounding-rules');
+    expect(missed.length).toBeGreaterThanOrEqual(2);
+
+    expect(screen.getByText(`${10 - missed.length}/10`)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /things to review/i })).toBeInTheDocument();
 
     const groups = screen.getAllByTestId('review-group');
     expect(groups).toHaveLength(1);
     const group = within(groups[0]!);
     expect(group.getByText(/rounding rules/i)).toBeInTheDocument();
-    expect(groups[0]!).toHaveTextContent(/3/);
+    expect(groups[0]!).toHaveTextContent(`Missed ${missed.length} time`);
     expect(group.getByRole('link', { name: /review this/i })).toHaveAttribute(
       'href',
       `/lesson/${LESSON_ID}?card=card-rounding`,
     );
 
     const attempt = readSave().lessons[LESSON_ID]?.attempts[0];
-    expect(attempt?.score).toBe(7);
-    expect(attempt?.missedConceptTags).toEqual([
-      'rounding-rules',
-      'rounding-rules',
-      'rounding-rules',
-    ]);
-    expect(readSave().lessons[LESSON_ID]?.status).toBe('in-progress');
+    expect(attempt?.score).toBe(10 - missed.length);
+    // One tag per missed *question*, not per group.
+    expect(attempt?.missedConceptTags).toEqual(missed.map(() => 'rounding-rules'));
   });
 
   test('a missed run stays encouraging instead of punitive', async () => {
     const user = userEvent.setup();
     renderQuiz();
 
-    await playRun(user, ['rounding-rules']);
+    // Miss enough to land under the pass threshold of 8.
+    await playRun(user, { wrongTags: ['rounding-rules', 'comparing'] });
 
     expect(screen.queryAllByTestId('confetti-bit')).toHaveLength(0);
     const results = within(screen.getByTestId('quiz-results'));
     expect(results.getByTestId('character-nutty')).toHaveAttribute('data-pose', 'think');
     expect(screen.getByTestId('quiz-results')).not.toHaveTextContent(/fail|wrong|bad/i);
     expect(screen.getByTestId('results-message')).toHaveTextContent(/\w/);
+    // Six of the thirteen carry a missed tag and only three can be dropped, so this run
+    // always lands under the pass threshold of 8.
+    const lessonProgress = readSave().lessons[LESSON_ID];
+    expect(lessonProgress?.status).toBe('in-progress');
+    expect(lessonProgress?.attempts[0]?.score).toBeLessThan(8);
+    expect(screen.getByTestId('lesson-stars')).toHaveAttribute('data-stars', '0');
   });
 
-  test('a wrong answer shows the explanation and an oops guide', async () => {
+  test('a wrong answer shows the explanation, an oops guide and a shake', async () => {
+    setReducedMotion(false);
     const user = userEvent.setup();
     renderQuiz();
     const q = await settledQuestion();
@@ -354,6 +453,7 @@ describe('QuickCheck', () => {
     expect(feedback).toHaveAttribute('data-tone', 'incorrect');
     expect(feedback).toHaveTextContent(q.explanation);
     expect(screen.getByTestId('character-nutty')).toHaveAttribute('data-pose', 'oops');
+    expect(screen.getByTestId('quiz-card')).toHaveAttribute('data-shake', 'yes');
   });
 
   test('a right answer cheers and locks the choices', async () => {
@@ -375,10 +475,11 @@ describe('QuickCheck', () => {
 
   test('fill-blank: Check is disabled while empty and Enter submits', async () => {
     const user = userEvent.setup();
-    renderQuiz();
+    // The ten-question lesson, so the fill-blank is guaranteed to come up.
+    renderQuiz(EXACT.lesson.id);
 
-    // Walk to the fill-blank question, answering everything before it correctly.
     await advanceTo(user, 'fill-blank');
+
 
     const input = screen.getByLabelText(/your answer/i);
     expect(screen.getByRole('button', { name: /check/i })).toBeDisabled();
@@ -392,7 +493,7 @@ describe('QuickCheck', () => {
 
   test('sort: tapped items number themselves, Reset order clears, Check grades', async () => {
     const user = userEvent.setup();
-    renderQuiz();
+    renderQuiz(EXACT.lesson.id);
 
     await advanceTo(user, 'sort');
 
@@ -427,19 +528,113 @@ describe('QuickCheck', () => {
     expect(readSave().lessons[LESSON_ID]?.attempts).toHaveLength(1);
   });
 
-  test('a second run records a second attempt', async () => {
+  test('a second run resamples the pool and records a second attempt', async () => {
     const user = userEvent.setup();
     renderQuiz();
-    await playRun(user, ['rounding-rules']);
+    const first = await playRun(user, { wrongTags: ['rounding-rules', 'comparing'] });
     await user.click(screen.getByRole('button', { name: /try again/i }));
     await settledQuestion();
 
-    await playRun(user);
+    const second = await playRun(user);
+
+    // Ten drawn from thirteen, off a generator that has kept running: replaying the first
+    // sample instead of drawing a new one would make these identical.
+    expect(second.map((q) => q.id)).not.toEqual(first.map((q) => q.id));
 
     const lessonProgress = readSave().lessons[LESSON_ID];
     expect(lessonProgress?.attempts).toHaveLength(2);
     expect(lessonProgress?.bestScore).toBe(10);
     expect(lessonProgress?.status).toBe('passed');
+  });
+
+  describe('a fast finger on Next', () => {
+    // These need the animated path: the bug only exists while the outgoing card is still
+    // mounted, which is exactly what the exit transition keeps alive.
+    test('cannot skip a question mid-run', async () => {
+      setReducedMotion(false);
+      const user = userEvent.setup();
+      renderQuiz();
+      const first = await settledQuestion();
+      await answerCurrent(user, true);
+
+      await doubleTapNext(user);
+
+      const second = await settledQuestion(first.prompt);
+      expect(second.id).not.toBe(first.id);
+      expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '1');
+
+      // The real damage was silent: a skipped question knocks every later answer out of
+      // alignment with the question it grades, so a perfect run stops scoring 10.
+      const rest = await playRun(user, { count: 9, previous: first.prompt });
+      await screen.findByTestId('quiz-results');
+      expect(rest).toHaveLength(9);
+      expect(screen.getByText('10/10')).toBeInTheDocument();
+    });
+
+    test('cannot run the index off the end of the quiz', async () => {
+      setReducedMotion(false);
+      const user = userEvent.setup();
+      renderQuiz();
+      const played = await playRun(user, { count: 8 });
+      const ninth = await settledQuestion(played[7]!.prompt);
+      await answerCurrent(user, true);
+
+      await doubleTapNext(user);
+
+      // Old bug: the stale handler pushed index to 10, dereferenced `questions[10]` and
+      // blanked the screen — there is no app-level error boundary to catch it.
+      const tenth = await settledQuestion(ninth.prompt);
+      expect(tenth.id).not.toBe(ninth.id);
+      expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '9');
+
+      await answerCurrent(user, true);
+      await goNext(user);
+
+      await screen.findByTestId('quiz-results');
+      expect(screen.getByText('10/10')).toBeInTheDocument();
+      expect(readSave().lessons[LESSON_ID]?.attempts).toHaveLength(1);
+    });
+
+    test('cannot record two attempts from the last question', async () => {
+      setReducedMotion(false);
+      const user = userEvent.setup();
+      renderQuiz();
+      const played = await playRun(user, { count: 9 });
+      await settledQuestion(played[8]!.prompt);
+      await answerCurrent(user, true);
+
+      const next = await screen.findByTestId('quiz-next');
+      await user.dblClick(next);
+
+      await screen.findByTestId('quiz-results');
+      expect(screen.getByText('10/10')).toBeInTheDocument();
+      expect(readSave().lessons[LESSON_ID]?.attempts).toHaveLength(1);
+    });
+  });
+
+  test('reduced motion keeps every bit of feedback and drops the movement', async () => {
+    setReducedMotion(true);
+    const user = userEvent.setup();
+    renderQuiz();
+
+    const first = await settledQuestion();
+    await answerCurrent(user, false);
+
+    // The colour, the words and the explanation all still land.
+    const feedback = await screen.findByTestId('quiz-feedback');
+    expect(feedback).toHaveAttribute('data-tone', 'incorrect');
+    expect(feedback).toHaveTextContent(first.explanation);
+    expect(screen.getByTestId('quiz-card')).not.toHaveAttribute('data-shake');
+
+    await goNext(user);
+    await playRun(user, { count: 9, previous: first.prompt });
+    await screen.findByTestId('quiz-results');
+
+    // 9/10 clears the pass threshold of 8 — so this is a *passing* run with no confetti.
+    expect(screen.getByText('9/10')).toBeInTheDocument();
+    expect(readSave().lessons[LESSON_ID]?.status).toBe('passed');
+    expect(screen.queryAllByTestId('confetti-bit')).toHaveLength(0);
+    expect(screen.getByTestId('lesson-stars')).toHaveAttribute('data-stars', '2');
   });
 
   test('results offer a way back to the subject map', async () => {
