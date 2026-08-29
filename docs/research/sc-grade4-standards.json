@@ -1,0 +1,880 @@
+{
+  "bySubject": {
+    "math": {
+      "subject": "Mathematics (Grade 4)",
+      "document": {
+        "title": "South Carolina College- and Career-Ready Mathematics Standards (2025 SC CCR Mathematics Standards)",
+        "adoptionYear": "2023",
+        "url": "https://ed.sc.gov/instruction/standards/mathematics/standards/2025-south-carolina-college-and-career-ready-mathematics-standards/",
+        "notes": "Approved by the SC State Board of Education December 12, 2023 (first read September 2023). Bridge year 2024-25; fully operational and assessed (SC READY) beginning in 2025-26, so these are the standards in effect for the 2026-27 school year. The current posted PDF is stamped 'Emended July 2026,' incorporating the SCDE's corrective edits. Grade 4 section spans document pages 47-56."
+      },
+      "strands": [
+        {
+          "code": "DPSR",
+          "name": "Data, Probability, and Statistical Reasoning"
+        },
+        {
+          "code": "MGSR",
+          "name": "Measurement, Geometry, and Spatial Reasoning"
+        },
+        {
+          "code": "NR",
+          "name": "Numerical Reasoning"
+        },
+        {
+          "code": "PAFR",
+          "name": "Patterns, Algebra, and Functional Reasoning"
+        }
+      ],
+      "indicators": [
+        {
+          "code": "4.DPSR.1.1",
+          "strand": "Data, Probability, and Statistical Reasoning",
+          "text": "Collect and organize numerical and categorical data based on observations, investigations, surveys, and experiments using tables, scaled bar graphs, or dot plots. Use titles and labels. Scales to include whole numbers, halves, and fourths."
+        },
+        {
+          "code": "4.DPSR.1.2",
+          "strand": "Data, Probability, and Statistical Reasoning",
+          "text": "Solve one-step, real-world situations using whole number and fractional data represented in tables, scaled picture graphs, scaled bar graphs, or dot plots. Limit to like denominators of 2, 3, 4, 5, 6, 8, and 10."
+        },
+        {
+          "code": "4.DPSR.2.1",
+          "strand": "Data, Probability, and Statistical Reasoning",
+          "text": "Determine the possible outcomes of a simple event and record the probability as certain, possible, or impossible."
+        },
+        {
+          "code": "4.MGSR.1.1",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Apply perimeter formulas for rectangles to solve real-world situations including finding the perimeter, given the side lengths, and finding an unknown side length."
+        },
+        {
+          "code": "4.MGSR.1.2",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Apply area formulas for rectangles to solve real-world situations. Use square units to label area measurements."
+        },
+        {
+          "code": "4.MGSR.2.1",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Calculate the value of a collection of coins and bills in real-world situations to determine whether there is enough money to make a purchase. Justify based on comparison of money amounts."
+        },
+        {
+          "code": "4.MGSR.2.2",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Solve real-world situations involving addition and subtraction of time intervals within 60 minutes to find elapsed time, start time, or end time."
+        },
+        {
+          "code": "4.MGSR.2.3",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Measure length to the nearest quarter inch."
+        },
+        {
+          "code": "4.MGSR.2.4",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Measure weight in customary units and metric units to the nearest whole unit. Limit to ounces, pounds, grams, and kilograms."
+        },
+        {
+          "code": "4.MGSR.2.5",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Convert customary units of length, weight, and liquid volume from a larger unit to a smaller unit, given direct comparisons of the two measurements and/or the unit equivalencies within a single system of measurement. Limit to inches, feet, yards, ounces, pounds, fluid ounces, cups, pints, quarts, and gallons when given unit equivalences."
+        },
+        {
+          "code": "4.MGSR.3.1",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Classify triangles according to side length (isosceles, equilateral, scalene) and angle measure (acute, obtuse, right, equiangular)."
+        },
+        {
+          "code": "4.MGSR.3.2",
+          "strand": "Measurement, Geometry, and Spatial Reasoning",
+          "text": "Classify quadrilaterals in a hierarchy based on their shared attributes."
+        },
+        {
+          "code": "4.NR.1.1",
+          "strand": "Numerical Reasoning",
+          "text": "Read and write whole numbers through the millions period (0 to 999,999,999) in word, standard, and equations in expanded form."
+        },
+        {
+          "code": "4.NR.1.2",
+          "strand": "Numerical Reasoning",
+          "text": "Estimate sums, differences, products, and quotients of multi-digit whole numbers, using rounding and place value to determine the reasonableness of real-world problem solutions. Write an equation for the estimate."
+        },
+        {
+          "code": "4.NR.1.3",
+          "strand": "Numerical Reasoning",
+          "text": "Order whole numbers within 999,999 (no more than 3) in ascending or descending order and record the comparison(s) using symbols for is less than (<) and/or is greater than (>)."
+        },
+        {
+          "code": "4.NR.2.1",
+          "strand": "Numerical Reasoning",
+          "text": "Represent fractions with denominators of 10 and 100 in words, models, and decimal notations."
+        },
+        {
+          "code": "4.NR.2.2",
+          "strand": "Numerical Reasoning",
+          "text": "Compare decimal numbers to the hundredths using the benchmarks 0, 0.5, and 1.0, concrete, area, and linear models. Use the symbols for is equal to (=), is less than (<), and/or is greater than (>)."
+        },
+        {
+          "code": "4.NR.2.3",
+          "strand": "Numerical Reasoning",
+          "text": "Generate equivalent fractions, including fractions greater than 1, using multiple representations. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100."
+        },
+        {
+          "code": "4.NR.2.4",
+          "strand": "Numerical Reasoning",
+          "text": "Represent the composition and decomposition of fractions with the same denominator, including mixed numbers and fractions greater than 1, using multiple representations. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100."
+        },
+        {
+          "code": "4.NR.2.5",
+          "strand": "Numerical Reasoning",
+          "text": "Explain and demonstrate how a mixed number is equivalent to a fraction greater than 1 and how a fraction greater than 1 is equivalent to a mixed number. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100."
+        },
+        {
+          "code": "4.NR.2.6",
+          "strand": "Numerical Reasoning",
+          "text": "Compare fractions and mixed numbers with like and unlike denominators applying benchmark fractions such as 0, 1/2, and 1 using the symbols for is equal to (=), is less than (<), or is greater than (>). Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100."
+        },
+        {
+          "code": "4.PAFR.1.1",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Use a strategy to accurately compute sums and differences of whole numbers up to 100,000 and justify the sum or difference."
+        },
+        {
+          "code": "4.PAFR.1.2",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Compute the product of a one-digit whole number times a multiple of 10 (from 10 to 90) and 100 (from 100 to 900) based on place value and properties of operations."
+        },
+        {
+          "code": "4.PAFR.1.3",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Decompose numbers by the value of each digit to multiply whole numbers up to four digits by a one-digit number and two 2-digit whole numbers."
+        },
+        {
+          "code": "4.PAFR.1.4",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Use a strategy to divide up to a four-digit dividend by a one-digit divisor, with and without remainders. Justify the calculation."
+        },
+        {
+          "code": "4.PAFR.2.1",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Use a strategy to accurately compute sums and differences of fractions with like denominators and justify the reasonableness of the answer. Limit denominators to 2, 3, 4, 5, 6, 8, 10, 12, 25, and 100."
+        },
+        {
+          "code": "4.PAFR.2.2",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Use fraction and decimal equivalencies to add and subtract tenths and hundredths, to include mixed numbers and fractions greater than 1."
+        },
+        {
+          "code": "4.PAFR.2.3",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Represent and compute the product of a whole number times a unit fraction. Limit denominators to 2, 3, 4, 5, 6, 8, 10, 12, 25, and 100."
+        },
+        {
+          "code": "4.PAFR.2.4",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Interpret a fraction as an equal sharing division situation, where a quantity (the numerator) is divided into equal parts (the denominator) to include real-world situations."
+        },
+        {
+          "code": "4.PAFR.3.1",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Find all factor pairs for a whole number in the range 1–50. Determine whether the whole number is prime or composite."
+        },
+        {
+          "code": "4.PAFR.3.2",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Describe and extend a numerical pattern that follows a rule using function tables and real-world situations."
+        },
+        {
+          "code": "4.PAFR.3.3",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Solve real-world situations involving multiplicative comparison situations and write equations to represent the problem using a variable for the unknown."
+        },
+        {
+          "code": "4.PAFR.3.4",
+          "strand": "Patterns, Algebra, and Functional Reasoning",
+          "text": "Solve two-step, real-world situations using the four operations involving whole number answers. Represent the problem using an equation with a variable as the unknown in any position."
+        }
+      ],
+      "suggestedUnitSequence": [
+        {
+          "unitNumber": 1,
+          "title": "Place Value and Whole Number Relationships",
+          "indicatorCodes": [
+            "4.NR.1.1",
+            "4.NR.1.3"
+          ],
+          "prerequisiteUnits": [],
+          "rationale": "Reading, writing, comparing, and ordering whole numbers through the millions period grounds the base-ten understanding every computation unit builds on; this is the standard SC and national grade 4 starting point."
+        },
+        {
+          "unitNumber": 2,
+          "title": "Addition, Subtraction, and Estimation with Whole Numbers",
+          "indicatorCodes": [
+            "4.PAFR.1.1",
+            "4.NR.1.2"
+          ],
+          "prerequisiteUnits": [
+            1
+          ],
+          "rationale": "Multi-digit addition and subtraction to 100,000 (including the standard algorithm as one strategy) applies place value immediately; estimation and reasonableness (4.NR.1.2) is introduced here and revisited throughout every operations unit."
+        },
+        {
+          "unitNumber": 3,
+          "title": "Factors, Multiples, Primes, and Patterns",
+          "indicatorCodes": [
+            "4.PAFR.3.1",
+            "4.PAFR.3.2"
+          ],
+          "prerequisiteUnits": [
+            1
+          ],
+          "rationale": "Factor pairs, prime/composite, and rule-based function-table patterns strengthen multiplicative reasoning right before multi-digit multiplication and later support generating equivalent fractions."
+        },
+        {
+          "unitNumber": 4,
+          "title": "Multi-Digit Multiplication and Multiplicative Comparison",
+          "indicatorCodes": [
+            "4.PAFR.1.2",
+            "4.PAFR.1.3",
+            "4.PAFR.3.3"
+          ],
+          "prerequisiteUnits": [
+            1,
+            3
+          ],
+          "rationale": "Multiplying by multiples of 10/100, then up to four-digit by one-digit and 2-digit by 2-digit via place-value decomposition (partial products, area models), with multiplicative comparison word problems giving context; depends on place value and factor work."
+        },
+        {
+          "unitNumber": 5,
+          "title": "Multi-Digit Division and Multi-Step Problem Solving",
+          "indicatorCodes": [
+            "4.PAFR.1.4",
+            "4.PAFR.3.4"
+          ],
+          "prerequisiteUnits": [
+            2,
+            4
+          ],
+          "rationale": "Division of four-digit dividends by one-digit divisors leans on the inverse relationship with multiplication; two-step problems with all four operations and a variable for the unknown synthesize Units 2, 4, and 5."
+        },
+        {
+          "unitNumber": 6,
+          "title": "Fraction Equivalence and Comparison",
+          "indicatorCodes": [
+            "4.NR.2.3",
+            "4.NR.2.4",
+            "4.NR.2.5",
+            "4.NR.2.6"
+          ],
+          "prerequisiteUnits": [
+            3,
+            4
+          ],
+          "rationale": "The grade's major fraction focus: generating equivalent fractions (using multiplication and the Identity Property), composing/decomposing fractions and mixed numbers, and benchmark comparison; factor/multiple fluency and multiplication make equivalence reasoning accessible."
+        },
+        {
+          "unitNumber": 7,
+          "title": "Fraction Operations",
+          "indicatorCodes": [
+            "4.PAFR.2.1",
+            "4.PAFR.2.3",
+            "4.PAFR.2.4"
+          ],
+          "prerequisiteUnits": [
+            6
+          ],
+          "rationale": "Adding and subtracting like-denominator fractions, multiplying a whole number by a unit fraction, and interpreting fractions as equal-sharing division all depend directly on the equivalence and composition/decomposition understanding of Unit 6."
+        },
+        {
+          "unitNumber": 8,
+          "title": "Decimals: Tenths, Hundredths, and Fraction Connections",
+          "indicatorCodes": [
+            "4.NR.2.1",
+            "4.NR.2.2",
+            "4.PAFR.2.2"
+          ],
+          "prerequisiteUnits": [
+            6,
+            7
+          ],
+          "rationale": "Fractions with denominators 10 and 100 bridge into decimal notation, benchmark comparison of decimals, and adding/subtracting tenths and hundredths via fraction-decimal equivalencies; sequenced after fractions so decimals are built on part-whole reasoning."
+        },
+        {
+          "unitNumber": 9,
+          "title": "Measurement: Money, Elapsed Time, Length, Weight, and Conversions",
+          "indicatorCodes": [
+            "4.MGSR.2.1",
+            "4.MGSR.2.2",
+            "4.MGSR.2.3",
+            "4.MGSR.2.4",
+            "4.MGSR.2.5"
+          ],
+          "prerequisiteUnits": [
+            2,
+            4,
+            6
+          ],
+          "rationale": "Money comparisons, elapsed time within 60 minutes, measuring to the quarter inch (which the document explicitly connects to equivalent fractions), weight, and larger-to-smaller unit conversions applying multiplication and function tables from earlier units."
+        },
+        {
+          "unitNumber": 10,
+          "title": "Perimeter and Area of Rectangles",
+          "indicatorCodes": [
+            "4.MGSR.1.1",
+            "4.MGSR.1.2"
+          ],
+          "prerequisiteUnits": [
+            4,
+            5,
+            9
+          ],
+          "rationale": "Applying perimeter and area formulas, including finding an unknown side length, uses multiplication and division fluency and follows naturally from linear measurement work in Unit 9."
+        },
+        {
+          "unitNumber": 11,
+          "title": "Geometry: Classifying Triangles and Quadrilaterals",
+          "indicatorCodes": [
+            "4.MGSR.3.1",
+            "4.MGSR.3.2"
+          ],
+          "prerequisiteUnits": [
+            10
+          ],
+          "rationale": "Classifying triangles by side length and angle measure and placing quadrilaterals in an attribute hierarchy is largely self-contained; positioned after area/perimeter so students already reason about rectangle attributes, sides, and angles."
+        },
+        {
+          "unitNumber": 12,
+          "title": "Data, Graphs, and Probability",
+          "indicatorCodes": [
+            "4.DPSR.1.1",
+            "4.DPSR.1.2",
+            "4.DPSR.2.1"
+          ],
+          "prerequisiteUnits": [
+            2,
+            6
+          ],
+          "rationale": "Collecting and organizing data, solving one-step problems from tables, bar graphs, and dot plots (with fractional data requiring Unit 6), and describing probability as certain, possible, or impossible; a capstone that integrates whole-number and fraction skills and is commonly placed late in SC pacing guides, though DPSR indicators can also be interleaved across the year."
+        }
+      ],
+      "confidence": "high",
+      "caveats": "Verified current: the SC CCR Mathematics Standards (approved Dec 2023) became fully operational and assessed in 2025-26 per SCDE, so they govern 2026-27; the extracted text comes from the official PDF stamped \"Emended July 2026\" (downloaded from ed.sc.gov, Grade 4 on document pages 47-56), which incorporates SCDE corrective edits. All 33 Grade 4 content indicators are included verbatim. Two extraction notes: (1) in 4.NR.2.6 the benchmark fraction is a stacked one-half glyph in the PDF, rendered here as \"1/2\"; (2) in 4.NR.2.2 the PDF text layer reads \"concrete area, and linear models\" — transcribed as \"concrete, area, and linear models\" to match the parallel phrasing used in sibling indicators (4.NR.2.3, 4.PAFR.2.1), so verify that comma against the print layout if exactness matters. The document also lists five K-12 Mathematical Process Standards contextualized for Grade 4 (MPS.PS.1, MPS.RC.1, MPS.C.1, MPS.AJ.1, MPS.SP.1); these are cross-cutting practices meant to be embedded in every unit, not unit-assignable content indicators, so they are excluded from the indicator list. The unit sequence is a suggested order (SCDE does not mandate one); 4.NR.1.2 (estimation) and the DPSR indicators are good candidates for spiraling across multiple units."
+    },
+    "ela-reading": {
+      "subject": "English Language Arts (Reading-focused strands), Grade 4",
+      "document": {
+        "title": "South Carolina College- and Career-Ready English Language Arts Standards (2024 SC CCR ELA Standards)",
+        "adoptionYear": "2023",
+        "url": "https://ed.sc.gov/instruction/standards/english-language-arts/standards/2023-sc-ccr-ela-standards-approved/",
+        "notes": "Approved by the SC State Board of Education January 17, 2023 (first read November 2022); current posted edition is marked 'Approved: January 2023; Emended August 2025.' The 2023-24 school year was a transition/exploration year; the standards became fully operational with state assessment beginning in 2024-25, and they remain the current standards in effect for the 2026-27 school year. Grade 4 section spans document pages 73-82. URL serves the full PDF directly."
+      },
+      "strands": [
+        {
+          "code": "OE",
+          "name": "Overarching Expectations"
+        },
+        {
+          "code": "F",
+          "name": "Foundations of Literacy"
+        },
+        {
+          "code": "AOR",
+          "name": "Applications of Reading"
+        },
+        {
+          "code": "R",
+          "name": "Research"
+        },
+        {
+          "code": "C",
+          "name": "Written and Oral Communications (excluded from indicator list per reading-strand focus)"
+        }
+      ],
+      "indicators": [
+        {
+          "code": "ELA.4.OE.1",
+          "strand": "Overarching Expectations",
+          "text": "Read and write for a variety of purposes, including academic and personal, for extended periods of time."
+        },
+        {
+          "code": "ELA.4.OE.2",
+          "strand": "Overarching Expectations",
+          "text": "Acquire, refine, and share knowledge through a variety of multimedia literacies to include written, oral, visual, digital, and interactive texts."
+        },
+        {
+          "code": "ELA.4.OE.3",
+          "strand": "Overarching Expectations",
+          "text": "Make inferences to support comprehension."
+        },
+        {
+          "code": "ELA.4.OE.4",
+          "strand": "Overarching Expectations",
+          "text": "Collaborate with others and use active listening skills."
+        },
+        {
+          "code": "ELA.4.OE.5",
+          "strand": "Overarching Expectations",
+          "text": "Cite evidence to explain and justify reasoning."
+        },
+        {
+          "code": "ELA.4.OE.6",
+          "strand": "Overarching Expectations",
+          "text": "Create quality work by adhering to an accepted format."
+        },
+        {
+          "code": "ELA.4.F.4.2",
+          "strand": "Foundations of Literacy",
+          "text": "Read a variety of texts orally and silently with accuracy, appropriate rate, expression, and intonation."
+        },
+        {
+          "code": "ELA.4.AOR.1.1",
+          "strand": "Applications of Reading",
+          "text": "Explain how setting and conflict cause characters to change and how conflict(s) contributes to plot development."
+        },
+        {
+          "code": "ELA.4.AOR.1.2",
+          "strand": "Applications of Reading",
+          "text": "Determine and explain how figurative language impacts meaning and contributes to the reader's experience."
+        },
+        {
+          "code": "ELA.4.AOR.2.1",
+          "strand": "Applications of Reading",
+          "text": "Identify and explain an explicit or implied theme and how it is developed by key details in a literary text."
+        },
+        {
+          "code": "ELA.4.AOR.2.2",
+          "strand": "Applications of Reading",
+          "text": "Identify and explain a stated or implied central idea and how it is developed by supporting details in an informational text."
+        },
+        {
+          "code": "ELA.4.AOR.3.1",
+          "strand": "Applications of Reading",
+          "text": "a. Compare and contrast the point of view from which different stories are narrated, including the difference between first person and third person; and b. explain how different characters' perspectives impact a literary text."
+        },
+        {
+          "code": "ELA.4.AOR.4.1",
+          "strand": "Applications of Reading",
+          "text": "Determine and explain how an author's purpose (e.g., what an author wants to answer, explain, or describe) is conveyed through the author's perspective."
+        },
+        {
+          "code": "ELA.4.AOR.5.1",
+          "strand": "Applications of Reading",
+          "text": "Compare and contrast the structural elements of literary texts (e.g., narratives, dramas, and poems)."
+        },
+        {
+          "code": "ELA.4.AOR.5.2",
+          "strand": "Applications of Reading",
+          "text": "Explain how basic text features contribute to meaning in an informational text; identify the text structures of problem and solution, chronological, and/or compare and contrast."
+        },
+        {
+          "code": "ELA.4.AOR.5.3",
+          "strand": "Applications of Reading",
+          "text": "Explain an author's use of reasons and evidence to support a claim(s) in an informational text."
+        },
+        {
+          "code": "ELA.4.AOR.6.1",
+          "strand": "Applications of Reading",
+          "text": "Summarize a text to enhance comprehension: a. include plot, theme, and relevant key details for a literary text; and b. include a central idea and relevant supporting details for an informational text."
+        },
+        {
+          "code": "ELA.4.AOR.7.1",
+          "strand": "Applications of Reading",
+          "text": "Determine or clarify the meaning of known, unknown, and multiple-meaning words and phrases, choosing from an array of strategies: a. use context clues (e.g., definitions, examples, restatements) to determine the meaning of a word or phrase; b. consult print and digital reference materials to build and integrate background knowledge; and c. consult print and digital reference materials to find the pronunciation, part of speech, and to determine or clarify the precise meaning of words and phrases."
+        },
+        {
+          "code": "ELA.4.AOR.8.1",
+          "strand": "Applications of Reading",
+          "text": "Determine an author's use of words and phrases in grade-level literary, informational, and multimedia texts: a. distinguish between literal and nonliteral meanings of words and phrases (e.g., take steps); b. explain the meaning of commonly occurring similes, metaphors, and idioms; and c. demonstrate knowledge of relationships between words (e.g., synonyms and antonyms) to better understand each of the words."
+        },
+        {
+          "code": "ELA.4.AOR.9.1",
+          "strand": "Applications of Reading",
+          "text": "Identify and use common Greek and Latin roots, base words, and affixes to determine the meaning of words in grade-appropriate content."
+        },
+        {
+          "code": "ELA.4.AOR.10.1",
+          "strand": "Applications of Reading",
+          "text": "Determine and explain how visuals (e.g., illustrations, photographs, maps) and/or multimedia elements (e.g., video, audio) contribute to the meaning of a print or non-print text."
+        },
+        {
+          "code": "ELA.4.R.1.1",
+          "strand": "Research",
+          "text": "Conduct short research for inquiry by: a. generating a question about a topic; and b. examining a provided source."
+        },
+        {
+          "code": "ELA.4.R.1.2",
+          "strand": "Research",
+          "text": "Determine the credibility of a provided source."
+        },
+        {
+          "code": "ELA.4.R.1.3",
+          "strand": "Research",
+          "text": "Determine which information is relevant to the topic."
+        },
+        {
+          "code": "ELA.4.R.1.4",
+          "strand": "Research",
+          "text": "Group related findings."
+        },
+        {
+          "code": "ELA.4.R.1.5",
+          "strand": "Research",
+          "text": "Cite sources to avoid plagiarism."
+        }
+      ],
+      "suggestedUnitSequence": [
+        {
+          "unitNumber": 1,
+          "title": "Launching Readers: Fluency and Comprehension Habits",
+          "indicatorCodes": [
+            "ELA.4.F.4.2",
+            "ELA.4.OE.1",
+            "ELA.4.OE.3",
+            "ELA.4.OE.5"
+          ],
+          "prerequisiteUnits": [],
+          "rationale": "Establishes the year's reading routines: oral and silent fluency (the only grade-4 Foundations indicator), stamina, inferring, and citing text evidence — the embedded Overarching Expectations every later unit relies on."
+        },
+        {
+          "unitNumber": 2,
+          "title": "Word Study: Roots, Affixes, and Context Clues",
+          "indicatorCodes": [
+            "ELA.4.AOR.9.1",
+            "ELA.4.AOR.7.1"
+          ],
+          "prerequisiteUnits": [],
+          "rationale": "Greek/Latin roots, base words, affixes, context clues, and reference materials give students word-solving tools they will apply in every subsequent comprehension unit; taught early and spiraled all year."
+        },
+        {
+          "unitNumber": 3,
+          "title": "Story Elements: Character, Setting, Conflict, and Plot",
+          "indicatorCodes": [
+            "ELA.4.AOR.1.1"
+          ],
+          "prerequisiteUnits": [
+            1
+          ],
+          "rationale": "Concrete literary elements (how setting and conflict change characters and drive plot) are the grade's foundational literary-analysis work and a prerequisite for theme, point of view, and genre study."
+        },
+        {
+          "unitNumber": 4,
+          "title": "Theme in Literary Texts",
+          "indicatorCodes": [
+            "ELA.4.AOR.2.1"
+          ],
+          "prerequisiteUnits": [
+            3
+          ],
+          "rationale": "Explicit and implied theme requires inferring from the key details of plot and character studied in Unit 3; implied theme is a new, inference-heavy grade-4 expectation."
+        },
+        {
+          "unitNumber": 5,
+          "title": "Central Idea and Supporting Details in Informational Text",
+          "indicatorCodes": [
+            "ELA.4.AOR.2.2"
+          ],
+          "prerequisiteUnits": [
+            1
+          ],
+          "rationale": "The informational-text parallel to theme: stated and implied central ideas developed by supporting details. Anchors all later informational reading (structure, purpose, argument, research)."
+        },
+        {
+          "unitNumber": 6,
+          "title": "Summarizing Across Genres",
+          "indicatorCodes": [
+            "ELA.4.AOR.6.1"
+          ],
+          "prerequisiteUnits": [
+            4,
+            5
+          ],
+          "rationale": "Summarizing literary text (plot, theme, key details) and informational text (central idea, supporting details) consolidates Units 3-5; the standards note this indicator supports all other AOR, Research, and Communication indicators."
+        },
+        {
+          "unitNumber": 7,
+          "title": "Informational Text Structures and Features",
+          "indicatorCodes": [
+            "ELA.4.AOR.5.2",
+            "ELA.4.AOR.10.1"
+          ],
+          "prerequisiteUnits": [
+            5
+          ],
+          "rationale": "Problem/solution, chronological, and compare/contrast structures plus text features and visual/multimedia elements build on central-idea work, showing how authors organize and enhance information."
+        },
+        {
+          "unitNumber": 8,
+          "title": "Author's Purpose, Perspective, and Claims",
+          "indicatorCodes": [
+            "ELA.4.AOR.4.1",
+            "ELA.4.AOR.5.3"
+          ],
+          "prerequisiteUnits": [
+            5,
+            7
+          ],
+          "rationale": "Students connect an author's purpose to perspective and trace reasons and evidence supporting claims — the grade-4 focus the standards' overview highlights — which requires prior command of central idea and text structure."
+        },
+        {
+          "unitNumber": 9,
+          "title": "Point of View and Character Perspective",
+          "indicatorCodes": [
+            "ELA.4.AOR.3.1"
+          ],
+          "prerequisiteUnits": [
+            3
+          ],
+          "rationale": "First- vs. third-person narration and how different characters' perspectives shape a story extend the character and plot analysis of Unit 3 and mirror the author's-perspective work in informational text."
+        },
+        {
+          "unitNumber": 10,
+          "title": "Poetry, Drama, and Figurative Language",
+          "indicatorCodes": [
+            "ELA.4.AOR.5.1",
+            "ELA.4.AOR.1.2",
+            "ELA.4.AOR.8.1"
+          ],
+          "prerequisiteUnits": [
+            2,
+            3
+          ],
+          "rationale": "Comparing structural elements of narratives, dramas, and poems pairs naturally with figurative language (similes, metaphors, idioms, literal vs. nonliteral meanings) and word-relationship work, applying vocabulary strategies from Unit 2 to craft and style."
+        },
+        {
+          "unitNumber": 11,
+          "title": "Research and Source Evaluation",
+          "indicatorCodes": [
+            "ELA.4.R.1.1",
+            "ELA.4.R.1.2",
+            "ELA.4.R.1.3",
+            "ELA.4.R.1.4",
+            "ELA.4.R.1.5"
+          ],
+          "prerequisiteUnits": [
+            7,
+            8
+          ],
+          "rationale": "A capstone inquiry cycle — generating questions, judging source credibility and relevance, grouping findings, and citing sources — synthesizes the informational-reading skills of Units 5-8 and exercises OE.5 evidence habits."
+        }
+      ],
+      "confidence": "high",
+      "caveats": "Verified directly against the official SCDE PDF at ed.sc.gov (title page: 'South Carolina College- and Career-Ready English Language Arts Standards,' Final Approval January 2023; every page footer reads 'Approved: January 2023; Emended August 2025' — the current emended edition, in effect for 2026-27; a local copy is at /private/tmp/claude-501/-Users-eherbert-cram-all/a66cf53a-6672-47a0-bdd8-a58247c40a14/scratchpad/sc-ela-standards.pdf, Grade 4 on PDF pages 74-83). Notes: (1) Per the reading-strand focus, the Written and Oral Communications strand indicators (ELA.4.C.1.1 through ELA.4.C.9.1 — argument/informative/narrative writing, grammar, revision, cursive, presenting, discussion, evaluating speakers) are excluded from the indicator list; none are so tightly coupled to reading instruction as to require inclusion, though ELA.4.C.1.1 cross-references ELA.4.AOR.5.3. (2) In Foundations of Literacy, only ELA.4.F.4.2 exists at grade 4; all other F indicator slots (F.1.1-F.1.7, F.2.1-F.2.5, F.3.1-F.3.8, F.4.1, F.4.3) read verbatim 'There is not an indicator for fourth grade' — grade-4 word study lives in AOR.7-9 instead. (3) The six ELA.4.OE indicators are 'Overarching Expectations' meant to be embedded in all indicators rather than taught as standalone standards. (4) Lettered sub-parts (a/b/c) are preserved inline within each indicator's text; minor line-break hyphenation from PDF extraction was repaired without changing wording. (5) The document is branded the '2024 SC CCR ELA Standards' even though approval was January 2023."
+    },
+    "science": {
+      "subject": "Science (Grade 4)",
+      "document": {
+        "title": "South Carolina College- and Career-Ready Science Standards 2021",
+        "adoptionYear": "2021",
+        "url": "https://ed.sc.gov/instruction/standards/science/standards/south-carolina-college-and-career-ready-science-standards-2021-approved/",
+        "notes": "Approved by the SC State Board of Education and Education Oversight Committee on June 14, 2021. Replaced the 2014 South Carolina Academic Standards and Performance Indicators for Science. Bridge/transition years were 2021-22 and 2022-23, with full implementation beginning in 2023-24. These remain the current standards in effect for the 2026-27 school year; the SC READY Grade 4 science assessment is aligned to them (assessment specifications updated July 2025 for 2025-26). Grade 4 section appears on pages 66-82 of the PDF. Each performance expectation (PE) is three-dimensional, pairing one Science and Engineering Practice (SEP) and one Crosscutting Concept (CCC) with Disciplinary Core Ideas (DCIs); engineering (ETS) content is integrated into the PEs rather than listed as separate grade-band engineering design PEs."
+      },
+      "strands": [
+        {
+          "code": "PS3",
+          "name": "Energy"
+        },
+        {
+          "code": "PS4",
+          "name": "Waves and their Applications in Technologies for Information Transfer"
+        },
+        {
+          "code": "LS1",
+          "name": "From Molecules to Organisms: Structures and Processes"
+        },
+        {
+          "code": "ESS1",
+          "name": "Earth's Place in the Universe"
+        },
+        {
+          "code": "ESS2",
+          "name": "Earth's Systems"
+        },
+        {
+          "code": "ESS3",
+          "name": "Earth and Human Activity"
+        }
+      ],
+      "indicators": [
+        {
+          "code": "4-PS3-1",
+          "strand": "Energy (PS3)",
+          "text": "Use evidence to construct an explanation relating the speed of an object to the energy of that object. State Assessment Boundary: Assessment does not include quantitative measures of changes in the speed of an object or on any precise or quantitative definition of energy. [SEP: Constructing Explanations and Designing Solutions; CCC: Energy and Matter; DCI: PS3.A Definitions of Energy]"
+        },
+        {
+          "code": "4-PS3-2",
+          "strand": "Energy (PS3)",
+          "text": "Make observations to provide evidence that energy can be transferred from place to place by sound, light, heat, and electric currents. State Assessment Boundary: Assessment does not include quantitative measurements of energy or the difference between transferring and transforming energy. [SEP: Planning and Carrying Out Investigations; CCC: Energy and Matter; DCIs: PS3.A Definitions of Energy, PS3.B Conservation of Energy and Energy Transfer]"
+        },
+        {
+          "code": "4-PS3-3",
+          "strand": "Energy (PS3)",
+          "text": "Ask questions and predict outcomes about the changes in energy that occur when objects collide. Clarification Statement: Emphasis is on the change in the energy due to the change in speed, not on the forces, as objects interact. State Assessment Boundary: Assessment does not include quantitative measures of changes in the speed of an object (acceleration) or quantitative measurements of energy. [SEP: Asking Questions and Defining Problems; CCC: Energy and Matter; DCIs: PS3.A Definitions of Energy, PS3.B Conservation of Energy and Energy Transfer, PS3.C Relationship Between Energy and Forces]"
+        },
+        {
+          "code": "4-PS3-4",
+          "strand": "Energy (PS3)",
+          "text": "Apply scientific ideas to design, test, and refine a device that converts energy from one form to another. Clarification Statement: Examples of devices could include electric circuits that convert electrical energy into motion energy of a vehicle, light, or sound; and a passive solar heater that converts light into heat. Examples of constraints could include the materials, cost, and time to design the device. State Assessment Boundary: Devices should be limited to those that convert motion energy to electric energy or use stored energy (batteries) to cause motion or produce light or sound. [SEP: Constructing Explanations and Designing Solutions; CCC: Energy and Matter; DCIs: PS3.B Conservation of Energy and Energy Transfer, PS3.D Energy in Chemical Processes and Everyday Life, ETS1.A Defining and Delimiting an Engineering Problem, ETS1.B Developing Possible Solutions, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]"
+        },
+        {
+          "code": "4-PS4-1",
+          "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)",
+          "text": "Develop a model of waves to describe patterns in terms of amplitude and wavelength and that waves can cause objects to move. Clarification Statement: Examples of models include diagrams, analogies, or physical models using (but not limited to) stringed beads, rubber bands, wire, or yarn to illustrate amplitude of waves and wavelength. State Assessment Boundary: Assessment does not include interference effects, electromagnetic waves, non-periodic waves, or quantitative models of amplitude and wavelength. [SEP: Developing and Using Models; CCC: Patterns; DCI: PS4.A Wave Properties]"
+        },
+        {
+          "code": "4-PS4-2",
+          "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)",
+          "text": "Develop a model to describe that light reflecting from objects and entering the eye allows objects to be seen. State Assessment Boundary: Assessment does not include knowledge of specific colors reflected and seen, the cellular mechanisms of vision, or how the retina works. [SEP: Developing and Using Models; CCC: Cause and Effect; DCI: PS4.B Electromagnetic Radiation]"
+        },
+        {
+          "code": "4-PS4-3",
+          "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)",
+          "text": "Generate and compare multiple solutions that use patterns to transmit information. Clarification Statement: Examples of solutions include drums sending coded information through sound waves, using a grid of 0s and 1s representing black and white to send information about a picture, QR codes, barcodes, and using Morse code to send text. The coding method does not need to be electronic or digital, and the code should only be two possible values such as on/off, 0/1, black/white. [SEP: Constructing Explanations and Designing Solutions; CCC: Patterns; DCIs: PS4.C Information Technologies and Instrumentation, ETS1.C Optimizing the Design Solution, ETS2.A Interdependence of Science, Engineering, and Technology]"
+        },
+        {
+          "code": "4-LS1-1",
+          "strand": "From Molecules to Organisms: Structures and Processes (LS1)",
+          "text": "Construct an argument that plants and animals have internal and external structures that function together in a system to support survival, growth, behavior, and reproduction. Clarification Statement: Examples of structures could include thorns, roots, heart, lungs, or skin. State Assessment Boundary: Assessment does not include microscopic structures within plant and animal systems. [SEP: Engaging in Argument from Evidence; CCC: Systems and System Models; DCI: LS1.A Structure and Function]"
+        },
+        {
+          "code": "4-LS1-2",
+          "strand": "From Molecules to Organisms: Structures and Processes (LS1)",
+          "text": "Use a model to describe that animals receive different types of information through their senses, process the information in their brain, and respond to the information in different ways. Clarification Statement: Emphasis is on systems of information transfer. State Assessment Boundary: Assessment does not include the mechanisms by which the brain stores and recalls information or the mechanisms of how sensory receptors function. [SEP: Developing and Using Models; CCC: Systems and System Models; DCI: LS1.D Information Processing]"
+        },
+        {
+          "code": "4-ESS1-1",
+          "strand": "Earth's Place in the Universe (ESS1)",
+          "text": "Identify evidence from patterns in rock formations and fossils in rock layers to support an explanation for changes in a landscape over time. Clarification Statement: Examples of evidence from patterns could include rock layers with marine shell fossils above rock layers with plant fossils and no shells, indicating a change from land to water over time; and a canyon with different rock layers in the walls and a river in the bottom, indicating that over time a river cut through the rock. State Assessment Boundary: Assessment does not include specific knowledge of the mechanism of rock formation or memorization of specific rock formations and layers. Assessment is limited to relative time. [SEP: Constructing Explanations and Designing Solutions; CCC: Patterns; DCI: ESS1.C The History of Planet Earth]"
+        },
+        {
+          "code": "4-ESS2-1",
+          "strand": "Earth's Systems (ESS2)",
+          "text": "Make observations and/or measurements to provide evidence of the effects of weathering or the rate of erosion by water, ice, wind, or vegetation. Clarification Statement: Examples of variables to test could include angle of slope in the downhill movement of water, amount of vegetation, speed of wind, relative rate of deposition, cycles of freezing and thawing of water, cycles of heating and cooling, and volume of water flow. State Assessment Boundary: Assessment is limited to a single form of weathering or erosion. [SEP: Planning and Carrying Out Investigations; CCC: Cause and Effect; DCIs: ESS2.A Earth Materials and Systems, ESS2.E Biogeology]"
+        },
+        {
+          "code": "4-ESS2-2",
+          "strand": "Earth's Systems (ESS2)",
+          "text": "Analyze and interpret data from maps to describe patterns of Earth's features. Clarification Statement: Maps can include topographic maps of Earth's land and ocean floor, as well as maps of the locations of mountains, continental boundaries, volcanoes, or earthquakes. [SEP: Analyzing and Interpreting Data; CCC: Patterns; DCI: ESS2.B Plate Tectonics and Large-Scale System Interactions]"
+        },
+        {
+          "code": "4-ESS3-1",
+          "strand": "Earth and Human Activity (ESS3)",
+          "text": "Obtain and combine information to describe that energy and fuels are derived from natural resources and how their uses affect the environment. Clarification Statement: Examples of renewable resources could include wind energy, water behind dams, and sunlight; non-renewable resources are fossil and nuclear fuels. [SEP: Obtaining, Evaluating, and Communicating Information; CCC: Cause and Effect; DCIs: ESS3.A Natural Resources, ETS2.A Interdependence of Science, Engineering, and Technology, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]"
+        },
+        {
+          "code": "4-ESS3-2",
+          "strand": "Earth and Human Activity (ESS3)",
+          "text": "Generate and compare multiple solutions to reduce the impacts of natural Earth processes on humans. Clarification Statement: Examples of solutions could include designing earthquake or hurricane resistant buildings, improving the monitoring of tornadic or volcanic activity, and constructing waterways for floodwaters. State Assessment Boundary: Assessment is limited to earthquakes, floods, hurricanes, tornadoes, and coastal erosion. [SEP: Constructing Explanations and Designing Solutions; CCC: Cause and Effect; DCIs: ESS3.B Natural Hazards, ETS1.B Developing Possible Solutions, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]"
+        }
+      ],
+      "suggestedUnitSequence": [
+        {
+          "unitNumber": 1,
+          "title": "Energy and Motion",
+          "indicatorCodes": [
+            "4-PS3-1",
+            "4-PS3-3"
+          ],
+          "prerequisiteUnits": [],
+          "rationale": "Opens the year with concrete, hands-on phenomena (rolling, dropping, colliding objects). Establishes the foundational qualitative idea that a faster-moving object has more energy and that collisions change energy — the conceptual base for every later energy standard."
+        },
+        {
+          "unitNumber": 2,
+          "title": "Energy on the Move: Transfer by Sound, Light, Heat, and Electricity",
+          "indicatorCodes": [
+            "4-PS3-2"
+          ],
+          "prerequisiteUnits": [
+            1
+          ],
+          "rationale": "Extends the energy concept from moving objects to transfer of energy from place to place via sound, light, heat, and electric currents. Requires the Unit 1 idea that energy exists in motion before students can track where it goes."
+        },
+        {
+          "unitNumber": 3,
+          "title": "Waves and Light",
+          "indicatorCodes": [
+            "4-PS4-1",
+            "4-PS4-2"
+          ],
+          "prerequisiteUnits": [
+            2
+          ],
+          "rationale": "Builds directly on sound and light as energy carriers from Unit 2. Students model wave amplitude/wavelength and how reflected light entering the eye lets us see — the mechanistic follow-up to 'light transfers energy.'"
+        },
+        {
+          "unitNumber": 4,
+          "title": "Sending Messages: Patterns and Information Transfer",
+          "indicatorCodes": [
+            "4-PS4-3"
+          ],
+          "prerequisiteUnits": [
+            3
+          ],
+          "rationale": "An engineering-design mini-unit applying wave and pattern ideas from Unit 3: students generate and compare coded-signal solutions (Morse code, binary grids, drum signals) that use patterns to transmit information."
+        },
+        {
+          "unitNumber": 5,
+          "title": "Energy Conversion Design Challenge",
+          "indicatorCodes": [
+            "4-PS3-4"
+          ],
+          "prerequisiteUnits": [
+            1,
+            2
+          ],
+          "rationale": "Capstone of the physical science sequence: students design, test, and refine a device that converts energy from one form to another, which requires prior mastery of energy of motion (Unit 1) and energy transfer by electric currents, light, sound, and heat (Unit 2)."
+        },
+        {
+          "unitNumber": 6,
+          "title": "Structures for Survival: Plants and Animals",
+          "indicatorCodes": [
+            "4-LS1-1",
+            "4-LS1-2"
+          ],
+          "prerequisiteUnits": [
+            3
+          ],
+          "rationale": "Life science unit on internal/external structures and sensory information processing. Placed after Unit 3 so the light-reflection-and-eye model (4-PS4-2) feeds directly into modeling how animals receive, process, and respond to sensory information (4-LS1-2), and systems thinking carries across both PEs."
+        },
+        {
+          "unitNumber": 7,
+          "title": "Earth's Features and Changing Landscapes",
+          "indicatorCodes": [
+            "4-ESS2-2",
+            "4-ESS2-1",
+            "4-ESS1-1"
+          ],
+          "prerequisiteUnits": [],
+          "rationale": "Earth science arc: first read maps to find patterns in Earth's features (4-ESS2-2), then investigate the weathering and erosion processes that shape those features (4-ESS2-1), then use rock layers and fossils as evidence of landscape change over time (4-ESS1-1). Independent of the physical science strand, so it can flex in the calendar, but its three PEs build on each other internally in this order."
+        },
+        {
+          "unitNumber": 8,
+          "title": "Natural Resources, Natural Hazards, and Human Solutions",
+          "indicatorCodes": [
+            "4-ESS3-1",
+            "4-ESS3-2"
+          ],
+          "prerequisiteUnits": [
+            7,
+            2
+          ],
+          "rationale": "Year-end synthesis: energy and fuels from natural resources (4-ESS3-1) draws on the energy-transfer ideas of Unit 2, and engineering solutions to reduce impacts of earthquakes, floods, hurricanes, tornadoes, and coastal erosion (4-ESS3-2) depends on the Earth-processes understanding built in Unit 7. Also revisits the generate-and-compare-solutions practice rehearsed in Units 4 and 5, making it a strong SC READY review unit."
+        }
+      ],
+      "confidence": "high",
+      "caveats": "Indicator statements, clarification statements, and state assessment boundaries were extracted verbatim from the official SCDE PDF (Grade 4 section, document pages 66-82; local copy at /private/tmp/claude-501/-Users-eherbert-cram-all/a66cf53a-6672-47a0-bdd8-a58247c40a14/scratchpad/sc_science_2021.pdf); line breaks and hyphenation from PDF extraction were rejoined. The bracketed SEP/CCC/DCI notes appended to each indicator summarize that PE's official foundation-box dimensions and are labels, not part of the verbatim PE sentence. The 2021 document contains no separate grades 3-5 engineering design PEs (ETS content is integrated into the 14 PEs listed). The unit sequence is a recommended teaching order, not an official SCDE pacing guide; districts may bundle PEs differently."
+    }
+  },
+  "verification": {
+    "issues": [
+      {
+        "subject": "ELA unit sequence omits OE.2, OE.4, OE.6",
+        "severity": "note",
+        "description": "ELA.4.OE.2 (multimedia literacies), ELA.4.OE.4 (collaboration/active listening), and ELA.4.OE.6 (quality work/format) appear in the indicator list but are not assigned to any unit, while the other three OE indicators (OE.1, OE.3, OE.5) are placed in Unit 1. The official document states OE indicators are 'skills that should be embedded in each of the grade-level indicators' (confirmed verbatim in the PDF) and the JSON caveats disclose this, so it is defensible — but the data is internally inconsistent about whether OE codes are unit-assignable. A downstream consumer mapping units to indicators would show no coverage for OE.2/4/6. Either drop all six OE codes from unit assignments or tag all six as embedded-in-all-units."
+      },
+      {
+        "subject": "Math 4.NR.2.2 comma differs from official PDF text",
+        "severity": "note",
+        "description": "The official PDF (verified byte-identical to the live ed.sc.gov file) reads 'concrete area, and linear models' in 4.NR.2.2; the JSON transcribed it as 'concrete, area, and linear models' (comma added). The research agent disclosed this in the caveats and the sibling indicators (e.g., 4.PAFR.2.1 'concrete, area, linear models') support the added-comma reading as a likely typo in the source, but strictly the JSON text is not verbatim on this one character."
+      }
+    ],
+    "overallAssessment": "All checks pass; no blockers. (1) Currency: all three cited documents are confirmed as the current SC standards in effect for 2026-27. The ed.sc.gov mathematics standards page lists the 2025 SC CCR Mathematics Standards (approved 12/12/2023, fully operational and SC READY-assessed from 2025-26, corrective edits July 2026 matching the PDF's 'Emended July 2026' footer); the ELA page lists the 2024 SC CCR ELA Standards (approved 1/17/2023, footer 'Approved: January 2023; Emended August 2025') at exactly the cited URL; the science page lists only the 2021 SC CCR Science Standards (approved 6/14/2021) with no newer replacement. Additionally, all three PDFs were re-downloaded from the cited ed.sc.gov URLs and their SHA-256 checksums are byte-identical to the local copies the researchers extracted from, so every spot-check was effectively against the live official source. (2) Spot-checks: 7 math indicators (4.NR.1.1, 4.NR.1.3, 4.NR.2.2, 4.MGSR.2.5, 4.PAFR.2.1, 4.PAFR.3.1, 4.DPSR.2.1), 8+ ELA indicators (AOR.1.1, AOR.3.1, AOR.6.1, F.4.2, R.1.2-1.5, OE.3-6), and 4 science PEs (4-PS3-2, 4-LS1-1, 4-ESS2-2, 4-ESS3-2 including clarification statements and assessment boundaries) all match the official text verbatim, except one disclosed single-comma nuance in 4.NR.2.2 (noted). The ELA claim that all F slots other than F.4.2 read 'There is not an indicator for fourth grade' was sample-verified (F.1.1, F.2.5, F.3.8, F.4.1, F.4.3). (3) Completeness: the math PDF contains exactly 33 distinct grade-4 content indicator codes and the JSON has all 33; the ELA grade-4 universe (OE.1-6, F.4.2, 14 AOR, R.1.1-1.5) is fully captured with the C strand intentionally and transparently excluded per the reading-strand scope; science has exactly 14 grade-4 PEs, all captured, with no separate 4-ETS PEs (confirming the ETS-integration claim). (4) Unit coverage: math units cover all 33/33 indicators with no duplicates or gaps; science units cover 14/14; ELA units cover everything except OE.2/OE.4/OE.6 (noted above — arguably by design since OE are cross-cutting, but internally inconsistent with placing OE.1/3/5 in Unit 1). Sources: https://ed.sc.gov/instruction/standards/mathematics/standards/ ; https://ed.sc.gov/instruction/standards/english-language-arts/standards/ ; https://ed.sc.gov/instruction/standards/science/standards/ ; https://ed.sc.gov/instruction/standards/mathematics/standards/2025-south-carolina-college-and-career-ready-mathematics-standards/ ; https://ed.sc.gov/instruction/standards/english-language-arts/standards/2023-sc-ccr-ela-standards-approved/ ; https://ed.sc.gov/instruction/standards/science/standards/south-carolina-college-and-career-ready-science-standards-2021-approved/ ; https://ed.sc.gov/tests/tests-files/sc-ready-files/sc-ready-math-3-5-blueprint/"
+  }
+}
