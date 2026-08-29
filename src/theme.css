@@ -275,6 +275,155 @@ body {
   }
 }
 
+/* --- lesson player ------------------------------------------------------ */
+
+.peek-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  background: #fff4d6;
+  box-shadow: var(--shadow);
+  font-weight: 600;
+}
+
+.peek-dismiss {
+  flex: 0 0 auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--c-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.progress-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.progress-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--accent, var(--c-accent));
+  background: var(--c-card);
+}
+
+.progress-dot[data-state='done'] {
+  background: var(--accent, var(--c-accent));
+}
+
+.progress-dot[data-state='current'] {
+  background: var(--accent, var(--c-accent));
+  transform: scale(1.35);
+}
+
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.lesson-nav-next {
+  margin-left: auto;
+}
+
+.btn-read-aloud {
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.learn-text {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.callout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius);
+}
+
+.callout-body {
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+
+.callout-label {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+
+.callout-example {
+  background: #f4f6ff;
+  border: 3px solid #dbe2ff;
+}
+
+.callout-tip {
+  background: #fff7e0;
+  border: 3px dashed var(--accent, var(--c-accent));
+}
+
+.worked-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: worked;
+}
+
+.worked-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 1.0625rem;
+}
+
+.worked-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent, var(--c-accent));
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.lesson-outro {
+  align-items: center;
+  text-align: center;
+}
+
+.widget-placeholder,
+.widget-loading,
+.widget-napping {
+  border: 3px dashed var(--c-ink-soft);
+  color: var(--c-ink-soft);
+  font-weight: 600;
+  text-align: center;
+}
+
 .speech-bubble {
   position: relative;
   background: var(--c-card);

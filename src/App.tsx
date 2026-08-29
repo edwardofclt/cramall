@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import { pageVariants } from './app/motion';
 import { useReducedMotionPref } from './app/useReducedMotionPref';
+import { LessonPlayer } from './lesson/LessonPlayer';
 import { ProgressProvider } from './progress/ProgressContext';
 import { Home } from './screens/Home';
 import { SubjectMap } from './screens/SubjectMap';
@@ -56,7 +57,7 @@ function AnimatedRoutes() {
           path="/lesson/:lessonId"
           element={
             <Page>
-              <ComingSoon title="Lesson" />
+              <LessonPlayer />
             </Page>
           }
         />
