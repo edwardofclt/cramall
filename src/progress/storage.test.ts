@@ -68,6 +68,21 @@ test('persist() never throws even when localStorage.setItem throws (quota/privat
   }
 });
 
+test('persist() reports false when the real save write fails after a successful probe', () => {
+  const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
+  const original = storagePrototype.setItem;
+  storagePrototype.setItem = function (key, value) {
+    if (key === KEY) throw new Error('QuotaExceededError');
+    return original.call(this, key, value);
+  };
+  try {
+    expect(storageAvailable()).toBe(true);
+    expect(persist(defaultSave())).toBe(false);
+  } finally {
+    storagePrototype.setItem = original;
+  }
+});
+
 test('recordAttempt marks lesson passed when score >= passThreshold', () => {
   const save = recordAttempt(defaultSave(), 'les-1', attempt({ score: 8, total: 10 }), 8);
   expect(save.lessons['les-1']!.status).toBe('passed');

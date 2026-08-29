@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import standardsData from '../content/standards/standards.json';
 import { allLessons } from '../content/subjects';
@@ -17,6 +17,20 @@ export function ParentCorner() {
   const { save, setParentChecked, importJson, reset } = useProgress();
   const [message, setMessage] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  const importRequest = useRef(0);
+  const activeReader = useRef<FileReader | null>(null);
+
+  const invalidateImport = () => {
+    importRequest.current += 1;
+    const reader = activeReader.current;
+    activeReader.current = null;
+    reader?.abort();
+    return importRequest.current;
+  };
+
+  useEffect(() => () => {
+    invalidateImport();
+  }, []);
 
   const handleExport = () => {
     const blob = new Blob([exportSave(save)], { type: 'application/json' });
@@ -32,8 +46,12 @@ export function ParentCorner() {
   const handleImport = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    const request = invalidateImport();
     const reader = new FileReader();
+    activeReader.current = reader;
     reader.onload = () => {
+      if (request !== importRequest.current) return;
+      activeReader.current = null;
       try {
         const json = typeof reader.result === 'string' ? reader.result : '';
         importJson(json);
@@ -44,6 +62,8 @@ export function ParentCorner() {
       event.target.value = '';
     };
     reader.onerror = () => {
+      if (request !== importRequest.current) return;
+      activeReader.current = null;
       setMessage('Unable to read the selected file.');
       event.target.value = '';
     };
@@ -52,6 +72,7 @@ export function ParentCorner() {
 
   const handleReset = () => {
     if (confirmation !== 'RESET') return;
+    invalidateImport();
     reset();
     setConfirmation('');
     setMessage('Progress reset.');
@@ -77,12 +98,14 @@ export function ParentCorner() {
                   <td>{lesson.title}</td>
                   <td>{lessonStatus(save.lessons[lesson.id]?.status)}</td>
                   <td>
-                    <input
-                      type="checkbox"
-                      checked={save.parentChecked[lesson.id] ?? false}
-                      onChange={(event) => setParentChecked(lesson.id, event.target.checked)}
-                      aria-label={`Parent checked: ${lesson.title}`}
-                    />
+                    <label className="parent-check-target">
+                      <input
+                        type="checkbox"
+                        checked={save.parentChecked[lesson.id] ?? false}
+                        onChange={(event) => setParentChecked(lesson.id, event.target.checked)}
+                      />
+                      <span>Mark checked: {lesson.title}</span>
+                    </label>
                   </td>
                 </tr>
               ))}

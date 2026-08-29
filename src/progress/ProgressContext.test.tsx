@@ -212,4 +212,23 @@ describe('ProgressContext', () => {
       availability.mockRestore();
     }
   });
+
+  test('shows a storage notice and keeps state usable when the actual save write fails', async () => {
+    const storagePrototype = Object.getPrototypeOf(window.localStorage) as Storage;
+    const original = storagePrototype.setItem;
+    storagePrototype.setItem = function (key, value) {
+      if (key === 'cramall.v1') throw new Error('QuotaExceededError');
+      return original.call(this, key, value);
+    };
+    try {
+      renderProbe();
+
+      await click('record');
+
+      expect(screen.getByRole('alert')).toHaveTextContent(/saved only while this tab is open/i);
+      expect(screen.getByTestId('best')).toHaveTextContent('9');
+    } finally {
+      storagePrototype.setItem = original;
+    }
+  });
 });

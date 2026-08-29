@@ -73,13 +73,14 @@ export function loadSave(): SaveData {
   }
 }
 
-/** Never throws: quota-exceeded and private-mode write failures are swallowed. */
-export function persist(save: SaveData): void {
+/** Returns whether this specific save write succeeded; quota/private-mode failures never throw. */
+export function persist(save: SaveData): boolean {
   try {
-    if (!storageAvailable()) return;
+    if (!storageAvailable()) return false;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
+    return true;
   } catch {
-    // Swallow quota/private-mode errors per contract: persist() must never throw.
+    return false;
   }
 }
 

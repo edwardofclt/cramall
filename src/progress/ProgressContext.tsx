@@ -30,8 +30,8 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
  * touches storage directly.
  */
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const [save, setSave] = useState<SaveData>(loadSave);
-  const [canPersist, setCanPersist] = useState(storageAvailable);
+  const [state, setState] = useState(() => ({ save: loadSave(), canPersist: storageAvailable() }));
+  const { save, canPersist } = state;
 
   // Actions derive the next save from the *latest* state inside the updater, so several of
   // them can fire in one tick without clobbering each other, and so none of them close over
@@ -40,12 +40,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   // exception to updater purity: it is an idempotent write of the value being returned, so
   // StrictMode's double-invoke just writes the same JSON twice.
   const commit = useCallback((derive: (current: SaveData) => SaveData) => {
-    setSave((current) => {
-      const next = derive(current);
-      persist(next);
-      return next;
+    setState((current) => {
+      const next = derive(current.save);
+      return { save: next, canPersist: persist(next) };
     });
-    setCanPersist(storageAvailable());
   }, []);
 
   const recordAttempt = useCallback<ProgressContextValue['recordAttempt']>(
