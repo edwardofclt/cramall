@@ -1,0 +1,718 @@
+{
+  "math": {
+    "document": {
+      "title": "South Carolina College- and Career-Ready Mathematics Standards (2025 SC CCR Mathematics Standards)",
+      "url": "https://ed.sc.gov/instruction/standards/mathematics/standards/2025-south-carolina-college-and-career-ready-mathematics-standards/"
+    },
+    "indicators": [
+      {
+        "code": "4.DPSR.1.1",
+        "text": "Collect and organize numerical and categorical data based on observations, investigations, surveys, and experiments using tables, scaled bar graphs, or dot plots. Use titles and labels. Scales to include whole numbers, halves, and fourths.",
+        "strand": "Data, Probability, and Statistical Reasoning"
+      },
+      {
+        "code": "4.DPSR.1.2",
+        "text": "Solve one-step, real-world situations using whole number and fractional data represented in tables, scaled picture graphs, scaled bar graphs, or dot plots. Limit to like denominators of 2, 3, 4, 5, 6, 8, and 10.",
+        "strand": "Data, Probability, and Statistical Reasoning"
+      },
+      {
+        "code": "4.DPSR.2.1",
+        "text": "Determine the possible outcomes of a simple event and record the probability as certain, possible, or impossible.",
+        "strand": "Data, Probability, and Statistical Reasoning"
+      },
+      {
+        "code": "4.MGSR.1.1",
+        "text": "Apply perimeter formulas for rectangles to solve real-world situations including finding the perimeter, given the side lengths, and finding an unknown side length.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.1.2",
+        "text": "Apply area formulas for rectangles to solve real-world situations. Use square units to label area measurements.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.2.1",
+        "text": "Calculate the value of a collection of coins and bills in real-world situations to determine whether there is enough money to make a purchase. Justify based on comparison of money amounts.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.2.2",
+        "text": "Solve real-world situations involving addition and subtraction of time intervals within 60 minutes to find elapsed time, start time, or end time.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.2.3",
+        "text": "Measure length to the nearest quarter inch.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.2.4",
+        "text": "Measure weight in customary units and metric units to the nearest whole unit. Limit to ounces, pounds, grams, and kilograms.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.2.5",
+        "text": "Convert customary units of length, weight, and liquid volume from a larger unit to a smaller unit, given direct comparisons of the two measurements and/or the unit equivalencies within a single system of measurement. Limit to inches, feet, yards, ounces, pounds, fluid ounces, cups, pints, quarts, and gallons when given unit equivalences.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.3.1",
+        "text": "Classify triangles according to side length (isosceles, equilateral, scalene) and angle measure (acute, obtuse, right, equiangular).",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.MGSR.3.2",
+        "text": "Classify quadrilaterals in a hierarchy based on their shared attributes.",
+        "strand": "Measurement, Geometry, and Spatial Reasoning"
+      },
+      {
+        "code": "4.NR.1.1",
+        "text": "Read and write whole numbers through the millions period (0 to 999,999,999) in word, standard, and equations in expanded form.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.1.2",
+        "text": "Estimate sums, differences, products, and quotients of multi-digit whole numbers, using rounding and place value to determine the reasonableness of real-world problem solutions. Write an equation for the estimate.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.1.3",
+        "text": "Order whole numbers within 999,999 (no more than 3) in ascending or descending order and record the comparison(s) using symbols for is less than (<) and/or is greater than (>).",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.1",
+        "text": "Represent fractions with denominators of 10 and 100 in words, models, and decimal notations.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.2",
+        "text": "Compare decimal numbers to the hundredths using the benchmarks 0, 0.5, and 1.0, concrete, area, and linear models. Use the symbols for is equal to (=), is less than (<), and/or is greater than (>).",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.3",
+        "text": "Generate equivalent fractions, including fractions greater than 1, using multiple representations. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.4",
+        "text": "Represent the composition and decomposition of fractions with the same denominator, including mixed numbers and fractions greater than 1, using multiple representations. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.5",
+        "text": "Explain and demonstrate how a mixed number is equivalent to a fraction greater than 1 and how a fraction greater than 1 is equivalent to a mixed number. Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.NR.2.6",
+        "text": "Compare fractions and mixed numbers with like and unlike denominators applying benchmark fractions such as 0, 1/2, and 1 using the symbols for is equal to (=), is less than (<), or is greater than (>). Limit fractions to denominators of 2, 3, 4, 5, 6, 8, 10, 12, 20, 25, 50, and 100.",
+        "strand": "Numerical Reasoning"
+      },
+      {
+        "code": "4.PAFR.1.1",
+        "text": "Use a strategy to accurately compute sums and differences of whole numbers up to 100,000 and justify the sum or difference.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.1.2",
+        "text": "Compute the product of a one-digit whole number times a multiple of 10 (from 10 to 90) and 100 (from 100 to 900) based on place value and properties of operations.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.1.3",
+        "text": "Decompose numbers by the value of each digit to multiply whole numbers up to four digits by a one-digit number and two 2-digit whole numbers.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.1.4",
+        "text": "Use a strategy to divide up to a four-digit dividend by a one-digit divisor, with and without remainders. Justify the calculation.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.2.1",
+        "text": "Use a strategy to accurately compute sums and differences of fractions with like denominators and justify the reasonableness of the answer. Limit denominators to 2, 3, 4, 5, 6, 8, 10, 12, 25, and 100.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.2.2",
+        "text": "Use fraction and decimal equivalencies to add and subtract tenths and hundredths, to include mixed numbers and fractions greater than 1.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.2.3",
+        "text": "Represent and compute the product of a whole number times a unit fraction. Limit denominators to 2, 3, 4, 5, 6, 8, 10, 12, 25, and 100.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.2.4",
+        "text": "Interpret a fraction as an equal sharing division situation, where a quantity (the numerator) is divided into equal parts (the denominator) to include real-world situations.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.3.1",
+        "text": "Find all factor pairs for a whole number in the range 1–50. Determine whether the whole number is prime or composite.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.3.2",
+        "text": "Describe and extend a numerical pattern that follows a rule using function tables and real-world situations.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.3.3",
+        "text": "Solve real-world situations involving multiplicative comparison situations and write equations to represent the problem using a variable for the unknown.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      },
+      {
+        "code": "4.PAFR.3.4",
+        "text": "Solve two-step, real-world situations using the four operations involving whole number answers. Represent the problem using an equation with a variable as the unknown in any position.",
+        "strand": "Patterns, Algebra, and Functional Reasoning"
+      }
+    ],
+    "units": [
+      {
+        "number": 1,
+        "title": "Place Value and Whole Number Relationships",
+        "indicatorCodes": [
+          "4.NR.1.1",
+          "4.NR.1.3"
+        ],
+        "prerequisiteUnits": []
+      },
+      {
+        "number": 2,
+        "title": "Addition, Subtraction, and Estimation with Whole Numbers",
+        "indicatorCodes": [
+          "4.PAFR.1.1",
+          "4.NR.1.2"
+        ],
+        "prerequisiteUnits": [
+          1
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Factors, Multiples, Primes, and Patterns",
+        "indicatorCodes": [
+          "4.PAFR.3.1",
+          "4.PAFR.3.2"
+        ],
+        "prerequisiteUnits": [
+          1
+        ]
+      },
+      {
+        "number": 4,
+        "title": "Multi-Digit Multiplication and Multiplicative Comparison",
+        "indicatorCodes": [
+          "4.PAFR.1.2",
+          "4.PAFR.1.3",
+          "4.PAFR.3.3"
+        ],
+        "prerequisiteUnits": [
+          1,
+          3
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Multi-Digit Division and Multi-Step Problem Solving",
+        "indicatorCodes": [
+          "4.PAFR.1.4",
+          "4.PAFR.3.4"
+        ],
+        "prerequisiteUnits": [
+          2,
+          4
+        ]
+      },
+      {
+        "number": 6,
+        "title": "Fraction Equivalence and Comparison",
+        "indicatorCodes": [
+          "4.NR.2.3",
+          "4.NR.2.4",
+          "4.NR.2.5",
+          "4.NR.2.6"
+        ],
+        "prerequisiteUnits": [
+          3,
+          4
+        ]
+      },
+      {
+        "number": 7,
+        "title": "Fraction Operations",
+        "indicatorCodes": [
+          "4.PAFR.2.1",
+          "4.PAFR.2.3",
+          "4.PAFR.2.4"
+        ],
+        "prerequisiteUnits": [
+          6
+        ]
+      },
+      {
+        "number": 8,
+        "title": "Decimals: Tenths, Hundredths, and Fraction Connections",
+        "indicatorCodes": [
+          "4.NR.2.1",
+          "4.NR.2.2",
+          "4.PAFR.2.2"
+        ],
+        "prerequisiteUnits": [
+          6,
+          7
+        ]
+      },
+      {
+        "number": 9,
+        "title": "Measurement: Money, Elapsed Time, Length, Weight, and Conversions",
+        "indicatorCodes": [
+          "4.MGSR.2.1",
+          "4.MGSR.2.2",
+          "4.MGSR.2.3",
+          "4.MGSR.2.4",
+          "4.MGSR.2.5"
+        ],
+        "prerequisiteUnits": [
+          2,
+          4,
+          6
+        ]
+      },
+      {
+        "number": 10,
+        "title": "Perimeter and Area of Rectangles",
+        "indicatorCodes": [
+          "4.MGSR.1.1",
+          "4.MGSR.1.2"
+        ],
+        "prerequisiteUnits": [
+          4,
+          5,
+          9
+        ]
+      },
+      {
+        "number": 11,
+        "title": "Geometry: Classifying Triangles and Quadrilaterals",
+        "indicatorCodes": [
+          "4.MGSR.3.1",
+          "4.MGSR.3.2"
+        ],
+        "prerequisiteUnits": [
+          10
+        ]
+      },
+      {
+        "number": 12,
+        "title": "Data, Graphs, and Probability",
+        "indicatorCodes": [
+          "4.DPSR.1.1",
+          "4.DPSR.1.2",
+          "4.DPSR.2.1"
+        ],
+        "prerequisiteUnits": [
+          2,
+          6
+        ]
+      }
+    ]
+  },
+  "reading": {
+    "document": {
+      "title": "South Carolina College- and Career-Ready English Language Arts Standards (2024 SC CCR ELA Standards)",
+      "url": "https://ed.sc.gov/instruction/standards/english-language-arts/standards/2023-sc-ccr-ela-standards-approved/"
+    },
+    "indicators": [
+      {
+        "code": "ELA.4.F.4.2",
+        "text": "Read a variety of texts orally and silently with accuracy, appropriate rate, expression, and intonation.",
+        "strand": "Foundations of Literacy"
+      },
+      {
+        "code": "ELA.4.AOR.1.1",
+        "text": "Explain how setting and conflict cause characters to change and how conflict(s) contributes to plot development.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.1.2",
+        "text": "Determine and explain how figurative language impacts meaning and contributes to the reader's experience.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.2.1",
+        "text": "Identify and explain an explicit or implied theme and how it is developed by key details in a literary text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.2.2",
+        "text": "Identify and explain a stated or implied central idea and how it is developed by supporting details in an informational text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.3.1",
+        "text": "a. Compare and contrast the point of view from which different stories are narrated, including the difference between first person and third person; and b. explain how different characters' perspectives impact a literary text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.4.1",
+        "text": "Determine and explain how an author's purpose (e.g., what an author wants to answer, explain, or describe) is conveyed through the author's perspective.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.5.1",
+        "text": "Compare and contrast the structural elements of literary texts (e.g., narratives, dramas, and poems).",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.5.2",
+        "text": "Explain how basic text features contribute to meaning in an informational text; identify the text structures of problem and solution, chronological, and/or compare and contrast.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.5.3",
+        "text": "Explain an author's use of reasons and evidence to support a claim(s) in an informational text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.6.1",
+        "text": "Summarize a text to enhance comprehension: a. include plot, theme, and relevant key details for a literary text; and b. include a central idea and relevant supporting details for an informational text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.7.1",
+        "text": "Determine or clarify the meaning of known, unknown, and multiple-meaning words and phrases, choosing from an array of strategies: a. use context clues (e.g., definitions, examples, restatements) to determine the meaning of a word or phrase; b. consult print and digital reference materials to build and integrate background knowledge; and c. consult print and digital reference materials to find the pronunciation, part of speech, and to determine or clarify the precise meaning of words and phrases.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.8.1",
+        "text": "Determine an author's use of words and phrases in grade-level literary, informational, and multimedia texts: a. distinguish between literal and nonliteral meanings of words and phrases (e.g., take steps); b. explain the meaning of commonly occurring similes, metaphors, and idioms; and c. demonstrate knowledge of relationships between words (e.g., synonyms and antonyms) to better understand each of the words.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.9.1",
+        "text": "Identify and use common Greek and Latin roots, base words, and affixes to determine the meaning of words in grade-appropriate content.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.AOR.10.1",
+        "text": "Determine and explain how visuals (e.g., illustrations, photographs, maps) and/or multimedia elements (e.g., video, audio) contribute to the meaning of a print or non-print text.",
+        "strand": "Applications of Reading"
+      },
+      {
+        "code": "ELA.4.R.1.1",
+        "text": "Conduct short research for inquiry by: a. generating a question about a topic; and b. examining a provided source.",
+        "strand": "Research"
+      },
+      {
+        "code": "ELA.4.R.1.2",
+        "text": "Determine the credibility of a provided source.",
+        "strand": "Research"
+      },
+      {
+        "code": "ELA.4.R.1.3",
+        "text": "Determine which information is relevant to the topic.",
+        "strand": "Research"
+      },
+      {
+        "code": "ELA.4.R.1.4",
+        "text": "Group related findings.",
+        "strand": "Research"
+      },
+      {
+        "code": "ELA.4.R.1.5",
+        "text": "Cite sources to avoid plagiarism.",
+        "strand": "Research"
+      }
+    ],
+    "units": [
+      {
+        "number": 1,
+        "title": "Launching Readers: Fluency and Comprehension Habits",
+        "indicatorCodes": [
+          "ELA.4.F.4.2"
+        ],
+        "prerequisiteUnits": []
+      },
+      {
+        "number": 2,
+        "title": "Word Study: Roots, Affixes, and Context Clues",
+        "indicatorCodes": [
+          "ELA.4.AOR.9.1",
+          "ELA.4.AOR.7.1"
+        ],
+        "prerequisiteUnits": []
+      },
+      {
+        "number": 3,
+        "title": "Story Elements: Character, Setting, Conflict, and Plot",
+        "indicatorCodes": [
+          "ELA.4.AOR.1.1"
+        ],
+        "prerequisiteUnits": [
+          1
+        ]
+      },
+      {
+        "number": 4,
+        "title": "Theme in Literary Texts",
+        "indicatorCodes": [
+          "ELA.4.AOR.2.1"
+        ],
+        "prerequisiteUnits": [
+          3
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Central Idea and Supporting Details in Informational Text",
+        "indicatorCodes": [
+          "ELA.4.AOR.2.2"
+        ],
+        "prerequisiteUnits": [
+          1
+        ]
+      },
+      {
+        "number": 6,
+        "title": "Summarizing Across Genres",
+        "indicatorCodes": [
+          "ELA.4.AOR.6.1"
+        ],
+        "prerequisiteUnits": [
+          4,
+          5
+        ]
+      },
+      {
+        "number": 7,
+        "title": "Informational Text Structures and Features",
+        "indicatorCodes": [
+          "ELA.4.AOR.5.2",
+          "ELA.4.AOR.10.1"
+        ],
+        "prerequisiteUnits": [
+          5
+        ]
+      },
+      {
+        "number": 8,
+        "title": "Author's Purpose, Perspective, and Claims",
+        "indicatorCodes": [
+          "ELA.4.AOR.4.1",
+          "ELA.4.AOR.5.3"
+        ],
+        "prerequisiteUnits": [
+          5,
+          7
+        ]
+      },
+      {
+        "number": 9,
+        "title": "Point of View and Character Perspective",
+        "indicatorCodes": [
+          "ELA.4.AOR.3.1"
+        ],
+        "prerequisiteUnits": [
+          3
+        ]
+      },
+      {
+        "number": 10,
+        "title": "Poetry, Drama, and Figurative Language",
+        "indicatorCodes": [
+          "ELA.4.AOR.5.1",
+          "ELA.4.AOR.1.2",
+          "ELA.4.AOR.8.1"
+        ],
+        "prerequisiteUnits": [
+          2,
+          3
+        ]
+      },
+      {
+        "number": 11,
+        "title": "Research and Source Evaluation",
+        "indicatorCodes": [
+          "ELA.4.R.1.1",
+          "ELA.4.R.1.2",
+          "ELA.4.R.1.3",
+          "ELA.4.R.1.4",
+          "ELA.4.R.1.5"
+        ],
+        "prerequisiteUnits": [
+          7,
+          8
+        ]
+      }
+    ]
+  },
+  "science": {
+    "document": {
+      "title": "South Carolina College- and Career-Ready Science Standards 2021",
+      "url": "https://ed.sc.gov/instruction/standards/science/standards/south-carolina-college-and-career-ready-science-standards-2021-approved/"
+    },
+    "indicators": [
+      {
+        "code": "4-PS3-1",
+        "text": "Use evidence to construct an explanation relating the speed of an object to the energy of that object. State Assessment Boundary: Assessment does not include quantitative measures of changes in the speed of an object or on any precise or quantitative definition of energy. [SEP: Constructing Explanations and Designing Solutions; CCC: Energy and Matter; DCI: PS3.A Definitions of Energy]",
+        "strand": "Energy (PS3)"
+      },
+      {
+        "code": "4-PS3-2",
+        "text": "Make observations to provide evidence that energy can be transferred from place to place by sound, light, heat, and electric currents. State Assessment Boundary: Assessment does not include quantitative measurements of energy or the difference between transferring and transforming energy. [SEP: Planning and Carrying Out Investigations; CCC: Energy and Matter; DCIs: PS3.A Definitions of Energy, PS3.B Conservation of Energy and Energy Transfer]",
+        "strand": "Energy (PS3)"
+      },
+      {
+        "code": "4-PS3-3",
+        "text": "Ask questions and predict outcomes about the changes in energy that occur when objects collide. Clarification Statement: Emphasis is on the change in the energy due to the change in speed, not on the forces, as objects interact. State Assessment Boundary: Assessment does not include quantitative measures of changes in the speed of an object (acceleration) or quantitative measurements of energy. [SEP: Asking Questions and Defining Problems; CCC: Energy and Matter; DCIs: PS3.A Definitions of Energy, PS3.B Conservation of Energy and Energy Transfer, PS3.C Relationship Between Energy and Forces]",
+        "strand": "Energy (PS3)"
+      },
+      {
+        "code": "4-PS3-4",
+        "text": "Apply scientific ideas to design, test, and refine a device that converts energy from one form to another. Clarification Statement: Examples of devices could include electric circuits that convert electrical energy into motion energy of a vehicle, light, or sound; and a passive solar heater that converts light into heat. Examples of constraints could include the materials, cost, and time to design the device. State Assessment Boundary: Devices should be limited to those that convert motion energy to electric energy or use stored energy (batteries) to cause motion or produce light or sound. [SEP: Constructing Explanations and Designing Solutions; CCC: Energy and Matter; DCIs: PS3.B Conservation of Energy and Energy Transfer, PS3.D Energy in Chemical Processes and Everyday Life, ETS1.A Defining and Delimiting an Engineering Problem, ETS1.B Developing Possible Solutions, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]",
+        "strand": "Energy (PS3)"
+      },
+      {
+        "code": "4-PS4-1",
+        "text": "Develop a model of waves to describe patterns in terms of amplitude and wavelength and that waves can cause objects to move. Clarification Statement: Examples of models include diagrams, analogies, or physical models using (but not limited to) stringed beads, rubber bands, wire, or yarn to illustrate amplitude of waves and wavelength. State Assessment Boundary: Assessment does not include interference effects, electromagnetic waves, non-periodic waves, or quantitative models of amplitude and wavelength. [SEP: Developing and Using Models; CCC: Patterns; DCI: PS4.A Wave Properties]",
+        "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)"
+      },
+      {
+        "code": "4-PS4-2",
+        "text": "Develop a model to describe that light reflecting from objects and entering the eye allows objects to be seen. State Assessment Boundary: Assessment does not include knowledge of specific colors reflected and seen, the cellular mechanisms of vision, or how the retina works. [SEP: Developing and Using Models; CCC: Cause and Effect; DCI: PS4.B Electromagnetic Radiation]",
+        "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)"
+      },
+      {
+        "code": "4-PS4-3",
+        "text": "Generate and compare multiple solutions that use patterns to transmit information. Clarification Statement: Examples of solutions include drums sending coded information through sound waves, using a grid of 0s and 1s representing black and white to send information about a picture, QR codes, barcodes, and using Morse code to send text. The coding method does not need to be electronic or digital, and the code should only be two possible values such as on/off, 0/1, black/white. [SEP: Constructing Explanations and Designing Solutions; CCC: Patterns; DCIs: PS4.C Information Technologies and Instrumentation, ETS1.C Optimizing the Design Solution, ETS2.A Interdependence of Science, Engineering, and Technology]",
+        "strand": "Waves and their Applications in Technologies for Information Transfer (PS4)"
+      },
+      {
+        "code": "4-LS1-1",
+        "text": "Construct an argument that plants and animals have internal and external structures that function together in a system to support survival, growth, behavior, and reproduction. Clarification Statement: Examples of structures could include thorns, roots, heart, lungs, or skin. State Assessment Boundary: Assessment does not include microscopic structures within plant and animal systems. [SEP: Engaging in Argument from Evidence; CCC: Systems and System Models; DCI: LS1.A Structure and Function]",
+        "strand": "From Molecules to Organisms: Structures and Processes (LS1)"
+      },
+      {
+        "code": "4-LS1-2",
+        "text": "Use a model to describe that animals receive different types of information through their senses, process the information in their brain, and respond to the information in different ways. Clarification Statement: Emphasis is on systems of information transfer. State Assessment Boundary: Assessment does not include the mechanisms by which the brain stores and recalls information or the mechanisms of how sensory receptors function. [SEP: Developing and Using Models; CCC: Systems and System Models; DCI: LS1.D Information Processing]",
+        "strand": "From Molecules to Organisms: Structures and Processes (LS1)"
+      },
+      {
+        "code": "4-ESS1-1",
+        "text": "Identify evidence from patterns in rock formations and fossils in rock layers to support an explanation for changes in a landscape over time. Clarification Statement: Examples of evidence from patterns could include rock layers with marine shell fossils above rock layers with plant fossils and no shells, indicating a change from land to water over time; and a canyon with different rock layers in the walls and a river in the bottom, indicating that over time a river cut through the rock. State Assessment Boundary: Assessment does not include specific knowledge of the mechanism of rock formation or memorization of specific rock formations and layers. Assessment is limited to relative time. [SEP: Constructing Explanations and Designing Solutions; CCC: Patterns; DCI: ESS1.C The History of Planet Earth]",
+        "strand": "Earth's Place in the Universe (ESS1)"
+      },
+      {
+        "code": "4-ESS2-1",
+        "text": "Make observations and/or measurements to provide evidence of the effects of weathering or the rate of erosion by water, ice, wind, or vegetation. Clarification Statement: Examples of variables to test could include angle of slope in the downhill movement of water, amount of vegetation, speed of wind, relative rate of deposition, cycles of freezing and thawing of water, cycles of heating and cooling, and volume of water flow. State Assessment Boundary: Assessment is limited to a single form of weathering or erosion. [SEP: Planning and Carrying Out Investigations; CCC: Cause and Effect; DCIs: ESS2.A Earth Materials and Systems, ESS2.E Biogeology]",
+        "strand": "Earth's Systems (ESS2)"
+      },
+      {
+        "code": "4-ESS2-2",
+        "text": "Analyze and interpret data from maps to describe patterns of Earth's features. Clarification Statement: Maps can include topographic maps of Earth's land and ocean floor, as well as maps of the locations of mountains, continental boundaries, volcanoes, or earthquakes. [SEP: Analyzing and Interpreting Data; CCC: Patterns; DCI: ESS2.B Plate Tectonics and Large-Scale System Interactions]",
+        "strand": "Earth's Systems (ESS2)"
+      },
+      {
+        "code": "4-ESS3-1",
+        "text": "Obtain and combine information to describe that energy and fuels are derived from natural resources and how their uses affect the environment. Clarification Statement: Examples of renewable resources could include wind energy, water behind dams, and sunlight; non-renewable resources are fossil and nuclear fuels. [SEP: Obtaining, Evaluating, and Communicating Information; CCC: Cause and Effect; DCIs: ESS3.A Natural Resources, ETS2.A Interdependence of Science, Engineering, and Technology, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]",
+        "strand": "Earth and Human Activity (ESS3)"
+      },
+      {
+        "code": "4-ESS3-2",
+        "text": "Generate and compare multiple solutions to reduce the impacts of natural Earth processes on humans. Clarification Statement: Examples of solutions could include designing earthquake or hurricane resistant buildings, improving the monitoring of tornadic or volcanic activity, and constructing waterways for floodwaters. State Assessment Boundary: Assessment is limited to earthquakes, floods, hurricanes, tornadoes, and coastal erosion. [SEP: Constructing Explanations and Designing Solutions; CCC: Cause and Effect; DCIs: ESS3.B Natural Hazards, ETS1.B Developing Possible Solutions, ETS2.B Influence of Engineering, Technology, and Science on Society and the Natural World]",
+        "strand": "Earth and Human Activity (ESS3)"
+      }
+    ],
+    "units": [
+      {
+        "number": 1,
+        "title": "Energy and Motion",
+        "indicatorCodes": [
+          "4-PS3-1",
+          "4-PS3-3"
+        ],
+        "prerequisiteUnits": []
+      },
+      {
+        "number": 2,
+        "title": "Energy on the Move: Transfer by Sound, Light, Heat, and Electricity",
+        "indicatorCodes": [
+          "4-PS3-2"
+        ],
+        "prerequisiteUnits": [
+          1
+        ]
+      },
+      {
+        "number": 3,
+        "title": "Waves and Light",
+        "indicatorCodes": [
+          "4-PS4-1",
+          "4-PS4-2"
+        ],
+        "prerequisiteUnits": [
+          2
+        ]
+      },
+      {
+        "number": 4,
+        "title": "Sending Messages: Patterns and Information Transfer",
+        "indicatorCodes": [
+          "4-PS4-3"
+        ],
+        "prerequisiteUnits": [
+          3
+        ]
+      },
+      {
+        "number": 5,
+        "title": "Energy Conversion Design Challenge",
+        "indicatorCodes": [
+          "4-PS3-4"
+        ],
+        "prerequisiteUnits": [
+          1,
+          2
+        ]
+      },
+      {
+        "number": 6,
+        "title": "Structures for Survival: Plants and Animals",
+        "indicatorCodes": [
+          "4-LS1-1",
+          "4-LS1-2"
+        ],
+        "prerequisiteUnits": [
+          3
+        ]
+      },
+      {
+        "number": 7,
+        "title": "Earth's Features and Changing Landscapes",
+        "indicatorCodes": [
+          "4-ESS2-2",
+          "4-ESS2-1",
+          "4-ESS1-1"
+        ],
+        "prerequisiteUnits": []
+      },
+      {
+        "number": 8,
+        "title": "Natural Resources, Natural Hazards, and Human Solutions",
+        "indicatorCodes": [
+          "4-ESS3-1",
+          "4-ESS3-2"
+        ],
+        "prerequisiteUnits": [
+          7,
+          2
+        ]
+      }
+    ]
+  }
+}
