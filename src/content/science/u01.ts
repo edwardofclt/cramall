@@ -533,7 +533,7 @@ export const unit01Lessons = [
         'Ari plans to roll the same small cart toward the same still cart on the same clear lane, first slowly and then faster.',
         'Ari asks, “How does the moving cart’s starting speed affect the still cart’s motion after the collision?”',
         'Ari predicts that the still cart will move farther after the faster collision because the same moving cart begins with more energy of motion.',
-        'The plan compares visible changes in speed and energy while keeping the carts and lane the same.',
+        'The plan compares visible motion changes that support qualitative inferences about energy while keeping the carts and lane the same.',
       ],
     },
     quiz: {
@@ -617,7 +617,7 @@ export const unit01Lessons = [
         {
           id: 'science-u01-l03-q06',
           type: 'multiple-choice',
-          prompt: 'Which question names an observable change in energy of motion?',
+          prompt: 'Which question asks about an observable motion outcome that can provide evidence about a change in energy of motion?',
           choices: [
             { id: 'a', text: 'Which cart has the best name?' },
             { id: 'b', text: 'Does the struck cart move farther when the same incoming cart begins faster?' },
@@ -625,7 +625,7 @@ export const unit01Lessons = [
             { id: 'd', text: 'Which sticker belongs on the lane?' },
           ],
           correctChoiceId: 'b',
-          explanation: 'The question connects a speed change to an outcome that can be observed after collision.',
+          explanation: 'The question links a changed starting speed to the struck cart’s observable motion, which can provide evidence about a change in energy of motion.',
           conceptTag: 'testable-collision-questions',
           reviewCardId: 'science-u01-l03-c2',
         },

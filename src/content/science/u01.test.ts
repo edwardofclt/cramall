@@ -126,6 +126,14 @@ describe('Science unit 1 energy and motion lessons', () => {
     expect(prose).not.toMatch(/calculate (?:the )?(?:energy|force)/i);
   });
 
+  test('uses observable motion as evidence instead of treating energy as directly visible', () => {
+    const prose = unit01Lessons.map(lessonProse).join('\n');
+
+    expect(prose).not.toMatch(
+      /\b(?:visible|observable) changes? in (?:speed and )?energy(?: of motion)?\b/i,
+    );
+  });
+
   test('balances multiple-choice correct-option positions within each lesson', () => {
     for (const lesson of unit01Lessons) {
       const keys = lesson.quiz.pool
