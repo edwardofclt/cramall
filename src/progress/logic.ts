@@ -19,6 +19,8 @@ export function isUnitComplete(save: SaveData, unit: Unit): boolean {
 export function isUnitReady(save: SaveData, subject: Subject, unit: Unit): boolean {
   return unit.prerequisiteUnitIds.every((prereqId) => {
     const prereqUnit = subject.units.find((u) => u.id === prereqId);
+    // Unresolved or unauthored prerequisites never block play: a prereq id that doesn't
+    // resolve to a unit in this subject, or a unit with no lessons yet, is fail-open by design.
     if (!prereqUnit) return true;
     if (prereqUnit.lessons.length === 0) return true;
     return isUnitComplete(save, prereqUnit);
@@ -30,7 +32,8 @@ export function isLessonReady(save: SaveData, subject: Subject, lesson: Lesson):
   if (!unit) return false;
   if (!isUnitReady(save, subject, unit)) return false;
   const index = unit.lessons.findIndex((l) => l.id === lesson.id);
-  if (index <= 0) return true;
+  if (index === -1) return false;
+  if (index === 0) return true;
   const previousLesson = unit.lessons[index - 1]!;
   return isLessonPassed(save, previousLesson.id);
 }

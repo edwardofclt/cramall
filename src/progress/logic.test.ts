@@ -222,3 +222,21 @@ test('a unit with zero lessons is itself NOT complete', () => {
   const save = defaultSave();
   expect(isUnitComplete(save, emptyUnit)).toBe(false);
 });
+
+// --- lesson whose unitId resolves to a real unit but is absent from that unit's lessons array ---
+
+test('isLessonReady is false (fails closed) for a lesson missing from its resolved unit', () => {
+  const subject = makeSubject();
+  const save = defaultSave();
+  const orphan = makeLesson('u1-orphan', 'u1'); // unitId points at a real unit, but is not in unit1.lessons
+  expect(isLessonReady(save, subject, orphan)).toBe(false);
+});
+
+// --- empty subject (no units) ---
+
+test('a subject with no units: upNext is null and subjectCompletion is {passed: 0, total: 0}', () => {
+  const subject: Subject = { id: 'math', title: 'Math', guide: 'nutty', color: '#000', units: [] };
+  const save = defaultSave();
+  expect(upNext(save, subject)).toBeNull();
+  expect(subjectCompletion(save, subject)).toEqual({ passed: 0, total: 0 });
+});
