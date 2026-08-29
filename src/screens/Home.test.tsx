@@ -48,6 +48,15 @@ describe('Home', () => {
     expect(screen.getByTestId('streak')).toHaveAccessibleName(/4 day/i);
   });
 
+  test('shows the total stars earned across authored lessons', () => {
+    const save = defaultSave();
+    save.lessons['math-u01-l01'] = { status: 'passed', bestScore: 8, attempts: [] };
+    save.lessons['math-u01-l02'] = { status: 'passed', bestScore: 10, attempts: [] };
+    renderHome(save);
+
+    expect(screen.getByLabelText('4 total stars')).toBeInTheDocument();
+  });
+
   test('links to My Progress and Parent Corner', () => {
     renderHome();
 

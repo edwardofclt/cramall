@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { springy } from '../app/motion';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import { Character } from '../characters/Character';
-import { SUBJECTS } from '../content/subjects';
-import { subjectCompletion } from '../progress/logic';
+import { SUBJECTS, allLessons } from '../content/subjects';
+import { lessonStars, subjectCompletion } from '../progress/logic';
 import { useProgress } from '../progress/ProgressContext';
 
 const MotionLink = motion.create(Link);
@@ -14,6 +14,7 @@ export function Home() {
   const { save } = useProgress();
   const reduced = useReducedMotionPref();
   const streak = save.streak.count;
+  const totalStars = allLessons().reduce((total, lesson) => total + lessonStars(save.lessons[lesson.id]), 0);
 
   const hover = reduced ? undefined : { scale: 1.04, y: -4 };
   const tap = reduced ? undefined : { scale: 0.97 };
@@ -42,6 +43,10 @@ export function Home() {
             Start your streak today!
           </span>
         )}
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <span className="badge" aria-label={`${totalStars} total stars`}>⭐ {totalStars} total stars</span>
       </div>
 
       <nav className="subject-grid" aria-label="Subjects">

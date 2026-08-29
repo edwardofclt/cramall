@@ -7,6 +7,8 @@ import { LessonPlayer } from './lesson/LessonPlayer';
 import { ProgressProvider } from './progress/ProgressContext';
 import { QuickCheck } from './quiz/QuickCheck';
 import { Home } from './screens/Home';
+import { ParentCorner } from './screens/ParentCorner';
+import { ProgressScreen } from './screens/ProgressScreen';
 import { SubjectMap } from './screens/SubjectMap';
 
 /** Wraps a routed screen so it slides in/out with the shared page transition. */
@@ -74,7 +76,7 @@ function AnimatedRoutes() {
           path="/progress"
           element={
             <Page>
-              <ComingSoon title="My Progress" />
+              <ProgressScreen />
             </Page>
           }
         />
@@ -82,7 +84,7 @@ function AnimatedRoutes() {
           path="/parent"
           element={
             <Page>
-              <ComingSoon title="Parent Corner" />
+              <ParentCorner />
             </Page>
           }
         />

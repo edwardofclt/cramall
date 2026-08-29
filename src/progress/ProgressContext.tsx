@@ -6,6 +6,7 @@ import {
   persist,
   recordAttempt as recordAttemptPure,
   setParentChecked as setParentCheckedPure,
+  storageAvailable,
   type Attempt,
   type SaveData,
   type Settings,
@@ -30,6 +31,7 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
  */
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [save, setSave] = useState<SaveData>(loadSave);
+  const [canPersist, setCanPersist] = useState(storageAvailable);
 
   // Actions derive the next save from the *latest* state inside the updater, so several of
   // them can fire in one tick without clobbering each other, and so none of them close over
@@ -43,6 +45,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       persist(next);
       return next;
     });
+    setCanPersist(storageAvailable());
   }, []);
 
   const recordAttempt = useCallback<ProgressContextValue['recordAttempt']>(
@@ -82,7 +85,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     [save, recordAttempt, setParentChecked, updateSettings, importJson, reset],
   );
 
-  return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
+  return (
+    <ProgressContext.Provider value={value}>
+      {!canPersist && (
+        <div className="storage-notice" role="alert">
+          Progress is saved only while this tab is open because browser storage is unavailable.
+        </div>
+      )}
+      {children}
+    </ProgressContext.Provider>
+  );
 }
 
 export function useProgress(): ProgressContextValue {

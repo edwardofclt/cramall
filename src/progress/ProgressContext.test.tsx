@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { ProgressProvider, useProgress, type ProgressContextValue } from './ProgressContext';
+import * as storage from './storage';
 import { defaultSave, exportSave, loadSave, type Attempt } from './storage';
 
 const ATTEMPT: Attempt = {
@@ -197,5 +198,18 @@ describe('ProgressContext', () => {
     expect(screen.getByTestId('import-error')).toHaveTextContent(/invalid save file/i);
     expect(screen.getByTestId('best')).toHaveTextContent('9');
     expect(loadSave().lessons[LESSON]?.bestScore).toBe(9);
+  });
+
+  test('keeps progress usable and shows a notice when browser storage is unavailable', async () => {
+    const availability = vi.spyOn(storage, 'storageAvailable').mockReturnValue(false);
+    try {
+      renderProbe();
+
+      expect(screen.getByRole('alert')).toHaveTextContent(/saved only while this tab is open/i);
+      await click('record');
+      expect(screen.getByTestId('best')).toHaveTextContent('9');
+    } finally {
+      availability.mockRestore();
+    }
   });
 });
