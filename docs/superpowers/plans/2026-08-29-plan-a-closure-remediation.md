@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Execution requires a new explicit user authorization. The prior Plan A SDD workflow already used its one consolidated final fix wave and one scoped re-review.
-- Start from `abe7f64` on `plan-a-foundation`; preserve unrelated user work.
+- `abe7f64` is the historical reproduction base, not a checkout target. Execute from the then-current `plan-a-foundation` `HEAD`, record that exact pre-remediation commit as `REMEDIATION_BASE` in the per-plan ledger before Task 1, and preserve all later Reading, Science, documentation, and unrelated user work. Never reset or rebase the branch back to `abe7f64`.
 - Preserve `HashRouter`, the literal `cramall.v1` key, `passThreshold: 8`, current authored Math Unit 1 semantics, and normal-versus-single Google Font behavior.
 - Do not modify, stage, or revert `src/characters/**`.
 - Do not weaken malformed-save validation, content identity rules, or WCAG thresholds to make tests pass.
@@ -332,7 +332,7 @@ git commit -m "fix: preserve AA contrast in unit labels"
 
 **Interfaces:**
 
-- Consumes: the three reviewed remediation commits.
+- Consumes: the three reviewed remediation commits and the exact `REMEDIATION_BASE` recorded immediately before Task 1.
 - Produces: a review package for the remediation base through `HEAD`, fresh command evidence, and a new independent scoped review. It does not reopen unrelated Plan A scope.
 
 - [ ] **Step 1: Run the complete automated gate**
@@ -366,7 +366,7 @@ Expected: standards regenerate without drift; `dist-single` lists only `index.ht
 
 - [ ] **Step 3: Package and independently review the exact remediation range**
 
-Use the Superpowers `subagent-driven-development/scripts/review-package` helper with this plan path, the recorded remediation base, and `HEAD`. Dispatch one fresh reviewer to verify only the three residuals, their regression tests, and new Critical/Important breakage.
+Use the Superpowers `subagent-driven-development/scripts/review-package` helper with this plan path, the exact `REMEDIATION_BASE` hash recorded in the ledger, and `HEAD`. Dispatch one fresh reviewer to verify only the three residuals, their regression tests, and new Critical/Important breakage. Do not use `abe7f64` as the package base when later user-requested commits precede remediation.
 
 Expected: all three findings are ADDRESSED, no new Critical/Important findings, and the character issue remains out of scope by the binding ruling.
 
