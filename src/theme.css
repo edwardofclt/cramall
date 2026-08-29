@@ -6,6 +6,10 @@
   --c-accent: #f59e0b;
   --c-good: #22c55e;
   --c-bad: #ef4444;
+  --c-peek-bg: #fff4d6;
+  --c-example-bg: #f4f6ff;
+  --c-example-border: #dbe2ff;
+  --c-tip-bg: #fff7e0;
   --radius: 20px;
   --shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
 }
@@ -284,7 +288,7 @@ body {
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-radius: var(--radius);
-  background: #fff4d6;
+  background: var(--c-peek-bg);
   box-shadow: var(--shadow);
   font-weight: 600;
 }
@@ -370,12 +374,12 @@ body {
 }
 
 .callout-example {
-  background: #f4f6ff;
-  border: 3px solid #dbe2ff;
+  background: var(--c-example-bg);
+  border: 3px solid var(--c-example-border);
 }
 
 .callout-tip {
-  background: #fff7e0;
+  background: var(--c-tip-bg);
   border: 3px dashed var(--accent, var(--c-accent));
 }
 

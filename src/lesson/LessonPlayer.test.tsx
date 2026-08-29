@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, describe, expect, test, vi } from 'vitest';
@@ -159,6 +159,21 @@ describe('LessonPlayer', () => {
     await settleWidget();
   });
 
+  test("a card's dialogue hands off to the next stage when it runs out", async () => {
+    const user = userEvent.setup();
+    renderPlayer();
+    await clickNext(user);
+    await screen.findByRole('heading', { name: 'Every digit has a place' });
+    await settleWidget();
+    // The blocks are readable the whole time the dialogue plays — it never gates them.
+    expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
+
+    // The card dialogue is one line, so its own Next finishes it.
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByRole('heading', { name: 'Compare from the left' })).toBeInTheDocument();
+  });
+
   test('renders card blocks with bold, line breaks, example and tip callouts', async () => {
     const user = userEvent.setup();
     renderPlayer();
@@ -313,6 +328,60 @@ describe('LessonPlayer', () => {
       expect(utterance.text).toContain('Say the number out loud.');
       // Markup characters never reach the speaker.
       expect(utterance.text).not.toContain('**');
+    });
+
+    test('stops the reading when the card is left behind', async () => {
+      const { speak, cancel } = stubSpeech();
+      const user = userEvent.setup();
+      renderPlayer();
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Every digit has a place' });
+      await settleWidget();
+
+      await user.click(screen.getByRole('button', { name: /read aloud/i }));
+      expect(speak).toHaveBeenCalledTimes(1);
+      cancel.mockClear();
+
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Compare from the left' });
+
+      // Otherwise the old card keeps talking over the new one with no way to stop it.
+      expect(cancel).toHaveBeenCalled();
+    });
+
+    test('a second tap stops the voice instead of starting it over', async () => {
+      const { speak, cancel } = stubSpeech();
+      const user = userEvent.setup();
+      renderPlayer();
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Every digit has a place' });
+      await settleWidget();
+
+      await user.click(screen.getByRole('button', { name: /read aloud/i }));
+      expect(speak).toHaveBeenCalledTimes(1);
+
+      await user.click(screen.getByRole('button', { name: /stop reading/i }));
+
+      expect(cancel).toHaveBeenCalledTimes(2);
+      expect(speak).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: /read aloud/i })).toBeInTheDocument();
+    });
+
+    test('the button offers to read again once the voice finishes on its own', async () => {
+      const { speak } = stubSpeech();
+      const user = userEvent.setup();
+      renderPlayer();
+      await clickNext(user);
+      await screen.findByRole('heading', { name: 'Every digit has a place' });
+      await settleWidget();
+
+      await user.click(screen.getByRole('button', { name: /read aloud/i }));
+      const utterance = speak.mock.calls[0]![0] as { onend?: () => void };
+      await act(async () => {
+        utterance.onend?.();
+      });
+
+      expect(screen.getByRole('button', { name: /read aloud/i })).toBeInTheDocument();
     });
 
     test('reads the worked example too', async () => {

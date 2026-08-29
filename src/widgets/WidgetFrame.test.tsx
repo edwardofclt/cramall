@@ -41,6 +41,18 @@ describe('WidgetFrame', () => {
     expect(errorSpy).toHaveBeenCalled();
   });
 
+  test("a crashed widget does not poison the next card's widget", async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { rerender } = render(<WidgetFrame type="place-value-builder" config={{}} />);
+    await screen.findByText(/this experiment is napping/i);
+
+    // Same frame, next card's widget: the failed boundary must not stick around.
+    rerender(<WidgetFrame type="number-line-compare" config={{}} />);
+
+    expect(await screen.findByTestId('widget-placeholder')).toBeInTheDocument();
+    expect(screen.queryByText(/this experiment is napping/i)).toBeNull();
+  });
+
   test('shows the napping card for a widget type nobody registered', () => {
     render(<WidgetFrame type="not-a-widget" config={{}} />);
 

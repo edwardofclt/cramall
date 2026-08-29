@@ -123,7 +123,12 @@ export function validateLesson(lesson: Lesson): string[] {
         errors.push(`${q.id}: correctOrder must be a permutation of item ids`);
     }
   }
+  // Card ids are load-bearing: the lesson player keys its stages on them and the results
+  // screen deep-links to a card by id, so a duplicate would silently strand a review link.
+  const seenCards = new Set<string>();
   for (const card of lesson.learnCards) {
+    if (seenCards.has(card.id)) errors.push(`${lesson.id}: duplicate learn card id ${card.id}`);
+    seenCards.add(card.id);
     if (card.widget && !(WIDGET_TYPES as readonly string[]).includes(card.widget.type))
       errors.push(`${card.id}: unknown widget type "${card.widget.type}"`);
   }

@@ -4,9 +4,6 @@ import { WidgetFrame } from '../widgets/WidgetFrame';
 import { ReadAloudButton } from './ReadAloudButton';
 import { RichText, speechText } from './Rich';
 
-/** A card's dialogue is decoration, not a gate — the kid can read past it any time. */
-const noop = () => {};
-
 function Block({ block }: { block: RichBlock }) {
   if (block.kind === 'example') {
     return (
@@ -39,7 +36,17 @@ function Block({ block }: { block: RichBlock }) {
   );
 }
 
-export function LearnCard({ card }: { card: LearnCardData }) {
+export type LearnCardProps = {
+  card: LearnCardData;
+  /**
+   * Runs when the card's dialogue reaches its last line, so that Next carries on to the
+   * next stage instead of dead-ending. The dialogue never gates the card: every block is
+   * on screen and readable the whole time it plays.
+   */
+  onDialogueDone: () => void;
+};
+
+export function LearnCard({ card, onDialogueDone }: LearnCardProps) {
   const spoken = speechText([card.title, ...card.blocks.map((b) => b.text)]);
 
   return (
@@ -52,7 +59,7 @@ export function LearnCard({ card }: { card: LearnCardData }) {
       </div>
 
       {card.dialogue && card.dialogue.length > 0 && (
-        <DialoguePlayer lines={card.dialogue} onDone={noop} size={110} />
+        <DialoguePlayer lines={card.dialogue} onDone={onDialogueDone} size={110} />
       )}
 
       {card.blocks.map((block, index) => (

@@ -48,6 +48,11 @@ test('duplicate question ids are reported', () => {
   l.quiz.pool[1]!.id = l.quiz.pool[0]!.id;
   expect(validateLesson(l).join()).toMatch(/duplicate/i);
 });
+test('duplicate learn card ids are reported', () => {
+  const l = makeLesson();
+  l.learnCards.push({ id: 'les-c1', title: 'Copy', blocks: [{ kind: 'text', text: 'Again.' }] });
+  expect(validateLesson(l).join()).toMatch(/duplicate learn card/i);
+});
 test('sort correctOrder with duplicates is reported', () => {
   const l = makeLesson();
   l.quiz.pool[0] = {

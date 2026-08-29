@@ -148,7 +148,7 @@ function LessonStages({
   const goNext = useCallback(() => setStep((s) => Math.min(s + 1, last)), [last]);
   const goBack = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
 
-  const stage = stages[step] ?? stages[0]!;
+  const stage = stages[step];
   const animation = reduced
     ? {}
     : { variants: cardVariants, initial: 'initial', animate: 'enter', exit: 'exit' };
@@ -175,7 +175,7 @@ function LessonStages({
           {stage.key === 'intro' && (
             <DialoguePlayer lines={lesson.intro} onDone={goNext} />
           )}
-          {'card' in stage && <LearnCard card={stage.card} />}
+          {'card' in stage && <LearnCard card={stage.card} onDialogueDone={goNext} />}
           {stage.key === 'worked' && <WorkedExample worked={lesson.workedExample} />}
           {stage.key === 'outro' && <Outro lesson={lesson} subject={subject} />}
         </motion.div>

@@ -20,7 +20,7 @@ export function RichText({ text }: { text: string }) {
 // Splitting on a capturing group interleaves the pieces: even indexes are plain text,
 // odd indexes are whatever sat between a pair of asterisks.
 function boldParts(line: string) {
-  return line.split(/\*\*(.+?)\*\*/g).map((part, index) =>
+  return line.split(/\*\*(.+?)\*\*/).map((part, index) =>
     index % 2 === 1 ? (
       <strong key={index}>{part}</strong>
     ) : (
@@ -31,7 +31,14 @@ function boldParts(line: string) {
 
 /** Same text with the markup taken back out — for read-aloud, which speaks the asterisks. */
 export function plainText(text: string): string {
-  return text.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\n+/g, ' ').trim();
+  return (
+    text
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      // A typo'd single asterisk survives the pass above, and a voice reads it as "star".
+      .replace(/\*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 /**
