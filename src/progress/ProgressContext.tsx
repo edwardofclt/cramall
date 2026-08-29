@@ -31,25 +31,55 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 export function ProgressProvider({ children }: { children: ReactNode }) {
   const [save, setSave] = useState<SaveData>(loadSave);
 
-  const commit = useCallback((next: SaveData) => {
-    persist(next);
-    setSave(next);
+  // Actions derive the next save from the *latest* state inside the updater, so several of
+  // them can fire in one tick without clobbering each other, and so none of them close over
+  // `save` — their identities stay stable for the life of the provider and are safe to put in
+  // a consumer's effect dependency array. Persisting inside the updater is a deliberate
+  // exception to updater purity: it is an idempotent write of the value being returned, so
+  // StrictMode's double-invoke just writes the same JSON twice.
+  const commit = useCallback((derive: (current: SaveData) => SaveData) => {
+    setSave((current) => {
+      const next = derive(current);
+      persist(next);
+      return next;
+    });
   }, []);
 
+  const recordAttempt = useCallback<ProgressContextValue['recordAttempt']>(
+    (lessonId, attempt, passThreshold) =>
+      commit((current) => recordAttemptPure(current, lessonId, attempt, passThreshold)),
+    [commit],
+  );
+
+  const setParentChecked = useCallback<ProgressContextValue['setParentChecked']>(
+    (lessonId, checked) => commit((current) => setParentCheckedPure(current, lessonId, checked)),
+    [commit],
+  );
+
+  const updateSettings = useCallback<ProgressContextValue['updateSettings']>(
+    (partial) =>
+      commit((current) => ({ ...current, settings: { ...current.settings, ...partial } })),
+    [commit],
+  );
+
+  const importJson = useCallback<ProgressContextValue['importJson']>(
+    (json) => {
+      // Parsed before the updater runs, so an invalid file throws synchronously to the caller
+      // and leaves both state and storage untouched.
+      const imported = importSave(json);
+      commit(() => imported);
+    },
+    [commit],
+  );
+
+  const reset = useCallback<ProgressContextValue['reset']>(
+    () => commit(() => defaultSave()),
+    [commit],
+  );
+
   const value = useMemo<ProgressContextValue>(
-    () => ({
-      save,
-      recordAttempt: (lessonId, attempt, passThreshold) =>
-        commit(recordAttemptPure(save, lessonId, attempt, passThreshold)),
-      setParentChecked: (lessonId, checked) =>
-        commit(setParentCheckedPure(save, lessonId, checked)),
-      updateSettings: (partial) =>
-        commit({ ...save, settings: { ...save.settings, ...partial } }),
-      // importSave throws before commit, so a bad file leaves state and storage untouched.
-      importJson: (json) => commit(importSave(json)),
-      reset: () => commit(defaultSave()),
-    }),
-    [save, commit],
+    () => ({ save, recordAttempt, setParentChecked, updateSettings, importJson, reset }),
+    [save, recordAttempt, setParentChecked, updateSettings, importJson, reset],
   );
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { ProgressProvider, useProgress } from './ProgressContext';
+import { ProgressProvider, useProgress, type ProgressContextValue } from './ProgressContext';
 import { defaultSave, exportSave, loadSave, type Attempt } from './storage';
 
 const ATTEMPT: Attempt = {
@@ -122,6 +122,70 @@ describe('ProgressContext', () => {
     expect(screen.getByTestId('best')).toHaveTextContent('10');
     expect(screen.getByTestId('import-error')).toHaveTextContent('');
     expect(loadSave().lessons[LESSON]?.bestScore).toBe(10);
+  });
+
+  test('action identities stay stable across saves so effect deps do not churn', async () => {
+    const seen: Array<ProgressContextValue['recordAttempt']> = [];
+
+    function IdentityProbe() {
+      const { save, recordAttempt } = useProgress();
+      seen.push(recordAttempt);
+      return (
+        <div>
+          <span data-testid="streak">{save.streak.count}</span>
+          <button onClick={() => recordAttempt(LESSON, ATTEMPT, 8)}>record</button>
+        </div>
+      );
+    }
+
+    render(
+      <ProgressProvider>
+        <IdentityProbe />
+      </ProgressProvider>,
+    );
+    const rendersBefore = seen.length;
+
+    await click('record');
+
+    // The save really did change (so the provider re-rendered)...
+    expect(screen.getByTestId('streak')).toHaveTextContent('1');
+    expect(seen.length).toBeGreaterThan(rendersBefore);
+    // ...yet every consumer saw the very same function reference.
+    expect(new Set(seen).size).toBe(1);
+  });
+
+  test('two actions in one tick both land instead of clobbering each other', async () => {
+    function BatchProbe() {
+      const { save, recordAttempt, setParentChecked } = useProgress();
+      return (
+        <div>
+          <span data-testid="best">{save.lessons[LESSON]?.bestScore ?? 'none'}</span>
+          <span data-testid="checked">{String(save.parentChecked[LESSON] ?? false)}</span>
+          <button
+            onClick={() => {
+              recordAttempt(LESSON, ATTEMPT, 8);
+              setParentChecked(LESSON, true);
+            }}
+          >
+            record and check
+          </button>
+        </div>
+      );
+    }
+
+    render(
+      <ProgressProvider>
+        <BatchProbe />
+      </ProgressProvider>,
+    );
+
+    await click('record and check');
+
+    expect(screen.getByTestId('best')).toHaveTextContent('9');
+    expect(screen.getByTestId('checked')).toHaveTextContent('true');
+    const persisted = loadSave();
+    expect(persisted.lessons[LESSON]?.bestScore).toBe(9);
+    expect(persisted.parentChecked[LESSON]).toBe(true);
   });
 
   test('importJson throws on an invalid save and leaves progress untouched', async () => {

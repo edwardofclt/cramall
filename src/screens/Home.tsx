@@ -30,6 +30,7 @@ export function Home() {
           <span
             className="badge"
             data-testid="streak"
+            role="img"
             aria-label={`${streak} day streak`}
           >
             <span aria-hidden="true">🔥&nbsp;</span>
