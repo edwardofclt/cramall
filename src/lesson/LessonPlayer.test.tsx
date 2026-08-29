@@ -93,7 +93,7 @@ async function clickNext(user: ReturnType<typeof userEvent.setup>) {
 
 /** Card one holds the lazy widget; settle it so nothing resolves after the test ends. */
 async function settleWidget() {
-  await screen.findByTestId('widget-placeholder');
+  await screen.findByTestId('widget-place-value-builder');
 }
 
 function stubSpeech() {
@@ -181,7 +181,8 @@ describe('LessonPlayer', () => {
     await screen.findByRole('heading', { name: 'Every digit has a place' });
     await settleWidget();
 
-    expect(screen.getByText('hundreds').tagName).toBe('STRONG');
+    // Scoped to the block: the card's widget has a "hundreds" column label of its own.
+    expect(within(screen.getByTestId('block-text')).getByText('hundreds').tagName).toBe('STRONG');
     expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
     expect(screen.getByTestId('block-example')).toHaveTextContent('482 is 4 hundreds, 8 tens, 2 ones');
     const tip = screen.getByTestId('block-tip');
@@ -196,7 +197,7 @@ describe('LessonPlayer', () => {
     renderPlayer();
     await clickNext(user);
 
-    expect(await screen.findByTestId('widget-placeholder')).toBeInTheDocument();
+    expect(await screen.findByTestId('widget-place-value-builder')).toBeInTheDocument();
   });
 
   test('?card= deep-links straight to that learn card', async () => {

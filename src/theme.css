@@ -10,6 +10,15 @@
   --c-example-bg: #f4f6ff;
   --c-example-border: #dbe2ff;
   --c-tip-bg: #fff7e0;
+  --c-on-accent: #ffffff;
+  --c-good-soft: #dcfce7;
+  --c-bad-soft: #ffe4e6;
+  --c-marker-a: #2563eb;
+  --c-marker-b: #ea580c;
+  --c-line: #d4d4d8;
+  --c-period-ones: #fff1d6;
+  --c-period-thousands: #e6efff;
+  --c-period-millions: #f1e7ff;
   --radius: 20px;
   --shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
 }
@@ -419,7 +428,6 @@ body {
   text-align: center;
 }
 
-.widget-placeholder,
 .widget-loading,
 .widget-napping {
   border: 3px dashed var(--c-ink-soft);
@@ -449,4 +457,517 @@ body {
 .speech-bubble-right::after {
   left: auto;
   right: 2rem;
+}
+
+/* --- widgets (experiments) ---------------------------------------------- */
+
+.widget-experiment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border: 3px solid var(--c-example-border);
+}
+
+.widget-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.widget-title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+/* --- place value builder ------------------------------------------------- */
+
+.pv-target {
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+  font-size: 1rem;
+}
+
+.pv-reset {
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  color: var(--c-ink-soft);
+}
+
+.pv-reset:disabled {
+  opacity: 0.4;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pv-columns {
+  display: flex;
+  align-items: flex-end;
+  /* `safe` keeps the first column reachable once the chart is wider than the phone —
+     plain `center` clips the overflow on the left where nothing can scroll to it. */
+  justify-content: center;
+  justify-content: safe center;
+  gap: 0.375rem;
+  padding-bottom: 0.25rem;
+  overflow-x: auto;
+}
+
+.pv-period {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pv-period-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+
+.pv-period-columns {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border-radius: var(--radius);
+  background: var(--c-period-ones);
+}
+
+.pv-period-columns[data-period='thousands'] {
+  background: var(--c-period-thousands);
+}
+
+.pv-period-columns[data-period='millions'] {
+  background: var(--c-period-millions);
+}
+
+.pv-comma {
+  /* Sits on the digit row, where the comma actually belongs in the number. */
+  align-self: flex-end;
+  padding-bottom: 4.25rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--c-ink-soft);
+}
+
+.pv-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pv-step {
+  width: 52px;
+  min-width: 52px;
+  height: 46px;
+  padding: 0;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.pv-step-up {
+  color: var(--c-good);
+}
+
+.pv-step-down {
+  color: var(--c-bad);
+}
+
+.pv-step:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.pv-digit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 58px;
+  border-radius: 14px;
+  background: var(--c-card);
+  box-shadow: var(--shadow);
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pv-place-label {
+  max-width: 60px;
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+
+.pv-readouts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius);
+  border: 3px solid var(--c-example-border);
+  background: var(--c-example-bg);
+}
+
+.pv-readout {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin: 0;
+}
+
+.pv-readout-label {
+  flex: 0 0 8.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+
+.pv-standard {
+  display: inline-block;
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.pv-words,
+.pv-expanded {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.pv-feedback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-align: center;
+}
+
+.pv-feedback[data-tone='good'] {
+  background: var(--c-good-soft);
+}
+
+.pv-feedback[data-tone='hint'] {
+  background: var(--c-tip-bg);
+  color: var(--c-ink-soft);
+}
+
+.pv-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pv-spark {
+  position: absolute;
+  bottom: 28%;
+  font-size: 1.75rem;
+}
+
+/* --- number line compare ------------------------------------------------- */
+
+.nl-hint {
+  margin-left: auto;
+  min-height: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+}
+
+.nl-board {
+  position: relative;
+  border-radius: var(--radius);
+}
+
+.nl-svg {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+}
+
+.nl-axis {
+  stroke: var(--c-line);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.nl-span {
+  stroke: var(--c-accent);
+  stroke-width: 6;
+  stroke-linecap: round;
+  opacity: 0.5;
+}
+
+.nl-tick line {
+  stroke: var(--c-line);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.nl-tick text {
+  fill: var(--c-ink-soft);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.nl-grab {
+  fill: transparent;
+}
+
+.nl-stem {
+  stroke-width: 3;
+  stroke-dasharray: 5 5;
+}
+
+.nl-letter,
+.nl-pill-text {
+  fill: var(--c-on-accent);
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.nl-marker[data-marker='a'] .nl-shape,
+.nl-marker[data-marker='a'] .nl-pill {
+  fill: var(--c-marker-a);
+}
+
+.nl-marker[data-marker='a'] .nl-stem {
+  stroke: var(--c-marker-a);
+}
+
+.nl-marker[data-marker='b'] .nl-shape,
+.nl-marker[data-marker='b'] .nl-pill {
+  fill: var(--c-marker-b);
+}
+
+.nl-marker[data-marker='b'] .nl-stem {
+  stroke: var(--c-marker-b);
+}
+
+.nl-flash {
+  /* Behind the line: the flash tints the board, it never dims the numbers. */
+  position: absolute;
+  z-index: 0;
+  inset: -0.5rem;
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  animation: nl-flash 0.9s ease-out;
+}
+
+.nl-flash[data-tone='correct'] {
+  background: var(--c-good-soft);
+}
+
+.nl-flash[data-tone='incorrect'] {
+  background: var(--c-bad-soft);
+}
+
+@keyframes nl-flash {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.nl-steppers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.nl-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 999px;
+  background: var(--c-bg);
+}
+
+.nl-stepper-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--c-on-accent);
+  font-weight: 800;
+}
+
+.nl-stepper[data-marker='a'] .nl-stepper-chip {
+  background: var(--c-marker-a);
+}
+
+.nl-stepper[data-marker='b'] .nl-stepper-chip {
+  background: var(--c-marker-b);
+  border-radius: 10px;
+}
+
+.nl-nudge {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  padding: 0;
+  font-size: 1.25rem;
+}
+
+.nl-nudge:disabled {
+  opacity: 0.35;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.nl-stepper-value {
+  min-width: 3ch;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.nl-sentence {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.nl-sentence-number[data-marker='a'] {
+  color: var(--c-marker-a);
+}
+
+.nl-sentence-number[data-marker='b'] {
+  color: var(--c-marker-b);
+}
+
+.nl-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  border: 4px dashed var(--c-line);
+  color: var(--c-ink-soft);
+}
+
+.nl-slot[data-filled='true'] {
+  border-style: solid;
+  border-color: var(--c-accent);
+  color: var(--c-ink);
+}
+
+.nl-symbols {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.nl-symbol {
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 116px;
+  min-height: 84px;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--c-example-border);
+}
+
+.nl-symbol-glyph {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nl-symbol-word {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-ink-soft);
+}
+
+.nl-symbol[aria-pressed='true'] {
+  background: var(--c-accent);
+  color: var(--c-on-accent);
+}
+
+.nl-symbol[aria-pressed='true'] .nl-symbol-word {
+  color: var(--c-on-accent);
+}
+
+.nl-feedback {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-align: center;
+}
+
+.nl-feedback[data-tone='correct'] {
+  background: var(--c-good-soft);
+}
+
+.nl-feedback[data-tone='incorrect'] {
+  background: var(--c-bad-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nl-flash {
+    animation: none;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Six columns on a phone: trim the chrome, never the 44px tap targets. */
+  .pv-period-columns {
+    gap: 0.25rem;
+    padding: 0.375rem;
+  }
+
+  .pv-step,
+  .pv-digit {
+    width: 46px;
+    min-width: 46px;
+  }
+
+  .pv-digit {
+    height: 52px;
+    font-size: 1.875rem;
+  }
+
+  .pv-readout-label {
+    flex: 0 0 100%;
+  }
+
+  .nl-symbol {
+    min-width: 92px;
+  }
 }

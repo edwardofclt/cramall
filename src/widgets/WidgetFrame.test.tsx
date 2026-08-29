@@ -29,7 +29,7 @@ describe('WidgetFrame', () => {
   test('renders the registered widget for a known type', async () => {
     render(<WidgetFrame type="number-line-compare" config={{}} />);
 
-    expect(await screen.findByTestId('widget-placeholder')).toBeInTheDocument();
+    expect(await screen.findByTestId('widget-number-line-compare')).toBeInTheDocument();
   });
 
   test('shows the napping card when the widget throws', async () => {
@@ -49,7 +49,7 @@ describe('WidgetFrame', () => {
     // Same frame, next card's widget: the failed boundary must not stick around.
     rerender(<WidgetFrame type="number-line-compare" config={{}} />);
 
-    expect(await screen.findByTestId('widget-placeholder')).toBeInTheDocument();
+    expect(await screen.findByTestId('widget-number-line-compare')).toBeInTheDocument();
     expect(screen.queryByText(/this experiment is napping/i)).toBeNull();
   });
 
