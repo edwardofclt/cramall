@@ -1,0 +1,233 @@
+import { useRef, useState, type CSSProperties } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Link, useParams } from 'react-router-dom';
+import { cardVariants, springy } from '../app/motion';
+import { useReducedMotionPref } from '../app/useReducedMotionPref';
+import { Character } from '../characters/Character';
+import type { Lesson, Subject } from '../content/schema';
+import { findLesson } from '../content/subjects';
+import { useProgress } from '../progress/ProgressContext';
+import { buildResult, sampleQuiz, shuffleChoices, type Answer, type QuizResult } from './engine';
+import { QuestionCard } from './QuestionCard';
+import { Results } from './Results';
+
+export const QUIZ_LENGTH = 10;
+
+/** Local yyyy-mm-dd — a quiz finished at 9pm belongs to *that* day, not tomorrow in UTC. */
+function todayIso(now = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+function QuizNotFound() {
+  return (
+    <div className="page stack">
+      <h1>Quick Check not found</h1>
+      <p>That quiz isn&apos;t here — maybe the link is old. Let&apos;s go pick another lesson!</p>
+      <div>
+        <Link className="btn btn-primary" to="/">
+          Back home
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/** A lesson whose author has not written ten questions yet still has to land softly. */
+function QuizNotReady({ lesson, subject }: { lesson: Lesson; subject: Subject }) {
+  return (
+    <div className="page stack" style={{ '--accent': subject.color } as CSSProperties}>
+      <Link className="link-quiet" to={`/lesson/${lesson.id}`}>
+        ← Back to the lesson
+      </Link>
+      <section className="card stack quiz-notready">
+        <Character guide={subject.guide} pose="think" size={120} />
+        <h1 style={{ margin: 0 }}>Quiz not ready yet</h1>
+        <p style={{ margin: 0 }}>
+          We&apos;re still writing questions for this one. Go read the lesson — the Quick Check
+          will be waiting soon!
+        </p>
+        <Link className="btn btn-primary" to={`/lesson/${lesson.id}`}>
+          Back to the lesson
+        </Link>
+      </section>
+    </div>
+  );
+}
+
+function QuizProgressBar({
+  answered,
+  reduced,
+}: {
+  answered: number;
+  reduced: boolean;
+}) {
+  return (
+    <div
+      className="quiz-progress"
+      role="progressbar"
+      aria-label="Quick Check progress"
+      aria-valuemin={0}
+      aria-valuemax={QUIZ_LENGTH}
+      aria-valuenow={answered}
+      aria-valuetext={`${answered} of ${QUIZ_LENGTH} questions answered`}
+    >
+      <motion.div
+        className="quiz-progress-fill"
+        initial={false}
+        animate={{ width: `${(answered / QUIZ_LENGTH) * 100}%` }}
+        transition={reduced ? { duration: 0 } : springy}
+      />
+    </div>
+  );
+}
+
+type RunProps = {
+  lesson: Lesson;
+  subject: Subject;
+  rng: () => number;
+  onTryAgain: () => void;
+};
+
+/**
+ * One attempt: ten questions sampled once, answered one at a time, then the results.
+ * Everything about the attempt lives in here, so "try again" is a remount and nothing else.
+ */
+function QuizRun({ lesson, subject, rng, onTryAgain }: RunProps) {
+  const { recordAttempt } = useProgress();
+  const reduced = useReducedMotionPref();
+
+  // Sampled and shuffled exactly once, in a state initialiser: re-running it on a render
+  // would swap the question out from under a kid who is mid-answer.
+  const [questions] = useState(() =>
+    sampleQuiz(lesson.quiz.pool, QUIZ_LENGTH, rng).map((question) => shuffleChoices(question, rng)),
+  );
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [index, setIndex] = useState(0);
+  const [result, setResult] = useState<QuizResult | null>(null);
+  const recorded = useRef(false);
+
+  function finish(finalAnswers: Answer[]) {
+    const built = buildResult(questions, finalAnswers);
+    // One attempt per run, guarded by a ref rather than an effect dependency: re-renders
+    // (a settings change, a parent update) must never append a second attempt.
+    if (!recorded.current) {
+      recorded.current = true;
+      recordAttempt(
+        lesson.id,
+        {
+          date: todayIso(),
+          score: built.score,
+          total: built.total,
+          // Storage wants one tag per missed *question*, so a triple miss counts triple.
+          missedConceptTags: built.missed.flatMap((group) =>
+            Array<string>(group.count).fill(group.conceptTag),
+          ),
+        },
+        lesson.quiz.passThreshold,
+      );
+    }
+    // Batched with recordAttempt, so the results screen's first render already sees the
+    // progress it just wrote (and shows the right stars immediately).
+    setResult(built);
+  }
+
+  function handleNext() {
+    if (index + 1 >= questions.length) {
+      finish(answers);
+    } else {
+      setIndex((current) => current + 1);
+    }
+  }
+
+  const animation = reduced
+    ? {}
+    : { variants: cardVariants, initial: 'initial', animate: 'enter', exit: 'exit' };
+  const question = questions[index]!;
+
+  return (
+    <div className="page stack quiz-page" style={{ '--accent': subject.color } as CSSProperties}>
+      <div className="quiz-topbar">
+        <Link className="link-quiet" to={`/lesson/${lesson.id}`}>
+          ← Back to the lesson
+        </Link>
+        <span className="badge badge-small quiz-count">
+          {result ? 'All done!' : `${index + 1} of ${QUIZ_LENGTH}`}
+        </span>
+      </div>
+
+      <header className="stack quiz-header">
+        <span className="unit-chip quiz-chip">Quick Check</span>
+        <h1 className="quiz-lesson-title">{lesson.title}</h1>
+      </header>
+
+      <QuizProgressBar answered={answers.length} reduced={reduced} />
+
+      {/* `mode="wait"` keeps exactly one card on screen: the old one leaves before the
+          next arrives, so nothing overlaps mid-transition. */}
+      <AnimatePresence mode="wait" initial={false}>
+        {result ? (
+          <motion.div key="results" className="stack" {...animation}>
+            <Results
+              lesson={lesson}
+              subject={subject}
+              result={result}
+              onTryAgain={onTryAgain}
+            />
+          </motion.div>
+        ) : (
+          <motion.div key={`q${index}`} className="stack" {...animation}>
+            <QuestionCard
+              question={question}
+              guide={subject.guide}
+              index={index}
+              total={questions.length}
+              onAnswered={(answer) => setAnswers((current) => [...current, answer])}
+              onNext={handleNext}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/** Holds the attempt counter so "Try again" remounts the run with a fresh sample. */
+function QuizAttempts({ lesson, subject, rng }: Omit<RunProps, 'onTryAgain'>) {
+  const [attempt, setAttempt] = useState(0);
+  return (
+    <QuizRun
+      key={attempt}
+      lesson={lesson}
+      subject={subject}
+      rng={rng}
+      onTryAgain={() => setAttempt((current) => current + 1)}
+    />
+  );
+}
+
+export type QuickCheckProps = {
+  /** Injectable randomness — tests pass a seeded generator; the app uses Math.random. */
+  rng?: () => number;
+};
+
+/** Route component for `/lesson/:lessonId/quiz`. */
+export function QuickCheck({ rng = Math.random }: QuickCheckProps) {
+  const { lessonId } = useParams();
+  const found = lessonId ? findLesson(lessonId) : null;
+
+  if (!found) return <QuizNotFound />;
+  if (found.lesson.quiz.pool.length < QUIZ_LENGTH) {
+    return <QuizNotReady lesson={found.lesson} subject={found.subject} />;
+  }
+
+  // Keyed by lesson so walking from one lesson's quiz straight to another's starts clean.
+  return (
+    <QuizAttempts
+      key={found.lesson.id}
+      lesson={found.lesson}
+      subject={found.subject}
+      rng={rng}
+    />
+  );
+}

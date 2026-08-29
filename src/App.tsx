@@ -5,6 +5,7 @@ import { pageVariants } from './app/motion';
 import { useReducedMotionPref } from './app/useReducedMotionPref';
 import { LessonPlayer } from './lesson/LessonPlayer';
 import { ProgressProvider } from './progress/ProgressContext';
+import { QuickCheck } from './quiz/QuickCheck';
 import { Home } from './screens/Home';
 import { SubjectMap } from './screens/SubjectMap';
 
@@ -65,7 +66,7 @@ function AnimatedRoutes() {
           path="/lesson/:lessonId/quiz"
           element={
             <Page>
-              <ComingSoon title="Quick Check" />
+              <QuickCheck />
             </Page>
           }
         />
