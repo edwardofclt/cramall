@@ -130,12 +130,17 @@ source text, 15 source-before-question inline checks, solo practice framing,
 three replayable Science animations, and stable one-Next dialogue layout. The
 intro guide is 360px on roomy screens and caps to the available viewport width;
 guide/kid line changes retain one reserved footprint without clipping or
-control jumps. Animation status remains truthful through normal, replay,
-collision, and reduced-motion preference changes.
+control jumps. Commit `6a989cc` further keeps the current guide visible and idle
+during kid dialogue (including Math U1 L1), and upgrades the Science model with
+a layered track, detailed car and marble, wheel/rolling motion, foam impact, and
+poses derived from the exact rendered rail geometry. Animation status remains
+truthful through normal, replay, collision, and reduced-motion preference
+changes.
 
-Verification at `d91a1b3`: 357/357 tests, clean TypeScript, normal and
-self-contained single-file builds, real-browser desktop/narrow dialogue checks,
-and animation timing/replay checks. Independent final re-review is APPROVED.
+Verification at source commit `6a989cc`: 360/360 tests, clean TypeScript, normal
+and self-contained single-file builds, real-browser desktop/mobile dialogue
+checks, exact rail-contact animation checks, and collision timing/replay checks.
+Independent final re-review is APPROVED.
 Re-run the relevant gates before relying on this handoff after later changes.
 Do not implement the Plan A closure-remediation items without new explicit
 authorization, even if their residuals appear in a review ledger.
