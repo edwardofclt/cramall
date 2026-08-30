@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { cardVariants } from '../app/motion';
@@ -27,6 +27,12 @@ function buildStages(lesson: Lesson): Stage[] {
     { key: 'worked' },
     { key: 'outro' },
   ];
+}
+
+function findStageIndex(stages: Stage[], step: string | null, cardId: string | null) {
+  const requestedKey = step ?? (cardId ? `card:${cardId}` : null);
+  const index = requestedKey ? stages.findIndex((stage) => stage.key === requestedKey) : -1;
+  return index === -1 ? 0 : index;
 }
 
 function LessonNotFound() {
@@ -131,17 +137,10 @@ function LessonStages({
   unit: Unit;
   lesson: Lesson;
 }) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const stages = useMemo(() => buildStages(lesson), [lesson]);
-
-  // `?card=` (used by the results screen's "Review this" links) only picks the opening
-  // stage; after that the kid drives. An id nobody recognises just starts at the intro.
-  const [step, setStep] = useState(() => {
-    const cardId = searchParams.get('card');
-    if (!cardId) return 0;
-    const found = stages.findIndex((stage) => stage.key === `card:${cardId}`);
-    return found === -1 ? 0 : found;
-  });
+  const step = findStageIndex(stages, searchParams.get('step'), searchParams.get('card'));
+  const stage = stages[step];
   const [peekDismissed, setPeekDismissed] = useState(false);
   const [dialogueAnnouncement, setDialogueAnnouncement] = useState('');
 
@@ -149,10 +148,28 @@ function LessonStages({
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
 
   const last = stages.length - 1;
-  const goNext = useCallback(() => setStep((s) => Math.min(s + 1, last)), [last]);
-  const goBack = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
+  const setStage = useCallback(
+    (nextStage: Stage, replace = false) => {
+      setSearchParams(
+        (current) => {
+          const next = new URLSearchParams(current);
+          next.set('step', nextStage.key);
+          next.delete('card');
+          return next;
+        },
+        { replace },
+      );
+    },
+    [setSearchParams],
+  );
+  const needsCanonicalization = searchParams.get('step') !== stage.key || searchParams.has('card');
+  useEffect(() => {
+    if (needsCanonicalization) setStage(stage, true);
+  }, [needsCanonicalization, setStage, stage]);
 
-  const stage = stages[step];
+  const goNext = useCallback(() => setStage(stages[Math.min(step + 1, last)]!), [last, setStage, stages, step]);
+  const goBack = useCallback(() => setStage(stages[Math.max(step - 1, 0)]!), [setStage, stages, step]);
+
   const [dialogueStageKey, setDialogueStageKey] = useState(stage.key);
   const [cardDialogueDone, setCardDialogueDone] = useState(false);
   const activeStageVisit = useRef({ key: stage.key, id: 0 });
@@ -275,19 +292,8 @@ function LessonStages({
  */
 export function LessonPlayer() {
   const { lessonId } = useParams();
-  const [searchParams] = useSearchParams();
   const found = lessonId ? findLesson(lessonId) : null;
   if (!found) return <LessonNotFound />;
 
-  // Keyed by lesson + deep-linked card so both a different lesson and a *new* "Review
-  // this" link restart the stage machine; walking to another card leaves `?card=` alone,
-  // so ordinary Back/Next never remounts.
-  return (
-    <LessonStages
-      key={`${found.lesson.id}:${searchParams.get('card') ?? ''}`}
-      subject={found.subject}
-      unit={found.unit}
-      lesson={found.lesson}
-    />
-  );
+  return <LessonStages subject={found.subject} unit={found.unit} lesson={found.lesson} />;
 }

@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { LessonPlayer } from './LessonPlayer';
@@ -74,6 +74,8 @@ const LESSON_ID = 'math-u01-l1';
 function renderPlayer(entry = `/lesson/${LESSON_ID}`) {
   return render(
     <MemoryRouter initialEntries={[entry]}>
+      <RouterProbe />
+      <RouterHistoryControls />
       <Routes>
         <Route path="/" element={<h1>Home screen</h1>} />
         <Route path="/lesson/:lessonId" element={<LessonPlayer />} />
@@ -81,6 +83,29 @@ function renderPlayer(entry = `/lesson/${LESSON_ID}`) {
       </Routes>
     </MemoryRouter>,
   );
+}
+
+function RouterProbe() {
+  const location = useLocation();
+  return <output data-testid="router-location">{`${location.pathname}${location.search}`}</output>;
+}
+
+function RouterHistoryControls() {
+  const navigate = useNavigate();
+  return (
+    <>
+      <button type="button" onClick={() => navigate(-1)}>
+        Browser back
+      </button>
+      <button type="button" onClick={() => navigate(1)}>
+        Browser forward
+      </button>
+    </>
+  );
+}
+
+function currentSearchParams() {
+  return new URLSearchParams(screen.getByTestId('router-location').textContent?.split('?')[1]);
 }
 
 /** The stage Next/Back live in their own landmark once intro dialogue hands off. */
@@ -283,17 +308,56 @@ describe('LessonPlayer', () => {
     expect(await screen.findByTestId('widget-place-value-builder')).toBeInTheDocument();
   });
 
-  test('?card= deep-links straight to that learn card', async () => {
-    renderPlayer(`/lesson/${LESSON_ID}?card=card-compare`);
+  test.each([
+    ['intro', /Big numbers are just acorn piles!/i],
+    ['card:card-compare', /Compare from the left/i],
+    ['worked', /Try one together/i],
+    ['outro', /You learned it all!/i],
+  ])('opens the %s stage from its URL', async (step, content) => {
+    renderPlayer(`/lesson/${LESSON_ID}?step=${step}`);
+
+    if (step === 'intro') {
+      expect(screen.getByTestId('dialogue-scene')).toBeInTheDocument();
+    } else {
+      expect(await screen.findByText(content)).toBeInTheDocument();
+    }
+    expect(currentSearchParams().get('step')).toBe(step);
+  });
+
+  test('canonicalizes legacy review links while preserving unrelated query parameters', async () => {
+    renderPlayer(`/lesson/${LESSON_ID}?card=card-compare&peek=1`);
 
     expect(await screen.findByRole('heading', { name: 'Compare from the left' })).toBeInTheDocument();
     expect(screen.queryByText('Big numbers are just acorn piles!')).toBeNull();
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('card:card-compare'));
+    expect(currentSearchParams().get('peek')).toBe('1');
+    expect(currentSearchParams().has('card')).toBe(false);
   });
 
-  test('an unknown ?card= id falls back to the intro', () => {
-    renderPlayer(`/lesson/${LESSON_ID}?card=nope`);
+  test('canonicalizes unknown steps and unknown legacy cards to intro', async () => {
+    renderPlayer(`/lesson/${LESSON_ID}?step=card:nope&card=nope&peek=1`);
 
     expect(screen.getAllByText('Big numbers are just acorn piles!')).toHaveLength(2);
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('intro'));
+    expect(currentSearchParams().get('peek')).toBe('1');
+    expect(currentSearchParams().has('card')).toBe(false);
+  });
+
+  test('lesson navigation preserves query parameters and follows browser history', async () => {
+    const user = userEvent.setup();
+    renderPlayer(`/lesson/${LESSON_ID}?step=card:card-compare&peek=1`);
+    await screen.findByRole('heading', { name: 'Compare from the left' });
+
+    await user.click(nav().getByRole('button', { name: /next step/i }));
+    expect(await screen.findByRole('heading', { name: 'Try one together' })).toBeInTheDocument();
+    expect(currentSearchParams().get('step')).toBe('worked');
+    expect(currentSearchParams().get('peek')).toBe('1');
+
+    await user.click(screen.getByRole('button', { name: /browser back/i }));
+    expect(await screen.findByRole('heading', { name: 'Compare from the left' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /browser forward/i }));
+    expect(await screen.findByRole('heading', { name: 'Try one together' })).toBeInTheDocument();
   });
 
   test('walks intro → cards → worked example → outro and offers the quiz', async () => {
