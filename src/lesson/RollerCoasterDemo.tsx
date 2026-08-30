@@ -1,4 +1,4 @@
-import { useEffect, useState, type AnimationEvent } from 'react';
+import { useEffect, useState, type AnimationEvent, type CSSProperties } from 'react';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import type { InstructionalDemo } from '../content/schema';
 
@@ -12,6 +12,60 @@ type DemoRun = {
   phase: RunPhase;
   wasReset: boolean;
 };
+
+type TrackPose = { x: number; y: number; angle: number };
+type TrackSample = { curveT: number } | { lineX: number };
+
+const TRACK_PATH = 'M58 37 C105 37 101 203 335 203 H580';
+const FINAL_TRACK_POSE: TrackPose = { x: 493, y: 203, angle: 0 };
+const TRACK_SAMPLES: Record<Exclude<Release, 'idle'>, TrackSample[]> = {
+  higher: [
+    { curveT: 0.1 },
+    { curveT: 0.24 },
+    { curveT: 0.4 },
+    { curveT: 0.58 },
+    { curveT: 0.76 },
+    { curveT: 1 },
+    { lineX: 420 },
+    { lineX: 480 },
+    { lineX: FINAL_TRACK_POSE.x },
+  ],
+  lower: [
+    { curveT: 0.5 },
+    { curveT: 0.58 },
+    { curveT: 0.66 },
+    { curveT: 0.74 },
+    { curveT: 0.82 },
+    { curveT: 0.9 },
+    { curveT: 1 },
+    { lineX: 440 },
+    { lineX: FINAL_TRACK_POSE.x },
+  ],
+};
+
+function poseAt(sample: TrackSample): TrackPose {
+  if ('lineX' in sample) return { x: sample.lineX, y: 203, angle: 0 };
+
+  const t = sample.curveT;
+  const u = 1 - t;
+  const x = u ** 3 * 58 + 3 * u ** 2 * t * 105 + 3 * u * t ** 2 * 101 + t ** 3 * 335;
+  const y = u ** 3 * 37 + 3 * u ** 2 * t * 37 + 3 * u * t ** 2 * 203 + t ** 3 * 203;
+  const dx = 3 * u ** 2 * (105 - 58) + 6 * u * t * (101 - 105) + 3 * t ** 2 * (335 - 101);
+  const dy = 6 * u * t * (203 - 37);
+  return { x, y, angle: Math.atan2(dy, dx) * 180 / Math.PI };
+}
+
+function numberForMotion(value: number): string {
+  return Number(value.toFixed(3)).toString();
+}
+
+function cssTrackPose(pose: TrackPose): string {
+  return `translate(${numberForMotion(pose.x)}px, ${numberForMotion(pose.y)}px) rotate(${numberForMotion(pose.angle)}deg)`;
+}
+
+function svgTrackPose(pose: TrackPose): string {
+  return `translate(${numberForMotion(pose.x)} ${numberForMotion(pose.y)}) rotate(${numberForMotion(pose.angle)})`;
+}
 
 const COPY: Record<Focus, { title: string; prompt: string }> = {
   'speed-energy': {
@@ -55,14 +109,53 @@ function runningFor(focus: Focus, release: Exclude<Release, 'idle'>): string {
 
 function CoasterVehicle({ collision }: { collision: boolean }) {
   if (collision) {
-    return <circle className="rc-marble" cx="0" cy="0" r="10" />;
+    return (
+      <>
+        <g className="rc-speed-trail">
+          <path d="M-62 -7 H-28" />
+          <path d="M-52 1 H-25" />
+          <path d="M-44 9 H-23" />
+        </g>
+        <g className="rc-marble-rotor">
+          <circle className="rc-marble-shell" cx="0" cy="0" r="12" />
+          <path className="rc-marble-stripe" d="M-10 -5 C-4 -1 4 1 11 5" />
+          <ellipse className="rc-marble-shine" cx="-4" cy="-5" rx="3.2" ry="2.2" />
+        </g>
+      </>
+    );
   }
   return (
-    <g className="rc-car">
-      <rect x="-21" y="-15" width="42" height="23" rx="7" />
-      <circle cx="-12" cy="11" r="6" />
-      <circle cx="12" cy="11" r="6" />
-    </g>
+    <>
+      <g className="rc-speed-trail">
+        <path d="M-75 -8 H-34" />
+        <path d="M-64 1 H-31" />
+        <path d="M-54 10 H-29" />
+      </g>
+      <g className="rc-car">
+        <ellipse className="rc-car-shadow" cx="0" cy="18" rx="30" ry="4" />
+        <path className="rc-car-body" d="M-29 -12 H22 Q29 -12 30 -4 L28 7 Q27 12 20 12 H-24 Q-30 12 -31 6 L-33 -4 Q-34 -10 -29 -12 Z" />
+        <path className="rc-car-panel" d="M-27 -6 H25 L23 5 H-25 Z" />
+        <path className="rc-car-canopy" d="M-14 -12 Q-10 -31 5 -31 Q17 -31 21 -12 Z" />
+        <circle className="rc-rider-head" cx="3" cy="-21" r="6" />
+        <path className="rc-safety-bar" d="M-9 -12 Q1 -20 15 -12" />
+        <g className="rc-wheel" transform="translate(-18 11)">
+          <g className="rc-wheel-rotor">
+            <circle className="rc-wheel-tire" r="8" />
+            <circle className="rc-wheel-hub" r="2.5" />
+            <path className="rc-wheel-spoke" d="M-5 0 H5" />
+            <path className="rc-wheel-spoke" d="M0 -5 V5" />
+          </g>
+        </g>
+        <g className="rc-wheel" transform="translate(18 11)">
+          <g className="rc-wheel-rotor">
+            <circle className="rc-wheel-tire" r="8" />
+            <circle className="rc-wheel-hub" r="2.5" />
+            <path className="rc-wheel-spoke" d="M-5 0 H5" />
+            <path className="rc-wheel-spoke" d="M0 -5 V5" />
+          </g>
+        </g>
+      </g>
+    </>
   );
 }
 
@@ -77,16 +170,25 @@ function CoasterScene({ focus, release, phase, reduced, runNumber, onAnimationCo
   const collision = focus === 'collision';
   const hasRelease = release !== 'idle';
   const animatedRelease = hasRelease && phase === 'running' && !reduced ? release : null;
-  const idleTransform = collision ? 'translate(72 44)' : 'translate(72 37)';
-  const finalTransform = 'translate(493 210)';
-  const animationStyle = animatedRelease
-    ? {
-        animationName: `rc-vehicle-${animatedRelease}`,
-        animationDuration: animatedRelease === 'higher' ? '1.6s' : '2.4s',
-        animationTimingFunction: 'linear',
-        animationFillMode: 'forwards',
-      }
-    : undefined;
+  const idleTransform = svgTrackPose(poseAt(TRACK_SAMPLES.higher[0]));
+  const finalTransform = svgTrackPose(FINAL_TRACK_POSE);
+  const trackPoseStyle = hasRelease
+    ? Object.fromEntries(
+        TRACK_SAMPLES[release].map((sample, index) => [
+          `--rc-pose-${index}`,
+          cssTrackPose(poseAt(sample)),
+        ]),
+      )
+    : {};
+  const animationStyle = {
+    ...trackPoseStyle,
+    ...(animatedRelease ? {
+      animationName: `rc-vehicle-${animatedRelease}`,
+      animationDuration: animatedRelease === 'higher' ? '1.6s' : '2.4s',
+      animationTimingFunction: 'linear',
+      animationFillMode: 'forwards',
+    } : {}),
+  } as CSSProperties;
   const finishRun = (event: AnimationEvent<SVGGElement>) => {
     if (event.currentTarget === event.target) {
       onAnimationComplete(runNumber);
@@ -103,20 +205,54 @@ function CoasterScene({ focus, release, phase, reduced, runNumber, onAnimationCo
     >
       <defs>
         <linearGradient id="rc-sky" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#dbeafe" />
+          <stop offset="0" stopColor="#93c5fd" />
+          <stop offset="0.58" stopColor="#dbeafe" />
           <stop offset="1" stopColor="#f0fdf4" />
+        </linearGradient>
+        <linearGradient id="rc-distant-hill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#86efac" />
+          <stop offset="1" stopColor="#4ade80" />
+        </linearGradient>
+        <linearGradient id="rc-near-hill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#4ade80" />
+          <stop offset="1" stopColor="#16a34a" />
+        </linearGradient>
+        <linearGradient id="rc-car-paint" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#fb7185" />
+          <stop offset="1" stopColor="#db2777" />
+        </linearGradient>
+        <radialGradient id="rc-marble-paint" cx="32%" cy="28%" r="70%">
+          <stop offset="0" stopColor="#7dd3fc" />
+          <stop offset="0.55" stopColor="#0ea5e9" />
+          <stop offset="1" stopColor="#0369a1" />
+        </radialGradient>
+        <linearGradient id="rc-foam-paint" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#fef3c7" />
+          <stop offset="1" stopColor="#fbbf24" />
         </linearGradient>
       </defs>
       <rect className="rc-sky" width="640" height="270" rx="18" fill="url(#rc-sky)" />
       <circle className="rc-sun" cx="568" cy="48" r="24" />
-      <path className="rc-hill" d="M0 235 C100 190 170 225 245 218 C350 207 420 236 520 214 C570 203 610 210 640 224 V270 H0 Z" />
+      <circle className="rc-sun-glow" cx="568" cy="48" r="34" />
+      <g className="rc-clouds">
+        <path d="M170 53 C176 38 194 39 200 50 C205 43 219 44 223 55 C236 55 240 69 228 74 H169 C154 72 155 56 170 53 Z" />
+        <path d="M420 75 C427 61 442 62 448 72 C456 63 471 68 471 78 C485 78 489 91 477 95 H418 C405 93 406 78 420 75 Z" />
+      </g>
+      <path className="rc-distant-hills" d="M0 178 C56 132 105 150 151 171 C207 120 262 142 316 177 C373 132 429 145 487 179 C540 142 594 150 640 181 V270 H0 Z" fill="url(#rc-distant-hill)" />
+      <path className="rc-hill" d="M0 235 C100 190 170 225 245 218 C350 207 420 236 520 214 C570 203 610 210 640 224 V270 H0 Z" fill="url(#rc-near-hill)" />
+      <path className="rc-ground-shadow" d="M0 248 C145 235 275 250 407 240 C505 232 577 239 640 246 V270 H0 Z" />
+      <path className="rc-track-ties" d="M58 40 C105 40 101 207 335 207 H580" />
       <path className="rc-track-shadow" d="M58 43 C105 43 101 210 335 210 H580" />
-      <path className="rc-track" d="M58 37 C105 37 101 203 335 203 H580" />
-      <path className="rc-support" d="M104 93 V227 M161 153 V225 M235 190 V226 M335 203 V226 M448 203 V226 M555 203 V226" />
+      <path className="rc-track" d={TRACK_PATH} />
+      <path className="rc-track-highlight" d="M58 34 C105 34 101 200 335 200 H580" />
+      <path className="rc-support" d="M104 93 V227 M161 153 V225 M235 190 V226 M335 203 V226 M448 203 V226 M555 203 V226 M104 142 L161 214 M161 189 L235 222 M335 226 L448 205 M448 226 L555 205" />
       <g className="rc-release-markers">
         <path d="M54 43 H98" />
         <path d="M127 120 H169" />
-        <text x="19" y="31">higher release</text>
+        <text x="17" y="76">
+          <tspan x="17">higher</tspan>
+          <tspan x="17" dy="14">release</tspan>
+        </text>
         <text x="115" y="109">lower release</text>
       </g>
       <g className="rc-speed-markers">
@@ -127,12 +263,19 @@ function CoasterScene({ focus, release, phase, reduced, runNumber, onAnimationCo
       </g>
       {collision && (
         <g key={`collision-${release}-${runNumber}`} className="rc-collision-target">
-          <path d="M495 229 H606" />
+          <path className="rc-collision-floor" d="M495 229 H606" />
+          <g className="rc-impact-burst">
+            <path d="M498 178 L485 166" />
+            <path d="M493 191 L474 188" />
+            <path d="M499 204 L483 216" />
+          </g>
           <g
             className="rc-block"
             onAnimationEnd={animatedRelease ? finishRun : undefined}
           >
-            <rect x="506" y="175" width="42" height="36" rx="5" />
+            <ellipse className="rc-block-shadow" cx="527" cy="216" rx="26" ry="6" />
+            <rect className="rc-block-body" x="506" y="175" width="42" height="36" rx="7" fill="url(#rc-foam-paint)" />
+            <path className="rc-block-texture" d="M513 184 Q520 179 527 184 T541 184 M512 202 Q520 197 528 202 T542 202" />
             <text x="510" y="197">foam</text>
           </g>
         </g>
@@ -144,7 +287,13 @@ function CoasterScene({ focus, release, phase, reduced, runNumber, onAnimationCo
         transform={!hasRelease ? idleTransform : phase === 'complete' ? finalTransform : undefined}
         onAnimationEnd={animatedRelease && !collision ? finishRun : undefined}
       >
-        <CoasterVehicle collision={collision} />
+        <g
+          className="rc-vehicle-body"
+          data-testid="roller-coaster-vehicle-body"
+          transform={`translate(0 -${collision ? 12 : 19})`}
+        >
+          <CoasterVehicle collision={collision} />
+        </g>
       </g>
     </svg>
   );

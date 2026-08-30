@@ -54,6 +54,93 @@ describe('roller-coaster instructional demo', () => {
     expect(screen.getByText('Compare the same car on the same track.')).toBeInTheDocument();
   });
 
+  test('renders a layered track and a coaster car with visible rolling parts', () => {
+    renderDemo('speed-energy');
+    const scene = screen.getByTestId('roller-coaster-scene');
+
+    expect(scene.querySelector('.rc-distant-hills')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-track-ties')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-track-highlight')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-speed-trail')).toBeInTheDocument();
+    expect(scene.querySelectorAll('.rc-wheel')).toHaveLength(2);
+    expect(scene.querySelectorAll('.rc-wheel-spoke')).toHaveLength(4);
+    expect(screen.getByTestId('roller-coaster-vehicle-body')).toHaveAttribute(
+      'transform',
+      'translate(0 -19)',
+    );
+  });
+
+  test('renders the collision model with a visibly rolling marble and an impact cue', () => {
+    renderDemo('collision');
+    const scene = screen.getByTestId('roller-coaster-scene');
+
+    expect(scene.querySelector('.rc-marble-shell')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-marble-stripe')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-marble-shine')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-impact-burst')).toBeInTheDocument();
+    expect(scene.querySelector('.rc-block-shadow')).toBeInTheDocument();
+    expect(screen.getByTestId('roller-coaster-vehicle-body')).toHaveAttribute(
+      'transform',
+      'translate(0 -12)',
+    );
+  });
+
+  test('keeps every animated vehicle pose on the rail with the rail tangent', async () => {
+    const user = userEvent.setup();
+    renderDemo('speed-energy');
+    const demo = screen.getByRole('region', { name: /interactive roller-coaster model/i });
+
+    function expectPosesOnTrack(vehicle: SVGGElement | null) {
+      const poses = Array.from({ length: 9 }, (_, index) =>
+        vehicle?.style.getPropertyValue(`--rc-pose-${index}`).trim() ?? '',
+      );
+
+      expect(poses.every(Boolean)).toBe(true);
+      for (const pose of poses) {
+        const match = pose.match(
+          /^translate\(([-\d.]+)px, ([-\d.]+)px\) rotate\(([-\d.]+)deg\)$/,
+        );
+        expect(match, `Unexpected track pose: ${pose}`).not.toBeNull();
+        const [, xText, yText, angleText] = match!;
+        const actual = {
+          x: Number(xText),
+          y: Number(yText),
+          angle: Number(angleText),
+        };
+
+        if (actual.x >= 335) {
+          expect(actual.y).toBeCloseTo(203, 2);
+          expect(actual.angle).toBeCloseTo(0, 2);
+          continue;
+        }
+
+        let nearest = { distance: Number.POSITIVE_INFINITY, angle: 0 };
+        for (let step = 0; step <= 10_000; step += 1) {
+          const t = step / 10_000;
+          const u = 1 - t;
+          const x = u ** 3 * 58 + 3 * u ** 2 * t * 105 + 3 * u * t ** 2 * 101 + t ** 3 * 335;
+          const y = u ** 3 * 37 + 3 * u ** 2 * t * 37 + 3 * u * t ** 2 * 203 + t ** 3 * 203;
+          const dx = 3 * u ** 2 * (105 - 58) + 6 * u * t * (101 - 105) + 3 * t ** 2 * (335 - 101);
+          const dy = 6 * u * t * (203 - 37);
+          const distance = Math.hypot(actual.x - x, actual.y - y);
+          if (distance < nearest.distance) {
+            nearest = { distance, angle: Math.atan2(dy, dx) * 180 / Math.PI };
+          }
+        }
+
+        expect(nearest.distance).toBeLessThan(0.08);
+        expect(actual.angle).toBeCloseTo(nearest.angle, 1);
+      }
+    }
+
+    await user.click(within(demo).getByRole('button', { name: 'Run higher release' }));
+    const scene = within(demo).getByTestId('roller-coaster-scene');
+    expectPosesOnTrack(scene.querySelector<SVGGElement>('.rc-vehicle'));
+
+    await user.click(within(demo).getByRole('button', { name: 'Run lower release' }));
+    expectPosesOnTrack(scene.querySelector<SVGGElement>('.rc-vehicle'));
+  });
+
   test('runs the lower release from the keyboard and compares the fixed near-bottom interval', async () => {
     const user = userEvent.setup();
     renderDemo('speed-energy');
@@ -79,7 +166,7 @@ describe('roller-coaster instructional demo', () => {
     expect(demo).toHaveAttribute('data-phase', 'complete');
     expect(demo).toHaveAttribute('data-motion', 'instant');
     expect(vehicle).not.toHaveStyle({ animationName: 'rc-vehicle-lower' });
-    expect(vehicle).toHaveAttribute('transform', 'translate(493 210)');
+    expect(vehicle).toHaveAttribute('transform', 'translate(493 203) rotate(0)');
     expect(within(demo).getByRole('status')).toHaveTextContent(/same car/i);
     expect(within(demo).getByRole('status')).toHaveTextContent(/same fixed near-bottom interval/i);
     expect(within(demo).getByRole('status')).toHaveTextContent(/more slowly.*less kinetic energy/i);
@@ -237,7 +324,7 @@ describe('roller-coaster instructional demo', () => {
     expect(reducedDemo).toHaveAttribute('data-phase', 'complete');
     expect(reducedDemo).toHaveAttribute('data-block-distance', 'farther');
     expect(vehicle).not.toHaveStyle({ animationName: 'rc-vehicle-higher' });
-    expect(vehicle).toHaveAttribute('transform', 'translate(493 210)');
+    expect(vehicle).toHaveAttribute('transform', 'translate(493 203) rotate(0)');
     expect(within(reducedDemo).getByRole('status')).toHaveTextContent(expectedStatus ?? '');
   });
 
@@ -261,7 +348,7 @@ describe('roller-coaster instructional demo', () => {
     expect(demo).toHaveAttribute('data-motion', 'instant');
     expect(demo).toHaveAttribute('data-block-distance', 'farther');
     expect(reducedVehicle).not.toHaveStyle({ animationName: 'rc-vehicle-higher' });
-    expect(reducedVehicle).toHaveAttribute('transform', 'translate(493 210)');
+    expect(reducedVehicle).toHaveAttribute('transform', 'translate(493 203) rotate(0)');
     expect(within(demo).getByRole('status')).toHaveTextContent(
       /higher release model complete.*foam block moved farther/i,
     );
@@ -285,7 +372,7 @@ describe('roller-coaster instructional demo', () => {
     expect(demo).toHaveAttribute('data-phase', 'complete');
     expect(demo).toHaveAttribute('data-motion', 'instant');
     expect(vehicle).not.toHaveStyle({ animationName: 'rc-vehicle-lower' });
-    expect(vehicle).toHaveAttribute('transform', 'translate(493 210)');
+    expect(vehicle).toHaveAttribute('transform', 'translate(493 203) rotate(0)');
     expect(within(demo).getByRole('status')).toHaveTextContent(/lower release complete/i);
   });
 

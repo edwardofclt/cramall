@@ -107,7 +107,7 @@ describe('DialoguePlayer', () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
-  test('shows the speaking guide, and no character for the kid', async () => {
+  test('keeps the current guide visible in a listening pose while the kid speaks', async () => {
     const user = userEvent.setup();
     render(<DialoguePlayer lines={LINES} onDone={vi.fn()} />);
 
@@ -116,7 +116,7 @@ describe('DialoguePlayer', () => {
     await user.click(nextButton());
 
     expect(await screen.findByText('Second line')).toHaveClass('speech-bubble-right');
-    expect(screen.queryByTestId('character-nutty')).toBeNull();
+    expect(screen.getByTestId('character-nutty')).toHaveAttribute('data-pose', 'idle');
   });
 
   test('keeps a bounded character slot while dialogue lines change', async () => {
@@ -131,7 +131,9 @@ describe('DialoguePlayer', () => {
     await user.click(nextButton());
 
     expect(screen.getByTestId('dialogue-character-slot')).toBe(slot);
-    expect(screen.getByTestId('dialogue-character-slot')).toBeEmptyDOMElement();
+    expect(screen.getByTestId('dialogue-character-slot')).toContainElement(
+      screen.getByTestId('character-nutty'),
+    );
   });
 
   test('keeps the two-row scene footprint through guide, kid, and guide lines', async () => {
@@ -148,7 +150,8 @@ describe('DialoguePlayer', () => {
     expect(screen.getByTestId('dialogue-scene')).toBe(scene);
     expect(screen.getByTestId('dialogue-character-slot')).toBe(slot);
     expect(scene.style.gridTemplateRows).toBe(rows);
-    expect(slot).toBeEmptyDOMElement();
+    expect(slot).toContainElement(screen.getByTestId('character-nutty'));
+    expect(screen.getByTestId('character-nutty')).toHaveAttribute('data-pose', 'idle');
 
     await user.click(nextButton());
     expect(await screen.findByText('Guide two')).toBeInTheDocument();

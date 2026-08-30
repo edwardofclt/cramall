@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import type { DialogueLine } from '../content/schema';
+import type { DialogueLine, GuideId } from '../content/schema';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import { Character } from './Character';
 import { SpeechBubble } from './SpeechBubble';
@@ -11,6 +11,10 @@ export type DialoguePlayerProps = {
   /** Rendered size of the speaking guide. */
   size?: number;
 };
+
+function isGuideLine(line: DialogueLine): line is DialogueLine & { speaker: GuideId } {
+  return line.speaker !== 'kid';
+}
 
 export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProps) {
   const [index, setIndex] = useState(0);
@@ -41,6 +45,9 @@ export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProp
   if (!line) return null;
 
   const isKid = line.speaker === 'kid';
+  const visibleGuide = isKid
+    ? lines.slice(0, index).reverse().find(isGuideLine) ?? lines.find(isGuideLine)
+    : isGuideLine(line) ? line : undefined;
   const isLast = index === lines.length - 1;
 
   function advance() {
@@ -81,10 +88,10 @@ export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProp
           </motion.div>
         </AnimatePresence>
         <div className="dialogue-character-slot" data-testid="dialogue-character-slot">
-          {line.speaker !== 'kid' && (
+          {visibleGuide && (
             <Character
-              guide={line.speaker}
-              pose={line.pose ?? 'talk'}
+              guide={visibleGuide.speaker}
+              pose={isKid ? 'idle' : visibleGuide.pose ?? 'talk'}
               size={size}
               className="dialogue-character"
               allowOverflow
