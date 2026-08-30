@@ -343,6 +343,26 @@ describe('LessonPlayer', () => {
     expect(currentSearchParams().has('card')).toBe(false);
   });
 
+  test('prefers a valid modern step over a legacy card when both are present', async () => {
+    renderPlayer(`/lesson/${LESSON_ID}?step=worked&card=card-compare&peek=1`);
+
+    expect(await screen.findByRole('heading', { name: 'Try one together' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Compare from the left' })).toBeNull();
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('worked'));
+    expect(currentSearchParams().get('peek')).toBe('1');
+    expect(currentSearchParams().has('card')).toBe(false);
+  });
+
+  test('keeps an invalid modern step authoritative over a valid legacy card', async () => {
+    renderPlayer(`/lesson/${LESSON_ID}?step=nope&card=card-compare&peek=1`);
+
+    expect(screen.getByTestId('dialogue-scene')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Compare from the left' })).toBeNull();
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('intro'));
+    expect(currentSearchParams().get('peek')).toBe('1');
+    expect(currentSearchParams().has('card')).toBe(false);
+  });
+
   test('lesson navigation preserves query parameters and follows browser history', async () => {
     const user = userEvent.setup();
     renderPlayer(`/lesson/${LESSON_ID}?step=card:card-compare&peek=1`);
