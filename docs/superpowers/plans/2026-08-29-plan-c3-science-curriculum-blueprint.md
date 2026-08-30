@@ -25,7 +25,7 @@ Expected: PASS. Stop on any failure or missing dependency.
 
 ## Global constraints
 
-- Preserve the research allocation exactly: 8 Science units, 32 lessons, and all 14 Science PEs covered. Lessons `science-u01-l01` through `science-u01-l03` are accepted work from commits `7b7648c` and `5f5c61e`; revalidate them but do not rewrite them. New authoring starts with `science-u01-l04`.
+- Preserve the research allocation exactly: 8 Science units, 32 lessons, and all 14 Science PEs covered. Lessons `science-u01-l01` through `science-u01-l03` are accepted work from commits `7b7648c` and `5f5c61e`, registered/visible since `05b46b9`, and deepened by `d91a1b3`; revalidate and preserve that source/answer/animation work. New Plan C authoring starts with `science-u01-l04`.
 - Every new lesson has guide `sandy`, four short intro lines, exactly three cards, at least one rich block per card, one worked example with at least three steps, exactly 13 questions (`q01` through `q13`), `passThreshold: 8`, and at least two pedagogically natural question types.
 - Each lesson uses exactly three concept tags. A tag maps to one card only, every card is targeted, every `reviewCardId` names a card in the same lesson, option IDs/text are unique after normalization, and multiple-choice answer positions are balanced across `a`–`d` with a maximum count difference of one.
 - Dialogue, phenomena, examples, distractors, and explanations are original, child-safe, specific, and suitable for independent Grade 4 use. Sandy never claims that an app, animation, model, or widget observed, proved, or generated physical evidence.
@@ -34,7 +34,7 @@ Expected: PASS. Stop on any failure or missing dependency.
 - Preserve every PE boundary. Do not require quantitative energy or acceleration; wave interference, electromagnetic-wave content, non-periodic-wave analysis, retina or cellular mechanisms, microscopic plant/animal structures, specific rock-formation memorization, absolute dating, or hazards outside earthquakes, floods, hurricanes, tornadoes, and coastal erosion.
 - `4-PS3-4` devices stay within motion-to-electric conversion or battery-stored energy producing motion, light, or sound. `4-ESS2-1` items vary one form of weathering or erosion at a time.
 - Widget narrative says “model,” “try,” or “predict.” Only real observations supplied in a written phenomenon or honestly collected in an optional investigation can be cited as evidence.
-- Do not register any new module in `src/content/science/index.ts`; Plan C master performs one atomic final registration after all subject plans are approved.
+- Do not replace or remove the existing `science-u01` registration in `src/content/science/index.ts`; Plan C waves author later modules and Plan C master extends the registry atomically after all subject plans are approved.
 - Every literal wave must split each lesson into a stated red gate, bounded content edits, answer/widget review, and a green gate containing the focused unit test, permanent schema/content gates, and `npx tsc -b --pretty false`. Every lesson ends in its own exact narrow `git add`/`git commit` command and main-agent curriculum review.
 
 ---
@@ -593,7 +593,7 @@ No commit is made in this verification task unless a concrete defect is correcte
 - All 14 PEs are covered with their complete practices, clarifications, and assessment boundaries preserved.
 - Every widget is an exact completed Plan B Science literal/config and is described honestly as a model. Lessons without a direct contract omit the widget.
 - Focused/permanent tests, `npx tsc -b --pretty false`, and the build pass; placeholder, empty-collection, invalid-widget, prohibited-boundary, out-of-scope-hazard, false-evidence, and directly-visible-energy scans have no output.
-- Main-agent lesson, unit, subject, and master-handoff checkpoints are recorded. Registration remains deferred to Plan C master.
+- Main-agent lesson, unit, subject, and master-handoff checkpoints are recorded. Later-unit registration remains owned by Plan C master; existing Unit 1 registration is preserved.
 
 ### Plan-time widget-contract audit
 
@@ -614,4 +614,8 @@ Together the four tracked waves account for all 32 lessons / 416 questions, incl
 
 ## Blueprint handoff
 
-Promote this reviewed document verbatim to `docs/superpowers/plans/2026-08-29-plan-c3-science-curriculum-blueprint.md`. Do not execute its lesson briefs. After master Task C1 and Plan B are complete, author and independently review the four tracked literal waves above, one fresh lesson-review boundary at a time. The waves hand eight reviewed unregistered exports to master Task C5; defects return to the owning wave rather than being patched during registration or master Task C9 release.
+Promote this reviewed document verbatim to `docs/superpowers/plans/2026-08-29-plan-c3-science-curriculum-blueprint.md`. Do not execute its lesson briefs. After master Task C1 and Plan B are complete, author and independently review the four tracked literal waves above, one fresh lesson-review boundary at a time. Science Unit 1 remains registered and visible from `05b46b9`; the waves hand later reviewed exports to master Task C5, which extends that registry. Defects return to the owning wave rather than being patched during registration or master Task C9 release.
+
+### Current implementation handoff
+
+Commit `d91a1b3`: registered/visible Science Unit 1 contains 3 deepened lessons and three replayable animation scenarios with truthful running/complete states, including reduced-motion preference transitions. Committed regressions cover stable dialogue/one-Next/360px/no-clipping and kid/card-race behavior. Preserve this work; Plan B remains planned/not implemented and the 13 Plan C wave plans remain unwritten.

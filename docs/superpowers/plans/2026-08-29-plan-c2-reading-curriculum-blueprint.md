@@ -4,7 +4,7 @@
 
 **Goal:** Freeze the complete Grade 4 Reading/ELA curriculum contract: 24 lessons in 11 units covering all 20 regular Reading indicators while embedding all six Overarching Expectations as cross-cutting habits.
 
-**Architecture:** Reading remains authored content-as-data: one `uNN.ts` module and focused `uNN.test.ts` per unit. The accepted but unregistered Unit 1 is preserved and independently revalidated. Four fully literal wave plans own lesson source and tests; Plan C master Tasks C4 and C9 alone own registry integration and release. Eleven direct-fit lessons use exact static refs from the final Plan B Reading contracts; the other 13 omit a widget rather than forcing an interaction that does not match the indicator.
+**Architecture:** Reading remains authored content-as-data: one `uNN.ts` module and focused `uNN.test.ts` per unit. Unit 1 is already registered and visible from `05b46b9`; its subsequently deepened source and answers are preserved and independently revalidated. Four fully literal wave plans own lesson source and tests; Plan C master Tasks C4 and C9 extend the existing registry and own final release. Eleven direct-fit lessons use exact static refs from the final Plan B Reading contracts; the other 13 omit a widget rather than forcing an interaction that does not match the indicator.
 
 **Tech Stack:** React 18 content model, TypeScript 5, Zod 3, Vitest 2, Vite 5; no new dependency.
 
@@ -15,7 +15,7 @@
 - Do not begin until the accepted Plan A remediation is committed and `npm test && npx tsc -b --pretty false && npm run build` is green.
 - Do not begin until Plan B is complete and its final `WidgetRefSchema`, `WIDGET_TYPES`, `widgetRegistry`, and Reading subject plan have been read. This plan’s 11 literal refs must parse that final strict schema unchanged; do not improvise additional keys or substitute a type.
 - Plan C shared contracts must already expose `READING_OE_CODES`, the complete `PLANNED_LESSONS` manifest, `Lesson.crossCuttingExpectationCodes`, and permanent catalog validation. This subject plan does not edit those shared contracts.
-- `src/content/reading/u01.ts` and `u01.test.ts` from commits `a63a388` and `5fae7cb` are accepted existing work. Preserve their learner prose and answer corrections; the C2a wave may add only the shared OE field/import needed by the final contract and revalidate them. Plan C master Task C4 registers them.
+- `src/content/reading/u01.ts` and `u01.test.ts` from commits `a63a388` and `5fae7cb` are accepted existing work, registered by `05b46b9`, and deepened by `d91a1b3`. Preserve their learner prose, source-before-question sequence, persistent references, inline checks, and answer corrections; the C2a wave may add only the shared OE field/import needed by the final contract and revalidate them. Plan C master Task C4 extends the existing registry with later units.
 - Every Reading lesson uses `guide: 'winnie'` indirectly through the Reading subject and every authored intro line uses Winnie. Do not add an unsupported per-lesson `guide` field if the final schema still obtains the guide from the subject.
 - Every lesson has exactly 3 cards, exactly 13 questions named `q01`–`q13`, `passThreshold: 8`, at least 2 pedagogically natural question types, unique normalized visible options, and balanced multiple-choice answer positions.
 - Within a lesson, each of the 3 exact `conceptTag` values maps to exactly one card, and every card is targeted by at least one question. No tag is reused for another card in that lesson.
@@ -367,7 +367,7 @@ The phrase “follow the complete production shape” refers to the concrete, fu
 
 **Interfaces:** Consumes master-owned `READING_OE_CODES` and `expectUnitLessons(...)`. Produces the preserved `unit01Lessons` export with exact OE metadata and strengthened local tests; it produces no shared helper.
 
-- [ ] Extend `u01.test.ts` with the two exact Unit 1 manifest rows through `expectUnitLessons(unit01Lessons, expected, 'reading')`. Preserve every accepted semantic assertion from `5fae7cb`.
+- [ ] Extend `u01.test.ts` with the two exact Unit 1 manifest rows through `expectUnitLessons(unit01Lessons, expected, 'reading')`. Preserve every accepted semantic assertion from `5fae7cb` and the current deepened source/answer corrections.
 - [ ] Run red: `npm test -- src/content/reading/u01.test.ts`. Expected: FAIL because existing lessons do not yet declare `crossCuttingExpectationCodes`.
 - [ ] Add `import { READING_OE_CODES } from '../curriculum'` and `crossCuttingExpectationCodes: [...READING_OE_CODES]` to both existing lesson objects. Make no learner-prose, answer, card, tag, or review-target edits.
 - [ ] Run green: `npm test -- src/content/reading/u01.test.ts src/content/schema.test.ts src/content/content-validation.test.ts && npx tsc -b --pretty false`. Expected: PASS.
@@ -754,7 +754,7 @@ git commit -m "feat(content): add citation and plagiarism lesson"
 
 ### Master-owned integration and release reference
 
-The four Reading waves stop after producing and reviewing their assigned unit modules/tests. Plan C master Task C4 alone creates/modifies `src/content/reading/index.ts` and `src/content/reading/index.test.ts`, runs the unregistered red gate, registers the 11 exports, proves 24/72/312 counts, and commits exactly those two paths. Master Task C9 alone owns generated-standard drift checks, full test/type/build/single-build gates, browser and keyboard smoke coverage, and Parent Corner review. A wave must return a defect to its owning unit rather than editing shared or registry files during handoff.
+The four Reading waves stop after producing and reviewing their assigned unit modules/tests. Plan C master Task C4 alone modifies `src/content/reading/index.ts` and `src/content/reading/index.test.ts`, runs the partial-registry red gate (which may fail only for missing later units), extends the existing Unit 1 registration to all 11 exports, proves 24/72/312 counts, and commits exactly those two paths. Master Task C9 alone owns generated-standard drift checks, full test/type/build/single-build gates, browser and keyboard smoke coverage, and Parent Corner review. A wave must return a defect to its owning unit rather than editing shared or registry files during handoff.
 
 ## Manual Trace and Self-Review
 
@@ -834,4 +834,8 @@ The plan-time empty-array scan finds four deliberate non-placeholder expressions
 
 ## Blueprint Handoff
 
-Promote this reviewed document verbatim to `docs/superpowers/plans/2026-08-29-plan-c2-reading-curriculum-blueprint.md`. Do not execute its lesson briefs. After master Task C1 and Plan B are complete, author and independently review the four tracked literal waves above; use one fresh review boundary per lesson task and do not parallelize edits to the same unit module. Return defects to the owning wave rather than patching learner prose during master registration or release work.
+Promote this reviewed document verbatim to `docs/superpowers/plans/2026-08-29-plan-c2-reading-curriculum-blueprint.md`. Do not execute its lesson briefs. After master Task C1 and Plan B are complete, author and independently review the four tracked literal waves above; use one fresh review boundary per lesson task and do not parallelize edits to the same unit module. Unit 1 remains registered throughout; return defects to the owning wave rather than patching learner prose during master registration or release work.
+
+### Current implementation handoff
+
+Commit `d91a1b3`: registered/visible Reading Unit 1 contains 2 deepened lessons. The source includes persistent passage references and source-before-question solo inline-check framing; committed regression coverage includes stable dialogue/one-Next/360px/no-clipping and kid/card-race behavior. These changes are evidence to preserve, not a replacement for the 13 unwritten Plan C wave plans.

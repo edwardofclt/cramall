@@ -685,13 +685,13 @@ git commit -m "feat(content): register complete math curriculum"
 
 Expected: no output. Confirm their execution records show 24 accepted lessons, 72 cards, and 312 reviewed answers.
 
-- [ ] **Step 2: Run the unregistered Reading handoff gate (2–5 minutes).** Run:
+- [ ] **Step 2: Run the partial-registry Reading handoff gate (2–5 minutes).** Run:
 
 ```bash
 npm test -- src/content/reading/u01.test.ts src/content/reading/u02.test.ts src/content/reading/u03.test.ts src/content/reading/u04.test.ts src/content/reading/u05.test.ts src/content/reading/u06.test.ts src/content/reading/u07.test.ts src/content/reading/u08.test.ts src/content/reading/u09.test.ts src/content/reading/u10.test.ts src/content/reading/u11.test.ts src/content/schema.test.ts src/content/curriculum.test.ts && npx tsc -b --pretty false
 ```
 
-Expected: PASS. Stop if any OE field, original-text review, answer, or widget review is incomplete.
+Expected: PASS for the focused modules present at this stage; any registry/catalog red gate must fail only because later units are missing. Reading Unit 1 is already registered and visible from `05b46b9`.
 
 - [ ] **Step 3: Write the failing registry test (2–5 minutes).** Create `src/content/reading/index.test.ts` exactly:
 
@@ -806,13 +806,13 @@ git commit -m "feat(content): register complete reading curriculum"
 
 Expected: no output. Confirm their execution records show 32 accepted lessons, 96 cards, 416 reviewed answers, and all PE boundaries signed off.
 
-- [ ] **Step 2: Run the unregistered Science handoff gate (2–5 minutes).** Run:
+- [ ] **Step 2: Run the partial-registry Science handoff gate (2–5 minutes).** Run:
 
 ```bash
 npm test -- src/content/science/u01.test.ts src/content/science/u02.test.ts src/content/science/u03.test.ts src/content/science/u04.test.ts src/content/science/u05.test.ts src/content/science/u06.test.ts src/content/science/u07.test.ts src/content/science/u08.test.ts src/content/schema.test.ts src/content/curriculum.test.ts && npx tsc -b --pretty false
 ```
 
-Expected: PASS. Stop if any PE boundary, answer, evidence claim, optional investigation, or widget review is incomplete.
+Expected: PASS for the focused modules present at this stage; any registry/catalog red gate must fail only because later units are missing. Science Unit 1 is already registered and visible from `05b46b9`.
 
 - [ ] **Step 3: Write the failing registry test (2–5 minutes).** Create `src/content/science/index.test.ts` exactly:
 
@@ -1399,3 +1399,7 @@ Expected: no output.
 ## Execution Handoff
 
 After the controller review and all external gates are satisfied, execute this master with `superpowers:subagent-driven-development` so C1, C2, each subject integration, catalog tests, deterministic audit, documentation, and release each receive a fresh implementer/reviewer boundary. Run only one registry owner at a time in Math → Reading → Science order. Do not declare the 89-lesson catalog complete until all literal subject-wave plans have executed and Task C9 has recorded clean machine, browser, artifact, and parent-review evidence.
+
+## Current implementation handoff
+
+Commit `d91a1b3`: Reading Unit 1 (2 lessons) and Science Unit 1 (3 lessons) are registered/visible from `05b46b9` and now contain the accepted deepening baseline. It includes persistent Reading passage references, 15 inline checks with source-before-question and solo framing, three replayable Science animations with truthful running/complete states (including reduced-motion preference changes), and stable dialogue/one-Next/360px/no-clipping plus kid/card-race regressions. Verification is 357 passing tests, clean TypeScript, passing normal and self-contained single-file builds (446 modules; standard Vite chunk warning only), and approved browser/review evidence. Plan A's three residual remediations remain authorization-only; Plan B is planned/not implemented; all 13 literal Plan C wave plans remain unwritten. Preserve these registered baselines and have later Plan C tasks extend their registries.
