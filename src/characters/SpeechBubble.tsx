@@ -6,7 +6,7 @@ import { useReducedMotionPref } from '../app/useReducedMotionPref';
 export type SpeechBubbleProps = {
   children: ReactNode;
   /** Which side the bubble's little tail sits on. */
-  align?: 'left' | 'right';
+  align?: 'left' | 'right' | 'center';
   className?: string;
   style?: CSSProperties;
 };
@@ -21,7 +21,8 @@ export function SpeechBubble({ children, align = 'left', className, style }: Spe
       initial={reduced ? false : 'initial'}
       animate="enter"
       style={{
-        transformOrigin: align === 'right' ? 'bottom right' : 'bottom left',
+        transformOrigin:
+          align === 'right' ? 'bottom right' : align === 'center' ? 'bottom center' : 'bottom left',
         maxWidth: '34ch',
         ...style,
       }}

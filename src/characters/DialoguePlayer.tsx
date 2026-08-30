@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { DialogueLine } from '../content/schema';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
@@ -54,33 +54,46 @@ export function DialoguePlayer({ lines, onDone, size = 132 }: DialoguePlayerProp
   }
 
   const swap = reduced ? { duration: 0 } : { duration: 0.16 };
+  const sceneRows = `var(--dialogue-bubble-space, 12rem) min(${size}px, calc(100vw - 2rem))`;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={`${run.id}-${index}`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0, transition: swap }}
-          exit={{ opacity: 0, y: -10, transition: swap }}
-          style={{
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: isKid ? 'flex-end' : 'flex-start',
-            gap: '0.5rem',
-            minHeight: size,
-          }}
-        >
+    <div className="dialogue-player">
+      <div
+        className="dialogue-scene"
+        data-speaker={line.speaker}
+        data-testid="dialogue-scene"
+        style={{
+          '--dialogue-character-size': `${size}px`,
+          gridTemplateRows: sceneRows,
+        } as CSSProperties}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={`${run.id}-${index}`}
+            className="dialogue-bubble"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0, transition: swap }}
+            exit={{ opacity: 0, y: -10, transition: swap }}
+          >
+            <SpeechBubble align={isKid ? 'right' : 'center'} style={{ marginBottom: '0.5rem' }}>
+              {line.text}
+            </SpeechBubble>
+          </motion.div>
+        </AnimatePresence>
+        <div className="dialogue-character-slot" data-testid="dialogue-character-slot">
           {line.speaker !== 'kid' && (
-            <Character guide={line.speaker} pose={line.pose ?? 'talk'} size={size} />
+            <Character
+              guide={line.speaker}
+              pose={line.pose ?? 'talk'}
+              size={size}
+              className="dialogue-character"
+              allowOverflow
+            />
           )}
-          <SpeechBubble align={isKid ? 'right' : 'left'} style={{ marginBottom: '0.5rem' }}>
-            {line.text}
-          </SpeechBubble>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="dialogue-controls">
         <button type="button" className="btn btn-primary" aria-label="Next" onClick={advance}>
           Next <span aria-hidden="true">&nbsp;→</span>
         </button>

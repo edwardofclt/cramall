@@ -67,6 +67,12 @@ const LINES: DialogueLine[] = [
   { speaker: 'kid', text: 'Second line' },
 ];
 
+const GUIDE_KID_GUIDE_LINES: DialogueLine[] = [
+  { speaker: 'nutty', text: 'Guide one', pose: 'talk' },
+  { speaker: 'kid', text: 'Kid response' },
+  { speaker: 'nutty', text: 'Guide two', pose: 'cheer' },
+];
+
 function nextButton() {
   return screen.getByRole('button', { name: 'Next' });
 }
@@ -111,6 +117,55 @@ describe('DialoguePlayer', () => {
 
     expect(await screen.findByText('Second line')).toHaveClass('speech-bubble-right');
     expect(screen.queryByTestId('character-nutty')).toBeNull();
+  });
+
+  test('keeps a bounded character slot while dialogue lines change', async () => {
+    const user = userEvent.setup();
+    render(<DialoguePlayer lines={LINES} onDone={vi.fn()} />);
+
+    const slot = screen.getByTestId('dialogue-character-slot');
+    expect(slot).toHaveClass('dialogue-character-slot');
+    expect(slot).toContainElement(screen.getByTestId('character-nutty'));
+    expect(screen.getByTestId('character-nutty')).toHaveStyle({ overflow: 'visible' });
+
+    await user.click(nextButton());
+
+    expect(screen.getByTestId('dialogue-character-slot')).toBe(slot);
+    expect(screen.getByTestId('dialogue-character-slot')).toBeEmptyDOMElement();
+  });
+
+  test('keeps the two-row scene footprint through guide, kid, and guide lines', async () => {
+    const user = userEvent.setup();
+    render(<DialoguePlayer lines={GUIDE_KID_GUIDE_LINES} onDone={vi.fn()} />);
+
+    const scene = screen.getByTestId('dialogue-scene');
+    const slot = screen.getByTestId('dialogue-character-slot');
+    const rows = scene.style.gridTemplateRows;
+    expect(rows).toContain('12rem');
+
+    await user.click(nextButton());
+    expect(await screen.findByText('Kid response')).toBeInTheDocument();
+    expect(screen.getByTestId('dialogue-scene')).toBe(scene);
+    expect(screen.getByTestId('dialogue-character-slot')).toBe(slot);
+    expect(scene.style.gridTemplateRows).toBe(rows);
+    expect(slot).toBeEmptyDOMElement();
+
+    await user.click(nextButton());
+    expect(await screen.findByText('Guide two')).toBeInTheDocument();
+    expect(screen.getByTestId('dialogue-scene')).toBe(scene);
+    expect(scene.style.gridTemplateRows).toBe(rows);
+    expect(slot).toContainElement(screen.getByTestId('character-nutty'));
+  });
+
+  test('places a guide bubble above the stable guide slot', () => {
+    render(<DialoguePlayer lines={LINES} onDone={vi.fn()} />);
+
+    const bubble = screen.getByText('First line').closest('.speech-bubble');
+    const slot = screen.getByTestId('dialogue-character-slot');
+    expect(bubble).not.toBeNull();
+    if (!bubble) throw new Error('Expected a dialogue bubble');
+    expect(bubble).toHaveClass('speech-bubble-center');
+    expect(bubble.compareDocumentPosition(slot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   test('starts over when a different dialogue is swapped in', async () => {

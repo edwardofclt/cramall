@@ -5,6 +5,8 @@ import type { WidgetEventHandler } from '../widgets/registry';
 import { ReadAloudButton } from './ReadAloudButton';
 import { RichText, speechText } from './Rich';
 import { AnnouncingDialogue } from './AnnouncingDialogue';
+import { InlineCheck } from './InlineCheck';
+import { LessonDemo } from './LessonDemo';
 
 function Block({ block }: { block: RichBlock }) {
   if (block.kind === 'example') {
@@ -42,9 +44,16 @@ export type LearnCardProps = {
   card: LearnCardData;
   onWidgetEvent: WidgetEventHandler;
   onDialogueAnnouncement: (text: string) => void;
+  /** Lets the lesson stage reserve its forward control while this dialogue owns it. */
+  onDialogueDone?: () => void;
 };
 
-export function LearnCard({ card, onWidgetEvent, onDialogueAnnouncement }: LearnCardProps) {
+export function LearnCard({
+  card,
+  onWidgetEvent,
+  onDialogueAnnouncement,
+  onDialogueDone,
+}: LearnCardProps) {
   const [dialogueDone, setDialogueDone] = useState(false);
   const spoken = speechText([card.title, ...card.blocks.map((b) => b.text)]);
 
@@ -60,7 +69,10 @@ export function LearnCard({ card, onWidgetEvent, onDialogueAnnouncement }: Learn
       {!dialogueDone && card.dialogue && card.dialogue.length > 0 && (
         <AnnouncingDialogue
           lines={card.dialogue}
-          onDone={() => setDialogueDone(true)}
+          onDone={() => {
+            setDialogueDone(true);
+            onDialogueDone?.();
+          }}
           onAnnouncement={onDialogueAnnouncement}
           size={110}
         />
@@ -71,6 +83,10 @@ export function LearnCard({ card, onWidgetEvent, onDialogueAnnouncement }: Learn
       ))}
 
       {card.widget && <WidgetFrame {...card.widget} onEvent={onWidgetEvent} />}
+
+      {card.demo && <LessonDemo demo={card.demo} />}
+
+      {card.check && <InlineCheck check={card.check} />}
     </section>
   );
 }

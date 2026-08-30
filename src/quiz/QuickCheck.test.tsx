@@ -7,7 +7,7 @@ import { ProgressProvider, useProgress } from '../progress/ProgressContext';
 import type { SaveData } from '../progress/storage';
 import { QuickCheck } from './QuickCheck';
 
-const { FIXTURE, THIN, EXACT } = vi.hoisted(() => {
+const { FIXTURE, THIN, EXACT, REFERENCE } = vi.hoisted(() => {
   function mc(n: number, conceptTag: string, reviewCardId: string): Question {
     return {
       id: `q${n}`,
@@ -122,16 +122,30 @@ const { FIXTURE, THIN, EXACT } = vi.hoisted(() => {
     units: [unit],
   };
 
+  const referenceLesson: Lesson = {
+    ...lesson,
+    id: 'math-u01-l4',
+    title: 'Reference Lesson',
+    quiz: {
+      ...lesson.quiz,
+      reference: {
+        title: 'Read this passage',
+        text: 'Lena checked the weather map before packing her raincoat.',
+      },
+    },
+  };
+
   return {
     FIXTURE: { subject, unit, lesson },
     THIN: { subject, unit, lesson: thinLesson },
     EXACT: { subject, unit, lesson: exactLesson },
+    REFERENCE: { subject, unit, lesson: referenceLesson },
   };
 });
 
 vi.mock('../content/subjects', () => ({
   findLesson: (id: string) =>
-    [FIXTURE, THIN, EXACT].find((found) => found.lesson.id === id) ?? null,
+    [FIXTURE, THIN, EXACT, REFERENCE].find((found) => found.lesson.id === id) ?? null,
 }));
 
 const LESSON_ID = FIXTURE.lesson.id;
@@ -335,6 +349,28 @@ describe('QuickCheck', () => {
     expect(bar).toHaveAttribute('aria-valuenow', '0');
     expect(bar).toHaveAttribute('aria-valuemax', '10');
     expect(screen.queryByTestId('quiz-results')).toBeNull();
+  });
+
+  test('keeps an optional quiz reference in a labeled panel while questions are answered', async () => {
+    const user = userEvent.setup();
+    renderQuiz(REFERENCE.lesson.id);
+
+    const reference = await screen.findByRole('complementary', { name: /read this passage/i });
+    expect(reference).toHaveAttribute('tabindex', '0');
+    expect(within(reference).getByText(REFERENCE.lesson.quiz.reference?.text ?? '')).toBeInTheDocument();
+    expect(screen.getByTestId('quiz-card')).toBeInTheDocument();
+
+    await answerCurrent(user, true);
+    await goNext(user);
+
+    expect(screen.getByRole('complementary', { name: /read this passage/i })).toBeInTheDocument();
+  });
+
+  test('does not add an empty reference panel to a quiz without a reference', async () => {
+    renderQuiz();
+
+    await screen.findByTestId('quiz-prompt');
+    expect(screen.queryByRole('complementary')).toBeNull();
   });
 
   test('the progress bar advances as questions are answered', async () => {

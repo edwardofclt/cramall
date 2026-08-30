@@ -22,9 +22,18 @@ export type CharacterProps = {
   size?: number;
   className?: string;
   style?: CSSProperties;
+  /** Lets animated poses extend past the SVG viewport without cropping. */
+  allowOverflow?: boolean;
 };
 
-export function Character({ guide, pose = 'idle', size = 120, className, style }: CharacterProps) {
+export function Character({
+  guide,
+  pose = 'idle',
+  size = 120,
+  className,
+  style,
+  allowOverflow = false,
+}: CharacterProps) {
   const Art = ART[guide];
   return (
     <svg
@@ -34,7 +43,7 @@ export function Character({ guide, pose = 'idle', size = 120, className, style }
       width={size}
       height={size}
       className={className}
-      style={{ flex: '0 0 auto', ...style }}
+      style={{ flex: '0 0 auto', overflow: allowOverflow ? 'visible' : undefined, ...style }}
       data-testid={`character-${guide}`}
       data-pose={pose}
     >

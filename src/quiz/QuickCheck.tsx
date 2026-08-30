@@ -85,6 +85,16 @@ function QuizProgressBar({
   );
 }
 
+function QuizReferencePanel({ reference }: { reference: NonNullable<Lesson['quiz']['reference']> }) {
+  const headingId = `quiz-reference-${reference.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  return (
+    <aside className="card quiz-reference" aria-labelledby={headingId} tabIndex={0}>
+      <h2 id={headingId} className="quiz-reference-title">{reference.title}</h2>
+      <p className="quiz-reference-text">{reference.text}</p>
+    </aside>
+  );
+}
+
 type RunProps = {
   lesson: Lesson;
   subject: Subject;
@@ -189,10 +199,7 @@ function QuizRun({ lesson, subject, rng, previousQuestionIds, onTryAgain }: RunP
 
       <QuizProgressBar answered={answers.length} reduced={reduced} />
 
-      {/* `mode="wait"` keeps exactly one card on screen: the old one leaves before the
-          next arrives, so nothing overlaps mid-transition. */}
-      <AnimatePresence mode="wait" initial={false}>
-        {result ? (
+      {result ? (
           <motion.div key="results" className="stack" {...animation}>
             <Results
               lesson={lesson}
@@ -202,18 +209,24 @@ function QuizRun({ lesson, subject, rng, previousQuestionIds, onTryAgain }: RunP
             />
           </motion.div>
         ) : (
-          <motion.div key={`q${index}`} className="stack" {...animation}>
-            <QuestionCard
-              question={question}
-              guide={subject.guide}
-              index={index}
-              total={questions.length}
-              onAnswered={(answer) => setAnswers((current) => [...current, answer])}
-              onNext={handleNext}
-            />
-          </motion.div>
+          <div className={lesson.quiz.reference ? 'quiz-question-layout' : undefined}>
+            {lesson.quiz.reference && <QuizReferencePanel reference={lesson.quiz.reference} />}
+            {/* `mode="wait"` keeps exactly one card on screen: the old one leaves before the
+                next arrives, so nothing overlaps mid-transition. */}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div key={`q${index}`} className="stack" {...animation}>
+                <QuestionCard
+                  question={question}
+                  guide={subject.guide}
+                  index={index}
+                  total={questions.length}
+                  onAnswered={(answer) => setAnswers((current) => [...current, answer])}
+                  onNext={handleNext}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }

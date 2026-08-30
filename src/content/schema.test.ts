@@ -1,6 +1,9 @@
 import { expect, test } from 'vitest';
 import {
+  InlineCheckSchema,
+  LearnCardSchema,
   LessonSchema,
+  QuizReferenceSchema,
   WidgetRefSchema,
   validateLesson,
   type Lesson,
@@ -32,11 +35,81 @@ test('valid lesson parses and validates clean', () => {
   expect(LessonSchema.parse(makeLesson())).toBeTruthy();
   expect(validateLesson(makeLesson())).toEqual([]);
 });
+test('a learn card can include a self-check with a valid correct choice', () => {
+  const card = LearnCardSchema.parse({
+    id: 'math-u01-l01-c1',
+    title: 'Card',
+    blocks: [{ kind: 'text', text: 'Learn.' }],
+    check: {
+      prompt: 'Which number is greater?',
+      choices: [{ id: 'ten', text: '10' }, { id: 'nine', text: '9' }],
+      correctChoiceId: 'ten',
+      explanation: 'Ten is one more than nine.',
+    },
+  });
+
+  expect(card.check).toEqual({
+    prompt: 'Which number is greater?',
+    choices: [{ id: 'ten', text: '10' }, { id: 'nine', text: '9' }],
+    correctChoiceId: 'ten',
+    explanation: 'Ten is one more than nine.',
+  });
+});
+test('a learn card preserves only the strict roller-coaster demo contract', () => {
+  const base = {
+    id: 'science-u01-l01-c1',
+    title: 'Card',
+    blocks: [{ kind: 'text', text: 'Learn.' }],
+  };
+
+  expect(LearnCardSchema.parse({
+    ...base,
+    demo: { type: 'roller-coaster', focus: 'speed-energy' },
+  }).demo).toEqual({ type: 'roller-coaster', focus: 'speed-energy' });
+  expect(() => LearnCardSchema.parse({
+    ...base,
+    demo: { type: 'roller-coaster', focus: 'speed-energy', autoplay: true },
+  })).toThrow();
+  expect(() => LearnCardSchema.parse({
+    ...base,
+    demo: { type: 'roller-coaster', focus: 'momentum' },
+  })).toThrow();
+  expect(() => LearnCardSchema.parse({
+    ...base,
+    demo: { type: 'collision-ramp', focus: 'collision' },
+  })).toThrow();
+});
+test('an inline check rejects extra fields, invalid correct answers, and duplicate choices', () => {
+  const check = {
+    prompt: 'Which number is greater?',
+    choices: [{ id: 'ten', text: '10' }, { id: 'nine', text: '9' }],
+    correctChoiceId: 'ten',
+    explanation: 'Ten is one more than nine.',
+  };
+
+  expect(() => InlineCheckSchema.parse({ ...check, extra: true })).toThrow();
+  expect(() => InlineCheckSchema.parse({ ...check, correctChoiceId: 'eight' })).toThrow();
+  expect(() => InlineCheckSchema.parse({
+    ...check,
+    choices: [{ id: 'ten', text: '10' }, { id: 'ten', text: '10' }],
+  })).toThrow();
+  expect(() => InlineCheckSchema.parse({ ...check, choices: [check.choices[0]] })).toThrow();
+});
 test('lesson schema preserves the shared pass threshold of 8', () => {
   const lesson = makeLesson();
   const invalid = { ...lesson, quiz: { ...lesson.quiz, passThreshold: 7 } };
 
   expect(LessonSchema.safeParse(invalid).success).toBe(false);
+});
+test('a quiz reference is optional, requires visible text, and rejects authoring typos', () => {
+  const lesson = makeLesson();
+  lesson.quiz.reference = { title: 'Read this passage', text: 'A complete reference passage.' };
+
+  expect(LessonSchema.parse(lesson).quiz.reference).toEqual(lesson.quiz.reference);
+  expect(() => QuizReferenceSchema.parse({
+    title: 'Read this passage', text: 'A complete reference passage.', extra: true,
+  })).toThrow();
+  expect(() => QuizReferenceSchema.parse({ title: 'Read this passage', text: '' })).toThrow();
 });
 test('bad reviewCardId is reported', () => {
   const l = makeLesson();

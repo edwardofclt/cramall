@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type CSSProperties } from 'react';
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { cardVariants } from '../app/motion';
@@ -153,6 +153,34 @@ function LessonStages({
   const goBack = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
 
   const stage = stages[step];
+  const [dialogueStageKey, setDialogueStageKey] = useState(stage.key);
+  const [cardDialogueDone, setCardDialogueDone] = useState(false);
+  const activeStageVisit = useRef({ key: stage.key, id: 0 });
+  if (activeStageVisit.current.key !== stage.key) {
+    activeStageVisit.current = { key: stage.key, id: activeStageVisit.current.id + 1 };
+  }
+  const stageVisit = activeStageVisit.current;
+
+  // Each stage visit gets a fresh card dialogue. Adjusting this state while rendering
+  // prevents a finished card's stage Next from flashing during a Back revisit.
+  if (dialogueStageKey !== stage.key) {
+    setDialogueStageKey(stage.key);
+    setCardDialogueDone(false);
+  }
+
+  const cardDialogueActive =
+    'card' in stage && Boolean(stage.card.dialogue?.length) && !cardDialogueDone;
+  const finishCardDialogue = useCallback((owner: { key: Stage['key']; id: number }) => {
+    // AnimatePresence can leave a previous card mounted while another stage enters.
+    // A Back revisit has the same key but a new visit id, so stale callbacks cannot
+    // reveal Next for the fresh dialogue.
+    if (
+      activeStageVisit.current.key === owner.key &&
+      activeStageVisit.current.id === owner.id
+    ) {
+      setCardDialogueDone(true);
+    }
+  }, []);
   const focusStage = useCallback((node: HTMLDivElement | null) => {
     node?.focus();
   }, []);
@@ -204,6 +232,7 @@ function LessonStages({
               lines={lesson.intro}
               onDone={goNext}
               onAnnouncement={setDialogueAnnouncement}
+              size={360}
             />
           )}
           {'card' in stage && (
@@ -211,6 +240,7 @@ function LessonStages({
               card={stage.card}
               onWidgetEvent={ignoreWidgetEvent}
               onDialogueAnnouncement={setDialogueAnnouncement}
+              onDialogueDone={() => finishCardDialogue(stageVisit)}
             />
           )}
           {stage.key === 'worked' && <WorkedExample worked={lesson.workedExample} />}
@@ -224,7 +254,7 @@ function LessonStages({
             <span aria-hidden="true">←&nbsp;</span>Back
           </button>
         )}
-        {step < last && (
+        {stage.key !== 'intro' && !cardDialogueActive && step < last && (
           <button
             type="button"
             className="btn btn-primary lesson-nav-next"

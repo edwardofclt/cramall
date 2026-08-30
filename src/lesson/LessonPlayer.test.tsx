@@ -83,12 +83,28 @@ function renderPlayer(entry = `/lesson/${LESSON_ID}`) {
   );
 }
 
-/** The stage Next/Back live in their own landmark so the dialogue's Next stays separate. */
+/** The stage Next/Back live in their own landmark once intro dialogue hands off. */
 function nav() {
   return within(screen.getByRole('navigation', { name: /lesson steps/i }));
 }
 
 async function clickNext(user: ReturnType<typeof userEvent.setup>) {
+  const stageNext = nav().queryByRole('button', { name: /next step/i });
+  if (stageNext) {
+    await user.click(stageNext);
+    return;
+  }
+
+  // Intro dialogue hands off directly to its first card. A card dialogue hands off
+  // to its newly revealed stage Next, keeping both transitions explicit in tests.
+  if (screen.queryByRole('group', { name: /step 1 of/i })) {
+    while (screen.queryByRole('group', { name: /step 1 of/i })) {
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+    }
+    return;
+  }
+
+  await user.click(screen.getByRole('button', { name: 'Next' }));
   await user.click(nav().getByRole('button', { name: /next step/i }));
 }
 
@@ -128,10 +144,35 @@ describe('LessonPlayer', () => {
 
     expect(screen.getByRole('heading', { name: 'Reading Big Numbers' })).toBeInTheDocument();
     expect(screen.getAllByText('Big numbers are just acorn piles!')).toHaveLength(2);
-    expect(screen.getByTestId('character-nutty')).toBeInTheDocument();
+    expect(screen.getByTestId('character-nutty')).toHaveAttribute('width', '360');
+    expect(screen.getByTestId('character-nutty')).toHaveAttribute('height', '360');
     expect(screen.queryByText('Every digit has a place')).toBeNull();
     // Nowhere to go back to from the first stage.
     expect(nav().queryByRole('button', { name: /back/i })).toBeNull();
+  });
+
+  test('uses one Next control for the intro dialogue, then hands off to lesson navigation', async () => {
+    const user = userEvent.setup();
+    renderPlayer();
+
+    expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(1);
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByText('Show me how!')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(1);
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+
+    expect(await screen.findByRole('heading', { name: 'Every digit has a place' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(nav().getByRole('button', { name: /next step/i })).toBeInTheDocument();
+    await settleWidget();
   });
 
   test('advancing past the intro shows the first learn card', async () => {
@@ -195,6 +236,8 @@ describe('LessonPlayer', () => {
     await settleWidget();
     // The blocks are readable the whole time the dialogue plays — it never gates them.
     expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Next' })).toHaveLength(1);
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
 
     // The card dialogue is one line, so its own Next finishes only that local exchange.
     await user.click(screen.getByRole('button', { name: 'Next' }));
@@ -203,9 +246,15 @@ describe('LessonPlayer', () => {
     expect(screen.getByText(/Count from the ones/)).toBeInTheDocument();
     expect(screen.getByTestId('widget-place-value-builder')).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Compare from the left' })).toBeNull();
+    expect(nav().getByRole('button', { name: /next step/i })).toBeInTheDocument();
 
     await clickNext(user);
     expect(await screen.findByRole('heading', { name: 'Compare from the left' })).toBeInTheDocument();
+
+    await user.click(nav().getByRole('button', { name: /back/i }));
+    expect(await screen.findByRole('heading', { name: 'Every digit has a place' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
   });
 
   test('renders card blocks with bold, line breaks, example and tip callouts', async () => {

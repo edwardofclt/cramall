@@ -38,6 +38,47 @@ export const RichBlockSchema = z.object({
   text: z.string().min(1),
 });
 
+/** A small, unscored check that lets a learner reinforce one teaching-card idea. */
+const InlineCheckChoiceSchema = z.object({
+  id: OptionIdSchema,
+  text: z.string().trim().min(1).max(120),
+}).strict();
+
+export const InlineCheckSchema = z.object({
+  prompt: z.string().trim().min(1).max(240),
+  choices: z.array(InlineCheckChoiceSchema).min(2).max(4),
+  correctChoiceId: OptionIdSchema,
+  explanation: z.string().trim().min(1).max(320),
+}).strict().superRefine((check, context) => {
+  if (!check.choices.some((choice) => choice.id === check.correctChoiceId)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['correctChoiceId'],
+      message: 'correctChoiceId must name one of the check choices',
+    });
+  }
+  if (new Set(check.choices.map((choice) => choice.id)).size !== check.choices.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['choices'],
+      message: 'check choice ids must be unique',
+    });
+  }
+  if (new Set(check.choices.map((choice) => normalizedVisibleText(choice.text))).size !== check.choices.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['choices'],
+      message: 'check choice text must be unique after normalization',
+    });
+  }
+});
+
+/** Optional, unscored instruction that demonstrates one lesson idea without saving progress. */
+export const InstructionalDemoSchema = z.object({
+  type: z.literal('roller-coaster'),
+  focus: z.enum(['speed-energy', 'evidence', 'collision']),
+}).strict();
+
 export const PlaceValueWidgetConfigSchema = z.object({
   target: z.number().int().min(0).optional(),
   periods: z.union([z.literal(2), z.literal(3)]).optional(),
@@ -110,6 +151,8 @@ export const LearnCardSchema = z.object({
   dialogue: z.array(DialogueLineSchema).optional(),
   blocks: z.array(RichBlockSchema).min(1),
   widget: WidgetRefSchema.optional(),
+  demo: InstructionalDemoSchema.optional(),
+  check: InlineCheckSchema.optional(),
 });
 
 const questionBase = {
@@ -140,6 +183,18 @@ export const QuestionSchema = z.discriminatedUnion('type', [
   ChoiceQuestionSchema, FillQuestionSchema, SortQuestionSchema,
 ]);
 
+/** Optional shared material that remains available while a Quick Check advances. */
+export const QuizReferenceSchema = z.object({
+  title: z.string().trim().min(1),
+  text: z.string().trim().min(1),
+}).strict();
+
+export const QuizSchema = z.object({
+  passThreshold: z.literal(8),
+  pool: z.array(QuestionSchema),
+  reference: QuizReferenceSchema.optional(),
+});
+
 export const LessonSchema = z.object({
   id: LessonIdSchema,
   unitId: UnitIdSchema,
@@ -148,7 +203,7 @@ export const LessonSchema = z.object({
   intro: z.array(DialogueLineSchema).min(1),
   learnCards: z.array(LearnCardSchema).min(1),
   workedExample: z.object({ title: z.string(), steps: z.array(z.string()).min(1) }),
-  quiz: z.object({ passThreshold: z.literal(8), pool: z.array(QuestionSchema) }),
+  quiz: QuizSchema,
 });
 
 export const UnitSchema = z.object({
@@ -166,6 +221,8 @@ export type GuideId = z.infer<typeof GuideIdSchema>;
 export type Pose = z.infer<typeof PoseSchema>;
 export type DialogueLine = z.infer<typeof DialogueLineSchema>;
 export type RichBlock = z.infer<typeof RichBlockSchema>;
+export type InlineCheck = z.infer<typeof InlineCheckSchema>;
+export type InstructionalDemo = z.infer<typeof InstructionalDemoSchema>;
 export type WidgetRef = z.infer<typeof WidgetRefSchema>;
 export type WidgetType = WidgetRef['type'];
 export type WidgetConfig<T extends WidgetType = WidgetType> = Extract<
@@ -174,6 +231,7 @@ export type WidgetConfig<T extends WidgetType = WidgetType> = Extract<
 >['config'];
 export type LearnCard = z.infer<typeof LearnCardSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
+export type QuizReference = z.infer<typeof QuizReferenceSchema>;
 export type Lesson = z.infer<typeof LessonSchema>;
 export type Unit = z.infer<typeof UnitSchema>;
 export type Subject = {
