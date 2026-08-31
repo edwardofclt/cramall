@@ -186,6 +186,19 @@ describe('NumberLineCompare', () => {
     expect(screen.queryByText('1/1')).toBeNull();
   });
 
+  test('describes fraction markers with formatted fractions in the number-line image label', () => {
+    render(
+      <NumberLineCompare
+        config={{ min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction', denominator: 4 }}
+        onEvent={noEvent}
+      />,
+    );
+
+    expect(screen.getByRole('img')).toHaveAccessibleName(
+      'Number line from 0 to 1. Marker A is at 1/4. Marker B is at 3/4.',
+    );
+  });
+
   test('starts in the choosing state with both markers on the line', () => {
     render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
 
@@ -263,6 +276,46 @@ describe('NumberLineCompare', () => {
     expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'yes');
     expect(screen.queryByTestId('nl-feedback')).toBeNull();
     expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  });
+
+  test('resets the selected answer and completion latch when display changes', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    const config = { min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction' as const, denominator: 4 as const };
+    const { rerender } = render(<NumberLineCompare config={config} onEvent={onEvent} />);
+
+    await tap(user, 'less than');
+    expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'yes');
+
+    rerender(<NumberLineCompare config={{ ...config, display: 'number', denominator: undefined }} onEvent={onEvent} />);
+
+    const root = screen.getByTestId('widget-number-line-compare');
+    expect(root).toHaveAttribute('data-state', 'choosing');
+    expect(root).toHaveAttribute('data-complete', 'no');
+    expect(screen.queryByTestId('nl-feedback')).toBeNull();
+
+    await tap(user, 'less than');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(2);
+  });
+
+  test('resets the selected answer and completion latch when denominator changes', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    const config = { min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction' as const, denominator: 4 as const };
+    const { rerender } = render(<NumberLineCompare config={config} onEvent={onEvent} />);
+
+    await tap(user, 'less than');
+    expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'yes');
+
+    rerender(<NumberLineCompare config={{ ...config, denominator: 8 as const }} onEvent={onEvent} />);
+
+    const root = screen.getByTestId('widget-number-line-compare');
+    expect(root).toHaveAttribute('data-state', 'choosing');
+    expect(root).toHaveAttribute('data-complete', 'no');
+    expect(screen.queryByTestId('nl-feedback')).toBeNull();
+
+    await tap(user, 'less than');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(2);
   });
 
   test('fractional step nudges and snaps markers without rounding them to whole numbers', async () => {

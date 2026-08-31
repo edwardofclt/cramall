@@ -3,6 +3,7 @@ import { motion, useAnimationControls, type PanInfo } from 'framer-motion';
 import { springy } from '../../app/motion';
 import { useReducedMotionPref } from '../../app/useReducedMotionPref';
 import type { WidgetProps } from '../registry';
+import { useCompletionLatch } from '../useCompletionLatch';
 
 /* -- geometry ------------------------------------------------------------- */
 
@@ -278,6 +279,7 @@ export default function NumberLineCompare({
   onEvent,
 }: WidgetProps<'number-line-compare'>) {
   const reduced = useReducedMotionPref();
+  const configKey = JSON.stringify(config);
   const settings = readConfig(config);
   const { min, max, step, display, denominator } = settings;
   const format = (value: number) => formatNumberLineValue(value, display, denominator);
@@ -288,15 +290,14 @@ export default function NumberLineCompare({
   const [b, setB] = useState(settings.b);
   const [choice, setChoice] = useState<Sym | null>(null);
   const [attempts, setAttempts] = useState(0);
-  const [completed, setCompleted] = useState(false);
+  const { completed, completeOnce } = useCompletionLatch(configKey);
 
-  // A card handing this widget different numbers starts a fresh question.
+  // A card handing this widget a new configuration starts a fresh question.
   useEffect(() => {
     setA(settings.a);
     setB(settings.b);
     setChoice(null);
-    setCompleted(false);
-  }, [settings.a, settings.b, min, max, step]);
+  }, [configKey]);
 
   const truth: Sym = a < b ? '<' : a > b ? '>' : '=';
   const state = choice === null ? 'choosing' : choice === truth ? 'correct' : 'incorrect';
@@ -318,9 +319,8 @@ export default function NumberLineCompare({
     setAttempts((n) => n + 1);
     onEvent({ type: 'interaction', action: 'choose-comparison' });
     onEvent({ type: 'change', value: { a, b, choice: symbol } });
-    if (symbol === truth && !completed) {
-      setCompleted(true);
-      onEvent({ type: 'complete', value: { a, b, choice: symbol } });
+    if (symbol === truth) {
+      completeOnce(() => onEvent({ type: 'complete', value: { a, b, choice: symbol } }));
     }
     if (reduced) return;
     board.start(
@@ -356,7 +356,7 @@ export default function NumberLineCompare({
           className="nl-svg"
           viewBox={`0 0 ${W} ${H}`}
           role="img"
-          aria-label={`Number line from ${min} to ${max}. Marker A is at ${a}. Marker B is at ${b}.`}
+          aria-label={`Number line from ${format(min)} to ${format(max)}. Marker A is at ${format(a)}. Marker B is at ${format(b)}.`}
         >
           <line className="nl-axis" x1={PAD} y1={LINE_Y} x2={W - PAD} y2={LINE_Y} />
           {/* The stretch between the two markers, so "how far apart" is visible. */}
