@@ -130,6 +130,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['topographic-map-explorer'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'hazard-solution-designer': {
+      const Widget = widgetRegistry['hazard-solution-designer'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

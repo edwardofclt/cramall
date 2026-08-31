@@ -33,6 +33,7 @@ export const WIDGET_TYPES = [
   'erosion-simulator',
   'rock-layer-explorer',
   'topographic-map-explorer',
+  'hazard-solution-designer',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -940,6 +941,33 @@ export const TopographicMapExplorerWidgetRefSchema = z.object({
   config: TopographicMapExplorerWidgetConfigSchema,
 }).strict();
 
+const HazardTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const HazardSolutionSchema = z.object({
+  id: HazardTextSchema,
+  label: HazardTextSchema,
+  effectiveness: z.enum(['good', 'partial', 'poor']),
+}).strict();
+const hazardVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+export const HazardSolutionDesignerWidgetConfigSchema = z.object({
+  hazard: HazardTextSchema,
+  solutions: z.array(HazardSolutionSchema).min(2),
+  requiredIds: z.array(HazardTextSchema).min(1),
+}).strict().superRefine((value, context) => {
+  const ids = value.solutions.map((solution) => hazardVisualKey(solution.id));
+  const labels = value.solutions.map((solution) => hazardVisualKey(solution.label));
+  const requiredIds = value.requiredIds.map(hazardVisualKey);
+  if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'solution ids and labels must be unique'});
+  }
+  if (new Set(requiredIds).size !== requiredIds.length || !value.requiredIds.every((id) => value.solutions.some((solution) => solution.id === id)) || value.requiredIds.some((id) => value.solutions.find((solution) => solution.id === id)!.effectiveness === 'poor')) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'required solution ids must exist, be unique, and not be poor'});
+  }
+});
+export const HazardSolutionDesignerWidgetRefSchema = z.object({
+  type: z.literal('hazard-solution-designer'),
+  config: HazardSolutionDesignerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -970,6 +998,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ErosionSimulatorWidgetRefSchema,
   RockLayerExplorerWidgetRefSchema,
   TopographicMapExplorerWidgetRefSchema,
+  HazardSolutionDesignerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
