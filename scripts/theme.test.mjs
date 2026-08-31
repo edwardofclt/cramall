@@ -84,3 +84,11 @@ test('quiet links have 44px targets and all keyboard focus is visibly outlined',
   expect(block(':focus-visible')).toMatch(/outline:\s*3px solid/);
   expect(block(':focus-visible')).toMatch(/--accent-action/);
 });
+
+test('short Reading worked pages keep coaching in a stretchable inline overflow region', () => {
+  const coaching = block(".lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-coaching");
+  expect(coaching).toMatch(/align-self:\s*stretch/);
+  expect(coaching).toMatch(/min-height:\s*0/);
+  expect(coaching).toMatch(/overflow-y:\s*auto/);
+  expect(coaching).toMatch(/overscroll-behavior:\s*contain/);
+});

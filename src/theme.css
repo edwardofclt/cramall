@@ -698,7 +698,11 @@ body {
   }
 
   .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-coaching {
-    align-self: start;
+    align-self: stretch;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.5rem;
   }
 
   .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-step {

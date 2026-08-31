@@ -142,7 +142,7 @@ function WorkedExample({
               ))}
             </div>
           </article>
-          <aside className="worked-coaching" aria-labelledby={coachingTitleId}>
+          <aside className="worked-coaching" aria-labelledby={coachingTitleId} tabIndex={0}>
             <h3 id={coachingTitleId}>How to read it</h3>
             <WorkedSteps steps={worked.steps} />
           </aside>

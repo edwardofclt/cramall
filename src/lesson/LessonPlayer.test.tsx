@@ -451,6 +451,7 @@ describe('LessonPlayer', () => {
     expect(within(passage).getByText(/Maya checked the garden map/i)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'How to read it' })).toBeInTheDocument();
     const passagePanel = screen.getByRole('article', { name: 'Original passage' });
+    expect(screen.getByRole('complementary', { name: 'How to read it' })).toHaveAttribute('tabindex', '0');
 
     const steps = screen.getAllByTestId('worked-step');
     expect(steps).toHaveLength(2);
