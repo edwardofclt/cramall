@@ -23,6 +23,7 @@ export const WIDGET_TYPES = [
   'shape-classifier',
   'data-plot-builder',
   'probability-spinner',
+  'collision-ramp',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -682,6 +683,20 @@ export const ProbabilitySpinnerWidgetRefSchema = z.object({
   config: ProbabilitySpinnerWidgetConfigSchema,
 }).strict();
 
+export const CollisionRampWidgetConfigSchema = z.object({
+  rampAngle: z.number().finite().min(0).max(45).optional(),
+  massA: z.number().finite().min(1).max(100),
+  massB: z.number().finite().min(1).max(100),
+  speedA: z.number().finite().min(0).max(100).optional(),
+  speedB: z.number().finite().min(0).max(100).optional(),
+  target: z.enum(['predict-direction', 'compare-motion']).optional(),
+}).strict();
+
+export const CollisionRampWidgetRefSchema = z.object({
+  type: z.literal('collision-ramp'),
+  config: CollisionRampWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -702,6 +717,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ShapeClassifierWidgetRefSchema,
   DataPlotBuilderWidgetRefSchema,
   ProbabilitySpinnerWidgetRefSchema,
+  CollisionRampWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

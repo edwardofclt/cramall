@@ -90,6 +90,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['probability-spinner'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'collision-ramp': {
+      const Widget = widgetRegistry['collision-ramp'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

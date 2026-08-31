@@ -69,6 +69,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'spin' | 'reset' }
     | { type: 'change'; value: { outcomeId: string | null; counts: Record<string, number> } }
     | { type: 'complete'; value: { outcomeId: string; counts: Record<string, number> } };
+  'collision-ramp':
+    | { type: 'interaction'; action: 'change-angle' | 'change-speed' | 'run' | 'choose-prediction' | 'reset' }
+    | { type: 'change'; value: { rampAngle: number; speedA: number; speedB: number } }
+    | { type: 'complete'; value: { prediction: 'left' | 'right' | 'same'; correct: boolean } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -102,4 +106,5 @@ export const widgetRegistry = {
   'shape-classifier': lazy(() => import('./math/ShapeClassifier')),
   'data-plot-builder': lazy(() => import('./math/DataPlotBuilder')),
   'probability-spinner': lazy(() => import('./math/ProbabilitySpinner')),
+  'collision-ramp': lazy(() => import('./science/CollisionRamp')),
 } satisfies WidgetRegistry;
