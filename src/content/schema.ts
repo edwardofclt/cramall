@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { normalizeAnswerText } from './answer-normalization';
 
-export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare'] as const;
+export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare', 'base-ten-blocks'] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
 export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy']);
@@ -150,6 +150,22 @@ export const NumberLineWidgetConfigSchema = z.object({
   }
 });
 
+export const BaseTenBlocksWidgetConfigSchema = z.object({
+  target: z.number().int().min(0).max(9999).optional(),
+  initial: z.object({
+    ones: z.number().int().min(0).max(9),
+    tens: z.number().int().min(0).max(9),
+    hundreds: z.number().int().min(0).max(9),
+    thousands: z.number().int().min(0).max(9),
+  }).strict().optional(),
+  allowRegroup: z.boolean().optional(),
+}).strict();
+
+export const BaseTenBlocksWidgetRefSchema = z.object({
+  type: z.literal('base-ten-blocks'),
+  config: BaseTenBlocksWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -159,6 +175,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
     type: z.literal('number-line-compare'),
     config: NumberLineWidgetConfigSchema,
   }).strict(),
+  BaseTenBlocksWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

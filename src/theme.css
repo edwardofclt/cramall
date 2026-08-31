@@ -2175,3 +2175,6 @@ body {
     min-height: 150px;
   }
 }
+
+.base-ten button { min-width: 44px; min-height: 44px; }
+.base-ten output { display: block; font-weight: 700; }

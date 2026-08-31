@@ -1,6 +1,14 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import type { WidgetConfig, WidgetType } from '../content/schema';
 
+type BaseTenValue = {
+  ones: number;
+  tens: number;
+  hundreds: number;
+  thousands: number;
+  value: number;
+};
+
 export type WidgetEventMap = {
   'place-value-builder':
     | { type: 'interaction'; action: 'change-place' | 'reset' }
@@ -10,6 +18,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'move-marker' | 'choose-comparison' }
     | { type: 'change'; value: { a: number; b: number; choice: '<' | '=' | '>' | null } }
     | { type: 'complete'; value: { a: number; b: number; choice: '<' | '=' | '>' } };
+  'base-ten-blocks':
+    | { type: 'interaction'; action: 'add-block' | 'remove-block' | 'regroup' | 'reset' }
+    | { type: 'change'; value: BaseTenValue }
+    | { type: 'complete'; value: BaseTenValue };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -32,4 +44,5 @@ export type WidgetRegistry = {
 export const widgetRegistry = {
   'place-value-builder': lazy(() => import('./math/PlaceValueBuilder')),
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),
+  'base-ten-blocks': lazy(() => import('./math/BaseTenBlocks')),
 } satisfies WidgetRegistry;
