@@ -22,6 +22,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'add-block' | 'remove-block' | 'regroup' | 'reset' }
     | { type: 'change'; value: BaseTenValue }
     | { type: 'complete'; value: BaseTenValue };
+  'fraction-models':
+    | { type: 'interaction'; action: 'select-piece' | 'clear-model' }
+    | { type: 'change'; value: { numerator: number; denominator: number } }
+    | { type: 'complete'; value: { numerator: number; denominator: number; equivalent: boolean } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -45,4 +49,5 @@ export const widgetRegistry = {
   'place-value-builder': lazy(() => import('./math/PlaceValueBuilder')),
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),
   'base-ten-blocks': lazy(() => import('./math/BaseTenBlocks')),
+  'fraction-models': lazy(() => import('./math/FractionModels')),
 } satisfies WidgetRegistry;

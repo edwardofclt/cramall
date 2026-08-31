@@ -2178,3 +2178,5 @@ body {
 
 .base-ten button { min-width: 44px; min-height: 44px; }
 .base-ten output { display: block; font-weight: 700; }
+.fraction-models [data-testid="fraction-view"] { display: flex; gap: .5rem; }
+.fraction-models button { min-width: 44px; min-height: 44px; }

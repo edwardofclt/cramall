@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { normalizeAnswerText } from './answer-normalization';
 
-export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare', 'base-ten-blocks'] as const;
+export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare', 'base-ten-blocks', 'fraction-models'] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
 export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy']);
@@ -166,6 +166,51 @@ export const BaseTenBlocksWidgetRefSchema = z.object({
   config: BaseTenBlocksWidgetConfigSchema,
 }).strict();
 
+export const FractionModelsWidgetConfigSchema = z.object({
+  mode: z.enum(['bars', 'circles', 'both']),
+  denominator: z.number().int().min(2).max(12),
+  numerator: z.number().int().min(0).max(12).optional(),
+  target: z.object({
+    numerator: z.number().int().min(0).max(12),
+    denominator: z.number().int().min(2).max(12),
+  }).strict().optional(),
+  allowEquivalent: z.boolean().optional(),
+}).strict().superRefine((value, context) => {
+  if ((value.numerator ?? 0) > value.denominator) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['numerator'],
+      message: 'too large',
+    });
+  }
+  if (value.target && value.target.numerator > value.target.denominator) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['target', 'numerator'],
+      message: 'too large',
+    });
+  }
+  if (value.target) {
+    const reachable = Array.from({ length: value.denominator + 1 }, (_, numerator) => (
+      value.allowEquivalent
+        ? numerator * value.target!.denominator === value.target!.numerator * value.denominator
+        : numerator === value.target!.numerator && value.denominator === value.target!.denominator
+    )).some(Boolean);
+    if (!reachable) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['target'],
+        message: 'target is unreachable with this denominator',
+      });
+    }
+  }
+});
+
+export const FractionModelsWidgetRefSchema = z.object({
+  type: z.literal('fraction-models'),
+  config: FractionModelsWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -176,6 +221,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
     config: NumberLineWidgetConfigSchema,
   }).strict(),
   BaseTenBlocksWidgetRefSchema,
+  FractionModelsWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

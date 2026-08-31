@@ -50,6 +50,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['base-ten-blocks'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'fraction-models': {
+      const Widget = widgetRegistry['fraction-models'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
