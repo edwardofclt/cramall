@@ -54,3 +54,21 @@ test('rejects an unreachable target and does not complete an initial zero target
   expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'choosing');
   expect(onEvent).not.toHaveBeenCalled();
 });
+
+test('renders distinct segmented bar and radial circle models with readable shading state', () => {
+  render(
+    <FractionModels
+      config={{ mode: 'both', denominator: 4, numerator: 1 }}
+      onEvent={() => {}}
+    />,
+  );
+
+  const bar = screen.getByTestId('fraction-bar-model');
+  const circle = screen.getByTestId('fraction-circle-model');
+
+  expect(bar).toHaveAttribute('role', 'img');
+  expect(bar.querySelectorAll('[data-testid="fraction-bar-segment"]')).toHaveLength(4);
+  expect(circle).toHaveAttribute('role', 'img');
+  expect(circle.querySelectorAll('[data-testid="fraction-circle-sector"]')).toHaveLength(4);
+  expect(screen.getAllByText('1 shaded, 3 unshaded')).toHaveLength(2);
+});

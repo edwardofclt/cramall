@@ -34,13 +34,59 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
     }
   };
 
-  const view = (kind: string) => (
-    <div data-testid="fraction-view" data-kind={kind}>
-      {Array.from({ length: config.denominator }, (_, index) => (
-        <span key={index} data-state={index < numerator ? 'shaded' : 'unshaded'}>
-          {index < numerator ? 'shaded' : 'unshaded'}
-        </span>
-      ))}
+  const stateFor = (index: number) => index < numerator ? 'shaded' : 'unshaded';
+  const summary = `${numerator} shaded, ${config.denominator - numerator} unshaded`;
+  const sectorPath = (index: number) => {
+    const start = (index / config.denominator) * Math.PI * 2 - Math.PI / 2;
+    const end = ((index + 1) / config.denominator) * Math.PI * 2 - Math.PI / 2;
+    const point = (angle: number) => [50 + 46 * Math.cos(angle), 50 + 46 * Math.sin(angle)];
+    const [startX, startY] = point(start);
+    const [endX, endY] = point(end);
+    return `M 50 50 L ${startX} ${startY} A 46 46 0 0 1 ${endX} ${endY} Z`;
+  };
+
+  const barView = (
+    <div className="fraction-view" data-testid="fraction-view" data-kind="bars">
+      <div
+        className="fraction-bar-model"
+        data-testid="fraction-bar-model"
+        role="img"
+        aria-label={`Fraction bar: ${summary}`}
+      >
+        {Array.from({ length: config.denominator }, (_, index) => (
+          <span
+            key={index}
+            className="fraction-bar-segment"
+            data-testid="fraction-bar-segment"
+            data-state={stateFor(index)}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
+      <p className="fraction-model-summary">{summary}</p>
+    </div>
+  );
+
+  const circleView = (
+    <div className="fraction-view" data-testid="fraction-view" data-kind="circles">
+      <svg
+        className="fraction-circle-model"
+        data-testid="fraction-circle-model"
+        role="img"
+        aria-label={`Fraction circle: ${summary}`}
+        viewBox="0 0 100 100"
+      >
+        {Array.from({ length: config.denominator }, (_, index) => (
+          <path
+            key={index}
+            className="fraction-circle-sector"
+            data-testid="fraction-circle-sector"
+            data-state={stateFor(index)}
+            d={sectorPath(index)}
+          />
+        ))}
+      </svg>
+      <p className="fraction-model-summary">{summary}</p>
     </div>
   );
 
@@ -64,8 +110,8 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
           </button>
         ))}
       </div>
-      {config.mode !== 'circles' && view('bars')}
-      {config.mode !== 'bars' && view('circles')}
+      {config.mode !== 'circles' && barView}
+      {config.mode !== 'bars' && circleView}
       <p role="status">{completed ? 'Equivalent fraction complete.' : 'Choose the shaded amount.'}</p>
     </section>
   );
