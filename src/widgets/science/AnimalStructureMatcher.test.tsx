@@ -61,6 +61,39 @@ test('keeps a selected structure and existing visible match clear without color'
   expect(screen.getByRole('button', { name: 'Select Fish fin' })).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('clears selected and matched state immediately when a new config removes the selected id', async () => {
+  const user = userEvent.setup();
+  const view = render(<AnimalStructureMatcher config={config} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Bird beak' }));
+  await user.click(screen.getByRole('button', { name: 'Match gathers food' }));
+  await user.click(screen.getByRole('button', { name: 'Select Fish fin' }));
+
+  view.rerender(<AnimalStructureMatcher config={{
+    pairs: [
+      { id: 'shell', animal: 'Turtle', structure: 'shell', function: 'stays safe' },
+      { id: 'tail', animal: 'Squirrel', structure: 'tail', function: 'balances' },
+    ],
+  }} onEvent={vi.fn()} />);
+
+  expect(screen.getByText('Selected: none')).toBeInTheDocument();
+  expect(screen.getByTestId('animal-match-shell')).toHaveTextContent('No function matched yet.');
+  expect(screen.getByRole('button', { name: 'Match stays safe' })).toBeDisabled();
+});
+
+test('uses natural, specific feedback for each correct match and completion', async () => {
+  const user = userEvent.setup();
+  render(<AnimalStructureMatcher config={config} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Bird beak' }));
+  await user.click(screen.getByRole('button', { name: 'Match gathers food' }));
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The Bird's beak helps it gather food. Select another structure.");
+
+  await user.click(screen.getByRole('button', { name: 'Select Fish fin' }));
+  await user.click(screen.getByRole('button', { name: 'Match swims' }));
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The Fish's fin helps it swim. All matches are complete.");
+});
+
 test('allows a completed match to be corrected back to matching without another completion', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();

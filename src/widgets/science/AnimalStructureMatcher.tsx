@@ -1,24 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
+const INITIAL_STATUS = 'Select a structure, then choose the function it helps an animal perform.';
+
+function actionPhrase(functionLabel: string) {
+  const [verb, ...rest] = functionLabel.split(' ');
+  const baseVerb = verb === 'has' ? 'have'
+    : verb === 'does' ? 'do'
+      : verb === 'goes' ? 'go'
+        : verb.endsWith('ies') ? `${verb.slice(0, -3)}y`
+          : /(ches|shes|xes|zes|ses)$/.test(verb) ? verb.slice(0, -2)
+            : verb.endsWith('s') && !verb.endsWith('ss') ? verb.slice(0, -1)
+              : verb;
+  return [baseVerb, ...rest].join(' ');
+}
+
 export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<'animal-structure-matcher'>) {
   const key = JSON.stringify(config);
-  const [selected, setSelected] = useState<string | null>(null);
-  const [matches, setMatches] = useState<Record<string, string>>({});
-  const [status, setStatus] = useState('Select a structure, then choose the function it helps an animal perform.');
+  const emptyState = () => ({ key, selected: null as string | null, matches: {} as Record<string, string>, status: INITIAL_STATUS });
+  const [state, setState] = useState(emptyState);
+  const currentState = state.key === key ? state : emptyState();
+  if (state.key !== key) setState(currentState);
+  const { selected, matches, status } = currentState;
   const { completeOnce } = useCompletionLatch(key);
   const pairFor = (id: string) => config.pairs.find((pair) => pair.id === id)!;
   const liveComplete = config.pairs.every((pair) => matches[pair.id] === pair.function);
 
-  useEffect(() => {
-    setSelected(null);
-    setMatches({});
-    setStatus('Select a structure, then choose the function it helps an animal perform.');
-  }, [key]);
-
   const emit = (next: Record<string, string>, action: 'select-structure' | 'match' | 'reset') => {
-    setMatches(next);
+    setState((previous) => previous.key === key ? { ...previous, matches: next } : previous);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { matches: next } });
     if (config.pairs.every((pair) => next[pair.id] === pair.function)) {
@@ -27,8 +37,7 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
   };
   const select = (id: string) => {
     const pair = pairFor(id);
-    setSelected(id);
-    setStatus(`Selected: ${pair.animal} ${pair.structure}. Choose the function this structure helps it perform.`);
+    setState({ key, selected: id, matches, status: `Selected: ${pair.animal} ${pair.structure}. Choose the function this structure helps it perform.` });
     emit(matches, 'select-structure');
   };
   const match = (fn: string) => {
@@ -36,17 +45,14 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
     const pair = pairFor(selected);
     const next = { ...matches, [selected]: fn };
     const correct = pair.function === fn;
-    setSelected(null);
-    setStatus(correct
-      ? (config.pairs.every((item) => next[item.id] === item.function)
-        ? 'Every structure is matched to its function.'
-        : `Correct: A ${pair.animal}'s ${pair.structure} helps it perform “${fn}.” Select another structure.`)
-      : `${fn} does not match the ${pair.animal}'s ${pair.structure}. Select that structure again to choose another function.`);
+    const feedback = correct
+      ? `Correct: The ${pair.animal}'s ${pair.structure} helps it ${actionPhrase(fn)}.${config.pairs.every((item) => next[item.id] === item.function) ? ' All matches are complete.' : ' Select another structure.'}`
+      : `${fn} does not match the ${pair.animal}'s ${pair.structure}. Select that structure again to choose another function.`;
+    setState({ key, selected: null, matches: next, status: feedback });
     emit(next, 'match');
   };
   const reset = () => {
-    setSelected(null);
-    setStatus('Select a structure, then choose the function it helps an animal perform.');
+    setState(emptyState());
     emit({}, 'reset');
   };
 
