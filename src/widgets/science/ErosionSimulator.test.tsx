@@ -46,7 +46,7 @@ test('makes vegetation a visible movement comparison for soil and marks an old r
   await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'testing');
   expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
-  expect(screen.getByRole('status')).toHaveTextContent(/inputs changed.*run/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/displayed result.*stale.*run/i);
   await user.click(screen.getByRole('button', { name: 'Run erosion' }));
   expect(screen.getByTestId('erosion-after-geometry')).not.toHaveAttribute('data-pattern', barePattern!);
   expect(screen.getByTestId('erosion-after')).toHaveTextContent(/vegetation.*less movement.*not stop all erosion/i);
@@ -139,6 +139,23 @@ test('restores the displayed result when controls return to the last run inputs'
   expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'no');
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/current input matches the displayed/i);
+});
+
+test('retains stale guidance for a no-op selection while any last-run input remains different', async () => {
+  const user = userEvent.setup();
+  render(<ErosionSimulator config={{ terrain: 'soil', agents: ['water', 'wind'], vegetation: false, targetAgent: 'water' }} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Run erosion' }));
+  await user.click(screen.getByRole('button', { name: 'Use wind' }));
+  await user.click(screen.getByRole('button', { name: 'Use wind' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
+  expect(screen.getByRole('status')).toHaveTextContent(/displayed result.*stale/i);
+
+  await user.click(screen.getByRole('button', { name: 'Use water' }));
+  await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
+  await user.click(screen.getByRole('button', { name: 'Use water' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
+  expect(screen.getByRole('status')).toHaveTextContent(/displayed result.*stale/i);
 });
 
 test('reset and a direct config rerender restore authored initial controls and pre-run output', async () => {

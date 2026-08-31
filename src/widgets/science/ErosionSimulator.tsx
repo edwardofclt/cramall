@@ -54,10 +54,9 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
     emit(next, action);
     const changed = next.agent !== inputs.agent || next.vegetation !== inputs.vegetation;
     const matchesLastRun = lastRun !== null && next.agent === lastRun.agent && next.vegetation === lastRun.vegetation;
-    setStatus(matchesLastRun
-      ? 'The current input matches the displayed authored model result.'
-      : changed ? lastRun ? 'Inputs changed; the displayed result is stale. Run the authored erosion model again.' : 'Inputs changed; run the authored erosion model.'
-        : 'Choose an erosion agent, then run the authored model.');
+    setStatus(lastRun
+      ? matchesLastRun ? 'The current input matches the displayed authored model result.' : 'Inputs differ from the displayed result, which is stale. Run the authored erosion model again.'
+      : changed ? 'Inputs changed; run the authored erosion model.' : 'Choose an erosion agent, then run the authored model.');
   };
   const run = () => {
     emit(inputs, 'run');
