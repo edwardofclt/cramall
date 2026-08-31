@@ -142,6 +142,10 @@ export type WidgetEventMap = {
     | {type:'interaction';action:'select-excerpt'|'place-structure'|'reset'}
     | {type:'change';value:{placements:Record<string,string>}}
     | {type:'complete';value:{placements:Record<string,string>}};
+  'summary-builder':
+    | {type:'interaction';action:'toggle-sentence'|'reset'}
+    | {type:'change';value:{selectedIds:string[]}}
+    | {type:'complete';value:{selectedIds:string[]}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -193,4 +197,5 @@ export const widgetRegistry = {
   'theme-evidence-collector': lazy(() => import('./reading/ThemeEvidenceCollector')),
   'central-idea-organizer': lazy(() => import('./reading/CentralIdeaOrganizer')),
   'text-structure-sorter': lazy(() => import('./reading/TextStructureSorter')),
+  'summary-builder': lazy(() => import('./reading/SummaryBuilder')),
 } satisfies WidgetRegistry;

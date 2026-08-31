@@ -162,6 +162,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['text-structure-sorter'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'summary-builder': {
+      const Widget = widgetRegistry['summary-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

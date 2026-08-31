@@ -2422,3 +2422,14 @@ body {
 .text-structure-excerpt p { margin: 0; font-weight: 700; line-height: 1.5; }
 .text-structure-excerpt button, .text-structure-bins button, .text-structure-controls button { min-height: 44px; }
 .text-structure-placement { display: block; min-block-size: 1.5em; padding: .2rem .4rem; border-inline-start: 5px solid var(--c-ink); font-weight: 800; }
+.widget-experiment.summary { display: grid; gap: .75rem; }
+.widget-experiment.summary header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
+.summary-source-sentences { display: grid; gap: .5rem; }
+.summary-source-sentences button { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
+.summary-source-sentences button[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.summary-selection-marker { font-weight: 900; white-space: nowrap; }
+.summary-current { display: grid; gap: .35rem; padding: .65rem; border: 3px solid var(--c-ink); border-radius: .65rem; }
+.summary-current h4, .summary-current p, .summary-current ol { margin: 0; }
+.summary-current ol { display: grid; gap: .25rem; padding-inline-start: 1.5rem; }
+.summary-valid-marker { justify-self: start; padding: .15rem .4rem; border: 2px solid var(--c-ink); border-radius: .35rem; }
+.summary-controls button { min-height: 44px; }

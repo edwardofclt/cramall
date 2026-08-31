@@ -41,6 +41,7 @@ export const WIDGET_TYPES = [
   'theme-evidence-collector',
   'central-idea-organizer',
   'text-structure-sorter',
+  'summary-builder',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1217,6 +1218,39 @@ export const TextStructureSorterWidgetRefSchema=z.object({
   config:TextStructureSorterWidgetConfigSchema,
 }).strict();
 
+const SummaryTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const SummarySentenceSchema=z.object({
+  id:SummaryTextSchema,
+  text:SummaryTextSchema,
+  role:z.enum(['main','detail','extra']),
+}).strict();
+const summaryVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+
+export const SummaryBuilderWidgetConfigSchema=z.object({
+  sourceSentences:z.array(SummarySentenceSchema).min(3),
+  requiredMainIds:z.array(SummaryTextSchema).min(1),
+  maxSentences:z.number().int().min(1).max(5),
+}).strict().superRefine((value,context)=>{
+  const ids=value.sourceSentences.map((sentence)=>summaryVisualKey(sentence.id));
+  const texts=value.sourceSentences.map((sentence)=>summaryVisualKey(sentence.text));
+  const required=value.requiredMainIds.map(summaryVisualKey);
+  const requiredAreValid=value.requiredMainIds.every((id)=>
+    value.sourceSentences.some((sentence)=>sentence.id===id&&sentence.role==='main'),
+  );
+  if(new Set(ids).size!==ids.length
+    ||new Set(texts).size!==texts.length
+    ||new Set(required).size!==required.length
+    ||!requiredAreValid
+    ||value.requiredMainIds.length>value.maxSentences){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'summary sentences, required main ids, and limit must be unique and valid'});
+  }
+});
+
+export const SummaryBuilderWidgetRefSchema=z.object({
+  type:z.literal('summary-builder'),
+  config:SummaryBuilderWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1255,6 +1289,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ThemeEvidenceCollectorWidgetRefSchema,
   CentralIdeaOrganizerWidgetRefSchema,
   TextStructureSorterWidgetRefSchema,
+  SummaryBuilderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
