@@ -1,4 +1,5 @@
 import { expect, test } from 'vitest';
+import { normalizeAnswerText } from '../content/answer-normalization';
 import type { Question } from '../content/schema';
 import {
   buildResult,
@@ -219,6 +220,7 @@ test('gradeAnswer: returns false (not throws) for a type-mismatched Answer shape
 // --- normalizeText ---
 
 test('normalizeText: trims, lowercases, collapses whitespace, strips commas', () => {
+  expect(normalizeText).toBe(normalizeAnswerText);
   expect(normalizeText(' 1,204 ')).toBe('1204');
   expect(normalizeText('  Hello   World  ')).toBe('hello world');
   expect(normalizeText('A,B,C')).toBe('abc');

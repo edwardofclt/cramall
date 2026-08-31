@@ -204,6 +204,19 @@ test('multiple-choice rejects duplicate choice ids and normalized visible answer
   expect(errors).toMatch(/duplicate choice text/i);
 });
 
+test('multiple-choice rejects visible answers that differ only by spacing around plus signs', () => {
+  const lesson = makeLesson();
+  const question = lesson.quiz.pool[0];
+  if (question?.type !== 'multiple-choice') throw new Error('fixture must be multiple-choice');
+  question.choices = [
+    { id: 'spaced', text: '300 + 40' },
+    { id: 'compact', text: '300+40' },
+  ];
+  question.correctChoiceId = 'spaced';
+
+  expect(validateLesson(lesson).join('\n')).toMatch(/duplicate choice text/i);
+});
+
 test('sort rejects duplicate item ids and normalized visible item text', () => {
   const lesson = makeLesson();
   lesson.quiz.pool[0] = {
@@ -224,6 +237,25 @@ test('sort rejects duplicate item ids and normalized visible item text', () => {
 
   expect(errors).toMatch(/duplicate sort item id/i);
   expect(errors).toMatch(/duplicate sort item text/i);
+});
+
+test('sort rejects visible items that differ only by spacing around plus signs', () => {
+  const lesson = makeLesson();
+  lesson.quiz.pool[0] = {
+    id: 'math-u01-l01-q01',
+    type: 'sort',
+    prompt: 'Order these',
+    items: [
+      { id: 'spaced', text: '300 + 40' },
+      { id: 'compact', text: '300+40' },
+    ],
+    correctOrder: ['spaced', 'compact'],
+    explanation: 'Order by value.',
+    conceptTag: 'adding',
+    reviewCardId: 'math-u01-l01-c1',
+  };
+
+  expect(validateLesson(lesson).join('\n')).toMatch(/duplicate sort item text/i);
 });
 
 test('place-value widget config rejects invalid periods and targets outside its columns', () => {

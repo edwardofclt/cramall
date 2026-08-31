@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { normalizeAnswerText } from './answer-normalization';
 
 export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare'] as const;
 
@@ -64,7 +65,7 @@ export const InlineCheckSchema = z.object({
       message: 'check choice ids must be unique',
     });
   }
-  if (new Set(check.choices.map((choice) => normalizedVisibleText(choice.text))).size !== check.choices.length) {
+  if (new Set(check.choices.map((choice) => normalizeAnswerText(choice.text))).size !== check.choices.length) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['choices'],
@@ -256,15 +257,6 @@ export type Subject = {
   units: Unit[];
 };
 
-function normalizedVisibleText(value: string): string {
-  return value
-    .normalize('NFKC')
-    .toLocaleLowerCase('en-US')
-    .replace(/,/g, '')
-    .trim()
-    .replace(/\s+/g, ' ');
-}
-
 function duplicateValues(values: string[]): string[] {
   const seen = new Set<string>();
   const duplicates = new Set<string>();
@@ -309,7 +301,7 @@ export function validateLesson(lesson: Lesson): string[] {
     if (q.type === 'multiple-choice' || q.type === 'true-false') {
       if (duplicateValues(q.choices.map((choice) => choice.id)).length > 0)
         errors.push(`${q.id}: duplicate choice id`);
-      if (duplicateValues(q.choices.map((choice) => normalizedVisibleText(choice.text))).length > 0)
+      if (duplicateValues(q.choices.map((choice) => normalizeAnswerText(choice.text))).length > 0)
         errors.push(`${q.id}: duplicate choice text after normalization`);
       if (!q.choices.some((c) => c.id === q.correctChoiceId))
         errors.push(`${q.id}: correctChoiceId "${q.correctChoiceId}" not in choices`);
@@ -317,7 +309,7 @@ export function validateLesson(lesson: Lesson): string[] {
     if (q.type === 'sort') {
       if (duplicateValues(q.items.map((item) => item.id)).length > 0)
         errors.push(`${q.id}: duplicate sort item id`);
-      if (duplicateValues(q.items.map((item) => normalizedVisibleText(item.text))).length > 0)
+      if (duplicateValues(q.items.map((item) => normalizeAnswerText(item.text))).length > 0)
         errors.push(`${q.id}: duplicate sort item text after normalization`);
       const itemIds = new Set(q.items.map((i) => i.id));
       const unique = new Set(q.correctOrder);

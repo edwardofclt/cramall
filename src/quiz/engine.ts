@@ -1,3 +1,4 @@
+import { normalizeAnswerText } from '../content/answer-normalization';
 import type { Question } from '../content/schema';
 
 export type Answer = string | string[]; // choiceId | typed text | ordered item ids
@@ -46,15 +47,7 @@ export function shuffleChoices<T extends Question>(question: T, rng: () => numbe
   return { ...q, choices: shuffle([...q.choices], rng) } as T;
 }
 
-/** trim, lowercase, collapse internal whitespace, strip commas, and normalize expanded-form addends. */
-export function normalizeText(s: string): string {
-  return s
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/,/g, '')
-    .replace(/\s*\+\s*/g, '+');
-}
+export const normalizeText = normalizeAnswerText;
 
 export function gradeAnswer(q: Question, answer: Answer): boolean {
   switch (q.type) {
