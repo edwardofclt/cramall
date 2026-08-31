@@ -28,6 +28,7 @@ export const WIDGET_TYPES = [
   'wave-maker',
   'light-reflection-eye',
   'message-sender',
+  'energy-conversion-designer',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -768,6 +769,51 @@ export const MessageSenderWidgetConfigSchema = z.object({
 
 export const MessageSenderWidgetRefSchema = z.object({ type: z.literal('message-sender'), config: MessageSenderWidgetConfigSchema }).strict();
 
+const EnergyTermSchema = z.string().trim().min(1);
+const EnergyComponentSchema = z.object({
+  id: EnergyTermSchema,
+  label: EnergyTermSchema,
+  energyIn: EnergyTermSchema,
+  energyOut: EnergyTermSchema,
+}).strict();
+
+function hasCompatibleEnergyPath(components: Array<{ id: string; energyIn: string; energyOut: string }>, start: string, end: string) {
+  const byId = new Map(components.map((component) => [component.id, component]));
+  const pending = [start];
+  const visited = new Set([start]);
+  while (pending.length) {
+    const currentId = pending.shift()!;
+    if (currentId === end) return true;
+    const current = byId.get(currentId)!;
+    for (const next of components) {
+      if (!visited.has(next.id) && current.energyOut === next.energyIn) {
+        visited.add(next.id);
+        pending.push(next.id);
+      }
+    }
+  }
+  return false;
+}
+
+export const EnergyConversionDesignerWidgetConfigSchema = z.object({
+  components: z.array(EnergyComponentSchema).min(2),
+  requiredStart: EnergyTermSchema,
+  requiredEnd: EnergyTermSchema,
+}).strict().superRefine((value, context) => {
+  const ids = value.components.map((component) => component.id);
+  const labels = value.components.map((component) => component.label);
+  const endpointsExist = ids.includes(value.requiredStart) && ids.includes(value.requiredEnd);
+  if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length || !endpointsExist || value.requiredStart === value.requiredEnd) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'component ids and labels must be unique and required endpoints must exist and differ' });
+    return;
+  }
+  if (!hasCompatibleEnergyPath(value.components, value.requiredStart, value.requiredEnd)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'no compatible path connects required endpoints' });
+  }
+});
+
+export const EnergyConversionDesignerWidgetRefSchema = z.object({ type: z.literal('energy-conversion-designer'), config: EnergyConversionDesignerWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -793,6 +839,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   WaveMakerWidgetRefSchema,
   LightReflectionEyeWidgetRefSchema,
   MessageSenderWidgetRefSchema,
+  EnergyConversionDesignerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

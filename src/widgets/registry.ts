@@ -90,6 +90,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'append-symbol' | 'remove-symbol' | 'send' | 'reset' }
     | { type: 'change'; value: { encoded: string } }
     | { type: 'complete'; value: { encoded: string; decoded: string } };
+  'energy-conversion-designer':
+    | { type: 'interaction'; action: 'append-chain' | 'reset' }
+    | { type: 'change'; value: { chain: string[] } }
+    | { type: 'complete'; value: { chain: string[] } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -128,4 +132,5 @@ export const widgetRegistry = {
   'wave-maker': lazy(() => import('./science/WaveMaker')),
   'light-reflection-eye': lazy(() => import('./science/LightReflectionEye')),
   'message-sender': lazy(() => import('./science/MessageSender')),
+  'energy-conversion-designer': lazy(() => import('./science/EnergyConversionDesigner')),
 } satisfies WidgetRegistry;
