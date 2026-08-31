@@ -2444,3 +2444,17 @@ body {
 .pov-valid-marker { justify-self: start; padding: .15rem .4rem; border: 2px solid var(--c-ink); border-radius: .35rem; }
 .pov-controls { display: flex; flex-wrap: wrap; gap: .5rem; }
 .pov-controls button { min-height: 44px; }
+.widget-experiment.figurative { display: grid; gap: .75rem; }
+.widget-experiment.figurative header p, .figurative-pair blockquote, .figurative-pair p { margin: 0; }
+.widget-experiment.figurative header p { color: var(--c-ink-soft); font-weight: 700; }
+.figurative-pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: .65rem; }
+.figurative-pair { display: grid; gap: .5rem; align-content: start; padding: .7rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.figurative-pair[data-selected="yes"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.figurative-pair blockquote { font-size: 1.05rem; font-weight: 900; line-height: 1.5; }
+.figurative-pair button { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: .5rem; text-align: left; }
+.figurative-selection-marker { font-weight: 900; white-space: nowrap; }
+.figurative-pair output { display: block; min-block-size: 1.5em; padding: .2rem .4rem; border-inline-start: 5px solid var(--c-ink); font-weight: 800; }
+.figurative-kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .5rem; }
+.figurative-kinds button, .figurative-reset { min-height: 44px; }
+.figurative-valid-marker { justify-self: start; padding: .15rem .4rem; border: 2px solid var(--c-ink); border-radius: .35rem; }
+.figurative-reset { justify-self: start; }

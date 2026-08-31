@@ -43,6 +43,7 @@ export const WIDGET_TYPES = [
   'text-structure-sorter',
   'summary-builder',
   'pov-switcher',
+  'figurative-language-matcher',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1300,6 +1301,38 @@ export const PovSwitcherWidgetRefSchema=z.object({
   config:PovSwitcherWidgetConfigSchema,
 }).strict();
 
+const FigurativeKindSchema=z.enum(['simile','metaphor','personification','idiom']);
+const FigurativeTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ').normalize('NFC')).pipe(z.string().min(1));
+const figurativeVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const isArrayIndexKey=(value:string)=>{
+  if(!/^(?:0|[1-9]\d*)$/.test(value))return false;
+  const numeric=Number(value);
+  return Number.isInteger(numeric)&&numeric>=0&&numeric<=4294967294&&String(numeric)===value;
+};
+const FigurativeIdSchema=FigurativeTextSchema.refine((value)=>!isArrayIndexKey(value),'pair id must not be a JavaScript array-index key');
+const FigurativePairSchema=z.object({
+  id:FigurativeIdSchema,
+  phrase:FigurativeTextSchema,
+  kind:FigurativeKindSchema,
+  meaning:FigurativeTextSchema,
+}).strict();
+
+export const FigurativeLanguageMatcherWidgetConfigSchema=z.object({
+  pairs:z.array(FigurativePairSchema).min(2),
+}).strict().superRefine((value,context)=>{
+  const ids=value.pairs.map((pair)=>figurativeVisualKey(pair.id));
+  const phrases=value.pairs.map((pair)=>figurativeVisualKey(pair.phrase));
+  const meanings=value.pairs.map((pair)=>figurativeVisualKey(pair.meaning));
+  if(new Set(ids).size!==ids.length||new Set(phrases).size!==phrases.length||new Set(meanings).size!==meanings.length){
+    context.addIssue({code:z.ZodIssueCode.custom,path:['pairs'],message:'pair ids, phrases, and meanings must be unique after normalization'});
+  }
+});
+
+export const FigurativeLanguageMatcherWidgetRefSchema=z.object({
+  type:z.literal('figurative-language-matcher'),
+  config:FigurativeLanguageMatcherWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1340,6 +1373,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   TextStructureSorterWidgetRefSchema,
   SummaryBuilderWidgetRefSchema,
   PovSwitcherWidgetRefSchema,
+  FigurativeLanguageMatcherWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

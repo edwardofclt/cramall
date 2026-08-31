@@ -170,6 +170,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['pov-switcher'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'figurative-language-matcher': {
+      const Widget = widgetRegistry['figurative-language-matcher'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

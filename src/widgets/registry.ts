@@ -150,6 +150,10 @@ export type WidgetEventMap = {
     | {type:'interaction';action:'select-pronoun'|'apply'|'reset'}
     | {type:'change';value:{selectedPronouns:string[]}}
     | {type:'complete';value:{rewrittenText:string}};
+  'figurative-language-matcher':
+    | {type:'interaction';action:'select-phrase'|'match'|'reset'}
+    | {type:'change';value:{matches:Record<string,string>}}
+    | {type:'complete';value:{matches:Record<string,string>}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -203,4 +207,5 @@ export const widgetRegistry = {
   'text-structure-sorter': lazy(() => import('./reading/TextStructureSorter')),
   'summary-builder': lazy(() => import('./reading/SummaryBuilder')),
   'pov-switcher': lazy(() => import('./reading/PovSwitcher')),
+  'figurative-language-matcher': lazy(() => import('./reading/FigurativeLanguageMatcher')),
 } satisfies WidgetRegistry;
