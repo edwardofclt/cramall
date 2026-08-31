@@ -1,5 +1,5 @@
 import { Component, Suspense, type ErrorInfo, type ReactNode } from 'react';
-import type { WidgetRef } from '../content/schema';
+import type { WidgetConfig, WidgetType } from '../content/schema';
 import { widgetRegistry, type WidgetEventHandler } from './registry';
 
 /** A widget that breaks is never allowed to break the lesson — this is what shows instead. */
@@ -32,21 +32,38 @@ class WidgetErrorBoundary extends Component<BoundaryProps, BoundaryState> {
   }
 }
 
-export type WidgetFrameProps = WidgetRef & { onEvent: WidgetEventHandler };
+export type WidgetFrameProps = {
+  [T in WidgetType]: { type: T; config: WidgetConfig<T>; onEvent: WidgetEventHandler<T> };
+}[WidgetType];
+
+function RenderWidget(ref: WidgetFrameProps) {
+  switch (ref.type) {
+    case 'place-value-builder': {
+      const Widget = widgetRegistry['place-value-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'number-line-compare': {
+      const Widget = widgetRegistry['number-line-compare'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    default: {
+      const exhaustive: never = ref;
+      void exhaustive;
+      return <NappingWidget />;
+    }
+  }
+}
 
 /**
  * Loads a widget by type: lazily (so widget code stays out of the first paint) and behind
  * an error boundary (so a crash degrades to a friendly card). An unknown type is treated
  * the same as a crash — content referencing a widget nobody built still renders a lesson.
  */
-export function WidgetFrame({ type, config, onEvent }: WidgetFrameProps) {
-  const Widget = widgetRegistry[type];
-  if (!Widget) return <NappingWidget />;
-
+export function WidgetFrame(ref: WidgetFrameProps) {
   return (
     // Keying by type gives a swapped-in widget a fresh boundary instead of inheriting the
     // previous one's failed state.
-    <WidgetErrorBoundary key={type}>
+    <WidgetErrorBoundary key={ref.type}>
       <Suspense
         fallback={
           <div className="card widget-loading" data-testid="widget-loading">
@@ -54,7 +71,7 @@ export function WidgetFrame({ type, config, onEvent }: WidgetFrameProps) {
           </div>
         }
       >
-        <Widget config={config} onEvent={onEvent} />
+        <RenderWidget {...ref} />
       </Suspense>
     </WidgetErrorBoundary>
   );
