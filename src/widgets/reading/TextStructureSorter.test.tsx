@@ -115,3 +115,15 @@ test('normalizes authoring text and rejects blank, equivalent, or unsupported ex
   expect(TextStructureSorterWidgetConfigSchema.safeParse({excerpts:[config.excerpts[0],{id:'other',text:'Other',structure:'chronological'}]}).success).toBe(false);
   expect(TextStructureSorterWidgetConfigSchema.safeParse({excerpts:[config.excerpts[0],{id:' ',text:'Other',structure:'description'}]}).success).toBe(false);
 });
+
+test('rejects digit-only IDs before Record property ordering can change authored order',()=>{
+  // Allowing either numeric ID would let JavaScript reorder the placement payload as 2,10.
+  const numericIds={excerpts:[
+    {id:'10',text:'Rain fell, so the field flooded.',structure:'cause-effect'},
+    {id:'2',text:'First mix, then bake.',structure:'sequence'},
+  ]};
+  expect(TextStructureSorterWidgetConfigSchema.safeParse(numericIds).success).toBe(false);
+  expect(TextStructureSorterWidgetConfigSchema.safeParse({...numericIds,excerpts:[numericIds.excerpts[0],{...numericIds.excerpts[1],id:'steps'}]}).success).toBe(false);
+  expect(TextStructureSorterWidgetConfigSchema.safeParse({...numericIds,excerpts:[{...numericIds.excerpts[0],id:'rain'},numericIds.excerpts[1]]}).success).toBe(false);
+  expect(TextStructureSorterWidgetConfigSchema.safeParse({...numericIds,excerpts:[{...numericIds.excerpts[0],id:'rain-10'},{...numericIds.excerpts[1],id:'steps-2'}]}).success).toBe(true);
+});

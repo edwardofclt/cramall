@@ -1194,9 +1194,10 @@ export const CentralIdeaOrganizerWidgetRefSchema=z.object({
 
 const TextStructureSchema=z.enum(['sequence','compare-contrast','cause-effect','problem-solution','description']);
 const TextStructureTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const TextStructureIdSchema=TextStructureTextSchema.refine((value)=>!/^\d+$/.test(value),'excerpt id must include a non-digit character');
 const textStructureVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
 const TextStructureExcerptSchema=z.object({
-  id:TextStructureTextSchema,
+  id:TextStructureIdSchema,
   text:TextStructureTextSchema,
   structure:TextStructureSchema,
 }).strict();
