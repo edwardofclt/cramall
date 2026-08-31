@@ -102,6 +102,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['wave-maker'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'light-reflection-eye': {
+      const Widget = widgetRegistry['light-reflection-eye'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

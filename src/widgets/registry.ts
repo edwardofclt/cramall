@@ -13,6 +13,7 @@ type MoneyCounts = Record<'1' | '5' | '10' | '25' | '100', number>;
 type MoneyValue = { totalCents: number; counts: MoneyCounts };
 type ClockValue = { hour: number; minute: number; totalMinutes: number };
 type BalanceValue = { leftTotal: number; rightTotal: number };
+type LightValue = { incidentAngle: number; reflectionAngle: number };
 
 export type WidgetEventMap = {
   'place-value-builder':
@@ -81,6 +82,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'change-amplitude' | 'change-frequency' | 'reset' }
     | { type: 'change'; value: { amplitude: number; frequency: number } }
     | { type: 'complete'; value: { amplitude: number; frequency: number } };
+  'light-reflection-eye':
+    | { type: 'interaction'; action: 'change-angle' | 'check' | 'reset' }
+    | { type: 'change'; value: LightValue }
+    | { type: 'complete'; value: LightValue };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -117,4 +122,5 @@ export const widgetRegistry = {
   'collision-ramp': lazy(() => import('./science/CollisionRamp')),
   'energy-transfer-builder': lazy(() => import('./science/EnergyTransferBuilder')),
   'wave-maker': lazy(() => import('./science/WaveMaker')),
+  'light-reflection-eye': lazy(() => import('./science/LightReflectionEye')),
 } satisfies WidgetRegistry;

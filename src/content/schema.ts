@@ -26,6 +26,7 @@ export const WIDGET_TYPES = [
   'collision-ramp',
   'energy-transfer-builder',
   'wave-maker',
+  'light-reflection-eye',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -721,6 +722,14 @@ export const WaveMakerWidgetConfigSchema = z.object({
 
 export const WaveMakerWidgetRefSchema = z.object({ type: z.literal('wave-maker'), config: WaveMakerWidgetConfigSchema }).strict();
 
+export const LightReflectionEyeWidgetConfigSchema = z.object({
+  incidentAngle: z.number().int().min(0).max(90),
+  targetAngle: z.number().int().min(0).max(90).optional(),
+  showEye: z.boolean().optional(),
+}).strict();
+
+export const LightReflectionEyeWidgetRefSchema = z.object({ type: z.literal('light-reflection-eye'), config: LightReflectionEyeWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -744,6 +753,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   CollisionRampWidgetRefSchema,
   EnergyTransferBuilderWidgetRefSchema,
   WaveMakerWidgetRefSchema,
+  LightReflectionEyeWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
