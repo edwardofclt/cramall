@@ -14,13 +14,18 @@ const points = [
   { id: 'trail', label: 'Trail marker', elevation: 300 },
 ];
 
-test('keeps every authored contour in a padded computed viewBox and provides a non-color elevation key', () => {
+test('keeps every authored contour in a padded computed viewBox and maps a visible contour ID to its exact elevation-key entry', () => {
   render(<TopographicMapExplorer config={{ contours, points }} onEvent={vi.fn()} />);
 
   const map = screen.getByLabelText('Topographic contour model');
   expect(map).toHaveAttribute('viewBox', '-50 -30 90 60');
-  expect(screen.getByRole('list', { name: 'Contour elevation key' })).toHaveTextContent('300 m contour');
-  expect(screen.getByRole('list', { name: 'Contour elevation key' })).toHaveTextContent('500 m contour');
+  const firstContour = screen.getByTestId('topographic-contour-C1');
+  const firstKeyEntry = screen.getByTestId('topographic-contour-key-C1');
+  expect(firstContour).toHaveAttribute('aria-label', 'Contour 1 (C1): 300 m');
+  expect(screen.getByText('C1', { selector: 'text' })).toBeInTheDocument();
+  expect(firstKeyEntry).toHaveTextContent('C1 — Contour 1: 300 m');
+  expect(screen.getByTestId('topographic-contour-C2')).toHaveAttribute('aria-label', 'Contour 2 (C2): 500 m');
+  expect(screen.getByTestId('topographic-contour-key-C2')).toHaveTextContent('C2 — Contour 2: 500 m');
 });
 
 test('presents named elevations as map-data key entries without inventing locations', () => {
@@ -105,4 +110,20 @@ test('rejects malformed, nonfinite, duplicate, blank, and missing-target map dat
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse({ ...valid, points: [{ id: ' ', label: 'Summit', elevation: 500 }, points[1]!] }).success).toBe(false);
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse({ ...valid, points: [{ id: 'summit', label: 'Summit', elevation: 500 }, { id: 'other', label: ' summit ', elevation: 300 }] }).success).toBe(false);
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse({ ...valid, targetPointId: 'missing' }).success).toBe(false);
+});
+
+test('rejects finite coordinates whose derived SVG bounds overflow and renders finite positive bounds for accepted large coordinates', () => {
+  const large = `1${'0'.repeat(300)}`;
+  const extreme = `1${'0'.repeat(308)}`;
+  const accepted = { contours: [{ elevation: 300, points: `-${large},0 ${large},1` }], points };
+  const rejected = { contours: [{ elevation: 300, points: `-${extreme},0 ${extreme},1` }], points };
+
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse(rejected).success).toBe(false);
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse(accepted).success).toBe(true);
+  render(<TopographicMapExplorer config={accepted} onEvent={vi.fn()} />);
+  const bounds = screen.getByLabelText('Topographic contour model').getAttribute('viewBox')!.split(' ').map(Number);
+  expect(bounds).toHaveLength(4);
+  expect(bounds.every(Number.isFinite)).toBe(true);
+  expect(bounds[2]).toBeGreaterThan(0);
+  expect(bounds[3]).toBeGreaterThan(0);
 });

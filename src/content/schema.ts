@@ -882,6 +882,19 @@ const CoordinateListSchema = TopographicTextSchema.refine(
   'coordinates must be numeric x,y pairs',
 );
 const parseCoordinates = (value: string) => value.split(' ').map((pair) => pair.split(',').map(Number) as [number, number]);
+const hasUsableTopographicBounds = (coordinates: [number, number][]) => {
+  const xs = coordinates.map(([x]) => x);
+  const ys = coordinates.map(([, y]) => y);
+  const padding = 10;
+  const width = Math.max(Math.max(...xs) - Math.min(...xs), 1) + padding * 2;
+  const height = Math.max(Math.max(...ys) - Math.min(...ys), 1) + padding * 2;
+  return Number.isFinite(Math.min(...xs) - padding)
+    && Number.isFinite(Math.min(...ys) - padding)
+    && Number.isFinite(width)
+    && Number.isFinite(height)
+    && width > 0
+    && height > 0;
+};
 const ContourSchema = z.object({
   elevation: z.number().finite(),
   points: CoordinateListSchema,
@@ -893,6 +906,9 @@ const ContourSchema = z.object({
   }
   if (new Set(coordinates.map(([x, y]) => `${x},${y}`)).size < 2) {
     context.addIssue({code: z.ZodIssueCode.custom, path: ['points'], message: 'a contour needs two distinct points'});
+  }
+  if (!hasUsableTopographicBounds(coordinates)) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['points'], message: 'coordinates must produce usable SVG bounds'});
   }
 });
 const TopographicPointSchema = z.object({

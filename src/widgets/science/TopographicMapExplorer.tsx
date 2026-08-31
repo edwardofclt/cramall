@@ -22,6 +22,8 @@ function contourViewBox(contours: WidgetProps<'topographic-map-explorer'>['confi
   return `${minX - padding} ${minY - padding} ${Math.max(maxX - minX, 1) + padding * 2} ${Math.max(maxY - minY, 1) + padding * 2}`;
 }
 
+const contourIdentifier = (index: number) => `C${index + 1}`;
+
 export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'topographic-map-explorer'>) {
   const key = JSON.stringify(config);
   const [selected, setSelected] = useState<string | null>(null);
@@ -81,14 +83,24 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
     <div className="topographic-model">
       <figure className="topographic-contours">
         <svg aria-label="Topographic contour model" viewBox={viewBox} role="img">
-          {config.contours.map((contour, index) => <polyline key={`${contour.elevation}-${index}`} points={contour.points} data-testid={`topographic-contour-${index}`} />)}
+          {config.contours.map((contour, index) => {
+            const identifier = contourIdentifier(index);
+            const [x, y] = parseCoordinates(contour.points)[0]!;
+            return <g key={`${contour.elevation}-${index}`}>
+              <polyline points={contour.points} data-testid={`topographic-contour-${identifier}`} aria-label={`Contour ${index + 1} (${identifier}): ${contour.elevation} m`} />
+              <text className="topographic-contour-label" x={x + 2} y={y - 2} aria-hidden="true">{identifier}</text>
+            </g>;
+          })}
         </svg>
         <figcaption>Contour lines are an authored model; named map-data entries are not plotted on this drawing.</figcaption>
       </figure>
       <section className="topographic-elevation-key" aria-labelledby="contour-elevation-key-title">
         <h4 id="contour-elevation-key-title">Contour elevation key</h4>
         <ul aria-label="Contour elevation key">
-          {config.contours.map((contour, index) => <li key={`${contour.elevation}-${index}`}>{contour.elevation} m contour</li>)}
+          {config.contours.map((contour, index) => {
+            const identifier = contourIdentifier(index);
+            return <li key={`${contour.elevation}-${index}`} data-testid={`topographic-contour-key-${identifier}`}>{identifier} — Contour {index + 1}: {contour.elevation} m</li>;
+          })}
         </ul>
       </section>
     </div>
