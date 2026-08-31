@@ -94,6 +94,22 @@ test('rejects empty pans and nonpositive weights', () => {
     right: [{ id: 'right-one', label: '1', value: 1 }],
     task: 'compare',
   }).success).toBe(true);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'left-large', label: 'large', value: 1e308 }],
+    right: [
+      { id: 'right-large', label: 'large', value: 1e308 },
+      { id: 'right-tiny', label: 'tiny', value: 1e-12 },
+    ],
+    task: 'compare',
+  }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [
+      { id: 'left-tenth', label: '0.1', value: 0.1 },
+      { id: 'left-two-tenths', label: '0.2', value: 0.2 },
+    ],
+    right: [{ id: 'right-three-tenths', label: '0.3', value: 0.3 }],
+    task: 'compare',
+  }).success).toBe(true);
 });
 
 test('makes active weights and each pan readable before a balance check completes', async () => {

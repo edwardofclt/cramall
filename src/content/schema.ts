@@ -4,6 +4,7 @@ import {
   MAX_BALANCE_DECIMAL_PLACES,
   compareExactDecimals,
   exactDecimalFromNumber,
+  exactDecimalRoundTripsNumber,
   sumExactDecimals,
   type ExactDecimal,
 } from './balance-decimals';
@@ -421,13 +422,25 @@ function hasReachableNonzeroBalance(
   ));
 }
 
-function hasFinitePanTotal(weights: Array<{ value: number }>) {
+function exactPanTotal(weights: Array<{ value: number }>): ExactDecimal | null {
   const values = weights.map((weight) => exactDecimalFromNumber(weight.value));
-  if (values.some((value) => !value)) return false;
-  return compareExactDecimals(
-    sumExactDecimals(values as ExactDecimal[]),
-    MAX_FINITE_BALANCE_TOTAL,
-  ) <= 0;
+  if (values.some((value) => !value)) return null;
+  return sumExactDecimals(values as ExactDecimal[]);
+}
+
+function hasSafeEmittedTotal(total: ExactDecimal) {
+  return compareExactDecimals(total, MAX_FINITE_BALANCE_TOTAL) <= 0
+    && exactDecimalRoundTripsNumber(total);
+}
+
+function hasSafeFullPanTotal(weights: Array<{ value: number }>) {
+  const total = exactPanTotal(weights);
+  return total !== null && hasSafeEmittedTotal(total);
+}
+
+function hasSafeSubsetTotals(weights: Array<{ value: number }>) {
+  const totals = subsetTotals(weights);
+  return totals.length > 0 && totals.every(hasSafeEmittedTotal);
 }
 
 export const BalanceScaleWidgetConfigSchema = z.object({
@@ -439,21 +452,25 @@ export const BalanceScaleWidgetConfigSchema = z.object({
   if (new Set(ids).size !== ids.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate ids' });
   }
-  if (!hasFinitePanTotal(value.left)) {
+  const makeEqual = value.task === 'make-equal';
+  const validatePan = makeEqual && ids.length <= MAX_MAKE_EQUAL_WEIGHTS
+    ? hasSafeSubsetTotals
+    : hasSafeFullPanTotal;
+  if (!validatePan(value.left)) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['left'],
-      message: 'left total must not exceed the largest finite number',
+      message: 'left totals must round-trip through a finite number exactly',
     });
   }
-  if (!hasFinitePanTotal(value.right)) {
+  if (!validatePan(value.right)) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['right'],
-      message: 'right total must not exceed the largest finite number',
+      message: 'right totals must round-trip through a finite number exactly',
     });
   }
-  if (value.task !== 'make-equal') return;
+  if (!makeEqual) return;
 
   if (ids.length > MAX_MAKE_EQUAL_WEIGHTS) {
     context.addIssue({

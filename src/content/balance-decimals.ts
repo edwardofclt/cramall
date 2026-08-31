@@ -57,3 +57,9 @@ export function exactDecimalToNumber(value: ExactDecimal) {
     : `${digits.slice(0, -value.scale)}.${digits.slice(-value.scale)}`;
   return Number(value.units < 0n ? `-${decimal}` : decimal);
 }
+
+export function exactDecimalRoundTripsNumber(value: ExactDecimal) {
+  const asNumber = exactDecimalToNumber(value);
+  const roundTripped = exactDecimalFromNumber(asNumber);
+  return roundTripped !== null && compareExactDecimals(value, roundTripped) === 0;
+}
