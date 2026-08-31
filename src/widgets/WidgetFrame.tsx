@@ -58,6 +58,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['area-model-multiplier'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'array-builder': {
+      const Widget = widgetRegistry['array-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

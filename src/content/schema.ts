@@ -7,6 +7,7 @@ export const WIDGET_TYPES = [
   'base-ten-blocks',
   'fraction-models',
   'area-model-multiplier',
+  'array-builder',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -240,6 +241,34 @@ export const AreaModelMultiplierWidgetRefSchema = z.object({
   config: AreaModelMultiplierWidgetConfigSchema,
 }).strict();
 
+export const ArrayBuilderWidgetConfigSchema = z.object({
+  rows: z.number().int().min(1).max(20),
+  columns: z.number().int().min(1).max(20),
+  targetProduct: z.number().int().min(1).max(400).optional(),
+  editable: z.boolean().optional(),
+}).strict().superRefine((value, context) => {
+  if (value.targetProduct === undefined) return;
+
+  const initial = value.rows * value.columns;
+  const reachable = initial === value.targetProduct || (
+    Boolean(value.editable) && Array.from({ length: 20 }, (_, index) => index + 1).some((rows) => (
+      value.targetProduct! % rows === 0 && value.targetProduct! / rows <= 20
+    ))
+  );
+  if (!reachable) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['targetProduct'],
+      message: 'target product is unreachable',
+    });
+  }
+});
+
+export const ArrayBuilderWidgetRefSchema = z.object({
+  type: z.literal('array-builder'),
+  config: ArrayBuilderWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -252,6 +281,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   BaseTenBlocksWidgetRefSchema,
   FractionModelsWidgetRefSchema,
   AreaModelMultiplierWidgetRefSchema,
+  ArrayBuilderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

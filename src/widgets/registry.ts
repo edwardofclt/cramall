@@ -30,6 +30,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-cell' | 'reset' }
     | { type: 'change'; value: { selectedCells: number; product: number } }
     | { type: 'complete'; value: { product: number } };
+  'array-builder':
+    | { type: 'interaction'; action: 'change-rows' | 'change-columns' | 'reset' }
+    | { type: 'change'; value: { rows: number; columns: number; product: number } }
+    | { type: 'complete'; value: { rows: number; columns: number; product: number } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -55,4 +59,5 @@ export const widgetRegistry = {
   'base-ten-blocks': lazy(() => import('./math/BaseTenBlocks')),
   'fraction-models': lazy(() => import('./math/FractionModels')),
   'area-model-multiplier': lazy(() => import('./math/AreaModelMultiplier')),
+  'array-builder': lazy(() => import('./math/ArrayBuilder')),
 } satisfies WidgetRegistry;

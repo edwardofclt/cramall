@@ -2194,3 +2194,11 @@ body {
 .area-model-selection { font-size: .8rem; font-weight: 700; }
 .area-model-reset { align-self: flex-start; min-width: 44px; min-height: 44px; }
 .area-model output { display: block; font-weight: 800; }
+.array-builder-controls { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.array-builder button { min-height: 44px; }
+.array-builder-description { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
+.array-builder-viewport { min-width: 0; max-width: 100%; max-height: 26rem; overflow: auto; padding: .125rem; border: 2px solid var(--c-ink); border-radius: .75rem; }
+.array-builder [data-widget-grid] { display: grid; width: max-content; min-width: 100%; gap: .25rem; }
+.array-builder [role="row"] { display: contents; }
+.array-builder-cell { display: grid; min-width: 24px; min-height: 24px; place-items: center; border: 1px solid var(--c-ink); background: var(--c-card); color: var(--c-ink); font-size: .8rem; }
+.array-builder output { display: block; font-weight: 800; }
