@@ -699,8 +699,9 @@ export const CollisionRampWidgetRefSchema = z.object({
   config: CollisionRampWidgetConfigSchema,
 }).strict();
 
+const EnergyTransferTokenSchema = z.string().trim().min(1);
 export const EnergyTransferBuilderWidgetConfigSchema = z.object({
-  sources: z.array(z.string().min(1)).min(1), transfers: z.array(z.string().min(1)).min(1), targets: z.array(z.string().min(1)).min(1), requiredPath: z.array(z.string().min(1)).min(3),
+  sources: z.array(EnergyTransferTokenSchema).min(1), transfers: z.array(EnergyTransferTokenSchema).min(1), targets: z.array(EnergyTransferTokenSchema).min(1), requiredPath: z.array(EnergyTransferTokenSchema).min(3),
 }).strict().superRefine((value, context) => {
   const all = [...value.sources, ...value.transfers, ...value.targets];
   if (new Set(all).size !== all.length) context.addIssue({ code: z.ZodIssueCode.custom, message: 'source, transfer, and target tokens must be unique and disjoint' });
