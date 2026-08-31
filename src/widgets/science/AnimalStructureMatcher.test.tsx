@@ -87,11 +87,29 @@ test('uses natural, specific feedback for each correct match and completion', as
 
   await user.click(screen.getByRole('button', { name: 'Select Bird beak' }));
   await user.click(screen.getByRole('button', { name: 'Match gathers food' }));
-  expect(screen.getByRole('status')).toHaveTextContent("Correct: The Bird's beak helps it gather food. Select another structure.");
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The function “gathers food” matches the Bird's beak. Select another structure.");
 
   await user.click(screen.getByRole('button', { name: 'Select Fish fin' }));
   await user.click(screen.getByRole('button', { name: 'Match swims' }));
-  expect(screen.getByRole('status')).toHaveTextContent("Correct: The Fish's fin helps it swim. All matches are complete.");
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The function “swims” matches the Fish's fin. All matches are complete.");
+});
+
+test('preserves authored verb and noun function labels in correct feedback', async () => {
+  const user = userEvent.setup();
+  render(<AnimalStructureMatcher config={{
+    pairs: [
+      { id: 'ears', animal: 'Bat', structure: 'ears', function: 'uses sound' },
+      { id: 'shell', animal: 'Turtle', structure: 'shell', function: 'body protection' },
+    ],
+  }} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Bat ears' }));
+  await user.click(screen.getByRole('button', { name: 'Match uses sound' }));
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The function “uses sound” matches the Bat's ears. Select another structure.");
+
+  await user.click(screen.getByRole('button', { name: 'Select Turtle shell' }));
+  await user.click(screen.getByRole('button', { name: 'Match body protection' }));
+  expect(screen.getByRole('status')).toHaveTextContent("Correct: The function “body protection” matches the Turtle's shell. All matches are complete.");
 });
 
 test('allows a completed match to be corrected back to matching without another completion', async () => {

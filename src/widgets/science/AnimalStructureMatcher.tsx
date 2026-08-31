@@ -4,18 +4,6 @@ import { useCompletionLatch } from '../useCompletionLatch';
 
 const INITIAL_STATUS = 'Select a structure, then choose the function it helps an animal perform.';
 
-function actionPhrase(functionLabel: string) {
-  const [verb, ...rest] = functionLabel.split(' ');
-  const baseVerb = verb === 'has' ? 'have'
-    : verb === 'does' ? 'do'
-      : verb === 'goes' ? 'go'
-        : verb.endsWith('ies') ? `${verb.slice(0, -3)}y`
-          : /(ches|shes|xes|zes|ses)$/.test(verb) ? verb.slice(0, -2)
-            : verb.endsWith('s') && !verb.endsWith('ss') ? verb.slice(0, -1)
-              : verb;
-  return [baseVerb, ...rest].join(' ');
-}
-
 export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<'animal-structure-matcher'>) {
   const key = JSON.stringify(config);
   const emptyState = () => ({ key, selected: null as string | null, matches: {} as Record<string, string>, status: INITIAL_STATUS });
@@ -46,7 +34,7 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
     const next = { ...matches, [selected]: fn };
     const correct = pair.function === fn;
     const feedback = correct
-      ? `Correct: The ${pair.animal}'s ${pair.structure} helps it ${actionPhrase(fn)}.${config.pairs.every((item) => next[item.id] === item.function) ? ' All matches are complete.' : ' Select another structure.'}`
+      ? `Correct: The function “${fn}” matches the ${pair.animal}'s ${pair.structure}.${config.pairs.every((item) => next[item.id] === item.function) ? ' All matches are complete.' : ' Select another structure.'}`
       : `${fn} does not match the ${pair.animal}'s ${pair.structure}. Select that structure again to choose another function.`;
     setState({ key, selected: null, matches: next, status: feedback });
     emit(next, 'match');
