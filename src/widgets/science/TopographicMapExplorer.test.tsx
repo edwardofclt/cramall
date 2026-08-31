@@ -17,14 +17,12 @@ const points = [
 test('keeps every authored contour in a padded computed viewBox and maps a visible contour ID to its exact elevation-key entry', () => {
   render(<TopographicMapExplorer config={{ contours, points }} onEvent={vi.fn()} />);
 
-  const map = screen.getByLabelText('Topographic contour model');
+  const map = screen.getByRole('img', { name: 'Topographic contour model: C1 — Contour 1: 300 m; C2 — Contour 2: 500 m' });
   expect(map).toHaveAttribute('viewBox', '-50 -30 90 60');
-  const firstContour = screen.getByTestId('topographic-contour-C1');
   const firstKeyEntry = screen.getByTestId('topographic-contour-key-C1');
-  expect(firstContour).toHaveAttribute('aria-label', 'Contour 1 (C1): 300 m');
   expect(screen.getByText('C1', { selector: 'text' })).toBeInTheDocument();
   expect(firstKeyEntry).toHaveTextContent('C1 — Contour 1: 300 m');
-  expect(screen.getByTestId('topographic-contour-C2')).toHaveAttribute('aria-label', 'Contour 2 (C2): 500 m');
+  expect(screen.getByTestId('topographic-contour-C2')).toBeInTheDocument();
   expect(screen.getByTestId('topographic-contour-key-C2')).toHaveTextContent('C2 — Contour 2: 500 m');
 });
 
@@ -117,11 +115,19 @@ test('rejects finite coordinates whose derived SVG bounds overflow and renders f
   const extreme = `1${'0'.repeat(308)}`;
   const accepted = { contours: [{ elevation: 300, points: `-${large},0 ${large},1` }], points };
   const rejected = { contours: [{ elevation: 300, points: `-${extreme},0 ${extreme},1` }], points };
+  const combinedOverflow = {
+    contours: [
+      { elevation: 300, points: `${extreme},0 ${extreme},1` },
+      { elevation: 500, points: `-${extreme},0 -${extreme},1` },
+    ],
+    points,
+  };
 
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse(rejected).success).toBe(false);
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse(combinedOverflow).success).toBe(false);
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse(accepted).success).toBe(true);
   render(<TopographicMapExplorer config={accepted} onEvent={vi.fn()} />);
-  const bounds = screen.getByLabelText('Topographic contour model').getAttribute('viewBox')!.split(' ').map(Number);
+  const bounds = screen.getByRole('img', { name: /Topographic contour model: C1/ }).getAttribute('viewBox')!.split(' ').map(Number);
   expect(bounds).toHaveLength(4);
   expect(bounds.every(Number.isFinite)).toBe(true);
   expect(bounds[2]).toBeGreaterThan(0);

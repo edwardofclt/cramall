@@ -922,6 +922,10 @@ export const TopographicMapExplorerWidgetConfigSchema = z.object({
   points: z.array(TopographicPointSchema).min(2),
   targetPointId: TopographicTextSchema.optional(),
 }).strict().superRefine((value, context) => {
+  const coordinates = value.contours.flatMap((contour) => parseCoordinates(contour.points));
+  if (!hasUsableTopographicBounds(coordinates)) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['contours'], message: 'all contours must produce usable SVG bounds together'});
+  }
   const ids = value.points.map((point) => topographicVisualKey(point.id));
   const labels = value.points.map((point) => topographicVisualKey(point.label));
   if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length) {

@@ -31,6 +31,7 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
   const [status, setStatus] = useState(defaultPrompt);
   const {completeOnce} = useCompletionLatch(key);
   const viewBox = useMemo(() => contourViewBox(config.contours), [config.contours]);
+  const contourMapName = useMemo(() => `Topographic contour model: ${config.contours.map((contour, index) => `${contourIdentifier(index)} — Contour ${index + 1}: ${contour.elevation} m`).join('; ')}`, [config.contours]);
   const isComplete = config.targetPointId !== undefined && selected === config.targetPointId && checked === config.targetPointId;
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
     </header>
     <div className="topographic-model">
       <figure className="topographic-contours">
-        <svg aria-label="Topographic contour model" viewBox={viewBox} role="img">
+        <svg aria-label={contourMapName} viewBox={viewBox} role="img">
           {config.contours.map((contour, index) => {
             const identifier = contourIdentifier(index);
             const [x, y] = parseCoordinates(contour.points)[0]!;
