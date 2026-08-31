@@ -118,6 +118,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['animal-structure-matcher'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'erosion-simulator': {
+      const Widget = widgetRegistry['erosion-simulator'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

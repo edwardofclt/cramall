@@ -30,6 +30,7 @@ export const WIDGET_TYPES = [
   'message-sender',
   'energy-conversion-designer',
   'animal-structure-matcher',
+  'erosion-simulator',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -836,6 +837,18 @@ export const AnimalStructureMatcherWidgetConfigSchema = z.object({
 
 export const AnimalStructureMatcherWidgetRefSchema = z.object({ type: z.literal('animal-structure-matcher'), config: AnimalStructureMatcherWidgetConfigSchema }).strict();
 
+const ErosionAgentSchema = z.enum(['water', 'wind', 'ice']);
+export const ErosionSimulatorWidgetConfigSchema = z.object({
+  terrain: z.enum(['soil', 'sand', 'rock']),
+  agents: z.array(ErosionAgentSchema).min(1).refine((agents) => new Set(agents).size === agents.length, 'duplicates'),
+  vegetation: z.boolean().optional(),
+  targetAgent: ErosionAgentSchema.optional(),
+}).strict().superRefine((value, context) => {
+  if (value.targetAgent && !value.agents.includes(value.targetAgent)) context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetAgent'], message: 'target agent unavailable' });
+  if (value.terrain === 'rock' && value.vegetation) context.addIssue({ code: z.ZodIssueCode.custom, path: ['vegetation'], message: 'vegetation cover is not modeled on rock' });
+});
+export const ErosionSimulatorWidgetRefSchema = z.object({ type: z.literal('erosion-simulator'), config: ErosionSimulatorWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -863,6 +876,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   MessageSenderWidgetRefSchema,
   EnergyConversionDesignerWidgetRefSchema,
   AnimalStructureMatcherWidgetRefSchema,
+  ErosionSimulatorWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

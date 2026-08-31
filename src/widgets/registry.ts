@@ -98,6 +98,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-structure' | 'match' | 'reset' }
     | { type: 'change'; value: { matches: Record<string, string> } }
     | { type: 'complete'; value: { matches: Record<string, string> } };
+  'erosion-simulator':
+    | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'run' | 'reset' }
+    | { type: 'change'; value: { agent: string; vegetation: boolean } }
+    | { type: 'complete'; value: { agent: string; vegetation: boolean } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -138,4 +142,5 @@ export const widgetRegistry = {
   'message-sender': lazy(() => import('./science/MessageSender')),
   'energy-conversion-designer': lazy(() => import('./science/EnergyConversionDesigner')),
   'animal-structure-matcher': lazy(() => import('./science/AnimalStructureMatcher')),
+  'erosion-simulator': lazy(() => import('./science/ErosionSimulator')),
 } satisfies WidgetRegistry;
