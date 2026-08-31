@@ -32,6 +32,26 @@ function validSave() {
   );
 }
 
+function legacyBackwardDateSave() {
+  return {
+    version: 1 as const,
+    settings: { soundOn: true, ttsOn: true },
+    lessons: {
+      'math-u01-l01': {
+        status: 'in-progress' as const,
+        bestScore: 7,
+        attempts: [
+          attempt({ date: '2026-01-29', score: 7 }),
+          attempt({ date: '2026-01-28', score: 6 }),
+        ],
+      },
+    },
+    // This is exactly the state the pre-abe7f64 producer could emit after clock rollback.
+    streak: { lastActiveDate: '2026-01-28', count: 1 },
+    parentChecked: { 'math-u01-l01': true },
+  };
+}
+
 test('defaultSave() has version 1, default settings, and empty progress', () => {
   const save = defaultSave();
   expect(save).toEqual({
@@ -252,16 +272,41 @@ test('migrateSave explicitly accepts current v1 data and rejects unsupported ver
   expect(() => migrateSave({ ...save, version: 2 })).toThrow(/unsupported save version/i);
 });
 
+test('migrateSave canonicalizes a valid pre-fix backward-date v1 save', () => {
+  const migrated = migrateSave(legacyBackwardDateSave());
+
+  expect(migrated.lessons['math-u01-l01']?.attempts.map(({ date }) => date)).toEqual([
+    '2026-01-29',
+    '2026-01-28',
+  ]);
+  expect(migrated.streak).toEqual({ lastActiveDate: '2026-01-29', count: 1 });
+  expect(migrated.parentChecked['math-u01-l01']).toBe(true);
+  expect(importSave(exportSave(migrated))).toEqual(migrated);
+});
+
+test('loadSaveResult loads and canonicalizes the prior producer save without deleting it', () => {
+  const raw = JSON.stringify(legacyBackwardDateSave());
+  window.localStorage.setItem(KEY, raw);
+
+  const loaded = loadSaveResult();
+
+  expect(loaded.issue).toBeNull();
+  expect(loaded.save.streak).toEqual({ lastActiveDate: '2026-01-29', count: 1 });
+  expect(window.localStorage.getItem(KEY)).toBe(raw);
+});
+
+test('legacy migration still rejects malformed core attempt data', () => {
+  const legacy = legacyBackwardDateSave();
+  legacy.lessons['math-u01-l01'].attempts[0]!.score = 11;
+  expect(() => migrateSave(legacy)).toThrow();
+});
+
 test.each([
   ['negative score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = -1; }],
   ['score over total', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = 11; }],
   ['zero total', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.total = 0; }],
   ['fractional score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.score = 8.5; }],
   ['impossible date', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.attempts[0]!.date = '2026-02-30'; }],
-  ['wrong best score', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.bestScore = 8; }],
-  ['wrong derived status', (save: ReturnType<typeof validSave>) => { save.lessons['math-u01-l01']!.status = 'in-progress'; }],
-  ['empty date with a positive streak', (save: ReturnType<typeof validSave>) => { save.streak.lastActiveDate = ''; }],
-  ['streak date unrelated to attempts', (save: ReturnType<typeof validSave>) => { save.streak.lastActiveDate = '2026-01-02'; }],
   ['negative streak count', (save: ReturnType<typeof validSave>) => { save.streak.count = -1; }],
 ])('importSave rejects v1 data with %s', (_label, mutate) => {
   const save = validSave();

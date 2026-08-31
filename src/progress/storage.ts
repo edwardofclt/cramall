@@ -82,6 +82,23 @@ const SettingsSchema = z.object({
   ttsOn: z.boolean(),
 }).strict();
 
+const LegacyLessonProgressSchema = z.object({
+  status: z.enum(['in-progress', 'passed']),
+  bestScore: z.number().int().min(0).max(10),
+  attempts: z.array(AttemptSchema).min(1),
+}).strict();
+
+const LegacyV1SaveSchema = z.object({
+  version: z.literal(1),
+  settings: SettingsSchema,
+  lessons: z.record(LegacyLessonProgressSchema),
+  streak: z.object({
+    lastActiveDate: z.union([z.literal(''), IsoDateSchema]),
+    count: z.number().int().min(0).max(36_600),
+  }).strict(),
+  parentChecked: z.record(z.boolean()),
+}).strict();
+
 function deriveStreak(lessons: Record<string, LessonProgress>): SaveData['streak'] {
   const dates = [...new Set(
     Object.values(lessons).flatMap((progress) =>
@@ -128,6 +145,30 @@ const SaveDataSchema = z.object({
   }
 });
 
+function canonicalizeLegacyV1(value: unknown): SaveData {
+  const legacy = LegacyV1SaveSchema.parse(value);
+  const lessons: Record<string, LessonProgress> = Object.fromEntries(
+    Object.entries(legacy.lessons).map(([lessonId, progress]) => {
+      const bestScore = Math.max(...progress.attempts.map(({ score }) => score));
+      return [lessonId, {
+        attempts: progress.attempts,
+        bestScore,
+        status: progress.attempts.some(({ score }) => score >= PASS_THRESHOLD)
+          ? 'passed' as const
+          : 'in-progress' as const,
+      }];
+    }),
+  );
+  const maximum = deriveStreak(lessons);
+  const streak = maximum.count === 0
+    ? { lastActiveDate: '', count: 0 }
+    : {
+        lastActiveDate: maximum.lastActiveDate,
+        count: Math.max(1, Math.min(legacy.streak.count, maximum.count)),
+      };
+  return SaveDataSchema.parse({ ...legacy, lessons, streak });
+}
+
 class UnsupportedSaveVersionError extends Error {
   constructor(version: unknown) {
     super(`unsupported save version: ${String(version)}`);
@@ -145,7 +186,7 @@ export function migrateSave(value: unknown): SaveData {
   const version = (value as { version?: unknown }).version;
   switch (version) {
     case 1:
-      return SaveDataSchema.parse(value);
+      return canonicalizeLegacyV1(value);
     default:
       throw new UnsupportedSaveVersionError(version);
   }
