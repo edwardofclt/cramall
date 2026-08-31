@@ -66,6 +66,21 @@ test('rejects empty pans and nonpositive weights', () => {
     right: [{ id: 'right', label: '1', value: 1 }],
     task: 'make-equal',
   }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'left-one', label: '1', value: 1 }],
+    right: [{ id: 'right-near-one', label: '1.0000000005', value: 1.0000000005 }],
+    task: 'make-equal',
+  }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'scientific', label: 'one trillionth', value: 1e-12 }],
+    right: [{ id: 'decimal', label: 'one trillionth', value: 0.000000000001 }],
+    task: 'make-equal',
+  }).success).toBe(true);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'too-precise', label: 'one ten-trillionth', value: 1e-13 }],
+    right: [{ id: 'zeroish', label: 'one', value: 1 }],
+    task: 'compare',
+  }).success).toBe(false);
 });
 
 test('makes active weights and each pan readable before a balance check completes', async () => {
@@ -129,7 +144,7 @@ test('uses stable decimal totals for an equal comparison and completion', async 
   ]);
 });
 
-test('preserves a right-heavy comparison after tolerant equality handling', async () => {
+test('preserves a right-heavy comparison after exact decimal handling', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
 
@@ -151,4 +166,28 @@ test('preserves a right-heavy comparison after tolerant equality handling', asyn
     { type: 'change', value: { leftTotal: 1, rightTotal: 2 } },
     { type: 'complete', value: { leftTotal: 1, rightTotal: 2 } },
   ]);
+});
+
+test('keeps authored decimal differences unequal and incomplete', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <BalanceScale
+      config={{
+        left: [{ id: 'left-one', label: '1', value: 1 }],
+        right: [{ id: 'right-near-one', label: '1.0000000005', value: 1.0000000005 }],
+        task: 'compare',
+      }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'right');
+  await user.click(screen.getByRole('button', { name: 'Balanced' }));
+  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'check' },
+    { type: 'change', value: { leftTotal: 1, rightTotal: 1.0000000005 } },
+  ]);
+  expect(screen.getByRole('status')).toHaveTextContent('Try the other relation.');
 });

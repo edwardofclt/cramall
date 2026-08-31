@@ -1,28 +1,35 @@
 import { useEffect, useState } from 'react';
+import {
+  compareExactDecimals,
+  exactDecimalFromNumber,
+  exactDecimalToNumber,
+  sumExactDecimals,
+  type ExactDecimal,
+} from '../../content/balance-decimals';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
 type Relation = 'left' | 'equal' | 'right';
 type Weight = { id: string; label: string; value: number };
 type Totals = { leftTotal: number; rightTotal: number };
+type ExactTotals = { left: ExactDecimal; right: ExactDecimal };
 type Action = 'add-weight' | 'remove-weight' | 'check' | 'reset';
-const BALANCE_TOLERANCE = 1e-9;
 
-function stableTotal(values: Weight[]) {
-  const total = values.reduce((sum, weight) => sum + weight.value, 0);
-  if (!Number.isFinite(total)) return total;
-  const normalized = Number(total.toPrecision(12));
-  return Object.is(normalized, -0) ? 0 : normalized;
+function exactTotal(weights: Weight[]) {
+  const values = weights.map((weight) => exactDecimalFromNumber(weight.value));
+  if (values.some((value) => !value)) {
+    throw new Error('Balance scale values must use supported exact decimal precision.');
+  }
+  return sumExactDecimals(values as ExactDecimal[]);
 }
 
-function balanceTotalsMatch(left: number, right: number) {
-  return Math.abs(left - right) <= BALANCE_TOLERANCE * Math.max(1, Math.abs(left), Math.abs(right));
+function displayTotals({ left, right }: ExactTotals): Totals {
+  return { leftTotal: exactDecimalToNumber(left), rightTotal: exactDecimalToNumber(right) };
 }
 
-function balanceRelation({ leftTotal, rightTotal }: Totals): Relation {
-  if (balanceTotalsMatch(leftTotal, rightTotal)) return 'equal';
-  if (leftTotal > rightTotal) return 'left';
-  return 'right';
+function balanceRelation({ left, right }: ExactTotals): Relation {
+  const comparison = compareExactDecimals(left, right);
+  return comparison === 0 ? 'equal' : comparison > 0 ? 'left' : 'right';
 }
 
 function relationText(relation: Relation) {
@@ -50,21 +57,22 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
     setStatus(initialStatus);
   }, [key]);
 
-  const totals = (ids: string[]): Totals => ({
-    leftTotal: stableTotal(config.left.filter((weight) => ids.includes(weight.id))),
-    rightTotal: stableTotal(config.right.filter((weight) => ids.includes(weight.id))),
+  const exactTotals = (ids: string[]): ExactTotals => ({
+    left: exactTotal(config.left.filter((weight) => ids.includes(weight.id))),
+    right: exactTotal(config.right.filter((weight) => ids.includes(weight.id))),
   });
 
   const emit = (ids: string[], action: Action, success = false) => {
-    const value = totals(ids);
+    const value = displayTotals(exactTotals(ids));
     setActive(ids);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value });
     if (success) completeOnce(() => onEvent({ type: 'complete', value }));
   };
 
-  const value = totals(active);
-  const truth = balanceRelation(value);
+  const exactValue = exactTotals(active);
+  const value = displayTotals(exactValue);
+  const truth = balanceRelation(exactValue);
   const beamState = truth === 'equal' ? 'level' : truth;
 
   const chooseRelation = (choice: Relation) => {
@@ -75,7 +83,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
   };
 
   const checkBalance = () => {
-    const meaningful = value.leftTotal > 0 && value.rightTotal > 0;
+    const meaningful = exactValue.left.units > 0n && exactValue.right.units > 0n;
     const balanced = meaningful && truth === 'equal';
     setStatus(!meaningful
       ? 'Add at least one weight to each pan before checking.'

@@ -1,5 +1,12 @@
 import { z } from 'zod';
 import { normalizeAnswerText } from './answer-normalization';
+import {
+  MAX_BALANCE_DECIMAL_PLACES,
+  compareExactDecimals,
+  exactDecimalFromNumber,
+  sumExactDecimals,
+  type ExactDecimal,
+} from './balance-decimals';
 
 export const WIDGET_TYPES = [
   'place-value-builder',
@@ -373,29 +380,29 @@ const WeightSchema = z.object({
   id: z.string().min(1),
   label: z.string().min(1),
   value: z.number().positive().finite(),
-}).strict();
+}).strict().superRefine((weight, context) => {
+  if (!exactDecimalFromNumber(weight.value)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['value'],
+      message: `value must have at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`,
+    });
+  }
+});
 
-const BALANCE_TOLERANCE = 1e-9;
 // Sixteen retained weights bound exhaustive left/right subset comparisons to 2^16 (65,536).
 const MAX_MAKE_EQUAL_WEIGHTS = 16;
 
-function stableBalanceTotal(values: number[]) {
-  const total = values.reduce((sum, value) => sum + value, 0);
-  if (!Number.isFinite(total)) return total;
-  const normalized = Number(total.toPrecision(12));
-  return Object.is(normalized, -0) ? 0 : normalized;
-}
+function subsetTotals(weights: Array<{ value: number }>): ExactDecimal[] {
+  const values = weights.map((weight) => exactDecimalFromNumber(weight.value));
+  if (values.some((value) => !value)) return [];
 
-function balanceTotalsMatch(left: number, right: number) {
-  return Math.abs(left - right) <= BALANCE_TOLERANCE * Math.max(1, Math.abs(left), Math.abs(right));
-}
-
-function subsetTotals(weights: Array<{ value: number }>) {
-  const totals = [0];
-  for (const weight of weights) {
-    totals.push(...totals.map((total) => total + weight.value));
+  const totals = [{ units: 0n, scale: 0 }];
+  for (const value of values) {
+    if (!value) return [];
+    totals.push(...totals.map((total) => sumExactDecimals([total, value])));
   }
-  return totals.map((total) => stableBalanceTotal([total]));
+  return totals;
 }
 
 function hasReachableNonzeroBalance(
@@ -404,8 +411,8 @@ function hasReachableNonzeroBalance(
 ) {
   const leftTotals = subsetTotals(left);
   const rightTotals = subsetTotals(right);
-  return leftTotals.some((leftTotal) => leftTotal > 0 && rightTotals.some(
-    (rightTotal) => rightTotal > 0 && balanceTotalsMatch(leftTotal, rightTotal),
+  return leftTotals.some((leftTotal) => leftTotal.units > 0n && rightTotals.some(
+    (rightTotal) => rightTotal.units > 0n && compareExactDecimals(leftTotal, rightTotal) === 0,
   ));
 }
 
