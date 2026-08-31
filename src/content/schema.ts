@@ -37,6 +37,7 @@ export const WIDGET_TYPES = [
   'resource-sorter',
   'word-root-builder',
   'context-clue-detective',
+  'story-elements-mapper',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1093,6 +1094,29 @@ export const ContextClueDetectiveWidgetRefSchema = z.object({
   config: ContextClueDetectiveWidgetConfigSchema,
 }).strict();
 
+const StoryFieldSchema = z.enum(['character','setting','problem','events','solution']);
+const StoryMapTextSchema = z.string().trim().min(1);
+
+export const StoryElementsMapperWidgetConfigSchema = z.object({
+  textTitle: StoryMapTextSchema,
+  fields: z.array(StoryFieldSchema).min(2),
+  answers: z.record(z.string(),StoryMapTextSchema),
+}).strict().superRefine((value,context)=>{
+  if(new Set(value.fields).size!==value.fields.length){
+    context.addIssue({code:z.ZodIssueCode.custom,path:['fields'],message:'story fields must be unique'});
+  }
+  const fieldKeys=[...value.fields].sort();
+  const answerKeys=Object.keys(value.answers).sort();
+  if(fieldKeys.length!==answerKeys.length||fieldKeys.some((field,index)=>field!==answerKeys[index])){
+    context.addIssue({code:z.ZodIssueCode.custom,path:['answers'],message:'answers must contain exactly one entry for every story field'});
+  }
+});
+
+export const StoryElementsMapperWidgetRefSchema = z.object({
+  type:z.literal('story-elements-mapper'),
+  config:StoryElementsMapperWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1127,6 +1151,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ResourceSorterWidgetRefSchema,
   WordRootBuilderWidgetRefSchema,
   ContextClueDetectiveWidgetRefSchema,
+  StoryElementsMapperWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

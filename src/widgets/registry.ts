@@ -126,6 +126,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'choose-clue' | 'reset' }
     | { type: 'change'; value: { choiceId: string | null } }
     | { type: 'complete'; value: { choiceId: string } };
+  'story-elements-mapper':
+    | { type: 'interaction'; action: 'change-field' | 'check' | 'reset' }
+    | { type: 'change'; value: { entries: Record<string,string> } }
+    | { type: 'complete'; value: { entries: Record<string,string> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -173,4 +177,5 @@ export const widgetRegistry = {
   'resource-sorter': lazy(() => import('./science/ResourceSorter')),
   'word-root-builder': lazy(() => import('./reading/WordRootBuilder')),
   'context-clue-detective': lazy(() => import('./reading/ContextClueDetective')),
+  'story-elements-mapper': lazy(() => import('./reading/StoryElementsMapper')),
 } satisfies WidgetRegistry;

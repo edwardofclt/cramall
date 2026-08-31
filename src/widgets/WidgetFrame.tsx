@@ -146,6 +146,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['context-clue-detective'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'story-elements-mapper': {
+      const Widget = widgetRegistry['story-elements-mapper'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
