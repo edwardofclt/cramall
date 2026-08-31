@@ -38,6 +38,7 @@ export const WIDGET_TYPES = [
   'word-root-builder',
   'context-clue-detective',
   'story-elements-mapper',
+  'theme-evidence-collector',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1117,6 +1118,42 @@ export const StoryElementsMapperWidgetRefSchema = z.object({
   config:StoryElementsMapperWidgetConfigSchema,
 }).strict();
 
+const ThemeEvidenceTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const themeEvidenceVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const ThemeEvidenceSchema=z.object({
+  id:ThemeEvidenceTextSchema,
+  text:ThemeEvidenceTextSchema,
+  supports:z.array(ThemeEvidenceTextSchema).min(1),
+}).strict();
+
+export const ThemeEvidenceCollectorWidgetConfigSchema=z.object({
+  themeChoices:z.array(ThemeEvidenceTextSchema).min(2),
+  evidence:z.array(ThemeEvidenceSchema).min(2),
+  requiredEvidenceCount:z.number().int().min(2).max(5).optional(),
+}).strict().superRefine((value,context)=>{
+  const required=value.requiredEvidenceCount??2;
+  const themeKeys=value.themeChoices.map(themeEvidenceVisualKey);
+  const evidenceIds=value.evidence.map((detail)=>themeEvidenceVisualKey(detail.id));
+  const evidenceTexts=value.evidence.map((detail)=>themeEvidenceVisualKey(detail.text));
+  const themesUnique=new Set(themeKeys).size===themeKeys.length;
+  const evidenceUnique=new Set(evidenceIds).size===evidenceIds.length&&new Set(evidenceTexts).size===evidenceTexts.length;
+  const supportsValid=value.evidence.every((detail)=>{
+    const supportKeys=detail.supports.map(themeEvidenceVisualKey);
+    return new Set(supportKeys).size===supportKeys.length
+      &&detail.supports.every((theme)=>value.themeChoices.includes(theme));
+  });
+  const solvable=required<=value.evidence.length
+    &&value.themeChoices.some((theme)=>value.evidence.filter((detail)=>detail.supports.includes(theme)).length>=required);
+  if(!themesUnique||!evidenceUnique||!supportsValid||!solvable){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'themes/evidence must be unique, valid, and at least one theme solvable'});
+  }
+});
+
+export const ThemeEvidenceCollectorWidgetRefSchema=z.object({
+  type:z.literal('theme-evidence-collector'),
+  config:ThemeEvidenceCollectorWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1152,6 +1189,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   WordRootBuilderWidgetRefSchema,
   ContextClueDetectiveWidgetRefSchema,
   StoryElementsMapperWidgetRefSchema,
+  ThemeEvidenceCollectorWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

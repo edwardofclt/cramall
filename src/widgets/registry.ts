@@ -130,6 +130,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'change-field' | 'check' | 'reset' }
     | { type: 'change'; value: { entries: Record<string,string> } }
     | { type: 'complete'; value: { entries: Record<string,string> } };
+  'theme-evidence-collector':
+    | {type:'interaction';action:'choose-theme'|'toggle-evidence'|'reset'}
+    | {type:'change';value:{theme:string|null;evidenceIds:string[]}}
+    | {type:'complete';value:{theme:string;evidenceIds:string[]}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -178,4 +182,5 @@ export const widgetRegistry = {
   'word-root-builder': lazy(() => import('./reading/WordRootBuilder')),
   'context-clue-detective': lazy(() => import('./reading/ContextClueDetective')),
   'story-elements-mapper': lazy(() => import('./reading/StoryElementsMapper')),
+  'theme-evidence-collector': lazy(() => import('./reading/ThemeEvidenceCollector')),
 } satisfies WidgetRegistry;

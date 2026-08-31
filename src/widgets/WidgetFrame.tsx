@@ -150,6 +150,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['story-elements-mapper'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'theme-evidence-collector': {
+      const Widget = widgetRegistry['theme-evidence-collector'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
