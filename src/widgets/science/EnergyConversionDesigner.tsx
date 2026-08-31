@@ -8,8 +8,9 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
   const [status, setStatus] = useState('Choose the required starting component.');
   const { completeOnce } = useCompletionLatch(key);
   const componentFor = (id: string) => config.components.find((component) => component.id === id)!;
+  const retainedChain = chain.every((id) => config.components.some((component) => component.id === id)) ? chain : [];
   const hasValidConnections = (ids: string[]) => ids.every((id, index) => index === 0 || componentFor(ids[index - 1]!).energyOut === componentFor(id).energyIn);
-  const visiblyComplete = chain[0] === config.requiredStart && chain[chain.length - 1] === config.requiredEnd && hasValidConnections(chain);
+  const visiblyComplete = retainedChain[0] === config.requiredStart && retainedChain[retainedChain.length - 1] === config.requiredEnd && hasValidConnections(retainedChain);
 
   useEffect(() => { setChain([]); setStatus('Choose the required starting component.'); }, [key]);
 
@@ -22,20 +23,20 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
   };
   const add = (id: string) => {
     const selected = componentFor(id);
-    if (!chain.length && id !== config.requiredStart) {
+    if (!retainedChain.length && id !== config.requiredStart) {
       setStatus(`${selected.label} is not the required start. Choose ${componentFor(config.requiredStart).label}.`);
-      emit(chain, 'append-chain');
+      emit(retainedChain, 'append-chain');
       return;
     }
-    if (chain.length) {
-      const previous = componentFor(chain[chain.length - 1]!);
+    if (retainedChain.length) {
+      const previous = componentFor(retainedChain[retainedChain.length - 1]!);
       if (previous.energyOut !== selected.energyIn) {
         setStatus(`${previous.label} outputs ${previous.energyOut}, which does not connect to ${selected.label}'s ${selected.energyIn} input.`);
-        emit(chain, 'append-chain');
+        emit(retainedChain, 'append-chain');
         return;
       }
     }
-    const next = [...chain, id];
+    const next = [...retainedChain, id];
     const completesRequiredChain = next[0] === config.requiredStart && next[next.length - 1] === config.requiredEnd && hasValidConnections(next);
     setStatus(completesRequiredChain
       ? 'The selected conversion chain connects the required endpoints.'
@@ -59,12 +60,12 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
         <button aria-label={`Add ${component.label}`} onClick={() => add(component.id)}>Add {component.label}</button>
       </article>)}
     </div>
-    <div className="conversion-chain" data-testid="conversion-chain" role="group" aria-label={`Selected energy conversion chain: ${chain.map((id) => componentFor(id).label).join(' to ') || 'empty'}`}>
-      {chain.length ? chain.map((id, index) => {
+    <div className="conversion-chain" data-testid="conversion-chain" role="group" aria-label={`Selected energy conversion chain: ${retainedChain.map((id) => componentFor(id).label).join(' to ') || 'empty'}`}>
+      {retainedChain.length ? retainedChain.map((id, index) => {
         const component = componentFor(id);
         return <span className="conversion-chain-part" key={`${id}-${index}`}>
           <article className="conversion-node" data-component-id={id}><strong>{id}: {component.label}</strong><span>Input: {component.energyIn}</span><span>Output: {component.energyOut}</span></article>
-          {index < chain.length - 1 && <span data-testid="conversion-connector" className="conversion-connector" aria-label={`${component.energyOut} connects to next component`}>{component.energyOut} →</span>}
+          {index < retainedChain.length - 1 && <span data-testid="conversion-connector" className="conversion-connector" aria-label={`${component.energyOut} connects to next component`}>{component.energyOut} →</span>}
         </span>;
       }) : <span className="conversion-empty">Your selected chain will appear here.</span>}
     </div>

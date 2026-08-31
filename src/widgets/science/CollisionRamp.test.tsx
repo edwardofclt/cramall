@@ -66,6 +66,30 @@ test('uses exact authored decimals and clamps decimal control endpoints', async 
   expect(screen.getByRole('button', { name: 'Increase cart B speed' })).toBeDisabled();
 });
 
+test('keeps every decimal control change inside the exact 12-place domain', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<CollisionRamp config={{
+    rampAngle: 1.000000000001,
+    massA: 1,
+    massB: 1,
+    speedA: 1.000000000001,
+    speedB: 98.999999999999,
+  }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Decrease ramp angle' }));
+  await user.click(screen.getByRole('button', { name: 'Decrease cart A speed' }));
+  await user.click(screen.getByRole('button', { name: 'Increase cart B speed' }));
+
+  expect(onEvent.mock.calls.map(([event]) => event).filter((event) => event.type === 'change')).toEqual([
+    { type: 'change', value: { rampAngle: 1e-12, speedA: 1.000000000001, speedB: 98.999999999999 } },
+    { type: 'change', value: { rampAngle: 1e-12, speedA: 1e-12, speedB: 98.999999999999 } },
+    { type: 'change', value: { rampAngle: 1e-12, speedA: 1e-12, speedB: 99.999999999999 } },
+  ]);
+  expect(screen.getByText(/Cart A push number: 1 × 1e-12 = 0\.000000000001/)).toBeInTheDocument();
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-state', 'testing');
+});
+
 test('labels zero-speed carts as stationary and keeps the cart track horizontally scrollable', async () => {
   const user = userEvent.setup();
   render(<CollisionRamp config={{ massA: 2, massB: 3, speedA: 0, speedB: 0 }} onEvent={vi.fn()} />);

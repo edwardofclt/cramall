@@ -110,6 +110,28 @@ test('rejects malformed, nonfinite, duplicate, blank, and missing-target map dat
   expect(TopographicMapExplorerWidgetConfigSchema.safeParse({ ...valid, targetPointId: 'missing' }).success).toBe(false);
 });
 
+test('rejects a coordinate that parses to a nonfinite number', () => {
+  const nonfiniteCoordinate = `1${'0'.repeat(309)}`;
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse({
+    contours: [{ elevation: 300, points: `0,0 ${nonfiniteCoordinate},1` }],
+    points,
+  }).success).toBe(false);
+});
+
+test('rejects duplicate point ids', () => {
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse({
+    contours,
+    points: [points[0]!, { id: 'summit', label: 'Trail marker', elevation: 300 }],
+  }).success).toBe(false);
+});
+
+test('rejects a blank point label', () => {
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse({
+    contours,
+    points: [{ id: 'summit', label: ' \t ', elevation: 500 }, points[1]!],
+  }).success).toBe(false);
+});
+
 test('rejects finite coordinates whose derived SVG bounds overflow and renders finite positive bounds for accepted large coordinates', () => {
   const large = `1${'0'.repeat(300)}`;
   const extreme = `1${'0'.repeat(308)}`;

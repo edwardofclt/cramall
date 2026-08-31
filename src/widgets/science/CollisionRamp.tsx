@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { compareExactDecimals, exactDecimalFromNumber, type ExactDecimal } from '../../content/balance-decimals';
+import { compareExactDecimals, exactDecimalFromNumber, exactDecimalToNumber, sumExactDecimals, type ExactDecimal } from '../../content/balance-decimals';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
@@ -30,7 +30,19 @@ export const stuckCartDirection = (massA: number, speedA: number, massB: number,
 };
 
 const directionText: Record<Direction, string> = { left: 'moves left', right: 'moves right', same: 'has no left/right motion' };
-const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+function stepExact(value: number, amount: -1 | 1, min: number, max: number) {
+  const decimal = exactDecimalFromNumber(value);
+  const minimum = exactDecimalFromNumber(min);
+  const maximum = exactDecimalFromNumber(max);
+  if (!decimal || !minimum || !maximum) {
+    throw new RangeError('Collision ramp controls require exact-decimal values.');
+  }
+  const next = sumExactDecimals([decimal, { units: BigInt(amount), scale: 0 }]);
+  if (compareExactDecimals(next, minimum) < 0) return min;
+  if (compareExactDecimals(next, maximum) > 0) return max;
+  return exactDecimalToNumber(next);
+}
 
 export default function CollisionRamp({ config, onEvent }: WidgetProps<'collision-ramp'>) {
   const key = JSON.stringify(config);
@@ -103,12 +115,12 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
       </div></div>
       <p className="collision-quantities">Cart A push number: {config.massA} × {state.speedA} = {exactText(cartAQuantity)}. Cart B push number: {config.massB} × {state.speedB} = {exactText(cartBQuantity)}. {stationary ? 'Both carts remain stationary, so no collision occurs.' : 'The larger push number points the stuck carts that way.'}</p>
       <div data-widget-grid="controls" className="collision-controls">
-        <button aria-label="Decrease ramp angle" disabled={state.rampAngle <= 0} onClick={() => change({ ...state, rampAngle: clamp(state.rampAngle - 1, 0, 45) }, 'change-angle')}>− angle</button>
-        <button aria-label="Increase ramp angle" disabled={state.rampAngle >= 45} onClick={() => change({ ...state, rampAngle: clamp(state.rampAngle + 1, 0, 45) }, 'change-angle')}>+ angle</button>
-        <button aria-label="Decrease cart A speed" disabled={state.speedA <= 0} onClick={() => change({ ...state, speedA: clamp(state.speedA - 1, 0, 100) }, 'change-speed')}>Cart A − speed</button>
-        <button aria-label="Increase cart A speed" disabled={state.speedA >= 100} onClick={() => change({ ...state, speedA: clamp(state.speedA + 1, 0, 100) }, 'change-speed')}>Cart A + speed</button>
-        <button aria-label="Decrease cart B speed" disabled={state.speedB <= 0} onClick={() => change({ ...state, speedB: clamp(state.speedB - 1, 0, 100) }, 'change-speed')}>Cart B − speed</button>
-        <button aria-label="Increase cart B speed" disabled={state.speedB >= 100} onClick={() => change({ ...state, speedB: clamp(state.speedB + 1, 0, 100) }, 'change-speed')}>Cart B + speed</button>
+        <button aria-label="Decrease ramp angle" disabled={state.rampAngle <= 0} onClick={() => change({ ...state, rampAngle: stepExact(state.rampAngle, -1, 0, 45) }, 'change-angle')}>− angle</button>
+        <button aria-label="Increase ramp angle" disabled={state.rampAngle >= 45} onClick={() => change({ ...state, rampAngle: stepExact(state.rampAngle, 1, 0, 45) }, 'change-angle')}>+ angle</button>
+        <button aria-label="Decrease cart A speed" disabled={state.speedA <= 0} onClick={() => change({ ...state, speedA: stepExact(state.speedA, -1, 0, 100) }, 'change-speed')}>Cart A − speed</button>
+        <button aria-label="Increase cart A speed" disabled={state.speedA >= 100} onClick={() => change({ ...state, speedA: stepExact(state.speedA, 1, 0, 100) }, 'change-speed')}>Cart A + speed</button>
+        <button aria-label="Decrease cart B speed" disabled={state.speedB <= 0} onClick={() => change({ ...state, speedB: stepExact(state.speedB, -1, 0, 100) }, 'change-speed')}>Cart B − speed</button>
+        <button aria-label="Increase cart B speed" disabled={state.speedB >= 100} onClick={() => change({ ...state, speedB: stepExact(state.speedB, 1, 0, 100) }, 'change-speed')}>Cart B + speed</button>
       </div>
       {target === 'predict-direction' ? <div className="collision-predictions" aria-label="Prediction choices">
         <h4>{stationary ? 'Both carts are stationary, so no collision occurs. Choose the matching model result.' : 'After the modeled stuck-cart collision, the model says the carts…'}</h4>

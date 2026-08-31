@@ -2,12 +2,23 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { EnergyConversionDesignerWidgetConfigSchema } from '../../content/schema';
+import { WidgetFrame } from '../WidgetFrame';
 import EnergyConversionDesigner from './EnergyConversionDesigner';
 
 const config = {
   components: [
     { id: 'sun', label: 'Sun', energyIn: 'nuclear', energyOut: 'light' },
     { id: 'panel', label: 'Panel', energyIn: 'light', energyOut: 'electric' },
+    { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light' },
+  ],
+  requiredStart: 'sun',
+  requiredEnd: 'lamp',
+};
+
+const replacementConfig = {
+  components: [
+    { id: 'sun', label: 'Sun', energyIn: 'nuclear', energyOut: 'light' },
+    { id: 'battery', label: 'Battery', energyIn: 'light', energyOut: 'electric' },
     { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light' },
   ],
   requiredStart: 'sun',
@@ -102,4 +113,32 @@ test('announces success when a valid append completes the required chain', async
   await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/connects the required endpoints/i);
+});
+
+test('clears a retained chain before a replacement config removes its interior component', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  const view = render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
+  for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+
+  view.rerender(<EnergyConversionDesigner config={replacementConfig} onEvent={onEvent} />);
+  expect(screen.getByTestId('conversion-chain')).toHaveAccessibleName(/empty/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/choose the required starting component/i);
+
+  for (const label of ['Sun', 'Battery', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('conversion-chain')).toHaveTextContent(/sun.*battery.*lamp/i);
+});
+
+test('recovers from an interior-component config replacement inside WidgetFrame without its fallback', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  const view = render(<WidgetFrame type="energy-conversion-designer" config={config} onEvent={onEvent} />);
+  await screen.findByTestId('widget-energy-conversion-designer');
+  for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+
+  view.rerender(<WidgetFrame type="energy-conversion-designer" config={replacementConfig} onEvent={onEvent} />);
+  expect(await screen.findByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
+  expect(screen.queryByTestId('widget-napping')).not.toBeInTheDocument();
+
+  for (const label of ['Sun', 'Battery', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
 });
