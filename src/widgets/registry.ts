@@ -55,6 +55,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'add-weight' | 'remove-weight' | 'check' | 'reset' }
     | { type: 'change'; value: BalanceValue }
     | { type: 'complete'; value: BalanceValue };
+  'shape-classifier':
+    | { type: 'interaction'; action: 'select-shape' | 'place-shape' | 'reset' }
+    | { type: 'change'; value: { placements: Record<string, string> } }
+    | { type: 'complete'; value: { placements: Record<string, string> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -85,4 +89,5 @@ export const widgetRegistry = {
   'clock-elapsed-time': lazy(() => import('./math/ClockElapsedTime')),
   'quarter-inch-ruler': lazy(() => import('./math/QuarterInchRuler')),
   'balance-scale': lazy(() => import('./math/BalanceScale')),
+  'shape-classifier': lazy(() => import('./math/ShapeClassifier')),
 } satisfies WidgetRegistry;

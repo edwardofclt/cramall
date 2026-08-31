@@ -20,6 +20,7 @@ export const WIDGET_TYPES = [
   'clock-elapsed-time',
   'quarter-inch-ruler',
   'balance-scale',
+  'shape-classifier',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -492,6 +493,55 @@ export const BalanceScaleWidgetRefSchema = z.object({
   config: BalanceScaleWidgetConfigSchema,
 }).strict();
 
+const ShapeSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  sides: z.number().int().min(0),
+  angles: z.number().int().min(0),
+  parallelPairs: z.number().int().min(0),
+}).strict();
+
+const ShapeBinSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  value: z.number().int().min(0),
+}).strict();
+
+export const ShapeClassifierWidgetConfigSchema = z.object({
+  shapes: z.array(ShapeSchema).min(2),
+  bins: z.array(ShapeBinSchema).min(2),
+  rule: z.enum(['sides', 'angles', 'parallelPairs']),
+}).strict().superRefine((value, context) => {
+  if (new Set(value.shapes.map((shape) => shape.id)).size !== value.shapes.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['shapes'], message: 'shape ids must be unique' });
+  }
+  if (new Set(value.shapes.map((shape) => shape.label)).size !== value.shapes.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['shapes'], message: 'shape labels must be unique' });
+  }
+  if (new Set(value.bins.map((bin) => bin.id)).size !== value.bins.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins'], message: 'bin ids must be unique' });
+  }
+  if (new Set(value.bins.map((bin) => bin.value)).size !== value.bins.length) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['bins'],
+      message: 'bin values must be unique',
+    });
+  }
+  if (!value.shapes.every((shape) => value.bins.some((bin) => bin.value === shape[value.rule]))) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['bins'],
+      message: 'every rule value needs a bin',
+    });
+  }
+});
+
+export const ShapeClassifierWidgetRefSchema = z.object({
+  type: z.literal('shape-classifier'),
+  config: ShapeClassifierWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -509,6 +559,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ClockElapsedTimeWidgetRefSchema,
   QuarterInchRulerWidgetRefSchema,
   BalanceScaleWidgetRefSchema,
+  ShapeClassifierWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

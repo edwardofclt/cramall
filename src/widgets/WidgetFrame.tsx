@@ -78,6 +78,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['balance-scale'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'shape-classifier': {
+      const Widget = widgetRegistry['shape-classifier'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

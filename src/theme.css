@@ -2251,3 +2251,27 @@ body {
 .balance-relation { margin: 0; font-weight: 700; }
 .balance-relation-controls { display: grid; grid-template-columns: repeat(3, minmax(44px, 1fr)); gap: .5rem; }
 .balance-check, .balance-reset { justify-self: start; min-width: 44px; }
+.widget-experiment.shapes { display: grid; gap: .75rem; }
+.shapes-heading h3, .shapes-heading p, .shape-card h4, .shape-bins h4, .shape-placement { margin: 0; }
+.shapes-heading p { color: var(--c-ink-soft); font-weight: 700; }
+.shape-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .75rem; }
+.shape-card { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: .65rem; align-items: center; padding: .75rem; border: 3px solid var(--c-ink); border-radius: .75rem; background: var(--c-card); }
+.shape-card[data-selected="true"] { box-shadow: inset 0 0 0 3px var(--c-accent-action); }
+.shape-schematic { display: block; width: 5.5rem; min-height: 5.5rem; border: 2px solid var(--c-ink); border-radius: .5rem; background: var(--c-card); }
+.shape-schematic polygon { fill: none; stroke: var(--c-ink); stroke-width: 3; stroke-linejoin: round; }
+.shape-schematic circle { fill: var(--c-ink); }
+.shape-property-schematic { display: grid; place-items: center; padding: .4rem; color: var(--c-ink); font-size: .8rem; font-weight: 800; text-align: center; }
+.shape-properties { min-width: 0; }
+.shape-properties dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; margin: .4rem 0 0; }
+.shape-properties dl div { padding: .3rem; border: 1px solid var(--c-ink); border-radius: .35rem; text-align: center; }
+.shape-properties dt { font-size: .7rem; font-weight: 700; }
+.shape-properties dd { margin: .1rem 0 0; font-size: 1.05rem; font-weight: 800; }
+.shape-card button, .shape-bins button, .shape-reset { min-height: 44px; }
+.shape-card button { grid-column: 1 / -1; }
+.shape-card button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--c-accent-action); }
+.shape-placement { grid-column: 1 / -1; min-block-size: 1.5em; font-weight: 700; }
+.shape-placement-id { display: none; }
+.shape-bins { display: grid; gap: .5rem; }
+.shape-bins > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: .5rem; }
+.shape-reset { justify-self: start; min-width: 44px; }
+@media (max-width: 500px) { .shape-card { grid-template-columns: 1fr; } .shape-schematic { justify-self: center; } }
