@@ -70,6 +70,10 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
       <h3>Hazard-solution designer</h3>
       <p id="hazard-model-note">This is a simplified authored mitigation-planning model, not emergency advice. It does not promise safety, prevent all damage, or eliminate risk.</p>
     </header>
+    <section className="hazard-context" data-testid="hazard-context" aria-label="Current hazard">
+      <h4>Hazard: {config.hazard}</h4>
+      <p>Design a set of protections for this hazard.</p>
+    </section>
     <section className="hazard-design-cards" aria-label={`Solutions for ${config.hazard}`}>
       {config.solutions.map((solution) => <article className="hazard-solution-card" key={solution.id} data-selected={selected.includes(solution.id) ? 'yes' : 'no'}>
         <strong>{solution.label}</strong>

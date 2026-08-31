@@ -43,6 +43,21 @@ test('shows distinct selected design cards and honest model-and-safety framing',
   expect(screen.getByRole('status')).toHaveTextContent(/selection changed/i);
 });
 
+test('keeps the configured hazard visible through selection, feedback, and completion', async () => {
+  const user = userEvent.setup();
+  render(<HazardSolutionDesigner config={config} onEvent={vi.fn()} />);
+
+  const hazardContext = () => screen.getByTestId('hazard-context');
+  expect(hazardContext()).toHaveTextContent('Flood');
+  await user.click(screen.getByRole('button', {name: 'Toggle Seawall'}));
+  expect(hazardContext()).toHaveTextContent('Flood');
+  await user.click(screen.getByRole('button', {name: 'Check solution'}));
+  expect(hazardContext()).toHaveTextContent('Flood');
+  await user.click(screen.getByRole('button', {name: 'Toggle Evacuate'}));
+  await user.click(screen.getByRole('button', {name: 'Check solution'}));
+  expect(hazardContext()).toHaveTextContent('Flood');
+});
+
 test('gives correctable poor, missing, and unnecessary-extra feedback without completing', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
