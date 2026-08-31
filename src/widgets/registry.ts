@@ -26,6 +26,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-piece' | 'clear-model' }
     | { type: 'change'; value: { numerator: number; denominator: number } }
     | { type: 'complete'; value: { numerator: number; denominator: number; equivalent: boolean } };
+  'area-model-multiplier':
+    | { type: 'interaction'; action: 'select-cell' | 'reset' }
+    | { type: 'change'; value: { selectedCells: number; product: number } }
+    | { type: 'complete'; value: { product: number } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -50,4 +54,5 @@ export const widgetRegistry = {
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),
   'base-ten-blocks': lazy(() => import('./math/BaseTenBlocks')),
   'fraction-models': lazy(() => import('./math/FractionModels')),
+  'area-model-multiplier': lazy(() => import('./math/AreaModelMultiplier')),
 } satisfies WidgetRegistry;

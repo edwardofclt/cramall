@@ -1,7 +1,13 @@
 import { z } from 'zod';
 import { normalizeAnswerText } from './answer-normalization';
 
-export const WIDGET_TYPES = ['place-value-builder', 'number-line-compare', 'base-ten-blocks', 'fraction-models'] as const;
+export const WIDGET_TYPES = [
+  'place-value-builder',
+  'number-line-compare',
+  'base-ten-blocks',
+  'fraction-models',
+  'area-model-multiplier',
+] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
 export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy']);
@@ -211,6 +217,29 @@ export const FractionModelsWidgetRefSchema = z.object({
   config: FractionModelsWidgetConfigSchema,
 }).strict();
 
+export const AreaModelMultiplierWidgetConfigSchema = z.object({
+  a: z.number().int().min(1).max(99),
+  b: z.number().int().min(1).max(99),
+  splitA: z.array(z.number().int().positive()).min(1).optional(),
+  splitB: z.array(z.number().int().positive()).min(1).optional(),
+  targetProduct: z.number().int().min(1).max(9801).optional(),
+}).strict().superRefine((value, context) => {
+  if (value.splitA && value.splitA.reduce((sum, part) => sum + part, 0) !== value.a) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['splitA'], message: 'must sum to a' });
+  }
+  if (value.splitB && value.splitB.reduce((sum, part) => sum + part, 0) !== value.b) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['splitB'], message: 'must sum to b' });
+  }
+  if (value.targetProduct !== undefined && value.targetProduct !== value.a * value.b) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetProduct'], message: 'must equal product' });
+  }
+});
+
+export const AreaModelMultiplierWidgetRefSchema = z.object({
+  type: z.literal('area-model-multiplier'),
+  config: AreaModelMultiplierWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -222,6 +251,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   }).strict(),
   BaseTenBlocksWidgetRefSchema,
   FractionModelsWidgetRefSchema,
+  AreaModelMultiplierWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

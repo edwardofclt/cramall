@@ -54,6 +54,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['fraction-models'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'area-model-multiplier': {
+      const Widget = widgetRegistry['area-model-multiplier'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
