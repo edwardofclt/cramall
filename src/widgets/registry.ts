@@ -122,6 +122,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-prefix' | 'select-root' | 'select-suffix' | 'check' | 'reset' }
     | { type: 'change'; value: { parts: string[]; word: string } }
     | { type: 'complete'; value: { word: string; meaning: string } };
+  'context-clue-detective':
+    | { type: 'interaction'; action: 'choose-clue' | 'reset' }
+    | { type: 'change'; value: { choiceId: string | null } }
+    | { type: 'complete'; value: { choiceId: string } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -168,4 +172,5 @@ export const widgetRegistry = {
   'hazard-solution-designer': lazy(() => import('./science/HazardSolutionDesigner')),
   'resource-sorter': lazy(() => import('./science/ResourceSorter')),
   'word-root-builder': lazy(() => import('./reading/WordRootBuilder')),
+  'context-clue-detective': lazy(() => import('./reading/ContextClueDetective')),
 } satisfies WidgetRegistry;

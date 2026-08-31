@@ -142,6 +142,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['word-root-builder'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'context-clue-detective': {
+      const Widget = widgetRegistry['context-clue-detective'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

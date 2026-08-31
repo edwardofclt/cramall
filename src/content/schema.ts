@@ -36,6 +36,7 @@ export const WIDGET_TYPES = [
   'hazard-solution-designer',
   'resource-sorter',
   'word-root-builder',
+  'context-clue-detective',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1031,6 +1032,38 @@ export const WordRootBuilderWidgetRefSchema = z.object({
   config: WordRootBuilderWidgetConfigSchema,
 }).strict();
 
+const ContextClueTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const contextClueVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+const ClueSchema = z.object({
+  id: ContextClueTextSchema,
+  text: ContextClueTextSchema,
+  type: z.enum(['definition','example','synonym','contrast']),
+}).strict();
+
+export const ContextClueDetectiveWidgetConfigSchema = z.object({
+  passage: ContextClueTextSchema,
+  targetWord: ContextClueTextSchema,
+  clueChoices: z.array(ClueSchema).min(2),
+  correctChoiceId: ContextClueTextSchema,
+}).strict().superRefine((value, context) => {
+  const clueIds = value.clueChoices.map((clue) => contextClueVisualKey(clue.id));
+  const clueTexts = value.clueChoices.map((clue) => contextClueVisualKey(clue.text));
+  if (new Set(clueIds).size !== clueIds.length || new Set(clueTexts).size !== clueTexts.length) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['clueChoices'], message: 'clue ids and clue text must be unique after normalization'});
+  }
+  if (value.clueChoices.filter((clue) => clue.id === value.correctChoiceId).length !== 1) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['correctChoiceId'], message: 'correct choice id must name exactly one clue'});
+  }
+  if (!contextClueVisualKey(value.passage).includes(contextClueVisualKey(value.targetWord))) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['targetWord'], message: 'target word must occur in the passage'});
+  }
+});
+
+export const ContextClueDetectiveWidgetRefSchema = z.object({
+  type: z.literal('context-clue-detective'),
+  config: ContextClueDetectiveWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1064,6 +1097,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   HazardSolutionDesignerWidgetRefSchema,
   ResourceSorterWidgetRefSchema,
   WordRootBuilderWidgetRefSchema,
+  ContextClueDetectiveWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
