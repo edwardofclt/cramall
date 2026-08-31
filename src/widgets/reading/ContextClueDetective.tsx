@@ -1,13 +1,14 @@
 import {useState} from 'react';
+import {findContextClueTargetRange} from '../../content/schema';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
 type ContextClueDetectiveProps = WidgetProps<'context-clue-detective'>;
 
 function markedPassage(passage: string,targetWord: string) {
-  const start = passage.toLocaleLowerCase().indexOf(targetWord.toLocaleLowerCase());
-  if (start < 0) return passage;
-  const end = start + targetWord.length;
+  const range = findContextClueTargetRange(passage,targetWord);
+  if (!range) return passage;
+  const {start,end} = range;
   return <>{passage.slice(0,start)}<mark>{passage.slice(start,end)}</mark>{passage.slice(end)}</>;
 }
 

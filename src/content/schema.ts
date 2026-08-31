@@ -1034,6 +1034,35 @@ export const WordRootBuilderWidgetRefSchema = z.object({
 
 const ContextClueTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
 const contextClueVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+const contextClueWordCharacter = /[\p{L}\p{N}\p{M}]/u;
+
+export function findContextClueTargetRange(passage: string,targetWord: string): {start:number;end:number}|null {
+  const targetKey = contextClueVisualKey(targetWord);
+  const targetCharacters = Array.from(targetKey);
+  const needsStartBoundary = contextClueWordCharacter.test(targetCharacters[0] ?? '');
+  const needsEndBoundary = contextClueWordCharacter.test(targetCharacters[targetCharacters.length-1] ?? '');
+  const boundaries = [0];
+  let cursor = 0;
+  for (const character of passage) {
+    cursor += character.length;
+    boundaries.push(cursor);
+  }
+  for (let startIndex=0;startIndex<boundaries.length-1;startIndex+=1) {
+    const start = boundaries[startIndex];
+    const before = startIndex > 0 ? passage.slice(boundaries[startIndex-1],start) : '';
+    if (needsStartBoundary && contextClueWordCharacter.test(before)) continue;
+    for (let endIndex=startIndex+1;endIndex<boundaries.length;endIndex+=1) {
+      const end = boundaries[endIndex];
+      const candidate = passage.slice(start,end);
+      if (candidate.trim() !== candidate || contextClueVisualKey(candidate) !== targetKey) continue;
+      const after = endIndex < boundaries.length-1 ? passage.slice(end,boundaries[endIndex+1]) : '';
+      if (needsEndBoundary && contextClueWordCharacter.test(after)) continue;
+      return {start,end};
+    }
+  }
+  return null;
+}
+
 const ClueSchema = z.object({
   id: ContextClueTextSchema,
   text: ContextClueTextSchema,
@@ -1054,7 +1083,7 @@ export const ContextClueDetectiveWidgetConfigSchema = z.object({
   if (value.clueChoices.filter((clue) => clue.id === value.correctChoiceId).length !== 1) {
     context.addIssue({code: z.ZodIssueCode.custom, path: ['correctChoiceId'], message: 'correct choice id must name exactly one clue'});
   }
-  if (!contextClueVisualKey(value.passage).includes(contextClueVisualKey(value.targetWord))) {
+  if (!findContextClueTargetRange(value.passage,value.targetWord)) {
     context.addIssue({code: z.ZodIssueCode.custom, path: ['targetWord'], message: 'target word must occur in the passage'});
   }
 });

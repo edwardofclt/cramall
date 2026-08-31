@@ -47,6 +47,26 @@ test('rejects blank, equivalent, disconnected, and target-free authoring',()=>{
   expect(ContextClueDetectiveWidgetConfigSchema.safeParse({...firstConfig,clueChoices:[firstConfig.clueChoices[0]]}).success).toBe(false);
 });
 
+test('rejects a target that occurs only inside a longer word',()=>{
+  expect(ContextClueDetectiveWidgetConfigSchema.safeParse({...firstConfig,targetWord:'tim'}).success).toBe(false);
+});
+
+test('accepts a canonical-equivalent target and marks its exact raw passage span',()=>{
+  const decomposedTarget = 'cafe\u0301';
+  const parsed = ContextClueDetectiveWidgetConfigSchema.safeParse({
+    ...firstConfig,
+    passage:`The ${decomposedTarget} served warm bread.`,
+    targetWord:'caf\u00e9',
+  });
+  expect(parsed.success).toBe(true);
+  if(!parsed.success) return;
+
+  render(<ContextClueDetective config={parsed.data} onEvent={vi.fn()}/>);
+
+  expect(screen.getByTestId('context-clue-passage')).toHaveTextContent(`The ${decomposedTarget} served warm bread.`);
+  expect(screen.getByTestId('context-clue-passage').querySelector('mark')?.textContent).toBe(decomposedTarget);
+});
+
 test('shows bounded coaching and current attempt state when a learner revises after success',async()=>{
   const onEvent=vi.fn(),user=userEvent.setup();
   render(<ContextClueDetective config={firstConfig} onEvent={onEvent}/>);
