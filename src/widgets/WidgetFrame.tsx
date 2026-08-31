@@ -106,6 +106,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['light-reflection-eye'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'message-sender': {
+      const Widget = widgetRegistry['message-sender'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

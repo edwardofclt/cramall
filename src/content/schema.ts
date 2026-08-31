@@ -27,6 +27,7 @@ export const WIDGET_TYPES = [
   'energy-transfer-builder',
   'wave-maker',
   'light-reflection-eye',
+  'message-sender',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -730,6 +731,41 @@ export const LightReflectionEyeWidgetConfigSchema = z.object({
 
 export const LightReflectionEyeWidgetRefSchema = z.object({ type: z.literal('light-reflection-eye'), config: LightReflectionEyeWidgetConfigSchema }).strict();
 
+const MorseAlphabet: Record<string, string> = {
+  A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
+};
+const isVisibleCharacter = (character: string) => [...character].length === 1 && character.trim() === character && !/[\p{C}\p{Z}]/u.test(character);
+const isPrintableAscii = (character: string) => character.length === 1 && character.charCodeAt(0) >= 32 && character.charCodeAt(0) <= 126;
+const printableAsciiAlphabet = () => Object.fromEntries(Array.from({ length: 95 }, (_, index) => {
+  const character = String.fromCharCode(index + 32);
+  return [character, character.charCodeAt(0).toString(2).padStart(8, '0')];
+}));
+
+export const MessageSenderWidgetConfigSchema = z.object({
+  encoding: z.enum(['morse', 'binary']),
+  message: z.string().trim().min(1),
+  alphabet: z.record(z.string()).optional(),
+}).strict().superRefine((value, context) => {
+  const message = value.encoding === 'morse' ? value.message.toUpperCase() : value.message;
+  const codePattern = value.encoding === 'morse' ? /^[.-]+$/ : /^[01]{8}$/;
+  const normalizedOverrides = Object.entries(value.alphabet ?? {}).map(([character, code]) => [value.encoding === 'morse' ? character.toUpperCase() : character, code] as const);
+  if (normalizedOverrides.some(([character, code]) => !isVisibleCharacter(character) || (value.encoding === 'binary' && !isPrintableAscii(character)) || !codePattern.test(code))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['alphabet'], message: 'override keys must be visible enterable characters and codes must be enterable symbols' });
+  }
+  if (new Set(normalizedOverrides.map(([character]) => character)).size !== normalizedOverrides.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['alphabet'], message: 'override keys must remain unique after normalization' });
+  }
+  const effective = { ...(value.encoding === 'morse' ? MorseAlphabet : printableAsciiAlphabet()), ...Object.fromEntries(normalizedOverrides) };
+  if (new Set(Object.values(effective)).size !== Object.keys(effective).length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['alphabet'], message: 'effective codes must be unambiguous' });
+  }
+  if (![...message].every((character) => Object.prototype.hasOwnProperty.call(effective, character))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['message'], message: 'effective alphabet must cover every message character' });
+  }
+});
+
+export const MessageSenderWidgetRefSchema = z.object({ type: z.literal('message-sender'), config: MessageSenderWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -754,6 +790,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   EnergyTransferBuilderWidgetRefSchema,
   WaveMakerWidgetRefSchema,
   LightReflectionEyeWidgetRefSchema,
+  MessageSenderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
