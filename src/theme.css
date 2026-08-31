@@ -2202,3 +2202,11 @@ body {
 .array-builder [role="row"] { display: contents; }
 .array-builder-cell { display: grid; min-width: 24px; min-height: 24px; place-items: center; border: 1px solid var(--c-ink); background: var(--c-card); color: var(--c-ink); font-size: .8rem; }
 .array-builder output { display: block; font-weight: 800; }
+.widget-experiment.money { display: grid; gap: .75rem; }
+.money-denominations { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .75rem; }
+.money-denomination { display: grid; gap: .5rem; padding: .75rem; border: 2px solid var(--c-ink); border-radius: .75rem; }
+.money-denomination h3, .money-denomination p { margin: 0; }
+.money-denomination-controls { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.money button { min-height: 44px; }
+.money output { font-variant-numeric: tabular-nums; font-weight: 800; }
+.money-total { display: block; font-size: 1.125rem; }

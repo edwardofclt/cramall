@@ -62,6 +62,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['array-builder'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'money-counter': {
+      const Widget = widgetRegistry['money-counter'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

@@ -9,6 +9,9 @@ type BaseTenValue = {
   value: number;
 };
 
+type MoneyCounts = Record<'1' | '5' | '10' | '25' | '100', number>;
+type MoneyValue = { totalCents: number; counts: MoneyCounts };
+
 export type WidgetEventMap = {
   'place-value-builder':
     | { type: 'interaction'; action: 'change-place' | 'reset' }
@@ -34,6 +37,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'change-rows' | 'change-columns' | 'reset' }
     | { type: 'change'; value: { rows: number; columns: number; product: number } }
     | { type: 'complete'; value: { rows: number; columns: number; product: number } };
+  'money-counter':
+    | { type: 'interaction'; action: 'add-coin' | 'remove-coin' | 'reset' }
+    | { type: 'change'; value: MoneyValue }
+    | { type: 'complete'; value: MoneyValue };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -60,4 +67,5 @@ export const widgetRegistry = {
   'fraction-models': lazy(() => import('./math/FractionModels')),
   'area-model-multiplier': lazy(() => import('./math/AreaModelMultiplier')),
   'array-builder': lazy(() => import('./math/ArrayBuilder')),
+  'money-counter': lazy(() => import('./math/MoneyCounter')),
 } satisfies WidgetRegistry;

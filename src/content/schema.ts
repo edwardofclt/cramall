@@ -8,6 +8,7 @@ export const WIDGET_TYPES = [
   'fraction-models',
   'area-model-multiplier',
   'array-builder',
+  'money-counter',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -269,6 +270,46 @@ export const ArrayBuilderWidgetRefSchema = z.object({
   config: ArrayBuilderWidgetConfigSchema,
 }).strict();
 
+const DenominationSchema = z.union([
+  z.literal(1),
+  z.literal(5),
+  z.literal(10),
+  z.literal(25),
+  z.literal(100),
+]);
+
+function canMakeMoneyTarget(target: number, denominations: readonly number[]): boolean {
+  const reachable = Array<boolean>(target + 1).fill(false);
+  reachable[0] = true;
+  for (let cents = 1; cents <= target; cents += 1) {
+    reachable[cents] = denominations.some((coin) => coin <= cents && reachable[cents - coin]);
+  }
+  return reachable[target];
+}
+
+export const MoneyCounterWidgetConfigSchema = z.object({
+  targetCents: z.number().int().min(0).max(9999).optional(),
+  denominations: z.array(DenominationSchema).min(1).refine(
+    (values) => new Set(values).size === values.length,
+    'duplicates',
+  ).optional(),
+}).strict().superRefine((value, context) => {
+  if (value.targetCents === undefined) return;
+  const denominations = value.denominations ?? [1, 5, 10, 25, 100];
+  if (!canMakeMoneyTarget(value.targetCents, denominations)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['targetCents'],
+      message: 'target is unreachable with these denominations',
+    });
+  }
+});
+
+export const MoneyCounterWidgetRefSchema = z.object({
+  type: z.literal('money-counter'),
+  config: MoneyCounterWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -282,6 +323,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   FractionModelsWidgetRefSchema,
   AreaModelMultiplierWidgetRefSchema,
   ArrayBuilderWidgetRefSchema,
+  MoneyCounterWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
