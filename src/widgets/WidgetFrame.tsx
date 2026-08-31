@@ -166,6 +166,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['summary-builder'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'pov-switcher': {
+      const Widget = widgetRegistry['pov-switcher'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

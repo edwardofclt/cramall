@@ -146,6 +146,10 @@ export type WidgetEventMap = {
     | {type:'interaction';action:'toggle-sentence'|'reset'}
     | {type:'change';value:{selectedIds:string[]}}
     | {type:'complete';value:{selectedIds:string[]}};
+  'pov-switcher':
+    | {type:'interaction';action:'select-pronoun'|'apply'|'reset'}
+    | {type:'change';value:{selectedPronouns:string[]}}
+    | {type:'complete';value:{rewrittenText:string}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -198,4 +202,5 @@ export const widgetRegistry = {
   'central-idea-organizer': lazy(() => import('./reading/CentralIdeaOrganizer')),
   'text-structure-sorter': lazy(() => import('./reading/TextStructureSorter')),
   'summary-builder': lazy(() => import('./reading/SummaryBuilder')),
+  'pov-switcher': lazy(() => import('./reading/PovSwitcher')),
 } satisfies WidgetRegistry;

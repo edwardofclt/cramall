@@ -42,6 +42,7 @@ export const WIDGET_TYPES = [
   'central-idea-organizer',
   'text-structure-sorter',
   'summary-builder',
+  'pov-switcher',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1251,6 +1252,51 @@ export const SummaryBuilderWidgetRefSchema=z.object({
   config:SummaryBuilderWidgetConfigSchema,
 }).strict();
 
+const PovTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const povVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const povWordMatches=(passage:string,pattern:RegExp)=>passage.match(pattern)?.length??0;
+const povThirdPersonSource=(passage:string)=>{
+  const name=passage.match(/^([A-Z][a-z]+)\b/)?.[1];
+  if(!name)return false;
+  const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  return povWordMatches(passage,new RegExp(`\\b${escaped}\\b(?![\u2019']s\\b)`,'g'))===1
+    &&povWordMatches(passage,new RegExp(`\\b${escaped}[\u2019']s\\b`,'g'))===1;
+};
+const povFirstPersonSource=(passage:string)=>povWordMatches(passage,/\bI\b/g)===1
+  &&povWordMatches(passage,/\bmy\b/gi)===1;
+
+export const PovSwitcherWidgetConfigSchema=z.object({
+  passage:PovTextSchema,
+  from:z.enum(['first','third']),
+  target:z.enum(['first','third']),
+  pronounOptions:z.array(PovTextSchema).min(2),
+  requiredPronouns:z.tuple([PovTextSchema,PovTextSchema]),
+}).strict().superRefine((value,context)=>{
+  const optionKeys=value.pronounOptions.map(povVisualKey);
+  const requiredKeys=value.requiredPronouns.map(povVisualKey);
+  const requiredPresent=requiredKeys.every((required)=>optionKeys.includes(required));
+  const firstTarget=value.requiredPronouns[0]==='I'&&value.requiredPronouns[1]==='my';
+  const thirdSubject=value.requiredPronouns[0];
+  const thirdPossessive=value.requiredPronouns[1];
+  const thirdTarget=/^[A-Z][a-z]+$/.test(thirdSubject)
+    &&(thirdPossessive===`${thirdSubject}'s`||thirdPossessive===`${thirdSubject}’s`);
+  const sourceIsSafe=value.from==='third'?povThirdPersonSource(value.passage):povFirstPersonSource(value.passage);
+  const targetIsSafe=value.target==='first'?firstTarget:thirdTarget;
+  if(value.from===value.target
+    ||new Set(optionKeys).size!==optionKeys.length
+    ||new Set(requiredKeys).size!==2
+    ||!requiredPresent
+    ||!sourceIsSafe
+    ||!targetIsSafe){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'POV transition needs distinct target forms and one unambiguous authored subject pair'});
+  }
+});
+
+export const PovSwitcherWidgetRefSchema=z.object({
+  type:z.literal('pov-switcher'),
+  config:PovSwitcherWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1290,6 +1336,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   CentralIdeaOrganizerWidgetRefSchema,
   TextStructureSorterWidgetRefSchema,
   SummaryBuilderWidgetRefSchema,
+  PovSwitcherWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
