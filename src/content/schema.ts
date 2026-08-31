@@ -684,11 +684,12 @@ export const ProbabilitySpinnerWidgetRefSchema = z.object({
 }).strict();
 
 export const CollisionRampWidgetConfigSchema = z.object({
-  rampAngle: z.number().finite().min(0).max(45).optional(),
-  massA: z.number().finite().min(1).max(100),
-  massB: z.number().finite().min(1).max(100),
-  speedA: z.number().finite().min(0).max(100).optional(),
-  speedB: z.number().finite().min(0).max(100).optional(),
+  // Shares the exact authored-decimal contract (12 places, including scientific notation).
+  rampAngle: z.number().finite().min(0).max(45).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`).optional(),
+  massA: z.number().finite().min(1).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`),
+  massB: z.number().finite().min(1).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`),
+  speedA: z.number().finite().min(0).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`).optional(),
+  speedB: z.number().finite().min(0).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`).optional(),
   target: z.enum(['predict-direction', 'compare-motion']).optional(),
 }).strict();
 
