@@ -114,6 +114,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['energy-conversion-designer'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'animal-structure-matcher': {
+      const Widget = widgetRegistry['animal-structure-matcher'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

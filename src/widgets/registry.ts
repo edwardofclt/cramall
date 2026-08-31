@@ -94,6 +94,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'append-chain' | 'reset' }
     | { type: 'change'; value: { chain: string[] } }
     | { type: 'complete'; value: { chain: string[] } };
+  'animal-structure-matcher':
+    | { type: 'interaction'; action: 'select-structure' | 'match' | 'reset' }
+    | { type: 'change'; value: { matches: Record<string, string> } }
+    | { type: 'complete'; value: { matches: Record<string, string> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -133,4 +137,5 @@ export const widgetRegistry = {
   'light-reflection-eye': lazy(() => import('./science/LightReflectionEye')),
   'message-sender': lazy(() => import('./science/MessageSender')),
   'energy-conversion-designer': lazy(() => import('./science/EnergyConversionDesigner')),
+  'animal-structure-matcher': lazy(() => import('./science/AnimalStructureMatcher')),
 } satisfies WidgetRegistry;

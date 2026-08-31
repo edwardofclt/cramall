@@ -29,6 +29,7 @@ export const WIDGET_TYPES = [
   'light-reflection-eye',
   'message-sender',
   'energy-conversion-designer',
+  'animal-structure-matcher',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -814,6 +815,27 @@ export const EnergyConversionDesignerWidgetConfigSchema = z.object({
 
 export const EnergyConversionDesignerWidgetRefSchema = z.object({ type: z.literal('energy-conversion-designer'), config: EnergyConversionDesignerWidgetConfigSchema }).strict();
 
+const AnimalStructureTermSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const AnimalStructurePairSchema = z.object({
+  id: AnimalStructureTermSchema,
+  animal: AnimalStructureTermSchema,
+  structure: AnimalStructureTermSchema,
+  function: AnimalStructureTermSchema,
+}).strict();
+
+export const AnimalStructureMatcherWidgetConfigSchema = z.object({
+  pairs: z.array(AnimalStructurePairSchema).min(2),
+}).strict().superRefine((value, context) => {
+  const ids = value.pairs.map((pair) => pair.id);
+  const functions = value.pairs.map((pair) => pair.function);
+  const labels = value.pairs.map((pair) => `${pair.animal} ${pair.structure}`);
+  if (new Set(ids).size !== ids.length || new Set(functions).size !== functions.length || new Set(labels).size !== labels.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'ids, functions, and interactive labels must be unique' });
+  }
+});
+
+export const AnimalStructureMatcherWidgetRefSchema = z.object({ type: z.literal('animal-structure-matcher'), config: AnimalStructureMatcherWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -840,6 +862,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   LightReflectionEyeWidgetRefSchema,
   MessageSenderWidgetRefSchema,
   EnergyConversionDesignerWidgetRefSchema,
+  AnimalStructureMatcherWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
