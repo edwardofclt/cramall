@@ -66,6 +66,6 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
       }) : <span className="conversion-empty">Your selected chain will appear here.</span>}
     </div>
     <button className="conversion-reset" aria-label="Start over" onClick={reset}>Start over</button>
-    <p role="status">{visiblyComplete ? 'The selected conversion chain currently connects the required endpoints.' : status}</p>
+    <p role="status">{status}</p>
   </section>;
 }

@@ -78,3 +78,18 @@ test('renders the selected chain as labelled nodes and returns live state to bui
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
+
+test('keeps exact correction feedback live after an incompatible append to a complete chain', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
+  for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  onEvent.mockClear();
+  await user.click(screen.getByRole('button', { name: 'Add Sun' }));
+  expect(screen.getByTestId('conversion-chain')).toHaveTextContent(/sun.*panel.*lamp/i);
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/Lamp outputs light.*does not connect to Sun's nuclear input/i);
+  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'append-chain' },
+    { type: 'change', value: { chain: ['sun', 'panel', 'lamp'] } },
+  ]);
+});
