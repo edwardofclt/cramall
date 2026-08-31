@@ -42,7 +42,7 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
         data-widget-grid
         role="group"
         aria-label={`Area model partitions for ${config.a} times ${config.b}`}
-        style={{ gridTemplateColumns: `repeat(${partsB.length}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${partsB.length}, minmax(44px, 1fr))` }}
       >
         {cells.map((cell) => {
           const isSelected = selected.includes(cell.id);

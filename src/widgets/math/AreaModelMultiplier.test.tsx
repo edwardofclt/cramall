@@ -37,3 +37,17 @@ test('the authored product alone does not present completion before cell interac
   expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-state', 'building');
   expect(onEvent).not.toHaveBeenCalled();
 });
+
+test('preserves 44px tracks for a valid 99-partition factor', () => {
+  render(
+    <AreaModelMultiplier
+      config={{ a: 99, b: 99, splitA: [99], splitB: Array.from({ length: 99 }, () => 1) }}
+      onEvent={() => {}}
+    />,
+  );
+
+  const grid = screen.getByRole('group', { name: 'Area model partitions for 99 times 99' });
+
+  expect(grid).toHaveStyle({ gridTemplateColumns: 'repeat(99, minmax(44px, 1fr))' });
+  expect(screen.getAllByRole('button', { name: 'Select 99 by 1 cell' })).toHaveLength(99);
+});
