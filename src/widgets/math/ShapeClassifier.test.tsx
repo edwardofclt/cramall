@@ -145,8 +145,16 @@ describe('ShapeClassifier', () => {
     expect(new Set(points).size).toBe(5);
     expect(container.querySelector('[data-diagram="quadrilateral"] [data-parallel-pair]')).toBeNull();
     expect(container.querySelectorAll('[data-diagram="square"] [data-parallel-pair]')).toHaveLength(2);
-    expect(container.querySelector('[data-diagram="rectangle"] .shape-right-mark')).toBeTruthy();
-    expect(container.querySelector('[data-diagram="rhombus"] [data-equal-sides="4"]')).toBeTruthy();
+    expect(container.querySelector('[data-diagram="rhombus"] polygon')).toHaveAttribute('points', '50,15 80,50 50,85 20,50');
+    expect(container.querySelector('[data-diagram="rhombus"] polygon')).not.toHaveAttribute('points', container.querySelector('[data-diagram="square"] polygon')?.getAttribute('points'));
+    expect(container.querySelector('[data-diagram="rhombus"] [data-equal-sides="4"]')).toHaveAttribute('data-edge-anchors', 'AB,BC,CD,DA');
+    expect(container.querySelector('[data-diagram="rhombus"] .shape-equal-mark path')).toHaveAttribute('d', 'M62 35.5l6-6 M62 64.5l6 6 M32 64.5l6 6 M32 35.5l6-6');
+    expect(container.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"]')).toHaveAttribute('data-edge-anchors', 'AB,CD');
+    expect(container.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"] path')).toHaveAttribute('d', 'M47 25l-4-3m4 3l-4 3 M47 75l-4-3m4 3l-4 3');
+    expect(container.querySelector('[data-diagram="rectangle"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
+    expect(container.querySelector('[data-diagram="rectangle"] .shape-right-mark')).toHaveAttribute('d', 'M23 32h8v-8 M69 24h8v8 M77 68h-8v8 M31 76h-8v-8');
+    expect(container.querySelector('[data-diagram="square"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
+    expect(container.querySelector('[data-diagram="square"] .shape-right-mark')).toHaveAttribute('d', 'M28 36h8v-8 M64 28h8v8 M72 64h-8v8 M36 72h-8v-8');
   });
 
   test('retains two correct button placements and completes once', async () => {

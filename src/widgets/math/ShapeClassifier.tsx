@@ -30,7 +30,7 @@ function CanonicalShapeDiagram({ shape }: { shape: ClassificationConfig['shapes'
     quadrilateral: { points: '18,25 76,20 84,70 30,80', evidence: 'four unequal-looking sides with no parallel-arrow marks' },
     parallelogram: { points: '25,25 70,25 84,75 39,75', evidence: 'two distinct arrow-marked pairs of parallel sides' },
     rectangle: { points: '23,24 77,24 77,76 23,76', evidence: 'four right-angle boxes and two distinct arrow-marked pairs of parallel sides' },
-    rhombus: { points: '50,18 82,50 50,82 18,50', evidence: 'four equal-side marks and two distinct arrow-marked pairs of parallel sides' },
+    rhombus: { points: '50,15 80,50 50,85 20,50', evidence: 'four equal-side ticks on its four slanted sides, two distinct arrow-marked pairs of parallel sides, and unequal diagonals' },
     square: { points: '28,28 72,28 72,72 28,72', evidence: 'four equal-side marks, four right-angle boxes, and two distinct arrow-marked pairs of parallel sides' },
   };
   const { points, evidence } = details[shape.diagram];
@@ -42,11 +42,20 @@ function CanonicalShapeDiagram({ shape }: { shape: ClassificationConfig['shapes'
     : shape.diagram === 'isosceles-acute-triangle' ? <g className="shape-equal-mark" data-equal-sides="2"><path d="M34 50l6 4 M60 54l6-4" /></g>
       : shape.diagram === 'isosceles-right-triangle' ? <g className="shape-equal-mark" data-equal-sides="2"><path d="M21 50h8 M50 71v8" /></g>
         : shape.diagram === 'isosceles-obtuse-triangle' ? <g className="shape-equal-mark" data-equal-sides="2"><path d="M33 69l6 4 M61 73l6-4" /></g>
-          : shape.diagram === 'rhombus' ? <g className="shape-equal-mark" data-equal-sides="4"><path d="M32 33l6 4 M68 29l6 4 M68 71l6-4 M32 67l6-4" /></g>
-            : shape.diagram === 'square' ? <g className="shape-equal-mark" data-equal-sides="4"><path d="M50 24v8 M68 50h8 M50 68v8 M24 50h8" /></g> : null;
-  const parallel = ['parallelogram', 'rectangle', 'rhombus', 'square'].includes(shape.diagram) ? <>
-    <g className="shape-parallel-mark" data-parallel-pair="one"><path d="M42 21l7 4 M42 79l7-4" /></g>
-    <g className="shape-parallel-mark" data-parallel-pair="two"><path d="M75 44l4 7 M25 44l4 7" /></g>
+          : shape.diagram === 'rhombus' ? <g className="shape-equal-mark" data-equal-sides="4" data-edge-anchors="AB,BC,CD,DA"><path d="M62 35.5l6-6 M62 64.5l6 6 M32 64.5l6 6 M32 35.5l6-6" /></g>
+            : shape.diagram === 'square' ? <g className="shape-equal-mark" data-equal-sides="4" data-edge-anchors="AB,BC,CD,DA"><path d="M50 24v8 M68 50h8 M50 68v8 M24 50h8" /></g> : null;
+  const parallel = shape.diagram === 'parallelogram' ? <>
+    <g className="shape-parallel-mark" data-parallel-pair="one" data-edge-anchors="AB,CD"><path d="M47 25l-4-3m4 3l-4 3 M47 75l-4-3m4 3l-4 3" /></g>
+    <g className="shape-parallel-mark" data-parallel-pair="two" data-edge-anchors="BC,DA"><path d="M75.6 45l-4-3m4 3l-1 5 M33.4 55l-4-3m4 3l-1 5" /></g>
+  </> : shape.diagram === 'rectangle' ? <>
+    <g className="shape-parallel-mark" data-parallel-pair="one" data-edge-anchors="AB,CD"><path d="M50 24l-4-3m4 3l-4 3 M50 76l-4-3m4 3l-4 3" /></g>
+    <g className="shape-parallel-mark" data-parallel-pair="two" data-edge-anchors="BC,DA"><path d="M77 50l-3-4m3 4l-3 4 M23 50l3-4m-3 4l3 4" /></g>
+  </> : shape.diagram === 'rhombus' ? <>
+    <g className="shape-parallel-mark" data-parallel-pair="one" data-edge-anchors="AB,CD"><path d="M65 32.5l-4-3m4 3l-1 5 M35 67.5l4 3m-4-3l1-5" /></g>
+    <g className="shape-parallel-mark" data-parallel-pair="two" data-edge-anchors="BC,DA"><path d="M65 67.5l4-3m-4 3l1 5 M35 32.5l-4 3m4-3l-1-5" /></g>
+  </> : shape.diagram === 'square' ? <>
+    <g className="shape-parallel-mark" data-parallel-pair="one" data-edge-anchors="AB,CD"><path d="M50 28l-4-3m4 3l-4 3 M50 72l-4-3m4 3l-4 3" /></g>
+    <g className="shape-parallel-mark" data-parallel-pair="two" data-edge-anchors="BC,DA"><path d="M72 50l-3-4m3 4l-3 4 M28 50l3-4m-3 4l3 4" /></g>
   </> : null;
   const classes = shape.classifications.map((classification) => classification.replace(/-/g, ' ')).join(', ');
   return <svg className="shape-canonical-diagram" role="img" aria-label={`${shape.label}: canonical ${shape.diagram.replace(/-/g, ' ')} with ${shape.sides} sides, ${shape.angles} angles, and ${shape.parallelPairs} pairs of parallel sides. Observable evidence: ${evidence}. Canonical classes: ${classes}.`} viewBox="0 0 100 100" data-diagram={shape.diagram}>
