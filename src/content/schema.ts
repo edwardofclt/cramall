@@ -99,31 +99,25 @@ function alignsToStep(value: number, min: number, step: number): boolean {
   return Math.abs(steps - Math.round(steps)) < 1e-9;
 }
 
+const alignsToDenominator = (value: number, denominator: number) =>
+  Math.abs(value * denominator - Math.round(value * denominator)) < 1e-9;
+
 export const NumberLineWidgetConfigSchema = z.object({
   min: z.number().finite(),
   max: z.number().finite(),
   a: z.number().finite(),
   b: z.number().finite(),
-  step: z.number().finite().positive().optional(),
+  step: z.number().positive().finite().optional(),
+  display: z.enum(['number', 'fraction']).optional(),
+  denominator: z.union([z.literal(2), z.literal(4), z.literal(8), z.literal(10), z.literal(100)]).optional(),
 }).strict().superRefine((config, context) => {
   if (config.max <= config.min) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['max'],
-      message: 'max must be greater than min',
-    });
-    return;
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['max'], message: 'max must exceed min' });
   }
-  for (const marker of ['a', 'b'] as const) {
-    if (config[marker] < config.min || config[marker] > config.max) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: [marker],
-        message: `${marker} must be between min and max`,
-      });
-    }
+  if (config.a < config.min || config.a > config.max || config.b < config.min || config.b > config.max) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'markers must be on line' });
   }
-  const step = config.step ?? 1;
+  const step = config.step ?? (config.display === 'fraction' && config.denominator ? 1 / config.denominator : 1);
   for (const marker of ['a', 'b'] as const) {
     if (!alignsToStep(config[marker], config.min, step)) {
       context.addIssue({
@@ -131,6 +125,27 @@ export const NumberLineWidgetConfigSchema = z.object({
         path: [marker],
         message: `${marker} must align to step from min`,
       });
+    }
+  }
+  if (config.display === 'fraction') {
+    if (!config.denominator) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['denominator'], message: 'required' });
+      return;
+    }
+    for (const [field, value] of Object.entries({
+      min: config.min,
+      max: config.max,
+      a: config.a,
+      b: config.b,
+      step,
+    })) {
+      if (!alignsToDenominator(value, config.denominator)) {
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [field],
+          message: `${field} must align to denominator grid`,
+        });
+      }
     }
   }
 });

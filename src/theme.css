@@ -1605,6 +1605,17 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+.nl-pill-text,
+.nl-stepper-value,
+.nl-tick-label {
+  font-variant-numeric: tabular-nums;
+}
+
+.nl-fraction-label {
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
 .nl-sentence {
   display: flex;
   align-items: center;

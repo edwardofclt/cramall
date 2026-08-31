@@ -53,7 +53,32 @@ function tickStep(range: number): number {
   return Math.max(1, Math.ceil(range / 10));
 }
 
-function tickValues(min: number, max: number): number[] {
+export function formatNumberLineValue(
+  value: number,
+  display: 'number' | 'fraction' = 'number',
+  denominator?: number,
+): string {
+  if (display === 'number' || !denominator) return String(value);
+  const numerator = Math.round(value * denominator);
+  const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
+  const divisor = gcd(numerator, denominator);
+  const top = numerator / divisor;
+  const bottom = denominator / divisor;
+  return bottom === 1 ? String(top) : `${top}/${bottom}`;
+}
+
+function tickValues(
+  min: number,
+  max: number,
+  display: 'number' | 'fraction',
+  denominator?: number,
+): number[] {
+  if (display === 'fraction' && denominator && (max - min) * denominator <= 10) {
+    return Array.from(
+      { length: Math.round((max - min) * denominator) + 1 },
+      (_, index) => Number((min + index / denominator).toFixed(10)),
+    );
+  }
   const step = tickStep(max - min);
   const ticks: number[] = [];
   for (let v = Math.ceil(min / step) * step; v <= max; v += step) ticks.push(v);
@@ -79,14 +104,21 @@ function readConfig(config: Record<string, unknown>) {
     min = DEFAULTS.min;
     max = DEFAULTS.max;
   }
-  const rawStep = toFinite(config.step, 1);
-  const step = rawStep > 0 ? rawStep : 1;
+  const display: 'number' | 'fraction' = config.display === 'fraction' ? 'fraction' : 'number';
+  const denominator = [2, 4, 8, 10, 100].includes(Number(config.denominator))
+    ? Number(config.denominator)
+    : undefined;
+  const defaultStep = display === 'fraction' && denominator ? 1 / denominator : 1;
+  const rawStep = toFinite(config.step, defaultStep);
+  const step = rawStep > 0 ? rawStep : defaultStep;
   return {
     min,
     max,
     step,
     a: snapToStep(toFinite(config.a, DEFAULTS.a), min, max, step),
     b: snapToStep(toFinite(config.b, DEFAULTS.b), min, max, step),
+    display,
+    denominator,
   };
 }
 
@@ -108,6 +140,7 @@ function Marker({
   min,
   max,
   step,
+  format,
   reduced,
   svgRef,
   onDragTo,
@@ -117,12 +150,13 @@ function Marker({
   min: number;
   max: number;
   step: number;
+  format: (value: number) => string;
   reduced: boolean;
   svgRef: RefObject<SVGSVGElement>;
   onDragTo: (value: number) => void;
 }) {
   const above = letter === 'A';
-  const text = String(value);
+  const text = format(value);
   const pillW = Math.max(54, 26 + text.length * 17);
   const pillY = above ? 8 : 212;
 
@@ -193,6 +227,7 @@ function Stepper({
   min,
   max,
   step,
+  format,
   onMove,
 }: {
   letter: 'A' | 'B';
@@ -200,6 +235,7 @@ function Stepper({
   min: number;
   max: number;
   step: number;
+  format: (value: number) => string;
   onMove: (next: number) => void;
 }) {
   return (
@@ -217,7 +253,7 @@ function Stepper({
         <span aria-hidden="true">←</span>
       </button>
       <span className="nl-stepper-value" aria-live="polite">
-        {value}
+        {format(value)}
       </span>
       <button
         type="button"
@@ -243,7 +279,8 @@ export default function NumberLineCompare({
 }: WidgetProps<'number-line-compare'>) {
   const reduced = useReducedMotionPref();
   const settings = readConfig(config);
-  const { min, max, step } = settings;
+  const { min, max, step, display, denominator } = settings;
+  const format = (value: number) => formatNumberLineValue(value, display, denominator);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const board = useAnimationControls();
@@ -293,7 +330,7 @@ export default function NumberLineCompare({
     );
   };
 
-  const ticks = tickValues(min, max);
+  const ticks = tickValues(min, max, display, denominator);
 
   return (
     <div
@@ -338,8 +375,13 @@ export default function NumberLineCompare({
                 x2={pxOf(tick, min, max)}
                 y2={LINE_Y + 10}
               />
-              <text x={pxOf(tick, min, max)} y={LINE_Y + 32} textAnchor="middle">
-                {tick}
+              <text
+                className={`nl-tick-label${display === 'fraction' ? ' nl-fraction-label' : ''}`}
+                x={pxOf(tick, min, max)}
+                y={LINE_Y + 32}
+                textAnchor="middle"
+              >
+                {format(tick)}
               </text>
             </g>
           ))}
@@ -349,6 +391,7 @@ export default function NumberLineCompare({
             min={min}
             max={max}
             step={step}
+            format={format}
             reduced={reduced}
             svgRef={svgRef}
             onDragTo={move('A', setA)}
@@ -359,6 +402,7 @@ export default function NumberLineCompare({
             min={min}
             max={max}
             step={step}
+            format={format}
             reduced={reduced}
             svgRef={svgRef}
             onDragTo={move('B', setB)}
@@ -367,19 +411,19 @@ export default function NumberLineCompare({
       </motion.div>
 
       <div className="nl-steppers" role="group" aria-label="Move the markers">
-        <Stepper letter="A" value={a} min={min} max={max} step={step} onMove={move('A', setA)} />
-        <Stepper letter="B" value={b} min={min} max={max} step={step} onMove={move('B', setB)} />
+        <Stepper letter="A" value={a} min={min} max={max} step={step} format={format} onMove={move('A', setA)} />
+        <Stepper letter="B" value={b} min={min} max={max} step={step} format={format} onMove={move('B', setB)} />
       </div>
 
       <p className="nl-sentence" data-testid="nl-sentence">
         <span className="nl-sentence-number" data-marker="a">
-          {a}
+          {format(a)}
         </span>
         <span className="nl-slot" data-filled={choice !== null}>
           {choice ?? '?'}
         </span>
         <span className="nl-sentence-number" data-marker="b">
-          {b}
+          {format(b)}
         </span>
       </p>
 
@@ -408,7 +452,7 @@ export default function NumberLineCompare({
       {state !== 'choosing' && (
         <p className="nl-feedback" data-testid="nl-feedback" data-tone={state} role="status">
           {state === 'correct'
-            ? `🎉 Yes! ${a} is ${WORDS[truth]} ${b}.`
+            ? `🎉 Yes! ${format(a)} is ${WORDS[truth]} ${format(b)}.`
             : 'Not quite — the number farther to the right is always bigger. Try again!'}
         </p>
       )}

@@ -3,6 +3,7 @@ import {
   InlineCheckSchema,
   LearnCardSchema,
   LessonSchema,
+  NumberLineWidgetConfigSchema,
   QuizReferenceSchema,
   WidgetRefSchema,
   validateLesson,
@@ -289,6 +290,18 @@ test('number-line fractional step must be positive and align both marker values'
     type: 'number-line-compare',
     config: { min: 0, max: 1, a: 0.3, b: 0.75, step: 0.25 },
   })).toThrow();
+});
+
+test('number-line fraction display requires an aligned denominator grid', () => {
+  expect(NumberLineWidgetConfigSchema.safeParse({
+    min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction', denominator: 4,
+  }).success).toBe(true);
+  expect(NumberLineWidgetConfigSchema.safeParse({
+    min: 0, max: 1, a: 0.3, b: 0.75, step: 0.25, display: 'fraction', denominator: 4,
+  }).success).toBe(false);
+  expect(NumberLineWidgetConfigSchema.safeParse({
+    min: 0, max: 1, a: 0.5, b: 0.75, step: 0.5, display: 'fraction', denominator: 4,
+  }).success).toBe(false);
 });
 
 test('widget configs reject unknown keys instead of silently accepting author typos', () => {

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
-import NumberLineCompare from './NumberLineCompare';
+import NumberLineCompare, { formatNumberLineValue } from './NumberLineCompare';
 import PlaceValueBuilder, { numberToWords } from './PlaceValueBuilder';
 
 type User = ReturnType<typeof userEvent.setup>;
@@ -166,6 +166,25 @@ describe('PlaceValueBuilder', () => {
 
 describe('NumberLineCompare', () => {
   const CONFIG = { min: 0, max: 100, a: 25, b: 52 };
+
+  test('reduces fraction labels and keeps whole values whole', () => {
+    expect(formatNumberLineValue(0.25, 'fraction', 4)).toBe('1/4');
+    expect(formatNumberLineValue(0.5, 'fraction', 4)).toBe('1/2');
+    expect(formatNumberLineValue(1, 'fraction', 4)).toBe('1');
+    expect(formatNumberLineValue(0, 'fraction', 4)).toBe('0');
+  });
+
+  test('renders aligned quarter ticks without an improper whole fraction label', () => {
+    render(
+      <NumberLineCompare
+        config={{ min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction', denominator: 4 }}
+        onEvent={noEvent}
+      />,
+    );
+
+    expect(screen.getAllByText('1/4').length).toBeGreaterThan(0);
+    expect(screen.queryByText('1/1')).toBeNull();
+  });
 
   test('starts in the choosing state with both markers on the line', () => {
     render(<NumberLineCompare config={CONFIG} onEvent={noEvent} />);
