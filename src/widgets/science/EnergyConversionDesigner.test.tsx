@@ -93,3 +93,13 @@ test('keeps exact correction feedback live after an incompatible append to a com
     { type: 'change', value: { chain: ['sun', 'panel', 'lamp'] } },
   ]);
 });
+
+test('announces success when a valid append completes the required chain', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Add Sun' }));
+  await user.click(screen.getByRole('button', { name: 'Add Panel' }));
+  await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/connects the required endpoints/i);
+});

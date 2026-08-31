@@ -36,7 +36,10 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
       }
     }
     const next = [...chain, id];
-    setStatus(`Chain: ${next.map((componentId) => componentFor(componentId).label).join(' to ')}.`);
+    const completesRequiredChain = next[0] === config.requiredStart && next[next.length - 1] === config.requiredEnd && hasValidConnections(next);
+    setStatus(completesRequiredChain
+      ? 'The selected conversion chain connects the required endpoints.'
+      : `Chain: ${next.map((componentId) => componentFor(componentId).label).join(' to ')}.`);
     emit(next, 'append-chain');
   };
   const reset = () => {
