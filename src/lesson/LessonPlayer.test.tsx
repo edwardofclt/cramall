@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { LessonPlayer } from './LessonPlayer';
 
-const { FIXTURE } = vi.hoisted(() => {
+const { FIXTURE, READING_FIXTURE } = vi.hoisted(() => {
   const lesson: Lesson = {
     id: 'math-u01-l1',
     unitId: 'math-u01',
@@ -62,14 +62,50 @@ const { FIXTURE } = vi.hoisted(() => {
     units: [unit],
   };
 
-  return { FIXTURE: { subject, unit, lesson } };
+  const readingLesson: Lesson = {
+    ...lesson,
+    id: 'reading-u01-l01',
+    unitId: 'reading-u01',
+    title: 'Read a garden passage',
+    workedExample: {
+      title: 'Practice reading the garden scene',
+      passage: {
+        title: 'Original passage',
+        text: 'Maya checked the garden map before choosing a path.\n\nThen she reread the sign so the team could walk safely.',
+      },
+      steps: ['Read the map details steadily.', 'Use a careful voice for the safety sign.'],
+    },
+  };
+  const readingUnit: Unit = {
+    ...unit,
+    id: 'reading-u01',
+    subjectId: 'reading',
+    lessons: [readingLesson],
+  };
+  const readingSubject: Subject = {
+    ...subject,
+    id: 'reading',
+    title: 'Reading',
+    guide: 'winnie',
+    units: [readingUnit],
+  };
+
+  return {
+    FIXTURE: { subject, unit, lesson },
+    READING_FIXTURE: { subject: readingSubject, unit: readingUnit, lesson: readingLesson },
+  };
 });
 
 vi.mock('../content/subjects', () => ({
-  findLesson: (id: string) => (id === FIXTURE.lesson.id ? FIXTURE : null),
+  findLesson: (id: string) => {
+    if (id === FIXTURE.lesson.id) return FIXTURE;
+    if (id === READING_FIXTURE.lesson.id) return READING_FIXTURE;
+    return null;
+  },
 }));
 
 const LESSON_ID = 'math-u01-l1';
+const READING_LESSON_ID = 'reading-u01-l01';
 
 function renderPlayer(entry = `/lesson/${LESSON_ID}`) {
   return render(
@@ -403,6 +439,28 @@ describe('LessonPlayer', () => {
     expect(quizLink).toHaveAttribute('href', `/lesson/${LESSON_ID}/quiz`);
     // Last stage: no Next left to press.
     expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+  });
+
+  test('keeps a Reading source passage separate from numbered coaching and reads only the source', async () => {
+    const { speak } = stubSpeech();
+    const user = userEvent.setup();
+    renderPlayer(`/lesson/${READING_LESSON_ID}?step=worked`);
+
+    const passage = await screen.findByRole('region', { name: 'Passage: Original passage' });
+    expect(passage).toHaveAttribute('tabindex', '0');
+    expect(within(passage).getByText(/Maya checked the garden map/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'How to read it' })).toBeInTheDocument();
+    const passagePanel = screen.getByRole('article', { name: 'Original passage' });
+
+    const steps = screen.getAllByTestId('worked-step');
+    expect(steps).toHaveLength(2);
+    expect(steps[0]).toHaveTextContent(/^1Read the map details steadily\.$/);
+    expect(steps[1]).toHaveTextContent(/^2Use a careful voice for the safety sign\.$/);
+
+    await user.click(within(passagePanel).getByRole('button', { name: /read aloud/i }));
+    const utterance = speak.mock.calls[0]![0] as { text: string };
+    expect(utterance.text).toContain('Maya checked the garden map before choosing a path.');
+    expect(utterance.text).not.toContain('Read the map details steadily.');
   });
 
   test('Back returns to the previous stage', async () => {

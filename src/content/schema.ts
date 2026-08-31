@@ -189,6 +189,12 @@ export const QuizReferenceSchema = z.object({
   text: z.string().trim().min(1),
 }).strict();
 
+/** Optional source text shown separately from coaching on a worked example. */
+export const WorkedPassageSchema = z.object({
+  title: z.string().trim().min(1),
+  text: z.string().trim().min(1),
+}).strict();
+
 export const QuizSchema = z.object({
   passThreshold: z.literal(8),
   pool: z.array(QuestionSchema),
@@ -202,7 +208,11 @@ export const LessonSchema = z.object({
   indicatorCodes: z.array(z.string()).min(1),
   intro: z.array(DialogueLineSchema).min(1),
   learnCards: z.array(LearnCardSchema).min(1),
-  workedExample: z.object({ title: z.string(), steps: z.array(z.string()).min(1) }),
+  workedExample: z.object({
+    title: z.string(),
+    steps: z.array(z.string()).min(1),
+    passage: WorkedPassageSchema.optional(),
+  }),
   quiz: QuizSchema,
 });
 
@@ -232,6 +242,7 @@ export type WidgetConfig<T extends WidgetType = WidgetType> = Extract<
 export type LearnCard = z.infer<typeof LearnCardSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
 export type QuizReference = z.infer<typeof QuizReferenceSchema>;
+export type WorkedPassage = z.infer<typeof WorkedPassageSchema>;
 export type Lesson = z.infer<typeof LessonSchema>;
 export type Unit = z.infer<typeof UnitSchema>;
 export type Subject = {

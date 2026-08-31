@@ -615,6 +615,100 @@ body {
   font-weight: 700;
 }
 
+.worked-reading-layout,
+.worked-coaching {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.worked-reading-title,
+.worked-passage-header h3,
+.worked-coaching h3,
+.worked-passage-scroll p {
+  margin: 0;
+}
+
+.worked-reading-columns {
+  display: grid;
+  gap: 1rem;
+}
+
+.worked-passage {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.worked-passage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.worked-passage-header h3,
+.worked-coaching h3 {
+  font-size: 1.125rem;
+}
+
+.worked-passage-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 72ch;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+@media (min-width: 48rem) and (min-height: 42rem) {
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] {
+    width: min(100%, 72rem);
+    height: 100dvh;
+    padding-bottom: 1rem;
+    overflow: hidden;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .lesson-stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-layout,
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-columns,
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-passage {
+    min-height: 0;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-layout {
+    height: 100%;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-columns {
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.85fr);
+    flex: 1 1 auto;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-passage-scroll {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.5rem;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-coaching {
+    align-self: start;
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-step {
+    align-items: flex-start;
+    padding: 0.625rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+}
+
 .lesson-outro {
   align-items: center;
   text-align: center;

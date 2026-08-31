@@ -111,6 +111,20 @@ test('a quiz reference is optional, requires visible text, and rejects authoring
   })).toThrow();
   expect(() => QuizReferenceSchema.parse({ title: 'Read this passage', text: '' })).toThrow();
 });
+test('keeps an optional worked source passage as distinct authored material', () => {
+  const lesson = makeLesson();
+  lesson.workedExample.passage = {
+    title: 'A short source passage',
+    text: 'Readers can refer back to this source while they practice.',
+  };
+
+  const parsed = LessonSchema.parse(lesson);
+
+  expect(parsed.workedExample.passage).toEqual({
+    title: 'A short source passage',
+    text: 'Readers can refer back to this source while they practice.',
+  });
+});
 test('bad reviewCardId is reported', () => {
   const l = makeLesson();
   l.quiz.pool[0]!.reviewCardId = 'nope';

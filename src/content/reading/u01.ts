@@ -91,8 +91,8 @@ export const unit01Lessons = [
     ],
     workedExample: {
       title: 'Fluency check at the community garden',
+      passage: { title: 'Original passage', text: accuracyPassage },
       steps: [
-        `Read this original passage before answering:\n${accuracyPassage}`,
         'Read accurately by checking Pollinator, trowels, compost, and greenhouse instead of replacing them with easier-looking words.',
         'Use a steady pace through the action, pause at the paragraph breaks, and slow down for the map directions and the basil care card.',
         'Check comprehension by explaining why Maya rereads the map and by citing details that show careful reading helped the team.',
@@ -366,8 +366,8 @@ export const unit01Lessons = [
     ],
     workedExample: {
       title: 'Give the lighthouse scene a meaningful voice',
+      passage: { title: 'Original passage', text: expressionPassage },
       steps: [
-        `Read this original passage before answering:\n${expressionPassage}`,
         'Use rising intonation for Tomas’s first question because he is uncertain and looking for an answer.',
         'Read the quiet harbor details steadily, pausing at the paragraph breaks so listeners can picture the fog and the returning beam.',
         'Use brighter expression on “There it is!” and Tomas’s final statement because the exclamation, grin, and lighthouse beam show relief and excitement.',

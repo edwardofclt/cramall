@@ -180,7 +180,12 @@ describe('Reading unit 1 fluency lessons', () => {
 
     for (const [index, lesson] of unit01Lessons.entries()) {
       const passage = passages[index]!;
-      expect(lesson.workedExample.steps[0]).toContain(passage);
+      expect(lesson.workedExample.passage).toEqual({
+        title: 'Original passage',
+        text: passage,
+      });
+      expect(lesson.workedExample.steps).not.toContainEqual(expect.stringContaining(passage));
+      expect(lesson.workedExample.steps).toHaveLength(3);
       const passageQuestions = lesson.quiz.pool.filter(({ id }) =>
         expectedPassageQuestionIds[index].some((passageQuestionId) => passageQuestionId === id),
       );

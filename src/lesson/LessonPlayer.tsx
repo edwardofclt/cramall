@@ -90,7 +90,67 @@ function ProgressDots({ step, total }: { step: number; total: number }) {
   );
 }
 
-function WorkedExample({ worked }: { worked: Lesson['workedExample'] }) {
+function WorkedSteps({ steps }: { steps: string[] }) {
+  return (
+    <ol className="worked-steps">
+      {steps.map((step, index) => (
+        <li key={index} className="card worked-step" data-testid="worked-step">
+          <span className="worked-step-number" aria-hidden="true">
+            {index + 1}
+          </span>
+          <span>
+            <RichText text={step} />
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function WorkedExample({
+  worked,
+  showPassage,
+}: {
+  worked: Lesson['workedExample'];
+  showPassage: boolean;
+}) {
+  const passage = showPassage ? worked.passage : undefined;
+  if (passage) {
+    const passageTitleId = 'worked-passage-title';
+    const coachingTitleId = 'worked-coaching-title';
+    return (
+      <section className="worked-reading-layout" aria-labelledby="worked-example-title">
+        <h2 id="worked-example-title" className="worked-reading-title">
+          {worked.title}
+        </h2>
+        <div className="worked-reading-columns">
+          <article className="card worked-passage" aria-labelledby={passageTitleId}>
+            <div className="worked-passage-header">
+              <h3 id={passageTitleId}>{passage.title}</h3>
+              <ReadAloudButton text={speechText([passage.title, passage.text])} />
+            </div>
+            <div
+              className="worked-passage-scroll"
+              role="region"
+              tabIndex={0}
+              aria-label={`Passage: ${passage.title}`}
+            >
+              {passage.text.split(/\n\s*\n/).map((paragraph, index) => (
+                <p key={index}>
+                  <RichText text={paragraph} />
+                </p>
+              ))}
+            </div>
+          </article>
+          <aside className="worked-coaching" aria-labelledby={coachingTitleId}>
+            <h3 id={coachingTitleId}>How to read it</h3>
+            <WorkedSteps steps={worked.steps} />
+          </aside>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="card stack" aria-labelledby="worked-example-title">
       <div className="row" style={{ justifyContent: 'space-between', gap: '0.75rem' }}>
@@ -99,18 +159,7 @@ function WorkedExample({ worked }: { worked: Lesson['workedExample'] }) {
         </h2>
         <ReadAloudButton text={speechText([worked.title, ...worked.steps])} />
       </div>
-      <ol className="worked-steps">
-        {worked.steps.map((step, index) => (
-          <li key={index} className="card worked-step" data-testid="worked-step">
-            <span className="worked-step-number" aria-hidden="true">
-              {index + 1}
-            </span>
-            <span>
-              <RichText text={step} />
-            </span>
-          </li>
-        ))}
-      </ol>
+      <WorkedSteps steps={worked.steps} />
     </section>
   );
 }
@@ -146,6 +195,8 @@ function LessonStages({
 
   const reduced = useReducedMotionPref();
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
+  const hasWorkedPassage =
+    stage.key === 'worked' && subject.id === 'reading' && Boolean(lesson.workedExample.passage);
 
   const last = stages.length - 1;
   const setStage = useCallback(
@@ -207,7 +258,9 @@ function LessonStages({
 
   return (
     <div
-      className="page stack"
+      className="page stack lesson-page"
+      data-stage={stage.key}
+      data-worked-passage={hasWorkedPassage ? 'true' : undefined}
       style={{ '--accent': subject.color, '--accent-action': subject.actionColor } as CSSProperties}
     >
       {showPeek && <PeekBanner onDismiss={() => setPeekDismissed(true)} />}
@@ -239,7 +292,7 @@ function LessonStages({
         <motion.div
           key={stage.key}
           ref={focusStage}
-          className="stack"
+          className="stack lesson-stage"
           tabIndex={-1}
           data-testid="lesson-stage"
           {...animation}
@@ -260,7 +313,9 @@ function LessonStages({
               onDialogueDone={() => finishCardDialogue(stageVisit)}
             />
           )}
-          {stage.key === 'worked' && <WorkedExample worked={lesson.workedExample} />}
+          {stage.key === 'worked' && (
+            <WorkedExample worked={lesson.workedExample} showPassage={hasWorkedPassage} />
+          )}
           {stage.key === 'outro' && <Outro lesson={lesson} subject={subject} />}
         </motion.div>
       </AnimatePresence>
