@@ -58,7 +58,9 @@ export type WidgetEventMap = {
   'shape-classifier':
     | { type: 'interaction'; action: 'select-shape' | 'place-shape' | 'reset' }
     | { type: 'change'; value: { placements: Record<string, string> } }
-    | { type: 'complete'; value: { placements: Record<string, string> } };
+    | { type: 'complete'; value: { placements: Record<string, string> } }
+    | { type: 'change'; value: { memberships: Record<string, string[]> } }
+    | { type: 'complete'; value: { memberships: Record<string, string[]> } };
   'data-plot-builder':
     | { type: 'interaction'; action: 'increase-value' | 'decrease-value' | 'reset' }
     | { type: 'change'; value: { values: Record<string, number> } }

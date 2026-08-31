@@ -509,7 +509,7 @@ const ShapeBinSchema = z.object({
   value: z.number().int().min(0),
 }).strict();
 
-export const ShapeClassifierWidgetConfigSchema = z.object({
+const LegacyShapeClassifierWidgetConfigSchema = z.object({
   shapes: z.array(ShapeSchema).min(2),
   bins: z.array(ShapeBinSchema).min(2),
   rule: z.enum(['sides', 'angles', 'parallelPairs']),
@@ -538,6 +538,93 @@ export const ShapeClassifierWidgetConfigSchema = z.object({
     });
   }
 });
+
+export const ShapeDiagramSchema = z.enum([
+  'acute-triangle', 'obtuse-triangle', 'right-triangle', 'isosceles-triangle', 'isosceles-right-triangle', 'equilateral-triangle', 'scalene-triangle',
+  'quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square',
+]);
+export const ShapeClassificationSchema = z.enum([
+  'triangle', 'acute-triangle', 'obtuse-triangle', 'right-triangle', 'isosceles-triangle', 'equilateral-triangle', 'scalene-triangle',
+  'quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square',
+]);
+
+const diagramMemberships: Record<z.infer<typeof ShapeDiagramSchema>, readonly z.infer<typeof ShapeClassificationSchema>[]> = {
+  'acute-triangle': ['triangle', 'acute-triangle'],
+  'obtuse-triangle': ['triangle', 'obtuse-triangle'],
+  'right-triangle': ['triangle', 'right-triangle'],
+  'isosceles-triangle': ['triangle', 'isosceles-triangle'],
+  'isosceles-right-triangle': ['triangle', 'isosceles-triangle', 'right-triangle'],
+  'equilateral-triangle': ['triangle', 'equilateral-triangle', 'isosceles-triangle'],
+  'scalene-triangle': ['triangle', 'scalene-triangle'],
+  quadrilateral: ['quadrilateral'],
+  parallelogram: ['quadrilateral', 'parallelogram'],
+  rectangle: ['quadrilateral', 'parallelogram', 'rectangle'],
+  rhombus: ['quadrilateral', 'parallelogram', 'rhombus'],
+  square: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'],
+};
+const allowedParents: Partial<Record<z.infer<typeof ShapeClassificationSchema>, readonly z.infer<typeof ShapeClassificationSchema>[]>> = {
+  'acute-triangle': ['triangle'], 'obtuse-triangle': ['triangle'], 'right-triangle': ['triangle'], 'isosceles-triangle': ['triangle'], 'equilateral-triangle': ['isosceles-triangle'], 'scalene-triangle': ['triangle'],
+  parallelogram: ['quadrilateral'], rectangle: ['parallelogram'], rhombus: ['parallelogram'], square: ['rectangle', 'rhombus'],
+};
+const ClassificationShapeSchema = ShapeSchema.extend({
+  diagram: ShapeDiagramSchema,
+  classifications: z.array(ShapeClassificationSchema).min(1),
+}).strict();
+const ClassificationBinSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  classification: ShapeClassificationSchema,
+  parentIds: z.array(z.string().min(1)).min(1).optional(),
+}).strict();
+const ClassificationShapeClassifierWidgetConfigSchema = z.object({
+  mode: z.literal('classifications'),
+  shapes: z.array(ClassificationShapeSchema).min(1),
+  bins: z.array(ClassificationBinSchema).min(2),
+}).strict().superRefine((value, context) => {
+  const binById = new Map(value.bins.map((bin) => [bin.id, bin]));
+  if (binById.size !== value.bins.length || new Set(value.bins.map((bin) => bin.classification)).size !== value.bins.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins'], message: 'classification bin ids and classifications must be unique' });
+  }
+  if (new Set(value.shapes.map((shape) => shape.id)).size !== value.shapes.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['shapes'], message: 'shape ids must be unique' });
+  }
+  for (const [shapeIndex, shape] of value.shapes.entries()) {
+    const expected = diagramMemberships[shape.diagram];
+    if (shape.sides !== (shape.diagram.includes('triangle') ? 3 : 4) || shape.angles !== (shape.diagram.includes('triangle') ? 3 : 4) || shape.parallelPairs !== (shape.diagram.includes('triangle') ? 0 : (shape.diagram === 'quadrilateral' ? 0 : 2))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['shapes', shapeIndex], message: 'diagram counts must match the canonical property model' });
+    }
+    if (new Set(shape.classifications).size !== shape.classifications.length || shape.classifications.length !== expected.length || !expected.every((classification) => shape.classifications.includes(classification))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['shapes', shapeIndex, 'classifications'], message: 'classifications must exactly match the canonical diagram' });
+    }
+    if (!shape.classifications.every((classification) => value.bins.some((bin) => bin.classification === classification))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins'], message: 'every classification needs a bin' });
+    }
+  }
+  for (const [binIndex, bin] of value.bins.entries()) {
+    const parents = bin.parentIds ?? [];
+    if (new Set(parents).size !== parents.length || parents.some((parentId) => !binById.has(parentId))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins', binIndex, 'parentIds'], message: 'parent ids must be unique known bins' });
+    }
+    const allowed = allowedParents[bin.classification] ?? [];
+    if (parents.some((parentId) => !allowed.includes(binById.get(parentId)?.classification as never))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins', binIndex, 'parentIds'], message: 'parent relationship is not a supported classification edge' });
+    }
+  }
+  const visits = new Set<string>(); const active = new Set<string>();
+  const visit = (id: string) => {
+    if (active.has(id)) return true;
+    if (visits.has(id)) return false;
+    visits.add(id); active.add(id);
+    const cycle = (binById.get(id)?.parentIds ?? []).some(visit);
+    active.delete(id); return cycle;
+  };
+  if (value.bins.some((bin) => visit(bin.id))) context.addIssue({ code: z.ZodIssueCode.custom, path: ['bins'], message: 'classification parents cannot form a cycle' });
+});
+
+export const ShapeClassifierWidgetConfigSchema = z.union([
+  LegacyShapeClassifierWidgetConfigSchema,
+  ClassificationShapeClassifierWidgetConfigSchema,
+]);
 
 export const ShapeClassifierWidgetRefSchema = z.object({
   type: z.literal('shape-classifier'),
