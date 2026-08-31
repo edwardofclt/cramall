@@ -134,6 +134,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['hazard-solution-designer'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'resource-sorter': {
+      const Widget = widgetRegistry['resource-sorter'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

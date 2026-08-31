@@ -34,6 +34,7 @@ export const WIDGET_TYPES = [
   'rock-layer-explorer',
   'topographic-map-explorer',
   'hazard-solution-designer',
+  'resource-sorter',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -968,6 +969,31 @@ export const HazardSolutionDesignerWidgetRefSchema = z.object({
   config: HazardSolutionDesignerWidgetConfigSchema,
 }).strict();
 
+const ResourceTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const ResourceKindSchema = z.enum(['renewable', 'nonrenewable', 'conserve']);
+const ResourceItemSchema = z.object({
+  id: ResourceTextSchema,
+  label: ResourceTextSchema,
+  kind: ResourceKindSchema,
+}).strict();
+const resourceVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+
+export const ResourceSorterWidgetConfigSchema = z.object({
+  items: z.array(ResourceItemSchema).min(2),
+  bins: z.array(ResourceKindSchema).min(2),
+}).strict().superRefine((value, context) => {
+  const ids = value.items.map((item) => resourceVisualKey(item.id));
+  const labels = value.items.map((item) => resourceVisualKey(item.label));
+  if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length || new Set(value.bins).size !== value.bins.length || !value.items.every((item) => value.bins.includes(item.kind))) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'resource item ids and labels must be unique and every item kind needs a bin'});
+  }
+});
+
+export const ResourceSorterWidgetRefSchema = z.object({
+  type: z.literal('resource-sorter'),
+  config: ResourceSorterWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -999,6 +1025,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   RockLayerExplorerWidgetRefSchema,
   TopographicMapExplorerWidgetRefSchema,
   HazardSolutionDesignerWidgetRefSchema,
+  ResourceSorterWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

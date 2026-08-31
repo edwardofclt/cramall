@@ -1,0 +1,99 @@
+import {render, screen} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import {expect, test, vi} from 'vitest';
+import {ResourceSorterWidgetConfigSchema} from '../../content/schema';
+import ResourceSorter from './ResourceSorter';
+
+const config = {
+  items: [
+    {id: 'sun', label: 'Sunlight', kind: 'renewable' as const},
+    {id: 'coal', label: 'Coal', kind: 'nonrenewable' as const},
+    {id: 'lights', label: 'Use less electricity', kind: 'conserve' as const},
+  ],
+  bins: ['renewable', 'nonrenewable', 'conserve'] as ('renewable' | 'nonrenewable' | 'conserve')[],
+};
+
+test('rejects blank and visually ambiguous resource IDs or labels while requiring every authored bin', () => {
+  const invalids = [
+    {...config, items: [{...config.items[0], id: '  '}, ...config.items.slice(1)]},
+    {...config, items: [{...config.items[0], label: '  '}, ...config.items.slice(1)]},
+    {...config, items: [{...config.items[0], id: 'SUN'}, {...config.items[1], id: ' sun '}, config.items[2]]},
+    {...config, items: [{...config.items[0], label: 'Solar power'}, {...config.items[1], label: ' solar   power '}, config.items[2]]},
+    {...config, bins: ['renewable', 'nonrenewable']},
+  ];
+
+  for (const invalid of invalids) expect(ResourceSorterWidgetConfigSchema.safeParse(invalid).success).toBe(false);
+  expect(ResourceSorterWidgetConfigSchema.safeParse(config).success).toBe(true);
+});
+
+test('uses accurate resource and conservation bin language with an honest authored-category model note', () => {
+  render(<ResourceSorter config={config} onEvent={vi.fn()} />);
+
+  expect(screen.getByRole('button', {name: 'Place selected item in Renewable resource'})).toBeInTheDocument();
+  expect(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'})).toBeInTheDocument();
+  expect(screen.getByRole('button', {name: 'Place selected item in Conservation action'})).toBeInTheDocument();
+  expect(screen.getByText('Use less electricity')).toBeInTheDocument();
+  expect(screen.getByText(/authored categories for this activity/i)).toHaveTextContent(/does not examine resources or measure environmental effects/i);
+});
+
+test('keeps a wrong placement visible and revisable with bounded feedback', async () => {
+  const user = userEvent.setup();
+  render(<ResourceSorter config={config} onEvent={vi.fn()} />);
+
+  const sunlight = screen.getByRole('button', {name: 'Select Sunlight'});
+  await user.click(sunlight);
+  expect(sunlight).toHaveAttribute('aria-pressed', 'true');
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
+  expect(screen.getByTestId('resource-placement-sun')).toHaveTextContent('Nonrenewable resource');
+  expect(screen.getByRole('status')).toHaveTextContent(/Sunlight is currently in Nonrenewable resource.*revision is needed/i);
+  expect(screen.getByRole('status')).not.toHaveTextContent(/Coal|Use less electricity/);
+
+  await user.click(sunlight);
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+  expect(screen.getByTestId('resource-placement-sun')).toHaveTextContent('Renewable resource');
+});
+
+test('emits stable config-order placements and completes once while live state returns to sorting after revision or reset', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<ResourceSorter config={config} onEvent={onEvent} />);
+
+  for (const [label, bin] of [
+    ['Sunlight', 'Renewable resource'],
+    ['Coal', 'Nonrenewable resource'],
+    ['Use less electricity', 'Conservation action'],
+  ] as const) {
+    await user.click(screen.getByRole('button', {name: `Select ${label}`}));
+    if (label === 'Use less electricity') onEvent.mockClear();
+    await user.click(screen.getByRole('button', {name: `Place selected item in ${bin}`}));
+  }
+
+  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+    {type: 'interaction', action: 'place-item'},
+    {type: 'change', value: {placements: {sun: 'renewable', coal: 'nonrenewable', lights: 'conserve'}}},
+    {type: 'complete', value: {placements: {sun: 'renewable', coal: 'nonrenewable', lights: 'conserve'}}},
+  ]);
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
+
+  await user.click(screen.getByRole('button', {name: 'Select Coal'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'sorting');
+  await user.click(screen.getByRole('button', {name: 'Select Coal'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+
+  await user.click(screen.getByRole('button', {name: 'Start over'}));
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'sorting');
+});
+
+test('clears the selected item and old placements when the configuration changes', async () => {
+  const user = userEvent.setup();
+  const {rerender} = render(<ResourceSorter config={config} onEvent={vi.fn()} />);
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+
+  rerender(<ResourceSorter config={{items: [{id: 'wind', label: 'Wind', kind: 'renewable'}, {id: 'gas', label: 'Natural gas', kind: 'nonrenewable'}], bins: ['renewable', 'nonrenewable']}} onEvent={vi.fn()} />);
+  expect(screen.getByTestId('resource-placement-wind')).toHaveTextContent('Not sorted yet');
+  expect(screen.getByRole('button', {name: 'Place selected item in Renewable resource'})).toBeDisabled();
+  expect(screen.queryByTestId('resource-placement-sun')).not.toBeInTheDocument();
+});

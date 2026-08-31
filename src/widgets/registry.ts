@@ -114,6 +114,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'toggle-solution' | 'check' | 'reset' }
     | { type: 'change'; value: { selectedIds: string[] } }
     | { type: 'complete'; value: { selectedIds: string[] } };
+  'resource-sorter':
+    | { type: 'interaction'; action: 'select-item' | 'place-item' | 'reset' }
+    | { type: 'change'; value: { placements: Record<string, string> } }
+    | { type: 'complete'; value: { placements: Record<string, string> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -158,4 +162,5 @@ export const widgetRegistry = {
   'rock-layer-explorer': lazy(() => import('./science/RockLayerExplorer')),
   'topographic-map-explorer': lazy(() => import('./science/TopographicMapExplorer')),
   'hazard-solution-designer': lazy(() => import('./science/HazardSolutionDesigner')),
+  'resource-sorter': lazy(() => import('./science/ResourceSorter')),
 } satisfies WidgetRegistry;
