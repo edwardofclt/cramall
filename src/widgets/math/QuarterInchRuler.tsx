@@ -3,6 +3,7 @@ import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
 type TickKind = 'whole' | 'half' | 'quarter';
+const canonicalQuarter = (value: number) => Math.round(value * 4) / 4;
 
 function mixedMeasurement(inches: number) {
   const quarters = Math.round(inches * 4);
@@ -16,7 +17,8 @@ function mixedMeasurement(inches: number) {
 export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quarter-inch-ruler'>) {
   const key = JSON.stringify(config);
   const length = config.lengthInches ?? 12;
-  const start = config.startInches ?? 0;
+  const start = canonicalQuarter(config.startInches ?? 0);
+  const target = canonicalQuarter(config.targetInches);
   const [inches, setInches] = useState(start);
   const { completed, completeOnce } = useCompletionLatch(key);
   const tickCount = length * 4 + 1;
@@ -28,7 +30,7 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
     setInches(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { inches: next } });
-    if (next === config.targetInches) {
+    if (next === target) {
       completeOnce(() => onEvent({ type: 'complete', value: { inches: next } }));
     }
   };

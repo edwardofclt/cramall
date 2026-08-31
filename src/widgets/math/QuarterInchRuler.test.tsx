@@ -45,3 +45,28 @@ test('renders a spatial quarter-inch ruler with labeled whole ticks and an align
   expect(ruler.querySelector('[data-marker="true"]')).toHaveAttribute('data-inches', '1.5');
   expect(screen.getByText('3')).toBeInTheDocument();
 });
+
+test('canonicalizes tolerated noisy quarter values for marker, readout, and completion', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <QuarterInchRuler
+      config={{ lengthInches: 1, startInches: 0.2500000001, targetInches: 0.5000000001 }}
+      onEvent={onEvent}
+    />,
+  );
+
+  const ruler = screen.getByRole('img');
+  expect(ruler.querySelector('[data-marker="true"]')).toHaveAttribute('data-inches', '0.25');
+  expect(ruler).toHaveAccessibleName(/Marker at 0 1\/4 inches \(0.25 inches\)/);
+  expect(screen.getByText('0 1/4 inches (0.25 inches)')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'Move marker right one quarter inch' }));
+
+  expect(onEvent.mock.calls.slice(-3).map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'move-marker' },
+    { type: 'change', value: { inches: 0.5 } },
+    { type: 'complete', value: { inches: 0.5 } },
+  ]);
+});
