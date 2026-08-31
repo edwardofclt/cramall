@@ -98,6 +98,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['energy-transfer-builder'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'wave-maker': {
+      const Widget = widgetRegistry['wave-maker'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

@@ -25,6 +25,7 @@ export const WIDGET_TYPES = [
   'probability-spinner',
   'collision-ramp',
   'energy-transfer-builder',
+  'wave-maker',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -709,6 +710,17 @@ export const EnergyTransferBuilderWidgetConfigSchema = z.object({
 });
 export const EnergyTransferBuilderWidgetRefSchema = z.object({ type: z.literal('energy-transfer-builder'), config: EnergyTransferBuilderWidgetConfigSchema }).strict();
 
+const WaveLevel = z.number().int().min(1).max(10);
+export const WaveMakerWidgetConfigSchema = z.object({
+  medium: z.enum(['rope', 'water', 'sound']),
+  amplitude: WaveLevel.optional(),
+  frequency: WaveLevel.optional(),
+  target: z.object({ amplitude: WaveLevel.optional(), frequency: WaveLevel.optional() }).strict()
+    .refine((target) => target.amplitude !== undefined || target.frequency !== undefined, 'target needs value').optional(),
+}).strict();
+
+export const WaveMakerWidgetRefSchema = z.object({ type: z.literal('wave-maker'), config: WaveMakerWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -731,6 +743,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ProbabilitySpinnerWidgetRefSchema,
   CollisionRampWidgetRefSchema,
   EnergyTransferBuilderWidgetRefSchema,
+  WaveMakerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

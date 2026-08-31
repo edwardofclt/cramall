@@ -77,6 +77,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'append-path' | 'reset' }
     | { type: 'change'; value: { path: string[] } }
     | { type: 'complete'; value: { path: string[] } };
+  'wave-maker':
+    | { type: 'interaction'; action: 'change-amplitude' | 'change-frequency' | 'reset' }
+    | { type: 'change'; value: { amplitude: number; frequency: number } }
+    | { type: 'complete'; value: { amplitude: number; frequency: number } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -112,4 +116,5 @@ export const widgetRegistry = {
   'probability-spinner': lazy(() => import('./math/ProbabilitySpinner')),
   'collision-ramp': lazy(() => import('./science/CollisionRamp')),
   'energy-transfer-builder': lazy(() => import('./science/EnergyTransferBuilder')),
+  'wave-maker': lazy(() => import('./science/WaveMaker')),
 } satisfies WidgetRegistry;
