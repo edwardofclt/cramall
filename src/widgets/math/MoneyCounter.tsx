@@ -29,6 +29,8 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
   const [counts, setCounts] = useState<Counts>(ZERO);
   const { completed, completeOnce } = useCompletionLatch(key);
   const cents = total(counts);
+  const matchesCurrentTarget = config.targetCents !== undefined && cents === config.targetCents;
+  const visiblyComplete = completed && matchesCurrentTarget;
 
   useEffect(() => setCounts(ZERO), [key]);
 
@@ -46,8 +48,8 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
     <section
       className="card widget-experiment money"
       data-testid="widget-money-counter"
-      data-state={completed ? 'complete' : 'building'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'building'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <div className="money-denominations" aria-label="Coin counter controls">
         {denominations.map((denomination) => {
@@ -81,7 +83,7 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
       <output className="money-total" aria-label={`${cents} cents, ${moneyText(cents)}`}>
         Total: {cents}¢ ({moneyText(cents)})
       </output>
-      <p role="status">{completed ? 'Target amount complete.' : `${cents} cents counted.`}</p>
+      <p role="status">{visiblyComplete ? 'Target amount complete.' : `${cents} cents counted.`}</p>
     </section>
   );
 }

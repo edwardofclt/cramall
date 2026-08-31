@@ -88,6 +88,8 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
     : 0;
   const target = config.mode === 'set-time' ? parseTime(config.targetTime) : null;
   const shown = config.mode === 'elapsed' ? elapsed : minutes;
+  const matchesCurrentTarget = target !== null && minutes === target;
+  const visiblyComplete = completed && matchesCurrentTarget;
 
   useEffect(() => setMinutes(0), [key]);
 
@@ -106,8 +108,8 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
     <section
       className="card widget-experiment clock"
       data-testid="widget-clock-elapsed-time"
-      data-state={config.mode === 'elapsed' ? 'result' : completed ? 'complete' : 'setting'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={config.mode === 'elapsed' ? 'result' : visiblyComplete ? 'complete' : 'setting'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       {config.mode === 'set-time' && (
         <div className="clock-controls" aria-label="Set clock controls">
@@ -123,7 +125,7 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
       <p role="status">
         {config.mode === 'elapsed'
           ? `Elapsed-time result: ${formatClock(shown)}.`
-          : completed
+          : visiblyComplete
             ? 'Target time complete.'
             : `Clock shows ${formatClock(shown)}.`}
       </p>

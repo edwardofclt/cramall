@@ -32,7 +32,31 @@ test('uses next numerator and latches equivalent completion', async () => {
 
   await user.click(screen.getByRole('button', { name: 'Shade part 2 of 4' }));
 
+  await user.click(screen.getByRole('button', { name: 'Clear model' }));
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'choosing');
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByRole('status')).toHaveTextContent('Choose the shaded amount.');
+
+  await user.click(screen.getByRole('button', { name: 'Shade part 2 of 4' }));
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-complete', 'yes');
+
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('uses exact completion copy when the target representation matches', async () => {
+  const user = userEvent.setup();
+
+  render(
+    <FractionModels
+      config={{ mode: 'bars', denominator: 4, target: { numerator: 2, denominator: 4 }, allowEquivalent: true }}
+      onEvent={() => {}}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Shade part 2 of 4' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent('Fraction complete.');
 });
 
 test('rejects an unreachable target and does not complete an initial zero target on mount', () => {

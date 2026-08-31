@@ -2283,9 +2283,9 @@ body {
 .data-plot-control > div { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
 .data-plot button { min-height: 44px; }
 .data-plot-viewport { min-width: 0; max-width: 100%; max-height: 30rem; overflow: auto; padding: .5rem; border: 2px solid var(--c-ink); border-radius: .75rem; }
-.data-plot-chart { display: grid; grid-template-columns: 2.5rem minmax(20rem, 1fr); min-width: 24rem; gap: .5rem; }
+.data-plot-chart { display: grid; min-width: 24rem; gap: .5rem; }
 .data-plot-scale { display: flex; min-height: 15rem; flex-direction: column; justify-content: space-between; padding-block: .1rem 2.25rem; font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 800; text-align: right; }
-.data-plot-columns { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); align-items: end; min-height: 15rem; gap: .5rem; padding: .5rem .5rem 2rem; }
+.data-plot-columns { position: relative; display: grid; align-items: end; min-height: 15rem; gap: .5rem; padding: .5rem .5rem 2rem; }
 .data-plot-column { z-index: 1; display: grid; min-width: 0; min-height: 15rem; grid-template-rows: 1fr auto; align-self: stretch; text-align: center; }
 .data-plot-mark-area { display: grid; min-height: 0; align-items: end; justify-items: center; }
 .data-plot-bar { width: min(3.5rem, 75%); min-height: 0; border: 3px solid var(--c-ink); border-bottom: 0; background: repeating-linear-gradient(135deg, var(--c-card) 0 .35rem, var(--c-accent) .35rem .7rem); }

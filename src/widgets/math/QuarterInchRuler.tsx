@@ -22,6 +22,8 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
   const [inches, setInches] = useState(start);
   const { completed, completeOnce } = useCompletionLatch(key);
   const tickCount = length * 4 + 1;
+  const matchesCurrentTarget = inches === target;
+  const visiblyComplete = completed && matchesCurrentTarget;
 
   useEffect(() => setInches(start), [key]);
 
@@ -41,8 +43,8 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
     <section
       className="card widget-experiment ruler"
       data-testid="widget-quarter-inch-ruler"
-      data-state={completed ? 'complete' : 'measuring'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'measuring'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <div className="ruler-controls" aria-label="Ruler controls">
         <button
@@ -90,7 +92,7 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
       </div>
       <output aria-label={`Marker at ${mixedMeasurement(inches)}`}>{mixedMeasurement(inches)}</output>
       <p role="status">
-        {completed ? 'Target measurement complete.' : `Marker at ${mixedMeasurement(inches)}.`}
+        {visiblyComplete ? 'Target measurement complete.' : `Marker at ${mixedMeasurement(inches)}.`}
       </p>
     </section>
   );

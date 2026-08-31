@@ -20,7 +20,13 @@ test('clamps steppers and emits ordered one-shot completion', async () => {
   ]);
 
   await user.click(screen.getByRole('button', { name: 'Remove one row' }));
+  expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-state', 'building');
+  expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByText('Adjust rows and columns.', { selector: 'p[role="status"]' })).toBeInTheDocument();
+
   await user.click(screen.getByRole('button', { name: 'Add one row' }));
+  expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-complete', 'yes');
 
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });

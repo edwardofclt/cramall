@@ -21,7 +21,13 @@ test('moves to 2.25 inches with next-state events and one completion', async () 
   ]);
 
   await user.click(screen.getByRole('button', { name: 'Move marker left one quarter inch' }));
+  expect(screen.getByTestId('widget-quarter-inch-ruler')).toHaveAttribute('data-state', 'measuring');
+  expect(screen.getByTestId('widget-quarter-inch-ruler')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByText('Marker at 2 inches (2 inches).', { selector: 'p[role="status"]' })).toBeInTheDocument();
+
   await user.click(screen.getByRole('button', { name: 'Move marker right one quarter inch' }));
+  expect(screen.getByTestId('widget-quarter-inch-ruler')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-quarter-inch-ruler')).toHaveAttribute('data-complete', 'yes');
 
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });

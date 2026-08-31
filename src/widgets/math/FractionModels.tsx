@@ -17,6 +17,11 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
       ? equivalent(next, config.denominator, config.target!.numerator, config.target!.denominator)
       : next === config.target!.numerator && config.denominator === config.target!.denominator
   );
+  const matchesCurrentTarget = matches(numerator);
+  const visiblyComplete = completed && matchesCurrentTarget;
+  const usesEquivalentRepresentation = Boolean(config.target) && matchesCurrentTarget && (
+    numerator !== config.target!.numerator || config.denominator !== config.target!.denominator
+  );
 
   const commit = (next: number, action: 'select-piece' | 'clear-model') => {
     setNumerator(next);
@@ -94,8 +99,8 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
     <section
       className="card widget-experiment fraction-models"
       data-testid="widget-fraction-models"
-      data-state={completed ? 'complete' : 'choosing'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'choosing'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <button onClick={() => commit(0, 'clear-model')}>Clear model</button>
       <div role="group" aria-label="Fraction parts">
@@ -112,7 +117,11 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
       </div>
       {config.mode !== 'circles' && barView}
       {config.mode !== 'bars' && circleView}
-      <p role="status">{completed ? 'Equivalent fraction complete.' : 'Choose the shaded amount.'}</p>
+      <p role="status">
+        {visiblyComplete
+          ? usesEquivalentRepresentation ? 'Equivalent fraction complete.' : 'Fraction complete.'
+          : 'Choose the shaded amount.'}
+      </p>
     </section>
   );
 }

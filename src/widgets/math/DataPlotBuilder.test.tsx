@@ -27,7 +27,13 @@ describe('DataPlotBuilder', () => {
     ]);
 
     await user.click(screen.getByRole('button', { name: 'Decrease A' }));
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-state', 'building');
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'no');
+    expect(screen.getByRole('status')).toHaveTextContent('Adjust the plot values.');
+
     await user.click(screen.getByRole('button', { name: 'Increase A' }));
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-state', 'complete');
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'yes');
     expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
   });
 
@@ -71,5 +77,23 @@ describe('DataPlotBuilder', () => {
     expect(screen.getByTestId('bar-Cats')).toHaveAttribute('data-value', '0');
     expect(screen.getByText('Cats: 0')).toBeInTheDocument();
     expect(screen.getByText('50', { selector: '.data-plot-scale-label' })).toBeInTheDocument();
+  });
+
+  test('keeps every category in one explicit, horizontally scrollable plot row', () => {
+    render(
+      <DataPlotBuilder
+        config={{
+          kind: 'bar',
+          prompt: 'Compare votes',
+          categories: ['Cats', 'Dogs', 'Birds', 'Fish'],
+          target: { Cats: 1, Dogs: 2, Birds: 3, Fish: 4 },
+        }}
+        onEvent={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('data-plot-columns')).toHaveStyle({ gridTemplateColumns: 'repeat(4, minmax(7rem, 1fr))' });
+    expect(screen.getByTestId('data-plot-chart')).toHaveStyle({ gridTemplateColumns: '2.5rem minmax(28rem, 1fr)' });
+    expect(screen.getByTestId('data-plot-baseline')).toBeInTheDocument();
   });
 });

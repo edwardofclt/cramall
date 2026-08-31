@@ -20,6 +20,9 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
   const { completed, completeOnce } = useCompletionLatch(key);
   const maximum = Math.max(1, ...config.categories.flatMap((category) => [config.target[category], values[category]]));
   const exact = (next: Record<string, number>) => config.categories.every((category) => next[category] === config.target[category]);
+  const matchesCurrentTarget = exact(values);
+  const visiblyComplete = completed && matchesCurrentTarget;
+  const categoryTrackWidth = config.categories.length * 7;
 
   useEffect(() => setValues(emptyValues(config.categories)), [key]);
 
@@ -36,8 +39,8 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
     <section
       className="card widget-experiment data-plot"
       data-testid="widget-data-plot-builder"
-      data-state={completed ? 'complete' : 'building'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'building'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <h3>{config.prompt}</h3>
       <p className="data-plot-instruction">Use the controls to build the exact plot. Each category starts at zero.</p>
@@ -66,11 +69,22 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
         ))}
       </div>
       <div className="data-plot-viewport" role="region" aria-label="Scrollable data plot" tabIndex={0}>
-        <div className="data-plot-chart" role="img" aria-label={chartLabel}>
+        <div
+          className="data-plot-chart"
+          data-testid="data-plot-chart"
+          role="img"
+          aria-label={chartLabel}
+          style={{ gridTemplateColumns: `2.5rem minmax(${categoryTrackWidth}rem, 1fr)` }}
+        >
           <div className="data-plot-scale" aria-label={`Integer scale from 0 to ${maximum}`}>
             {scaleTicks(maximum).map((tick) => <span className="data-plot-scale-label" key={tick}>{tick}</span>)}
           </div>
-          <div className="data-plot-columns" data-kind={config.kind}>
+          <div
+            className="data-plot-columns"
+            data-testid="data-plot-columns"
+            data-kind={config.kind}
+            style={{ gridTemplateColumns: `repeat(${config.categories.length}, minmax(7rem, 1fr))` }}
+          >
             {config.categories.map((category) => {
               const value = values[category];
               return (
@@ -104,7 +118,7 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
         {config.categories.map((category) => <p key={category}>{category}: {values[category]}</p>)}
       </div>
       <button className="data-plot-reset" onClick={() => commit(emptyValues(config.categories), 'reset')}>Start over</button>
-      <p role="status">{completed ? 'Plot matches the target.' : 'Adjust the plot values.'}</p>
+      <p role="status">{visiblyComplete ? 'Plot matches the target.' : 'Adjust the plot values.'}</p>
     </section>
   );
 }

@@ -10,6 +10,8 @@ export default function ArrayBuilder({ config, onEvent }: WidgetProps<'array-bui
   const [size, setSize] = useState<Size>(initial);
   const { completed, completeOnce } = useCompletionLatch(key);
   const product = size.rows * size.columns;
+  const matchesCurrentTarget = config.targetProduct !== undefined && product === config.targetProduct;
+  const visiblyComplete = completed && matchesCurrentTarget;
 
   useEffect(() => setSize(initial), [key]);
 
@@ -27,8 +29,8 @@ export default function ArrayBuilder({ config, onEvent }: WidgetProps<'array-bui
     <section
       className="card widget-experiment array-builder"
       data-testid="widget-array-builder"
-      data-state={completed ? 'complete' : 'building'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'building'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <div className="array-builder-controls" aria-label="Array controls">
         <button
@@ -81,7 +83,7 @@ export default function ArrayBuilder({ config, onEvent }: WidgetProps<'array-bui
         </div>
       </div>
       <output>{size.rows} × {size.columns} = {product}</output>
-      <p role="status">{completed ? 'Target array complete.' : 'Adjust rows and columns.'}</p>
+      <p role="status">{visiblyComplete ? 'Target array complete.' : 'Adjust rows and columns.'}</p>
     </section>
   );
 }

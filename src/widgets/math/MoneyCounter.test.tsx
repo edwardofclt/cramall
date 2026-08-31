@@ -23,7 +23,13 @@ test('retains denomination counts and completes 85 cents once', async () => {
   ]);
 
   await user.click(screen.getByRole('button', { name: 'Remove a dime' }));
+  expect(screen.getByTestId('widget-money-counter')).toHaveAttribute('data-state', 'building');
+  expect(screen.getByTestId('widget-money-counter')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByText('75 cents counted.', { selector: 'p[role="status"]' })).toBeInTheDocument();
+
   await user.click(screen.getByRole('button', { name: 'Add a dime' }));
+  expect(screen.getByTestId('widget-money-counter')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-money-counter')).toHaveAttribute('data-complete', 'yes');
 
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });

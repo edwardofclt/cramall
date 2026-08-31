@@ -12,8 +12,11 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
     partsB.map((b, column) => ({ id: `${row}-${column}`, a, b }))
   ));
   const product = config.a * config.b;
+  const partialProductSum = cells.map((cell) => cell.a * cell.b).join(' + ');
   const [selected, setSelected] = useState<string[]>([]);
   const { completed, completeOnce } = useCompletionLatch(key);
+  const matchesCurrentTarget = config.targetProduct === product && selected.length === cells.length;
+  const visiblyComplete = completed && matchesCurrentTarget;
 
   useEffect(() => setSelected([]), [key]);
 
@@ -30,8 +33,8 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
     <section
       className="card widget-experiment area-model"
       data-testid="widget-area-model-multiplier"
-      data-state={completed ? 'complete' : 'building'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-state={visiblyComplete ? 'complete' : 'building'}
+      data-complete={visiblyComplete ? 'yes' : 'no'}
     >
       <div className="area-model-factors" aria-label={`Factors: ${config.a} times ${config.b}`}>
         <span>{config.a} = {partsA.join(' + ')}</span>
@@ -52,7 +55,10 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
               key={cell.id}
               aria-label={`Select ${cell.a} by ${cell.b} cell`}
               aria-pressed={isSelected}
-              onClick={() => commit(isSelected ? selected : selected.concat(cell.id), 'select-cell')}
+              onClick={() => commit(
+                isSelected ? selected.filter((id) => id !== cell.id) : selected.concat(cell.id),
+                'select-cell',
+              )}
             >
               <span>{cell.a} × {cell.b} = {cell.a * cell.b}</span>
               <span className="area-model-selection">{isSelected ? 'Selected' : 'Select this part'}</span>
@@ -60,10 +66,11 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
           );
         })}
       </div>
+      <output data-testid="area-model-partial-sum">{partialProductSum} = {product}</output>
       <output data-testid="area-model-total">{config.a} × {config.b} = {product}</output>
       <button className="area-model-reset" onClick={() => commit([], 'reset')}>Start over</button>
       <p role="status">
-        {completed
+        {visiblyComplete
           ? 'All partial products make the target.'
           : `${selected.length} of ${cells.length} cells selected.`}
       </p>

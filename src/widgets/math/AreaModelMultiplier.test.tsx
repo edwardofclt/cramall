@@ -25,6 +25,13 @@ test('selects every partition and completes configured product once', async () =
   ]);
 
   await user.click(screen.getByRole('button', { name: 'Select 3 by 4 cell' }));
+  expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-state', 'building');
+  expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByText('1 of 2 cells selected.', { selector: 'p[role="status"]' })).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'Select 3 by 4 cell' }));
+  expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-complete', 'yes');
 
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
@@ -50,4 +57,15 @@ test('preserves 44px tracks for a valid 99-partition factor', () => {
 
   expect(grid).toHaveStyle({ gridTemplateColumns: 'repeat(99, minmax(44px, 1fr))' });
   expect(screen.getAllByRole('button', { name: 'Select 99 by 1 cell' })).toHaveLength(99);
+});
+
+test('shows the sum of the partial products', () => {
+  render(
+    <AreaModelMultiplier
+      config={{ a: 23, b: 4, splitA: [20, 3], splitB: [4] }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('area-model-partial-sum')).toHaveTextContent('80 + 12 = 92');
 });

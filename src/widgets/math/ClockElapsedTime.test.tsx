@@ -33,7 +33,13 @@ test('set-time controls emit next time and one completion', async () => {
   ]);
 
   await user.click(screen.getByRole('button', { name: 'Decrease minute' }));
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-state', 'setting');
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'no');
+  expect(screen.getByText('Clock shows 1:00 AM.', { selector: 'p[role="status"]' })).toBeInTheDocument();
+
   await user.click(screen.getByRole('button', { name: 'Increase minute' }));
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'yes');
 
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
