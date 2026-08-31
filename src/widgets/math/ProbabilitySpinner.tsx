@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { useReducedMotionPref } from '../../app/useReducedMotionPref';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
@@ -23,6 +23,20 @@ export function spin(segments: Array<{ id: string; weight?: number }>, rng: () =
   return segments[segments.length - 1]!.id;
 }
 
+export function weightedGeometry(segments: Array<{ id: string; weight?: number }>, selectedId: string | null) {
+  const total = segments.reduce((sum, segment) => sum + (segment.weight ?? 1), 0);
+  let startAngle = -90;
+  const slices = segments.map((segment) => {
+    const endAngle = startAngle + ((segment.weight ?? 1) / total) * 360;
+    const slice = { id: segment.id, startAngle, endAngle, midpoint: (startAngle + endAngle) / 2 };
+    startAngle = endAngle;
+    return slice;
+  });
+  const selectedMidpoint = slices.find((slice) => slice.id === selectedId)?.midpoint;
+  const finalRotation = selectedMidpoint === undefined ? 0 : ((-90 - selectedMidpoint) % 360 + 360) % 360;
+  return { slices, selectedMidpoint, finalRotation };
+}
+
 function pointAt(angle: number, radius: number) {
   const radians = (angle * Math.PI) / 180;
   return { x: 50 + radius * Math.cos(radians), y: 50 + radius * Math.sin(radians) };
@@ -44,6 +58,13 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
   const { completed, completeOnce } = useCompletionLatch(key);
   const totalWeight = config.segments.reduce((sum, segment) => sum + segmentWeight(segment), 0);
   const trials = config.trials ?? 1;
+  const geometry = weightedGeometry(config.segments, outcome);
+  const displayedRotation = reduced ? geometry.finalRotation : geometry.finalRotation + (outcome ? 720 : 0);
+  const rotationStyle = {
+    transform: `rotate(${displayedRotation}deg)`,
+    '--spinner-from-rotation': `${geometry.finalRotation}deg`,
+    '--spinner-to-rotation': `${displayedRotation}deg`,
+  } as CSSProperties;
 
   useEffect(() => {
     setCounts(emptyCounts(config.segments));
@@ -78,8 +99,6 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
 
   const outcomeLabel = config.segments.find((segment) => segment.id === outcome)?.label;
   const wheelLabel = `Spinner model: ${config.segments.map((segment) => `${segment.label} has ${segmentWeight(segment)} of ${totalWeight} equal part${totalWeight === 1 ? '' : 's'}`).join('; ')}.`;
-  let startAngle = -90;
-
   return (
     <section
       className="card widget-experiment spinner"
@@ -119,15 +138,21 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
               <path d="M 0 1 H 8 M 0 5 H 8" stroke="var(--c-ink)" strokeWidth="1.5" opacity=".45" />
             </pattern>
           </defs>
+          <g
+            className="spinner-rotating-group"
+            data-testid="spinner-rotating-group"
+            data-final-rotation={geometry.finalRotation}
+            style={rotationStyle}
+          >
           {config.segments.map((segment, index) => {
-            const endAngle = startAngle + (segmentWeight(segment) / totalWeight) * 360;
-            const path = slicePath(startAngle, endAngle);
-            startAngle = endAngle;
+            const slice = geometry.slices[index]!;
+            const path = slicePath(slice.startAngle, slice.endAngle);
             const patterns = ['spinner-stripes', 'spinner-dots', 'spinner-checks', 'spinner-lines'];
             return <path data-testid="spinner-segment" d={path} fill={`url(#${patterns[index % patterns.length]})`} key={segment.id} />;
           })}
           <circle className="spinner-rim" cx="50" cy="50" r="43" />
-          <path className="spinner-pointer" d="M 50 1 L 45 12 H 55 Z" />
+          </g>
+          <path data-testid="spinner-pointer" className="spinner-pointer" d="M 50 1 L 45 12 H 55 Z" />
         </svg>
         <ul className="spinner-legend" aria-label="Spinner segment key">
           {config.segments.map((segment, index) => (

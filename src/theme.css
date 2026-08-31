@@ -2318,7 +2318,7 @@ body {
 .spinner-explanation { color: var(--c-ink-soft); font-weight: 700; }
 .spinner-model { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(12rem, 1fr); gap: 1rem; align-items: center; }
 .spinner-wheel { display: block; width: min(100%, 16rem); margin-inline: auto; }
-.spinner-wheel[data-spinning="true"] { animation: probability-spinner-turn .65s ease-out; transform-origin: center; }
+.spinner-wheel[data-spinning="true"] .spinner-rotating-group { animation: probability-spinner-turn .65s ease-out; transform-origin: center; }
 .spinner-wheel path { stroke: var(--c-ink); stroke-width: 1.5; }
 .spinner-rim { fill: none; stroke: var(--c-ink); stroke-width: 2; }
 .spinner-pointer { fill: var(--c-ink); }
@@ -2334,7 +2334,7 @@ body {
 .spinner-frequency { width: min(100%, 28rem); border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .spinner-frequency caption { padding-bottom: .35rem; font-weight: 800; text-align: left; }
 .spinner-frequency th, .spinner-frequency td { padding: .4rem .55rem; border: 1px solid var(--c-ink); text-align: left; }
-@keyframes probability-spinner-turn { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
-.widget-experiment.spinner[data-motion="off"] .spinner-wheel { animation: none; }
-@media (prefers-reduced-motion: reduce) { .spinner-wheel { animation: none !important; } }
+@keyframes probability-spinner-turn { from { transform: rotate(var(--spinner-from-rotation)); } to { transform: rotate(var(--spinner-to-rotation)); } }
+.widget-experiment.spinner[data-motion="off"] .spinner-rotating-group { animation: none; }
+@media (prefers-reduced-motion: reduce) { .spinner-rotating-group { animation: none !important; } }
 @media (max-width: 560px) { .spinner-model { grid-template-columns: 1fr; } }

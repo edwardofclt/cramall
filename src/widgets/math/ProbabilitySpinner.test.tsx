@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { ProbabilitySpinnerWidgetConfigSchema } from '../../content/schema';
-import ProbabilitySpinner, { spin } from './ProbabilitySpinner';
+import ProbabilitySpinner, { spin, weightedGeometry } from './ProbabilitySpinner';
 
 const motionPreference = { reduced: false };
 
@@ -16,6 +16,23 @@ afterEach(() => {
 });
 
 describe('ProbabilitySpinner', () => {
+  test('rotates the selected weighted segment midpoint to the fixed top pointer and resets to zero', async () => {
+    expect(weightedGeometry([{ id: 'a', weight: 1 }, { id: 'b', weight: 3 }], 'b')).toMatchObject({
+      selectedMidpoint: 135,
+      finalRotation: 135,
+    });
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    const user = userEvent.setup();
+    render(<ProbabilitySpinner config={{ segments: [{ id: 'a', label: 'A', weight: 1 }, { id: 'b', label: 'B', weight: 3 }] }} onEvent={vi.fn()} />);
+
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.getByTestId('spinner-rotating-group')).toHaveAttribute('data-final-rotation', '135');
+    expect(screen.getByTestId('spinner-rotating-group')).toHaveStyle({ transform: 'rotate(855deg)' });
+    expect(screen.getByTestId('spinner-pointer').parentElement).not.toBe(screen.getByTestId('spinner-rotating-group'));
+    await user.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(screen.getByTestId('spinner-rotating-group')).toHaveAttribute('data-final-rotation', '0');
+  });
+
   test('spins only on click and emits deterministic cumulative result', async () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.9);
     const onEvent = vi.fn();
@@ -104,6 +121,8 @@ describe('ProbabilitySpinner', () => {
 
     expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-motion', 'off');
     expect(screen.getByTestId('spinner-wheel')).toHaveAttribute('data-spinning', 'false');
+    expect(screen.getByTestId('spinner-rotating-group')).toHaveAttribute('data-final-rotation', '135');
+    expect(screen.getByTestId('spinner-rotating-group')).toHaveStyle({ transform: 'rotate(135deg)' });
     expect(screen.getByRole('status')).toHaveTextContent('B');
   });
 });
