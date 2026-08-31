@@ -45,11 +45,11 @@ function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
     const next = {...placements, [selected]: bin};
     setSelected(null);
     if (bin !== item.kind) {
-      setStatus(`${item.label} is currently in ${binLabels[bin]}. A revision is needed.`);
+      setStatus(`${item.label} is currently in ${binLabels[bin]}. Revision needed.`);
     } else if (isCorrect(next)) {
-      setStatus('Every item is in its authored category.');
+      setStatus(`${item.label} is currently in ${binLabels[bin]}. No revision needed. Every item is in its authored category.`);
     } else {
-      setStatus(`${item.label} is currently in ${binLabels[bin]}. Keep sorting the remaining items.`);
+      setStatus(`${item.label} is currently in ${binLabels[bin]}. No revision needed. Keep sorting the remaining items.`);
     }
     emit(next, 'place-item');
   };

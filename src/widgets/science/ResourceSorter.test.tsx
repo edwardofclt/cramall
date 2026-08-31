@@ -45,12 +45,38 @@ test('keeps a wrong placement visible and revisable with bounded feedback', asyn
   expect(sunlight).toHaveAttribute('aria-pressed', 'true');
   await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
   expect(screen.getByTestId('resource-placement-sun')).toHaveTextContent('Nonrenewable resource');
-  expect(screen.getByRole('status')).toHaveTextContent(/Sunlight is currently in Nonrenewable resource.*revision is needed/i);
+  expect(screen.getByRole('status')).toHaveTextContent('Sunlight is currently in Nonrenewable resource. Revision needed.');
   expect(screen.getByRole('status')).not.toHaveTextContent(/Coal|Use less electricity/);
 
   await user.click(sunlight);
   await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
   expect(screen.getByTestId('resource-placement-sun')).toHaveTextContent('Renewable resource');
+});
+
+test('names the placed item, current bin, and no-revision verdict for a correct non-final placement', async () => {
+  const user = userEvent.setup();
+  render(<ResourceSorter config={config} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+
+  expect(screen.getByRole('status')).toHaveTextContent('Sunlight is currently in Renewable resource. No revision needed. Keep sorting the remaining items.');
+});
+
+test('keeps the placed-item verdict in the final correct placement feedback', async () => {
+  const user = userEvent.setup();
+  render(<ResourceSorter config={config} onEvent={vi.fn()} />);
+
+  for (const [label, bin] of [
+    ['Sunlight', 'Renewable resource'],
+    ['Coal', 'Nonrenewable resource'],
+    ['Use less electricity', 'Conservation action'],
+  ] as const) {
+    await user.click(screen.getByRole('button', {name: `Select ${label}`}));
+    await user.click(screen.getByRole('button', {name: `Place selected item in ${bin}`}));
+  }
+
+  expect(screen.getByRole('status')).toHaveTextContent('Use less electricity is currently in Conservation action. No revision needed. Every item is in its authored category.');
 });
 
 test('emits stable config-order placements and completes once while live state returns to sorting after revision or reset', async () => {
