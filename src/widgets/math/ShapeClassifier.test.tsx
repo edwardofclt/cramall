@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, test, vi } from 'vitest';
 import { ShapeClassifierWidgetConfigSchema } from '../../content/schema';
@@ -71,5 +71,25 @@ describe('ShapeClassifier', () => {
 
     expect(screen.getByText('Placed in: 4 sides')).toBeInTheDocument();
     expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'sorting');
+  });
+
+  test('uses a neutral property-count schematic for unusual authored counts', () => {
+    const unusualConfig = {
+      shapes: [
+        { id: 'four-three', label: 'Four-three shape', sides: 4, angles: 3, parallelPairs: 0 },
+        { id: 'five-four', label: 'Five-four shape', sides: 5, angles: 4, parallelPairs: 1 },
+      ],
+      bins: [{ id: 'four', label: '4 sides', value: 4 }, { id: 'five', label: '5 sides', value: 5 }],
+      rule: 'sides' as const,
+    };
+    const { container } = render(<ShapeClassifier config={unusualConfig} onEvent={vi.fn()} />);
+
+    const schematic = screen.getByRole('img', {
+      name: 'Four-three shape schematic. 4 sides, 3 angles, 0 pairs of parallel sides. Only these listed properties are represented.',
+    });
+    expect(within(schematic).getByText('4 sides')).toBeInTheDocument();
+    expect(within(schematic).getByText('3 angles')).toBeInTheDocument();
+    expect(within(schematic).getByText('0 parallel pairs')).toBeInTheDocument();
+    expect(container.querySelectorAll('polygon')).toHaveLength(0);
   });
 });

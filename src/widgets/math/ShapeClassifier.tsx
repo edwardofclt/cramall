@@ -15,14 +15,6 @@ function propertyDescription(shape: { label: string; sides: number; angles: numb
   return `${shape.label} schematic. ${shape.sides} sides, ${shape.angles} angles, ${shape.parallelPairs} pairs of parallel sides. Only these listed properties are represented.`;
 }
 
-function schematicPoints(sides: number): string | null {
-  if (sides < 3 || sides > 12) return null;
-  return Array.from({ length: sides }, (_, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / sides;
-    return `${50 + 37 * Math.cos(angle)},${50 + 37 * Math.sin(angle)}`;
-  }).join(' ');
-}
-
 export default function ShapeClassifier({ config, onEvent }: WidgetProps<'shape-classifier'>) {
   const key = JSON.stringify(config);
   const [selected, setSelected] = useState<string | null>(null);
@@ -90,23 +82,15 @@ export default function ShapeClassifier({ config, onEvent }: WidgetProps<'shape-
       <div className="shape-cards" aria-label="Shape property cards">
         {config.shapes.map((shape) => {
           const bin = config.bins.find((candidate) => candidate.id === placements[shape.id]);
-          const points = schematicPoints(shape.sides);
           const description = propertyDescription(shape);
           return (
             <article className="shape-card" data-selected={selected === shape.id ? 'true' : 'false'} key={shape.id}>
-              {points ? (
-                <svg className="shape-schematic" viewBox="0 0 100 100" role="img" aria-label={description}>
-                  <polygon points={points} />
-                  {points.split(' ').map((point) => {
-                    const [cx, cy] = point.split(',');
-                    return <circle cx={cx} cy={cy} r="3" key={point} />;
-                  })}
-                </svg>
-              ) : (
-                <div className="shape-schematic shape-property-schematic" role="img" aria-label={description}>
-                  Property-count schematic
-                </div>
-              )}
+              <div className="shape-schematic shape-property-schematic" role="img" aria-label={description}>
+                <span className="shape-schematic-title">Property counts</span>
+                <span>{shape.sides} sides</span>
+                <span>{shape.angles} angles</span>
+                <span>{shape.parallelPairs} parallel pairs</span>
+              </div>
               <div className="shape-properties">
                 <h4>{shape.label}</h4>
                 <dl>
