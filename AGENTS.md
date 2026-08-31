@@ -137,10 +137,18 @@ poses derived from the exact rendered rail geometry. Animation status remains
 truthful through normal, replay, collision, and reduced-motion preference
 changes.
 
-Verification at source commit `6a989cc`: 360/360 tests, clean TypeScript, normal
-and self-contained single-file builds, real-browser desktop/mobile dialogue
-checks, exact rail-contact animation checks, and collision timing/replay checks.
-Independent final re-review is APPROVED.
+Commits `3b8570a` through `388b540` make every top-level lesson stage URL-driven
+(`intro`, each card, `worked`, and `outro`), preserving unrelated query
+parameters and browser Back/Forward while canonicalizing legacy `?card=` review
+links. Reading worked examples now model source passages separately from their
+numbered coaching and render a book-style passage/coaching layout: contained
+inline scroll panes on adequately tall desktop windows, two-column document
+flow on very short wide windows, and stacked document flow on mobile.
+
+Verification at source commit `388b540`: 371/371 tests, clean TypeScript, normal
+and self-contained single-file builds, real-browser refresh/history/legacy-link
+checks, and desktop/short-window/mobile overflow checks. Independent final
+review is APPROVED.
 Re-run the relevant gates before relying on this handoff after later changes.
 Do not implement the Plan A closure-remediation items without new explicit
 authorization, even if their residuals appear in a review ledger.
