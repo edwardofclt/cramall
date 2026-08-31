@@ -46,6 +46,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'change-hour' | 'change-minute' | 'reset' }
     | { type: 'change'; value: ClockValue }
     | { type: 'complete'; value: ClockValue };
+  'quarter-inch-ruler':
+    | { type: 'interaction'; action: 'move-marker' | 'reset' }
+    | { type: 'change'; value: { inches: number } }
+    | { type: 'complete'; value: { inches: number } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -74,4 +78,5 @@ export const widgetRegistry = {
   'array-builder': lazy(() => import('./math/ArrayBuilder')),
   'money-counter': lazy(() => import('./math/MoneyCounter')),
   'clock-elapsed-time': lazy(() => import('./math/ClockElapsedTime')),
+  'quarter-inch-ruler': lazy(() => import('./math/QuarterInchRuler')),
 } satisfies WidgetRegistry;

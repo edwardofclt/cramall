@@ -2220,3 +2220,15 @@ body {
 .clock-minute-hand { stroke: var(--c-ink); stroke-width: 3; stroke-linecap: square; }
 .clock-center { fill: var(--c-accent-action); stroke: var(--c-ink); stroke-width: 1; }
 .clock output { font-variant-numeric: tabular-nums; font-size: 1.5rem; font-weight: 800; }
+.widget-experiment.ruler { display: grid; gap: .75rem; }
+.ruler-controls { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.ruler button { min-height: 44px; }
+.ruler-viewport { min-width: 0; max-width: 100%; overflow-x: auto; padding: .5rem .25rem; border: 2px solid var(--c-ink); border-radius: .75rem; }
+.ruler-track { display: grid; width: max-content; min-height: 7rem; align-items: end; padding-top: 1.5rem; border-bottom: 3px solid var(--c-ink); }
+.ruler-tick { position: relative; display: flex; min-height: 100%; align-items: end; justify-content: center; }
+.ruler-tick::before { width: 2px; height: 2.25rem; background: var(--c-ink); content: ''; }
+.ruler-tick[data-tick-kind="half"]::before { height: 1.65rem; }
+.ruler-tick[data-tick-kind="quarter"]::before { height: 1rem; }
+.ruler-tick[data-marker="true"]::after { position: absolute; top: -.85rem; width: 0; height: 0; border-right: .45rem solid transparent; border-left: .45rem solid transparent; border-top: .7rem solid var(--c-accent-action); content: ''; }
+.ruler-label { position: absolute; bottom: 2.55rem; font-weight: 800; }
+.ruler output { display: block; font-variant-numeric: tabular-nums; font-weight: 800; }

@@ -70,6 +70,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['clock-elapsed-time'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'quarter-inch-ruler': {
+      const Widget = widgetRegistry['quarter-inch-ruler'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

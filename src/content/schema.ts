@@ -10,6 +10,7 @@ export const WIDGET_TYPES = [
   'array-builder',
   'money-counter',
   'clock-elapsed-time',
+  'quarter-inch-ruler',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -346,6 +347,27 @@ export const ClockElapsedTimeWidgetRefSchema = z.object({
   config: ClockElapsedTimeWidgetConfigSchema,
 }).strict();
 
+const isQuarterAligned = (value: number) => Math.abs(value * 4 - Math.round(value * 4)) < 1e-9;
+
+export const QuarterInchRulerWidgetConfigSchema = z.object({
+  lengthInches: z.number().int().min(1).max(24).optional(),
+  targetInches: z.number().min(0).max(24),
+  startInches: z.number().min(0).max(24).optional(),
+}).strict().superRefine((value, context) => {
+  const length = value.lengthInches ?? 12;
+  if (!isQuarterAligned(value.targetInches) || !isQuarterAligned(value.startInches ?? 0)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'quarter increments required' });
+  }
+  if (value.targetInches > length || (value.startInches ?? 0) > length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'marker exceeds ruler' });
+  }
+});
+
+export const QuarterInchRulerWidgetRefSchema = z.object({
+  type: z.literal('quarter-inch-ruler'),
+  config: QuarterInchRulerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -361,6 +383,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ArrayBuilderWidgetRefSchema,
   MoneyCounterWidgetRefSchema,
   ClockElapsedTimeWidgetRefSchema,
+  QuarterInchRulerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
