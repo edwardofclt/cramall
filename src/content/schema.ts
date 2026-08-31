@@ -11,6 +11,7 @@ export const WIDGET_TYPES = [
   'money-counter',
   'clock-elapsed-time',
   'quarter-inch-ruler',
+  'balance-scale',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -368,6 +369,28 @@ export const QuarterInchRulerWidgetRefSchema = z.object({
   config: QuarterInchRulerWidgetConfigSchema,
 }).strict();
 
+const WeightSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().min(1),
+  value: z.number().positive().finite(),
+}).strict();
+
+export const BalanceScaleWidgetConfigSchema = z.object({
+  left: z.array(WeightSchema).min(1),
+  right: z.array(WeightSchema).min(1),
+  task: z.enum(['compare', 'make-equal']).optional(),
+}).strict().superRefine((value, context) => {
+  const ids = [...value.left, ...value.right].map((weight) => weight.id);
+  if (new Set(ids).size !== ids.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate ids' });
+  }
+});
+
+export const BalanceScaleWidgetRefSchema = z.object({
+  type: z.literal('balance-scale'),
+  config: BalanceScaleWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -384,6 +407,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   MoneyCounterWidgetRefSchema,
   ClockElapsedTimeWidgetRefSchema,
   QuarterInchRulerWidgetRefSchema,
+  BalanceScaleWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

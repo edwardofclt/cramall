@@ -1,0 +1,149 @@
+import { useEffect, useState } from 'react';
+import type { WidgetProps } from '../registry';
+import { useCompletionLatch } from '../useCompletionLatch';
+
+type Relation = 'left' | 'equal' | 'right';
+type Weight = { id: string; label: string; value: number };
+type Totals = { leftTotal: number; rightTotal: number };
+type Action = 'add-weight' | 'remove-weight' | 'check' | 'reset';
+
+function balanceRelation({ leftTotal, rightTotal }: Totals): Relation {
+  if (leftTotal > rightTotal) return 'left';
+  if (leftTotal < rightTotal) return 'right';
+  return 'equal';
+}
+
+function relationText(relation: Relation) {
+  if (relation === 'left') return 'The left pan is heavier and lower.';
+  if (relation === 'right') return 'The right pan is heavier and lower.';
+  return 'The pans are level and balanced.';
+}
+
+export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-scale'>) {
+  const key = JSON.stringify(config);
+  const task = config.task ?? 'compare';
+  const all = [...config.left, ...config.right];
+  const initialIds = all.map((weight) => weight.id);
+  const initialStatus = task === 'compare'
+    ? 'Compare the pans.'
+    : 'Adjust the active weights, then check the balance.';
+  const [active, setActive] = useState(initialIds);
+  const [status, setStatus] = useState(initialStatus);
+  const [selectedRelation, setSelectedRelation] = useState<Relation | null>(null);
+  const { completed, completeOnce } = useCompletionLatch(key);
+
+  useEffect(() => {
+    setActive(initialIds);
+    setSelectedRelation(null);
+    setStatus(initialStatus);
+  }, [key]);
+
+  const totals = (ids: string[]): Totals => ({
+    leftTotal: config.left
+      .filter((weight) => ids.includes(weight.id))
+      .reduce((sum, weight) => sum + weight.value, 0),
+    rightTotal: config.right
+      .filter((weight) => ids.includes(weight.id))
+      .reduce((sum, weight) => sum + weight.value, 0),
+  });
+
+  const emit = (ids: string[], action: Action, success = false) => {
+    const value = totals(ids);
+    setActive(ids);
+    onEvent({ type: 'interaction', action });
+    onEvent({ type: 'change', value });
+    if (success) completeOnce(() => onEvent({ type: 'complete', value }));
+  };
+
+  const value = totals(active);
+  const truth = balanceRelation(value);
+  const beamState = truth === 'equal' ? 'level' : truth;
+
+  const chooseRelation = (choice: Relation) => {
+    const correct = choice === truth;
+    setSelectedRelation(choice);
+    setStatus(correct ? 'Correct comparison.' : 'Try the other relation.');
+    emit(active, 'check', correct);
+  };
+
+  const checkBalance = () => {
+    const balanced = truth === 'equal';
+    setStatus(balanced ? 'Scale is balanced.' : 'Totals are not equal yet.');
+    emit(active, 'check', balanced);
+  };
+
+  const reset = () => {
+    setSelectedRelation(null);
+    setStatus(initialStatus);
+    emit(initialIds, 'reset');
+  };
+
+  const renderPan = (side: 'left' | 'right', weights: Weight[], total: number) => (
+    <section
+      className="balance-pan"
+      data-testid={`balance-pan-${side}`}
+      data-side={side}
+      aria-label={`${side === 'left' ? 'Left' : 'Right'} pan, total ${total}`}
+    >
+      <h3>{side === 'left' ? 'Left pan' : 'Right pan'}</h3>
+      <ul>
+        {weights.map((weight) => {
+          const isActive = active.includes(weight.id);
+          const panName = side === 'left' ? 'left' : 'right';
+          return (
+            <li key={weight.id} data-active={isActive ? 'true' : 'false'}>
+              <span>{weight.label} = {weight.value}</span>
+              {task === 'make-equal' && (
+                <button
+                  aria-label={`${isActive ? 'Remove' : 'Add'} ${weight.label} ${isActive ? 'from' : 'to'} the ${panName} pan`}
+                  aria-pressed={isActive}
+                  onClick={() => {
+                    const next = isActive
+                      ? active.filter((id) => id !== weight.id)
+                      : active.concat(weight.id);
+                    emit(next, isActive ? 'remove-weight' : 'add-weight');
+                  }}
+                >
+                  {isActive ? 'Remove' : 'Add'} {weight.label}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="balance-total">Total: {total}</p>
+    </section>
+  );
+
+  return (
+    <section
+      className="card widget-experiment balance"
+      data-testid="widget-balance-scale"
+      data-state={completed ? 'complete' : task === 'compare' ? 'comparing' : 'making-equal'}
+      data-complete={completed ? 'yes' : 'no'}
+    >
+      <div className="balance-model" role="group" aria-label={`Balance scale. Left total ${value.leftTotal}; right total ${value.rightTotal}. ${relationText(truth)}`}>
+        <div className="balance-pans">
+          {renderPan('left', config.left, value.leftTotal)}
+          {renderPan('right', config.right, value.rightTotal)}
+        </div>
+        <div className="balance-beam-area" aria-hidden="true">
+          <div className="balance-beam" data-testid="balance-beam" data-state={beamState} />
+          <div className="balance-fulcrum" />
+        </div>
+      </div>
+      <p className="balance-relation"><strong>{value.leftTotal} {truth === 'left' ? '>' : truth === 'right' ? '<' : '='} {value.rightTotal}</strong> — {relationText(truth)}</p>
+      {task === 'compare' ? (
+        <div className="balance-relation-controls" aria-label="Choose the relationship between the pans">
+          <button aria-label="Left is heavier" aria-pressed={selectedRelation === 'left'} onClick={() => chooseRelation('left')}>Left</button>
+          <button aria-label="Balanced" aria-pressed={selectedRelation === 'equal'} onClick={() => chooseRelation('equal')}>Balanced</button>
+          <button aria-label="Right is heavier" aria-pressed={selectedRelation === 'right'} onClick={() => chooseRelation('right')}>Right</button>
+        </div>
+      ) : (
+        <button className="balance-check" aria-label="Check balance" onClick={checkBalance}>Check balance</button>
+      )}
+      <button className="balance-reset" onClick={reset}>Start over</button>
+      <p role="status">{status}</p>
+    </section>
+  );
+}

@@ -12,6 +12,7 @@ type BaseTenValue = {
 type MoneyCounts = Record<'1' | '5' | '10' | '25' | '100', number>;
 type MoneyValue = { totalCents: number; counts: MoneyCounts };
 type ClockValue = { hour: number; minute: number; totalMinutes: number };
+type BalanceValue = { leftTotal: number; rightTotal: number };
 
 export type WidgetEventMap = {
   'place-value-builder':
@@ -50,6 +51,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'move-marker' | 'reset' }
     | { type: 'change'; value: { inches: number } }
     | { type: 'complete'; value: { inches: number } };
+  'balance-scale':
+    | { type: 'interaction'; action: 'add-weight' | 'remove-weight' | 'check' | 'reset' }
+    | { type: 'change'; value: BalanceValue }
+    | { type: 'complete'; value: BalanceValue };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -79,4 +84,5 @@ export const widgetRegistry = {
   'money-counter': lazy(() => import('./math/MoneyCounter')),
   'clock-elapsed-time': lazy(() => import('./math/ClockElapsedTime')),
   'quarter-inch-ruler': lazy(() => import('./math/QuarterInchRuler')),
+  'balance-scale': lazy(() => import('./math/BalanceScale')),
 } satisfies WidgetRegistry;

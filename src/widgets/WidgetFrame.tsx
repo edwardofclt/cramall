@@ -74,6 +74,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['quarter-inch-ruler'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'balance-scale': {
+      const Widget = widgetRegistry['balance-scale'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
