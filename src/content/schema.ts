@@ -24,6 +24,7 @@ export const WIDGET_TYPES = [
   'data-plot-builder',
   'probability-spinner',
   'collision-ramp',
+  'energy-transfer-builder',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -698,6 +699,15 @@ export const CollisionRampWidgetRefSchema = z.object({
   config: CollisionRampWidgetConfigSchema,
 }).strict();
 
+export const EnergyTransferBuilderWidgetConfigSchema = z.object({
+  sources: z.array(z.string().min(1)).min(1), transfers: z.array(z.string().min(1)).min(1), targets: z.array(z.string().min(1)).min(1), requiredPath: z.array(z.string().min(1)).min(3),
+}).strict().superRefine((value, context) => {
+  const all = [...value.sources, ...value.transfers, ...value.targets];
+  if (new Set(all).size !== all.length) context.addIssue({ code: z.ZodIssueCode.custom, message: 'source, transfer, and target tokens must be unique and disjoint' });
+  if (!value.sources.includes(value.requiredPath[0]!) || !value.targets.includes(value.requiredPath[value.requiredPath.length - 1]!) || !value.requiredPath.slice(1, -1).every((token) => value.transfers.includes(token))) context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredPath'], message: 'invalid source-transfer-target path' });
+});
+export const EnergyTransferBuilderWidgetRefSchema = z.object({ type: z.literal('energy-transfer-builder'), config: EnergyTransferBuilderWidgetConfigSchema }).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -719,6 +729,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   DataPlotBuilderWidgetRefSchema,
   ProbabilitySpinnerWidgetRefSchema,
   CollisionRampWidgetRefSchema,
+  EnergyTransferBuilderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

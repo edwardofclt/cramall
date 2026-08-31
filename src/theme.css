@@ -2354,3 +2354,10 @@ body {
 .collision-predictions h4, .collision-predictions p { grid-column: 1 / -1; }
 .collision-reset { justify-self: start; min-width: 44px; }
 @media (max-width: 520px) { .collision-predictions { grid-template-columns: 1fr; } }
+.widget-experiment.transfer { display: grid; gap: .75rem; }
+.transfer header h3, .transfer header p, .transfer-group h4, .transfer-path { margin: 0; }
+.transfer header p { color: var(--c-ink-soft); font-weight: 700; }
+.transfer-model { display: flex; gap: .5rem; align-items: stretch; overflow-x: auto; }
+.transfer-group { display: grid; min-width: 9rem; gap: .4rem; padding: .6rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.transfer-group[data-category="source"] h4::before { content: '● '; }.transfer-group[data-category="transfer"] h4::before { content: '↔ '; }.transfer-group[data-category="target"] h4::before { content: '■ '; }
+.transfer-group button, .transfer-reset { min-height: 44px; }.transfer-arrow { align-self: center; font-size: 2rem; font-weight: 900; }.transfer-path { font-weight: 800; }.transfer-reset { justify-self: start; min-width: 44px; }

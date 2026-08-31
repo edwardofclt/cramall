@@ -94,6 +94,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['collision-ramp'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'energy-transfer-builder': {
+      const Widget = widgetRegistry['energy-transfer-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
