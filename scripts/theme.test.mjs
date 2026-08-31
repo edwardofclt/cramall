@@ -93,7 +93,10 @@ test('short Reading worked pages keep coaching in a stretchable inline overflow 
   expect(coaching).toMatch(/overscroll-behavior:\s*contain/);
 });
 
-test('wide Reading worked pages use their two-column contained layout at every height', () => {
+test('wide Reading worked pages keep columns width-gated while containment has a usable-height floor', () => {
   expect(themeCss).toMatch(/@media\s*\(min-width:\s*48rem\)\s*\{/);
-  expect(themeCss).not.toMatch(/@media\s*\(min-width:\s*48rem\)\s*and\s*\(min-height:/);
+  expect(block(".lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-columns"))
+    .toMatch(/grid-template-columns/);
+  expect(themeCss).toMatch(/@media\s*\(min-width:\s*48rem\)\s*and\s*\(min-height:\s*40rem\)\s*\{/);
+  expect(themeCss).toMatch(/40rem\/640px.*passage viewport/i);
 });

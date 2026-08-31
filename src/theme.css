@@ -662,6 +662,21 @@ body {
 }
 
 @media (min-width: 48rem) {
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-columns {
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.85fr);
+  }
+
+  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-step {
+    align-items: flex-start;
+    padding: 0.625rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+}
+
+/* At 1024px with peek, 40rem/640px leaves a 113px passage viewport; below that,
+   normal document scrolling keeps the full source and coaching reachable. */
+@media (min-width: 48rem) and (min-height: 40rem) {
   .lesson-page[data-stage='worked'][data-worked-passage='true'] {
     width: min(100%, 72rem);
     height: 100dvh;
@@ -686,7 +701,6 @@ body {
   }
 
   .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-reading-columns {
-    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.85fr);
     flex: 1 1 auto;
   }
 
@@ -705,12 +719,6 @@ body {
     padding-right: 0.5rem;
   }
 
-  .lesson-page[data-stage='worked'][data-worked-passage='true'] .worked-step {
-    align-items: flex-start;
-    padding: 0.625rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.35;
-  }
 }
 
 .lesson-outro {
