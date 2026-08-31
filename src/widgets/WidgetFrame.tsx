@@ -174,6 +174,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['figurative-language-matcher'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'source-credibility-checker': {
+      const Widget = widgetRegistry['source-credibility-checker'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

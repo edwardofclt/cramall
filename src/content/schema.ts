@@ -44,6 +44,7 @@ export const WIDGET_TYPES = [
   'summary-builder',
   'pov-switcher',
   'figurative-language-matcher',
+  'source-credibility-checker',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1335,6 +1336,57 @@ export const FigurativeLanguageMatcherWidgetRefSchema=z.object({
   config:FigurativeLanguageMatcherWidgetConfigSchema,
 }).strict();
 
+const CredibilityCriterionSchema=z.enum(['author','evidence','date','purpose']);
+const CredibilityTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ').normalize('NFC')).pipe(z.string().min(1));
+const credibilityKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const CredibilityIdSchema=CredibilityTextSchema
+  .refine((value)=>!isArrayIndexKey(value),'source id must not be a JavaScript array-index key')
+  .refine((value)=>!Object.prototype.hasOwnProperty.call(Object.prototype,value),'source id must not name an Object prototype property');
+const CredibilitySourceSchema=z.object({
+  id:CredibilityIdSchema,
+  title:CredibilityTextSchema,
+  author:CredibilityTextSchema.optional(),
+  date:CredibilityTextSchema.optional(),
+  publisher:CredibilityTextSchema.optional(),
+  purpose:CredibilityTextSchema.optional(),
+  claims:z.array(CredibilityTextSchema),
+}).strict();
+const sourceMeets=(source:z.infer<typeof CredibilitySourceSchema>,criteria:Array<z.infer<typeof CredibilityCriterionSchema>>)=>criteria.every((criterion)=>
+  criterion==='author'?source.author!==undefined
+    :criterion==='evidence'?source.claims.length>0
+      :criterion==='date'?source.date!==undefined
+        :source.purpose!==undefined,
+);
+
+export const SourceCredibilityCheckerWidgetConfigSchema=z.object({
+  sources:z.array(CredibilitySourceSchema).min(1),
+  criteria:z.array(CredibilityCriterionSchema).min(1),
+  credibleIds:z.array(CredibilityIdSchema),
+}).strict().superRefine((value,context)=>{
+  const ids=value.sources.map((source)=>credibilityKey(source.id));
+  const titles=value.sources.map((source)=>credibilityKey(source.title));
+  const criteria=value.criteria;
+  const credibleKeys=value.credibleIds.map(credibilityKey);
+  const derived=value.sources.filter((source)=>sourceMeets(source,criteria)).map((source)=>source.id).sort();
+  const claimsUnique=value.sources.every((source)=>{
+    const claimKeys=source.claims.map(credibilityKey);
+    return new Set(claimKeys).size===claimKeys.length;
+  });
+  if(new Set(ids).size!==ids.length
+    ||new Set(titles).size!==titles.length
+    ||new Set(criteria).size!==criteria.length
+    ||new Set(credibleKeys).size!==credibleKeys.length
+    ||!claimsUnique
+    ||JSON.stringify([...value.credibleIds].sort())!==JSON.stringify(derived)){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'credibleIds must uniquely equal the selected criteria evaluation'});
+  }
+});
+
+export const SourceCredibilityCheckerWidgetRefSchema=z.object({
+  type:z.literal('source-credibility-checker'),
+  config:SourceCredibilityCheckerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1376,6 +1428,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   SummaryBuilderWidgetRefSchema,
   PovSwitcherWidgetRefSchema,
   FigurativeLanguageMatcherWidgetRefSchema,
+  SourceCredibilityCheckerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

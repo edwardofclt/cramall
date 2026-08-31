@@ -154,6 +154,10 @@ export type WidgetEventMap = {
     | {type:'interaction';action:'select-phrase'|'match'|'reset'}
     | {type:'change';value:{matches:Record<string,string>}}
     | {type:'complete';value:{matches:Record<string,string>}};
+  'source-credibility-checker':
+    | {type:'interaction';action:'rate-source'|'check'|'reset'}
+    | {type:'change';value:{ratings:Record<string,'credible'|'needs-checking'>}}
+    | {type:'complete';value:{ratings:Record<string,'credible'|'needs-checking'>}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -208,4 +212,5 @@ export const widgetRegistry = {
   'summary-builder': lazy(() => import('./reading/SummaryBuilder')),
   'pov-switcher': lazy(() => import('./reading/PovSwitcher')),
   'figurative-language-matcher': lazy(() => import('./reading/FigurativeLanguageMatcher')),
+  'source-credibility-checker': lazy(() => import('./reading/SourceCredibilityChecker')),
 } satisfies WidgetRegistry;
