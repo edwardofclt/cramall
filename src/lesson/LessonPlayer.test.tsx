@@ -200,6 +200,19 @@ afterEach(() => {
 });
 
 describe('LessonPlayer', () => {
+  test('widget interaction remains ephemeral', async () => {
+    const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
+    const user = userEvent.setup();
+    renderPlayer();
+    await clickNext(user);
+    await settleWidget();
+    storageSpy.mockClear();
+
+    await user.click(screen.getByRole('button', { name: 'Add one to the ones place' }));
+
+    expect(storageSpy).not.toHaveBeenCalled();
+  });
+
   test('opens on the intro dialogue with the lesson title', () => {
     renderPlayer();
 

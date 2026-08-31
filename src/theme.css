@@ -99,6 +99,64 @@ body {
   outline-offset: 3px;
 }
 
+:where(.widget-experiment button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  padding: 0.625rem 0.875rem;
+  border: 2px solid var(--c-control-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--c-card);
+  color: var(--c-ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+:where(.widget-experiment button:focus-visible) {
+  outline: 3px solid var(--accent-action, var(--c-accent-action));
+  outline-offset: 3px;
+}
+
+:where(.widget-experiment button:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+:where(.widget-experiment input) {
+  min-block-size: 44px;
+  padding: 0.625rem 0.875rem;
+  border: 2px solid var(--c-control-border);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  color: var(--c-ink);
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .widget-experiment [data-widget-grid] {
+    grid-template-columns: 1fr;
+  }
+
+  .widget-experiment output,
+  .widget-experiment [role='status'] {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .widget-experiment * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .badge {
   display: inline-flex;
   align-items: center;

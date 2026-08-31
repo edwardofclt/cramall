@@ -5,11 +5,13 @@ import {
   LessonSchema,
   NumberLineWidgetConfigSchema,
   QuizReferenceSchema,
+  WIDGET_TYPES,
   WidgetRefSchema,
   validateLesson,
   type Lesson,
   type Question,
 } from './schema';
+import { validWidgetRefByType } from '../test/widgetFixtures';
 
 function q(id: string, over: Partial<Question> = {}): Question {
   return {
@@ -35,6 +37,14 @@ function makeLesson(): Lesson {
 test('valid lesson parses and validates clean', () => {
   expect(LessonSchema.parse(makeLesson())).toBeTruthy();
   expect(validateLesson(makeLesson())).toEqual([]);
+});
+test.each(WIDGET_TYPES)('%s accepts its fixture and rejects unknown config keys', (type) => {
+  const valid = validWidgetRefByType[type];
+  expect(WidgetRefSchema.safeParse(valid).success).toBe(true);
+  expect(WidgetRefSchema.safeParse({
+    ...valid,
+    config: { ...valid.config, unexpected: true },
+  }).success).toBe(false);
 });
 test('a learn card can include a self-check with a valid correct choice', () => {
   const card = LearnCardSchema.parse({

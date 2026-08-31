@@ -8,7 +8,7 @@ import { widgetRegistry } from './registry';
 afterEach(() => vi.restoreAllMocks());
 
 describe('widgetRegistry', () => {
-  test('covers every widget type the content schema allows', () => {
+  test('catalog and lazy registry are identical', () => {
     expect(Object.keys(widgetRegistry).sort()).toEqual([...WIDGET_TYPES].sort());
   });
 });
