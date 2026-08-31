@@ -158,6 +158,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['central-idea-organizer'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'text-structure-sorter': {
+      const Widget = widgetRegistry['text-structure-sorter'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

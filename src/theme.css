@@ -2414,3 +2414,11 @@ body {
 .central-idea-choice[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .central-idea-marker { font-weight: 900; white-space: nowrap; }
 .central-idea-controls button { min-height: 44px; }
+.widget-experiment.structures { display: grid; gap: .75rem; }
+.widget-experiment.structures header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
+.text-structure-excerpts, .text-structure-bins { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .6rem; }
+.text-structure-excerpt { display: grid; gap: .5rem; align-content: start; padding: .7rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.text-structure-excerpt[data-selected="yes"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.text-structure-excerpt p { margin: 0; font-weight: 700; line-height: 1.5; }
+.text-structure-excerpt button, .text-structure-bins button, .text-structure-controls button { min-height: 44px; }
+.text-structure-placement { display: block; min-block-size: 1.5em; padding: .2rem .4rem; border-inline-start: 5px solid var(--c-ink); font-weight: 800; }

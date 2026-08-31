@@ -40,6 +40,7 @@ export const WIDGET_TYPES = [
   'story-elements-mapper',
   'theme-evidence-collector',
   'central-idea-organizer',
+  'text-structure-sorter',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1191,6 +1192,30 @@ export const CentralIdeaOrganizerWidgetRefSchema=z.object({
   config:CentralIdeaOrganizerWidgetConfigSchema,
 }).strict();
 
+const TextStructureSchema=z.enum(['sequence','compare-contrast','cause-effect','problem-solution','description']);
+const TextStructureTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const textStructureVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const TextStructureExcerptSchema=z.object({
+  id:TextStructureTextSchema,
+  text:TextStructureTextSchema,
+  structure:TextStructureSchema,
+}).strict();
+
+export const TextStructureSorterWidgetConfigSchema=z.object({
+  excerpts:z.array(TextStructureExcerptSchema).min(2),
+}).strict().superRefine((value,context)=>{
+  const ids=value.excerpts.map((excerpt)=>textStructureVisualKey(excerpt.id));
+  const texts=value.excerpts.map((excerpt)=>textStructureVisualKey(excerpt.text));
+  if(new Set(ids).size!==ids.length||new Set(texts).size!==texts.length){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'excerpt ids and text must be unique'});
+  }
+});
+
+export const TextStructureSorterWidgetRefSchema=z.object({
+  type:z.literal('text-structure-sorter'),
+  config:TextStructureSorterWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1228,6 +1253,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   StoryElementsMapperWidgetRefSchema,
   ThemeEvidenceCollectorWidgetRefSchema,
   CentralIdeaOrganizerWidgetRefSchema,
+  TextStructureSorterWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

@@ -138,6 +138,10 @@ export type WidgetEventMap = {
     | {type:'interaction';action:'choose-main-idea'|'toggle-detail'|'reset'}
     | {type:'change';value:{mainIdea:string|null;detailIds:string[]}}
     | {type:'complete';value:{mainIdea:string;detailIds:string[]}};
+  'text-structure-sorter':
+    | {type:'interaction';action:'select-excerpt'|'place-structure'|'reset'}
+    | {type:'change';value:{placements:Record<string,string>}}
+    | {type:'complete';value:{placements:Record<string,string>}};
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -188,4 +192,5 @@ export const widgetRegistry = {
   'story-elements-mapper': lazy(() => import('./reading/StoryElementsMapper')),
   'theme-evidence-collector': lazy(() => import('./reading/ThemeEvidenceCollector')),
   'central-idea-organizer': lazy(() => import('./reading/CentralIdeaOrganizer')),
+  'text-structure-sorter': lazy(() => import('./reading/TextStructureSorter')),
 } satisfies WidgetRegistry;
