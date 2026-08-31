@@ -734,6 +734,8 @@ export const LightReflectionEyeWidgetRefSchema = z.object({ type: z.literal('lig
 const MorseAlphabet: Record<string, string> = {
   A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
 };
+/** Uppercase only ASCII a-z so each authored character remains exactly one symbol. */
+export const normalizeMorseAscii = (text: string) => text.replace(/[a-z]/g, (character) => String.fromCharCode(character.charCodeAt(0) - 32));
 const isVisibleCharacter = (character: string) => [...character].length === 1 && character.trim() === character && !/[\p{C}\p{Z}]/u.test(character);
 const isPrintableAscii = (character: string) => character.length === 1 && character.charCodeAt(0) >= 32 && character.charCodeAt(0) <= 126;
 const printableAsciiAlphabet = () => Object.fromEntries(Array.from({ length: 95 }, (_, index) => {
@@ -746,9 +748,9 @@ export const MessageSenderWidgetConfigSchema = z.object({
   message: z.string().trim().min(1),
   alphabet: z.record(z.string()).optional(),
 }).strict().superRefine((value, context) => {
-  const message = value.encoding === 'morse' ? value.message.toUpperCase() : value.message;
+  const message = value.encoding === 'morse' ? normalizeMorseAscii(value.message) : value.message;
   const codePattern = value.encoding === 'morse' ? /^[.-]+$/ : /^[01]{8}$/;
-  const normalizedOverrides = Object.entries(value.alphabet ?? {}).map(([character, code]) => [value.encoding === 'morse' ? character.toUpperCase() : character, code] as const);
+  const normalizedOverrides = Object.entries(value.alphabet ?? {}).map(([character, code]) => [value.encoding === 'morse' ? normalizeMorseAscii(character) : character, code] as const);
   if (normalizedOverrides.some(([character, code]) => !isVisibleCharacter(character) || (value.encoding === 'binary' && !isPrintableAscii(character)) || !codePattern.test(code))) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['alphabet'], message: 'override keys must be visible enterable characters and codes must be enterable symbols' });
   }

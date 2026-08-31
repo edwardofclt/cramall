@@ -38,7 +38,7 @@ test('renders target-relevant code references and character-grouped entry', asyn
   expect(screen.getByText('B = -...')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Add dot' }));
   await user.click(screen.getByRole('button', { name: 'Add dash' }));
-  await user.click(screen.getByRole('button', { name: 'Add letter separator' }));
+  await user.click(screen.getByRole('button', { name: 'Add character separator' }));
   await user.click(screen.getByRole('button', { name: 'Add dash' }));
   expect(screen.getAllByTestId('encoded-character-group')).toHaveLength(2);
   expect(screen.getByTestId('encoded-character-separator')).toHaveTextContent('|');
@@ -55,4 +55,22 @@ test('keeps sent completion live when a correct code is edited', async () => {
   await user.click(screen.getByRole('button', { name: 'Remove last symbol' }));
   expect(screen.getByTestId('widget-message-sender')).toHaveAttribute('data-state', 'encoding');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('uses ASCII-only Morse case normalization without expanding a non-ASCII character', () => {
+  expect(MessageSenderWidgetConfigSchema.safeParse({ encoding: 'morse', message: 'ß' }).success).toBe(false);
+  expect(MessageSenderWidgetConfigSchema.safeParse({ encoding: 'morse', message: 'ß', alphabet: { ß: '..--..' } }).success).toBe(true);
+  render(<MessageSender config={{ encoding: 'morse', message: 'ß', alphabet: { ß: '..--..' } }} onEvent={vi.fn()} />);
+  expect(screen.getByText('Target message: ß')).toBeInTheDocument();
+  expect(screen.getByText('ß = ..--..')).toBeInTheDocument();
+});
+
+test('names binary space visibly and uses character separators in controls and entry', async () => {
+  const user = userEvent.setup();
+  render(<MessageSender config={{ encoding: 'binary', message: 'A A' }} onEvent={vi.fn()} />);
+  expect(screen.getByText('Space = 00100000')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Add zero' }));
+  await user.click(screen.getByRole('button', { name: 'Add character separator' }));
+  expect(screen.getByLabelText('character separator')).toBeInTheDocument();
+  expect(screen.getByRole('group', { name: /entered code grouped by character.*character separator/i })).toBeInTheDocument();
 });
