@@ -6,10 +6,13 @@ import { useCompletionLatch } from '../useCompletionLatch';
 type Direction = 'left' | 'right' | 'same';
 type RampState = { rampAngle: number; speedA: number; speedB: number };
 
-function multiplyExact(left: number, right: number): ExactDecimal | null {
+function multiplyExact(left: number, right: number): ExactDecimal {
   const leftDecimal = exactDecimalFromNumber(left);
   const rightDecimal = exactDecimalFromNumber(right);
-  return leftDecimal && rightDecimal ? { units: leftDecimal.units * rightDecimal.units, scale: leftDecimal.scale + rightDecimal.scale } : null;
+  if (!leftDecimal || !rightDecimal) {
+    throw new RangeError('Collision ramp values must use the shared exact-decimal policy of at most 12 decimal places.');
+  }
+  return { units: leftDecimal.units * rightDecimal.units, scale: leftDecimal.scale + rightDecimal.scale };
 }
 
 function exactText(value: ExactDecimal) {
@@ -22,11 +25,7 @@ function exactText(value: ExactDecimal) {
 export const stuckCartDirection = (massA: number, speedA: number, massB: number, speedB: number): Direction => {
   const rightMomentum = multiplyExact(massA, speedA);
   const leftMomentum = multiplyExact(massB, speedB);
-  if (rightMomentum && leftMomentum) {
-    const comparison = compareExactDecimals(rightMomentum, leftMomentum);
-    return comparison > 0 ? 'right' : comparison < 0 ? 'left' : 'same';
-  }
-  const comparison = massA * speedA - massB * speedB;
+  const comparison = compareExactDecimals(rightMomentum, leftMomentum);
   return comparison > 0 ? 'right' : comparison < 0 ? 'left' : 'same';
 };
 
@@ -102,7 +101,7 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
           <span>Cart B</span><strong>{config.massB} mass</strong><b>{state.speedB === 0 ? 'stationary' : `${state.speedB} speed ←`}</b>
         </div>
       </div></div>
-      <p className="collision-quantities">Cart A push number: {config.massA} × {state.speedA} = {cartAQuantity ? exactText(cartAQuantity) : 'unavailable'}. Cart B push number: {config.massB} × {state.speedB} = {cartBQuantity ? exactText(cartBQuantity) : 'unavailable'}. {stationary ? 'Both carts remain stationary, so no collision occurs.' : 'The larger push number points the stuck carts that way.'}</p>
+      <p className="collision-quantities">Cart A push number: {config.massA} × {state.speedA} = {exactText(cartAQuantity)}. Cart B push number: {config.massB} × {state.speedB} = {exactText(cartBQuantity)}. {stationary ? 'Both carts remain stationary, so no collision occurs.' : 'The larger push number points the stuck carts that way.'}</p>
       <div data-widget-grid="controls" className="collision-controls">
         <button aria-label="Decrease ramp angle" disabled={state.rampAngle <= 0} onClick={() => change({ ...state, rampAngle: clamp(state.rampAngle - 1, 0, 45) }, 'change-angle')}>− angle</button>
         <button aria-label="Increase ramp angle" disabled={state.rampAngle >= 45} onClick={() => change({ ...state, rampAngle: clamp(state.rampAngle + 1, 0, 45) }, 'change-angle')}>+ angle</button>
@@ -112,7 +111,7 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
         <button aria-label="Increase cart B speed" disabled={state.speedB >= 100} onClick={() => change({ ...state, speedB: clamp(state.speedB + 1, 0, 100) }, 'change-speed')}>Cart B + speed</button>
       </div>
       {target === 'predict-direction' ? <div className="collision-predictions" aria-label="Prediction choices">
-        <h4>After the stuck-cart collision, the model says the carts…</h4>
+        <h4>{stationary ? 'Both carts are stationary, so no collision occurs. Choose the matching model result.' : 'After the modeled stuck-cart collision, the model says the carts…'}</h4>
         <button aria-label="Moves left" onClick={() => finish('left', 'choose-prediction')}>Moves left</button>
         <button aria-label="Moves right" onClick={() => finish('right', 'choose-prediction')}>Moves right</button>
         <button aria-label="Stays the same" onClick={() => finish('same', 'choose-prediction')}>Stays the same</button>

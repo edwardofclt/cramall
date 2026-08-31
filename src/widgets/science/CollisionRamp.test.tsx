@@ -53,6 +53,7 @@ test('validates bounded visual setup and reports opposing stuck-cart directions'
 test('uses exact authored decimals and clamps decimal control endpoints', async () => {
   expect(stuckCartDirection(1.1, 3, 3.3, 1)).toBe('same');
   expect(stuckCartDirection(1, 1, 1.000000000001, 1)).toBe('left');
+  expect(() => stuckCartDirection(1.0000000000001, 1, 1, 1)).toThrow(RangeError);
   expect(CollisionRampWidgetConfigSchema.safeParse({ massA: 1.0000000000001, massB: 1 }).success).toBe(false);
   const user = userEvent.setup();
   render(<CollisionRamp config={{ rampAngle: .5, massA: 1, massB: 1, speedA: .5, speedB: 99.5 }} onEvent={vi.fn()} />);
@@ -71,7 +72,13 @@ test('labels zero-speed carts as stationary and keeps the cart track horizontall
   expect(screen.getByRole('img', { name: /cart A.*stationary/i })).toBeInTheDocument();
   expect(screen.getByRole('img', { name: /cart B.*stationary/i })).toBeInTheDocument();
   expect(screen.getByRole('status')).toHaveTextContent(/stationary.*no collision occurs/i);
+  expect(screen.getByRole('heading', { name: /both carts are stationary.*no collision occurs.*matching model result/i })).toBeInTheDocument();
   expect(screen.getByTestId('collision-track-viewport')).toHaveClass('collision-track-viewport');
   await user.click(screen.getByRole('button', { name: 'Stays the same' }));
   expect(screen.getByRole('status')).toHaveTextContent(/remain stationary.*no collision occurs/i);
+});
+
+test('uses collision wording in the prediction heading only when a cart is moving', () => {
+  render(<CollisionRamp config={{ massA: 1, massB: 1, speedA: 1, speedB: 0 }} onEvent={vi.fn()} />);
+  expect(screen.getByRole('heading', { name: /after the modeled stuck-cart collision/i })).toBeInTheDocument();
 });
