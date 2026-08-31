@@ -9,7 +9,7 @@ export function useCompletionLatch(resetKey: string) {
   }
 
   const completeOnce = (emit: () => void) => {
-    if (latch.current.fired) return;
+    if (latch.current.key !== resetKey || latch.current.fired) return;
 
     latch.current.fired = true;
     setCompletedKey(resetKey);
