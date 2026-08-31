@@ -104,6 +104,24 @@ test('requires every rating and gives bounded feedback without revealing credibl
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
 });
 
+test('hints one wrong source in authored order when sources miss different criteria',async()=>{
+  // Aggregating unrelated criteria, choosing by click order, or rendering an authored title as markup must fail this test.
+  const onEvent=vi.fn(),user=userEvent.setup();
+  const variedSources=[
+    {id:'first',title:'First <strong>record</strong>',claims:['A migration count was recorded.']},
+    {id:'second',title:'Second record',author:'M. Chen',claims:[]},
+  ];
+  render(<SourceCredibilityChecker config={{sources:variedSources,criteria:['author','evidence'],credibleIds:[]}} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Rate Second record credible'}));
+  await user.click(screen.getByRole('button',{name:'Rate First <strong>record</strong> credible'}));
+  await user.click(screen.getByRole('button',{name:'Check sources'}));
+  const status=screen.getByRole('status');
+  expect(status).toHaveTextContent('First <strong>record</strong>');
+  expect(status).toHaveTextContent(/author/i);
+  expect(status).not.toHaveTextContent(/second record|evidence|needs checking|credible/i);
+  expect(status.querySelector('strong')).toBeNull();
+});
+
 test('resets ratings and status without rearming completion',async()=>{
   // Retaining ratings/status or rearming completion on reset must fail this test.
   const onEvent=vi.fn(),user=userEvent.setup();

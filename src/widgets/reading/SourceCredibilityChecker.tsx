@@ -46,11 +46,13 @@ function SourceCredibilityCheckerBody({config,onEvent}:SourceCredibilityCheckerP
   const check=()=>{
     const ordered=emit(ratings,'check');
     const wrong=wrongSources(ordered).filter((source)=>ownRating(ordered,source.id)!==undefined);
-    const omissions=[...new Set(wrong.flatMap((source)=>missingCriteria(source,config.criteria)))];
+    const hintedSource=wrong.find((source)=>missingCriteria(source,config.criteria).length>0);
+    const hintedCriteria=hintedSource===undefined?[]:missingCriteria(hintedSource,config.criteria);
+    const hint=hintedSource===undefined?'':`Recheck “${hintedSource.title}”: ${hintedCriteria.join(' and ')}.`;
     if(!allRated(ordered)){
       setViewState('revision');
-      setStatus(omissions.length>0
-        ?`Rate every source before checking. Recheck the ${omissions.join(' and ')} criteria for the rated sources that need revision.`
+      setStatus(hint.length>0
+        ?`Rate every source before checking. ${hint}`
         :'Rate every source before checking.');
       return;
     }
@@ -61,8 +63,8 @@ function SourceCredibilityCheckerBody({config,onEvent}:SourceCredibilityCheckerP
       return;
     }
     setViewState('revision');
-    setStatus(omissions.length>0
-      ?`Recheck the ${omissions.join(' and ')} criteria for the sources that need revision.`
+    setStatus(hint.length>0
+      ?hint
       :'Some ratings need revision. Compare each supplied record with every selected criterion.');
   };
   const reset=()=>{
