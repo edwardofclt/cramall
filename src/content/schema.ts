@@ -32,6 +32,7 @@ export const WIDGET_TYPES = [
   'animal-structure-matcher',
   'erosion-simulator',
   'rock-layer-explorer',
+  'topographic-map-explorer',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -875,6 +876,50 @@ export const RockLayerExplorerWidgetConfigSchema = z.object({
 });
 export const RockLayerExplorerWidgetRefSchema = z.object({type: z.literal('rock-layer-explorer'), config: RockLayerExplorerWidgetConfigSchema}).strict();
 
+const TopographicTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const CoordinateListSchema = TopographicTextSchema.refine(
+  (value) => /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?(?:\s+-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?)+$/.test(value),
+  'coordinates must be numeric x,y pairs',
+);
+const parseCoordinates = (value: string) => value.split(' ').map((pair) => pair.split(',').map(Number) as [number, number]);
+const ContourSchema = z.object({
+  elevation: z.number().finite(),
+  points: CoordinateListSchema,
+}).strict().superRefine((contour, context) => {
+  const coordinates = parseCoordinates(contour.points);
+  if (!coordinates.every(([x, y]) => Number.isFinite(x) && Number.isFinite(y))) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['points'], message: 'coordinates must be finite'});
+    return;
+  }
+  if (new Set(coordinates.map(([x, y]) => `${x},${y}`)).size < 2) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['points'], message: 'a contour needs two distinct points'});
+  }
+});
+const TopographicPointSchema = z.object({
+  id: TopographicTextSchema,
+  label: TopographicTextSchema,
+  elevation: z.number().finite(),
+}).strict();
+const topographicVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+export const TopographicMapExplorerWidgetConfigSchema = z.object({
+  contours: z.array(ContourSchema).min(1),
+  points: z.array(TopographicPointSchema).min(2),
+  targetPointId: TopographicTextSchema.optional(),
+}).strict().superRefine((value, context) => {
+  const ids = value.points.map((point) => topographicVisualKey(point.id));
+  const labels = value.points.map((point) => topographicVisualKey(point.label));
+  if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'point ids and labels must be unique'});
+  }
+  if (value.targetPointId && !value.points.some((point) => point.id === value.targetPointId)) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['targetPointId'], message: 'target point must exist'});
+  }
+});
+export const TopographicMapExplorerWidgetRefSchema = z.object({
+  type: z.literal('topographic-map-explorer'),
+  config: TopographicMapExplorerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -904,6 +949,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   AnimalStructureMatcherWidgetRefSchema,
   ErosionSimulatorWidgetRefSchema,
   RockLayerExplorerWidgetRefSchema,
+  TopographicMapExplorerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

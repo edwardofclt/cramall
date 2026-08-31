@@ -126,6 +126,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['rock-layer-explorer'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'topographic-map-explorer': {
+      const Widget = widgetRegistry['topographic-map-explorer'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;
