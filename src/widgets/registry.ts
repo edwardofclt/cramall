@@ -59,6 +59,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-shape' | 'place-shape' | 'reset' }
     | { type: 'change'; value: { placements: Record<string, string> } }
     | { type: 'complete'; value: { placements: Record<string, string> } };
+  'data-plot-builder':
+    | { type: 'interaction'; action: 'increase-value' | 'decrease-value' | 'reset' }
+    | { type: 'change'; value: { values: Record<string, number> } }
+    | { type: 'complete'; value: { values: Record<string, number> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -90,4 +94,5 @@ export const widgetRegistry = {
   'quarter-inch-ruler': lazy(() => import('./math/QuarterInchRuler')),
   'balance-scale': lazy(() => import('./math/BalanceScale')),
   'shape-classifier': lazy(() => import('./math/ShapeClassifier')),
+  'data-plot-builder': lazy(() => import('./math/DataPlotBuilder')),
 } satisfies WidgetRegistry;

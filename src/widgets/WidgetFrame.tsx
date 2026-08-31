@@ -82,6 +82,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['shape-classifier'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'data-plot-builder': {
+      const Widget = widgetRegistry['data-plot-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

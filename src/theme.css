@@ -2275,3 +2275,25 @@ body {
 .shape-bins > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(44px, 1fr)); gap: .5rem; }
 .shape-reset { justify-self: start; min-width: 44px; }
 @media (max-width: 500px) { .shape-card { grid-template-columns: 1fr; } .shape-schematic { justify-self: center; } }
+.widget-experiment.data-plot { display: grid; gap: .75rem; }
+.widget-experiment.data-plot h3, .data-plot-instruction, .data-plot-control h4, .data-plot-control p, .data-plot-category, .data-plot-values p { margin: 0; }
+.data-plot-instruction { color: var(--c-ink-soft); font-weight: 700; }
+.data-plot-controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .5rem; }
+.data-plot-control { display: grid; gap: .4rem; padding: .65rem; border: 2px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.data-plot-control > div { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.data-plot button { min-height: 44px; }
+.data-plot-viewport { min-width: 0; max-width: 100%; max-height: 30rem; overflow: auto; padding: .5rem; border: 2px solid var(--c-ink); border-radius: .75rem; }
+.data-plot-chart { display: grid; grid-template-columns: 2.5rem minmax(20rem, 1fr); min-width: 24rem; gap: .5rem; }
+.data-plot-scale { display: flex; min-height: 15rem; flex-direction: column; justify-content: space-between; padding-block: .1rem 2.25rem; font-variant-numeric: tabular-nums; font-size: .8rem; font-weight: 800; text-align: right; }
+.data-plot-columns { position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr)); align-items: end; min-height: 15rem; gap: .5rem; padding: .5rem .5rem 2rem; }
+.data-plot-column { z-index: 1; display: grid; min-width: 0; min-height: 15rem; grid-template-rows: 1fr auto; align-self: stretch; text-align: center; }
+.data-plot-mark-area { display: grid; min-height: 0; align-items: end; justify-items: center; }
+.data-plot-bar { width: min(3.5rem, 75%); min-height: 0; border: 3px solid var(--c-ink); border-bottom: 0; background: repeating-linear-gradient(135deg, var(--c-card) 0 .35rem, var(--c-accent) .35rem .7rem); }
+.data-plot-category { min-height: 1.5rem; padding-top: .35rem; font-weight: 800; overflow-wrap: anywhere; }
+.data-plot-baseline { position: absolute; right: .5rem; bottom: 2rem; left: .5rem; border-top: 3px solid var(--c-ink); }
+.data-plot-columns[data-kind="dot"] { align-items: end; }
+.data-plot-columns[data-kind="dot"] .data-plot-column { min-height: 15rem; }
+.data-plot-dots { display: grid; grid-auto-rows: 14px; justify-items: center; align-self: end; min-height: 0; }
+.data-plot-dot { display: grid; width: 14px; height: 14px; place-items: center; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-card); color: var(--c-ink); font-size: .5rem; line-height: 1; }
+.data-plot-values { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-variant-numeric: tabular-nums; font-weight: 800; }
+.data-plot-reset { justify-self: start; min-width: 44px; }

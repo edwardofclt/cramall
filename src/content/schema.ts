@@ -21,6 +21,7 @@ export const WIDGET_TYPES = [
   'quarter-inch-ruler',
   'balance-scale',
   'shape-classifier',
+  'data-plot-builder',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -542,6 +543,24 @@ export const ShapeClassifierWidgetRefSchema = z.object({
   config: ShapeClassifierWidgetConfigSchema,
 }).strict();
 
+export const DataPlotBuilderWidgetConfigSchema = z.object({
+  kind: z.enum(['bar', 'dot']),
+  prompt: z.string().trim().min(1),
+  categories: z.array(z.string().trim().min(1)).min(1).refine(
+    (categories) => new Set(categories).size === categories.length,
+    'categories must be unique',
+  ),
+  target: z.record(z.number().int().min(0).max(50)),
+}).strict().refine((value) => (
+  Object.keys(value.target).length === value.categories.length
+  && value.categories.every((category) => Object.prototype.hasOwnProperty.call(value.target, category))
+), 'target keys must equal categories');
+
+export const DataPlotBuilderWidgetRefSchema = z.object({
+  type: z.literal('data-plot-builder'),
+  config: DataPlotBuilderWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -560,6 +579,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   QuarterInchRulerWidgetRefSchema,
   BalanceScaleWidgetRefSchema,
   ShapeClassifierWidgetRefSchema,
+  DataPlotBuilderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
