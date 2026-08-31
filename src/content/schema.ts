@@ -31,6 +31,7 @@ export const WIDGET_TYPES = [
   'energy-conversion-designer',
   'animal-structure-matcher',
   'erosion-simulator',
+  'rock-layer-explorer',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -849,6 +850,31 @@ export const ErosionSimulatorWidgetConfigSchema = z.object({
 });
 export const ErosionSimulatorWidgetRefSchema = z.object({ type: z.literal('erosion-simulator'), config: ErosionSimulatorWidgetConfigSchema }).strict();
 
+const RockLayerTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const RockLayerSchema = z.object({
+  id: RockLayerTextSchema,
+  label: RockLayerTextSchema,
+  age: z.number().int().nonnegative(),
+  artifact: RockLayerTextSchema.optional(),
+}).strict();
+const rockLayerVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+export const RockLayerExplorerWidgetConfigSchema = z.object({
+  layers: z.array(RockLayerSchema).min(2),
+  prompt: RockLayerTextSchema.optional(),
+  targetLayerId: RockLayerTextSchema.optional(),
+}).strict().superRefine((value, context) => {
+  const ids = value.layers.map((layer) => rockLayerVisualKey(layer.id));
+  const labels = value.layers.map((layer) => rockLayerVisualKey(layer.label));
+  const ages = value.layers.map((layer) => layer.age);
+  if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length || new Set(ages).size !== ages.length) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'layer ids, labels, and relative-age ranks must be unique'});
+  }
+  if (value.targetLayerId && !value.layers.some((layer) => layer.id === value.targetLayerId)) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['targetLayerId'], message: 'target layer must exist'});
+  }
+});
+export const RockLayerExplorerWidgetRefSchema = z.object({type: z.literal('rock-layer-explorer'), config: RockLayerExplorerWidgetConfigSchema}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -877,6 +903,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   EnergyConversionDesignerWidgetRefSchema,
   AnimalStructureMatcherWidgetRefSchema,
   ErosionSimulatorWidgetRefSchema,
+  RockLayerExplorerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

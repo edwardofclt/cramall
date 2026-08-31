@@ -122,6 +122,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['erosion-simulator'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'rock-layer-explorer': {
+      const Widget = widgetRegistry['rock-layer-explorer'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

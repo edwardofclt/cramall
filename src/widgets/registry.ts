@@ -102,6 +102,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'run' | 'reset' }
     | { type: 'change'; value: { agent: string; vegetation: boolean } }
     | { type: 'complete'; value: { agent: string; vegetation: boolean } };
+  'rock-layer-explorer':
+    | { type: 'interaction'; action: 'select-layer' | 'check' | 'reset' }
+    | { type: 'change'; value: { selectedLayerId: string | null } }
+    | { type: 'complete'; value: { selectedLayerId: string } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -143,4 +147,5 @@ export const widgetRegistry = {
   'energy-conversion-designer': lazy(() => import('./science/EnergyConversionDesigner')),
   'animal-structure-matcher': lazy(() => import('./science/AnimalStructureMatcher')),
   'erosion-simulator': lazy(() => import('./science/ErosionSimulator')),
+  'rock-layer-explorer': lazy(() => import('./science/RockLayerExplorer')),
 } satisfies WidgetRegistry;
