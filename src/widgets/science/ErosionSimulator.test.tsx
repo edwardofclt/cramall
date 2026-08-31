@@ -122,6 +122,51 @@ test('only marks a result stale when an input changes after a run', async () => 
   expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
 });
 
+test('restores the displayed result when controls return to the last run inputs', async () => {
+  const user = userEvent.setup();
+  render(<ErosionSimulator config={{ terrain: 'soil', agents: ['water', 'wind'], vegetation: false, targetAgent: 'water' }} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Run erosion' }));
+  await user.click(screen.getByRole('button', { name: 'Use wind' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
+  await user.click(screen.getByRole('button', { name: 'Use water' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'no');
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/current input matches the displayed/i);
+  await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'yes');
+  await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'no');
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/current input matches the displayed/i);
+});
+
+test('reset and a direct config rerender restore authored initial controls and pre-run output', async () => {
+  const user = userEvent.setup();
+  const { rerender } = render(<ErosionSimulator config={{ terrain: 'sand', agents: ['wind', 'water'], vegetation: true, targetAgent: 'water' }} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Use water' }));
+  await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
+  await user.click(screen.getByRole('button', { name: 'Run erosion' }));
+  await user.click(screen.getByRole('button', { name: 'Start over' }));
+  expect(screen.getByRole('button', { name: 'Use wind' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Toggle vegetation' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-agent', 'none');
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'no');
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'testing');
+  expect(screen.getByRole('status')).toHaveTextContent(/choose an erosion agent/i);
+
+  await user.click(screen.getByRole('button', { name: 'Use water' }));
+  await user.click(screen.getByRole('button', { name: 'Run erosion' }));
+  rerender(<ErosionSimulator config={{ terrain: 'soil', agents: ['ice', 'water'], vegetation: false, targetAgent: 'ice' }} onEvent={vi.fn()} />);
+  expect(screen.getByRole('button', { name: 'Use ice' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Toggle vegetation' })).toHaveAttribute('aria-pressed', 'false');
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-agent', 'none');
+  expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-stale', 'no');
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'testing');
+  expect(screen.getByRole('status')).toHaveTextContent(/choose an erosion agent/i);
+});
+
 test('keeps no-target runs incomplete and preserves final state through reset, config rerender, and reduced motion', async () => {
   const user = userEvent.setup();
   const noTargetEvents = vi.fn();

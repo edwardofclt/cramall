@@ -53,9 +53,11 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
   const changeInputs = (next: Inputs, action: 'select-agent' | 'toggle-vegetation') => {
     emit(next, action);
     const changed = next.agent !== inputs.agent || next.vegetation !== inputs.vegetation;
-    setStatus(changed
-      ? lastRun ? 'Inputs changed; the displayed result is stale. Run the authored erosion model again.' : 'Inputs changed; run the authored erosion model.'
-      : lastRun ? 'The current input matches the displayed authored model result.' : 'Choose an erosion agent, then run the authored model.');
+    const matchesLastRun = lastRun !== null && next.agent === lastRun.agent && next.vegetation === lastRun.vegetation;
+    setStatus(matchesLastRun
+      ? 'The current input matches the displayed authored model result.'
+      : changed ? lastRun ? 'Inputs changed; the displayed result is stale. Run the authored erosion model again.' : 'Inputs changed; run the authored erosion model.'
+        : 'Choose an erosion agent, then run the authored model.');
   };
   const run = () => {
     emit(inputs, 'run');
