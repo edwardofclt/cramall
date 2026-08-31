@@ -2436,7 +2436,7 @@ body {
 .widget-experiment.pov { display: grid; gap: .75rem; }
 .widget-experiment.pov header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
 .pov-source-passage { display: grid; gap: .4rem; margin: 0; padding: .75rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); line-height: 1.6; }
-.pov-source-passage span { font-size: 1.05rem; font-weight: 700; }
+.pov-source-passage span { white-space: pre-wrap; font-size: 1.05rem; font-weight: 700; }
 .pov-pronoun-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .5rem; }
 .pov-pronoun-options button { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: .5rem; }
 .pov-pronoun-options button[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }

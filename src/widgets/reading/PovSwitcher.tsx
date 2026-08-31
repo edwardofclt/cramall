@@ -5,6 +5,9 @@ import {useCompletionLatch} from '../useCompletionLatch';
 type PovSwitcherProps=WidgetProps<'pov-switcher'>;
 
 function escapeRegExp(value:string){return value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+const unicodeWord='\\p{L}\\p{M}\\p{N}_';
+const firstSubjectPattern=()=>new RegExp(`(?<![${unicodeWord}])I(?![${unicodeWord}])`,'gu');
+const firstPossessivePattern=()=>new RegExp(`(?<![${unicodeWord}])my(?![${unicodeWord}])`,'giu');
 
 export function rewritePassage(
   passage:string,
@@ -12,13 +15,14 @@ export function rewritePassage(
   [subject,possessive]:[string,string],
 ){
   if(from==='first'){
-    return passage.replace(/\bmy\b/gi,possessive).replace(/\bI\b/g,subject);
+    if(new RegExp(`(?<![${unicodeWord}])I[\u2019'][\\p{L}\\p{M}]+`,'u').test(passage))return passage;
+    return passage.replace(firstPossessivePattern(),possessive).replace(firstSubjectPattern(),subject);
   }
-  const name=passage.match(/^([A-Z][a-z]+)\b/)?.[1];
+  const name=passage.match(/^(\p{Lu}[\p{Ll}\p{M}]*)(?![\p{L}\p{M}\p{N}_])/u)?.[1];
   if(!name)return passage;
   const escaped=escapeRegExp(name);
-  const subjectPattern=new RegExp(`\\b${escaped}\\b(?![\u2019']s\\b)`,'g');
-  const possessivePattern=new RegExp(`\\b${escaped}[\u2019']s\\b`,'g');
+  const subjectPattern=new RegExp(`(?<![${unicodeWord}])${escaped}(?![\u2019']s)(?![${unicodeWord}])`,'gu');
+  const possessivePattern=new RegExp(`(?<![${unicodeWord}])${escaped}[\u2019']s(?![${unicodeWord}])`,'gu');
   if((passage.match(subjectPattern)?.length??0)!==1||(passage.match(possessivePattern)?.length??0)!==1){
     return passage;
   }

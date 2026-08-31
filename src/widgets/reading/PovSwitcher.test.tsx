@@ -43,6 +43,45 @@ test('rewrites both directions at word boundaries while preserving punctuation a
   expect(rewritePassage('I packed my atlas; Mya waved.','first',['Ava','Ava’s'])).toBe('Ava packed Ava’s atlas; Mya waved.');
   expect(rewritePassage('I said MY label was beside my atlas.','first',['Ava',"Ava's"])).toBe("Ava said Ava's label was beside Ava's atlas.");
   expect(rewritePassage('Ava thanked Ava and packed Ava’s atlas.','third',['I','my'])).toBe('Ava thanked Ava and packed Ava’s atlas.');
+  expect(rewritePassage("I'm packing my atlas.",'first',['Ava',"Ava's"])).toBe("I'm packing my atlas.");
+  expect(rewritePassage('I’m packing my atlas.','first',['Ava','Ava’s'])).toBe('I’m packing my atlas.');
+  expect(rewritePassage('Léa packed Léa’s atlas.','third',['I','my'])).toBe('I packed my atlas.');
+  expect(rewritePassage("José packed José's atlas.",'third',['I','my'])).toBe('I packed my atlas.');
+});
+
+test('keeps schema-valid canonical target forms selectable in the UI',async()=>{
+  // Accepting canonically equivalent but non-selectable required options, or case-only mismatches, must fail this test.
+  const parsed=PovSwitcherWidgetConfigSchema.parse({
+    passage:'I packed my book.',from:'first',target:'third',
+    pronounOptions:['Jose\u0301',"Jose\u0301's",'they'],requiredPronouns:['José',"José's"],
+  });
+  expect(parsed.pronounOptions.slice(0,2)).toEqual(['José',"José's"]);
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<PovSwitcher config={parsed} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Select pronoun José'}));
+  await user.click(screen.getByRole('button',{name:"Select pronoun José's"}));
+  await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  expect(onEvent).toHaveBeenLastCalledWith({type:'complete',value:{rewrittenText:"José packed José's book."}});
+
+  expect(PovSwitcherWidgetConfigSchema.safeParse({
+    ...thirdToFirst,pronounOptions:['i','my','she'],requiredPronouns:['I','my'],
+  }).success).toBe(false);
+});
+
+test('preserves authored passage whitespace and newlines byte for byte',()=>{
+  // Trimming or collapsing the paired source passage must fail this fidelity test.
+  const passage='Ava  carried\n  Ava’s book.';
+  const parsed=PovSwitcherWidgetConfigSchema.parse({...thirdToFirst,passage});
+  expect(parsed.passage).toBe(passage);
+  expect(rewritePassage(parsed.passage,'third',['I','my'])).toBe('I  carried\n  my book.');
+  expect(PovSwitcherWidgetConfigSchema.safeParse({...thirdToFirst,passage:' \n\t '}).success).toBe(false);
+});
+
+test('accepts Unicode-letter source names without weakening proper-name boundaries',()=>{
+  // Falling back to ASCII-only names or accepting a name embedded in a longer word must fail this test.
+  expect(PovSwitcherWidgetConfigSchema.safeParse({...thirdToFirst,passage:'Léa carried Léa’s book.'}).success).toBe(true);
+  expect(PovSwitcherWidgetConfigSchema.safeParse({...thirdToFirst,passage:"José carried José's book."}).success).toBe(true);
+  expect(PovSwitcherWidgetConfigSchema.safeParse({...thirdToFirst,passage:'Léanne carried Léa’s book.'}).success).toBe(false);
 });
 
 test('retains revisable choices in authored order with keyboard and non-color markers',async()=>{
@@ -130,6 +169,8 @@ test('normalizes target options and rejects ambiguous or grammatically unsafe tr
     {passage:'I ran.',from:'first',target:'third',pronounOptions:['Lila','Lila’s'],requiredPronouns:['Lila','Lila’s']},
     {passage:'I packed my book.',from:'first',target:'third',pronounOptions:['Lila','her'],requiredPronouns:['Lila','her']},
     {passage:'I told myself I packed my book.',from:'first',target:'third',pronounOptions:['Lila','Lila’s'],requiredPronouns:['Lila','Lila’s']},
+    {passage:"I'm carrying my book.",from:'first',target:'third',pronounOptions:['Lila','Lila’s'],requiredPronouns:['Lila','Lila’s']},
+    {passage:'I’m carrying my book.',from:'first',target:'third',pronounOptions:['Lila','Lila’s'],requiredPronouns:['Lila','Lila’s']},
   ];
   for(const value of invalid)expect(PovSwitcherWidgetConfigSchema.safeParse(value).success).toBe(false);
 });
