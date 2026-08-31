@@ -2297,3 +2297,28 @@ body {
 .data-plot-dot { display: grid; width: 14px; height: 14px; place-items: center; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-card); color: var(--c-ink); font-size: .5rem; line-height: 1; }
 .data-plot-values { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-variant-numeric: tabular-nums; font-weight: 800; }
 .data-plot-reset { justify-self: start; min-width: 44px; }
+.widget-experiment.spinner { display: grid; gap: .75rem; }
+.widget-experiment.spinner h3, .spinner-explanation, .spinner-progress, .spinner-target { margin: 0; }
+.spinner-explanation { color: var(--c-ink-soft); font-weight: 700; }
+.spinner-model { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(12rem, 1fr); gap: 1rem; align-items: center; }
+.spinner-wheel { display: block; width: min(100%, 16rem); margin-inline: auto; }
+.spinner-wheel[data-spinning="true"] { animation: probability-spinner-turn .65s ease-out; transform-origin: center; }
+.spinner-wheel path { stroke: var(--c-ink); stroke-width: 1.5; }
+.spinner-rim { fill: none; stroke: var(--c-ink); stroke-width: 2; }
+.spinner-pointer { fill: var(--c-ink); }
+.spinner-legend { display: grid; gap: .5rem; margin: 0; padding: 0; list-style: none; font-weight: 800; }
+.spinner-legend li { display: flex; align-items: center; gap: .5rem; padding: .35rem; border: 1px solid var(--c-ink); border-radius: .4rem; }
+.spinner-pattern-key { width: 1.35rem; height: 1.35rem; flex: 0 0 auto; border: 2px solid var(--c-ink); background: repeating-linear-gradient(45deg, var(--c-card) 0 .25rem, var(--c-ink) .25rem .5rem); }
+.spinner-legend li[data-pattern="1"] .spinner-pattern-key { background: radial-gradient(var(--c-ink) 22%, var(--c-card) 24%) 0 0 / .45rem .45rem; }
+.spinner-legend li[data-pattern="2"] .spinner-pattern-key { background: conic-gradient(var(--c-ink) 25%, var(--c-card) 0 50%, var(--c-ink) 0 75%, var(--c-card) 0); background-size: .55rem .55rem; }
+.spinner-legend li[data-pattern="3"] .spinner-pattern-key { background: repeating-linear-gradient(0deg, var(--c-card) 0 .25rem, var(--c-ink) .25rem .4rem); }
+.spinner-progress, .spinner-target { font-weight: 800; }
+.spinner-controls { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.spinner-controls button { min-height: 44px; }
+.spinner-frequency { width: min(100%, 28rem); border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.spinner-frequency caption { padding-bottom: .35rem; font-weight: 800; text-align: left; }
+.spinner-frequency th, .spinner-frequency td { padding: .4rem .55rem; border: 1px solid var(--c-ink); text-align: left; }
+@keyframes probability-spinner-turn { from { transform: rotate(0deg); } to { transform: rotate(720deg); } }
+.widget-experiment.spinner[data-motion="off"] .spinner-wheel { animation: none; }
+@media (prefers-reduced-motion: reduce) { .spinner-wheel { animation: none !important; } }
+@media (max-width: 560px) { .spinner-model { grid-template-columns: 1fr; } }

@@ -22,6 +22,7 @@ export const WIDGET_TYPES = [
   'balance-scale',
   'shape-classifier',
   'data-plot-builder',
+  'probability-spinner',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -561,6 +562,31 @@ export const DataPlotBuilderWidgetRefSchema = z.object({
   config: DataPlotBuilderWidgetConfigSchema,
 }).strict();
 
+const SpinnerSegmentSchema = z.object({
+  id: z.string().min(1),
+  label: z.string().trim().min(1),
+  weight: z.number().finite().positive().optional(),
+  color: z.string().trim().min(1).optional(),
+}).strict();
+
+export const ProbabilitySpinnerWidgetConfigSchema = z.object({
+  segments: z.array(SpinnerSegmentSchema).min(2),
+  trials: z.number().int().min(1).max(100).optional(),
+  targetOutcomeId: z.string().min(1).optional(),
+}).strict().superRefine((value, context) => {
+  if (new Set(value.segments.map((segment) => segment.id)).size !== value.segments.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['segments'], message: 'segment ids must be unique' });
+  }
+  if (value.targetOutcomeId && !value.segments.some((segment) => segment.id === value.targetOutcomeId)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetOutcomeId'], message: 'unknown outcome' });
+  }
+});
+
+export const ProbabilitySpinnerWidgetRefSchema = z.object({
+  type: z.literal('probability-spinner'),
+  config: ProbabilitySpinnerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -580,6 +606,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   BalanceScaleWidgetRefSchema,
   ShapeClassifierWidgetRefSchema,
   DataPlotBuilderWidgetRefSchema,
+  ProbabilitySpinnerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

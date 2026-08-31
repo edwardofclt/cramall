@@ -63,6 +63,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'increase-value' | 'decrease-value' | 'reset' }
     | { type: 'change'; value: { values: Record<string, number> } }
     | { type: 'complete'; value: { values: Record<string, number> } };
+  'probability-spinner':
+    | { type: 'interaction'; action: 'spin' | 'reset' }
+    | { type: 'change'; value: { outcomeId: string | null; counts: Record<string, number> } }
+    | { type: 'complete'; value: { outcomeId: string; counts: Record<string, number> } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -95,4 +99,5 @@ export const widgetRegistry = {
   'balance-scale': lazy(() => import('./math/BalanceScale')),
   'shape-classifier': lazy(() => import('./math/ShapeClassifier')),
   'data-plot-builder': lazy(() => import('./math/DataPlotBuilder')),
+  'probability-spinner': lazy(() => import('./math/ProbabilitySpinner')),
 } satisfies WidgetRegistry;
