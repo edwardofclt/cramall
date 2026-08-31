@@ -4,6 +4,7 @@ import {useCompletionLatch} from '../useCompletionLatch';
 
 type FigurativeLanguageMatcherProps=WidgetProps<'figurative-language-matcher'>;
 const kinds=['simile','metaphor','personification','idiom'] as const;
+const ownMatch=(values:Record<string,string>,id:string)=>Object.prototype.hasOwnProperty.call(values,id)?values[id]:undefined;
 
 function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatcherProps){
   const key=JSON.stringify(config);
@@ -11,9 +12,12 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
   const [matches,setMatches]=useState<Record<string,string>>({});
   const {completeOnce}=useCompletionLatch(key);
   const orderedMatches=(values:Record<string,string>)=>Object.fromEntries(
-    config.pairs.flatMap((pair)=>values[pair.id]===undefined?[]:[[pair.id,values[pair.id]]]),
+    config.pairs.flatMap((pair)=>{
+      const value=ownMatch(values,pair.id);
+      return value===undefined?[]:[[pair.id,value]];
+    }),
   );
-  const correct=(values:Record<string,string>)=>config.pairs.every((pair)=>values[pair.id]===pair.kind);
+  const correct=(values:Record<string,string>)=>config.pairs.every((pair)=>ownMatch(values,pair.id)===pair.kind);
   const emit=(values:Record<string,string>,action:'select-phrase'|'match'|'reset')=>{
     const ordered=orderedMatches(values);
     setMatches(ordered);
@@ -34,7 +38,10 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     emit({},'reset');
   };
   const currentComplete=correct(matches);
-  const hasWrongMatch=config.pairs.some((pair)=>matches[pair.id]!==undefined&&matches[pair.id]!==pair.kind);
+  const hasWrongMatch=config.pairs.some((pair)=>{
+    const value=ownMatch(matches,pair.id);
+    return value!==undefined&&value!==pair.kind;
+  });
   const state=currentComplete?'complete':Object.keys(matches).length?'revision':'matching';
   const status=currentComplete
     ?'Every figurative phrase is matched.'
@@ -52,7 +59,7 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     <div className="figurative-pairs" aria-label="Figurative phrases and meanings">
       {config.pairs.map((pair)=>{
         const selected=selectedId===pair.id;
-        const matchValue=matches[pair.id];
+        const matchValue=ownMatch(matches,pair.id);
         return <article className="figurative-pair" key={pair.id} data-selected={selected?'yes':'no'}>
           <blockquote>{pair.phrase}</blockquote>
           <p><strong>Meaning:</strong> {pair.meaning}</p>

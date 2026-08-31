@@ -1309,7 +1309,9 @@ const isArrayIndexKey=(value:string)=>{
   const numeric=Number(value);
   return Number.isInteger(numeric)&&numeric>=0&&numeric<=4294967294&&String(numeric)===value;
 };
-const FigurativeIdSchema=FigurativeTextSchema.refine((value)=>!isArrayIndexKey(value),'pair id must not be a JavaScript array-index key');
+const FigurativeIdSchema=FigurativeTextSchema
+  .refine((value)=>!isArrayIndexKey(value),'pair id must not be a JavaScript array-index key')
+  .refine((value)=>!Object.prototype.hasOwnProperty.call(Object.prototype,value),'pair id must not name an Object prototype property');
 const FigurativePairSchema=z.object({
   id:FigurativeIdSchema,
   phrase:FigurativeTextSchema,

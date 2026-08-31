@@ -134,3 +134,38 @@ test('normalizes text and rejects ambiguous pairs or array-index IDs',()=>{
   ];
   for(const value of invalid)expect(FigurativeLanguageMatcherWidgetConfigSchema.safeParse(value).success).toBe(false);
 });
+
+test('rejects prototype property IDs while continuing to accept ordinary normalized IDs',()=>{
+  // Allowing an inherited Object.prototype key through the schema must fail these literals.
+  for(const id of ['toString','constructor','__proto__']){
+    expect(FigurativeLanguageMatcherWidgetConfigSchema.safeParse({pairs:[
+      {...pairs[0],id},
+      pairs[1],
+    ]}).success).toBe(false);
+  }
+  expect(FigurativeLanguageMatcherWidgetConfigSchema.safeParse({pairs}).success).toBe(true);
+});
+
+test('does not read inherited properties or mutate prototypes when validation is bypassed',async()=>{
+  // Bracket lookup without an own-property guard can render inherited values or crash on __proto__.
+  const unsafePairs=[
+    {id:'toString',phrase:'bright as the sun',kind:'simile' as const,meaning:'very bright'},
+    {id:'constructor',phrase:'the moon winked',kind:'personification' as const,meaning:'moonlight appeared briefly'},
+    {id:'__proto__',phrase:'a blanket of snow',kind:'metaphor' as const,meaning:'snow covered everything'},
+  ];
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<FigurativeLanguageMatcher config={{pairs:unsafePairs}} onEvent={onEvent}/>);
+  for(const id of ['toString','constructor','__proto__']){
+    expect(screen.getByTestId(`figurative-match-${id}`)).toBeEmptyDOMElement();
+  }
+  expect(screen.getByTestId('widget-figurative-language-matcher')).toHaveAttribute('data-state','matching');
+  expect(onEvent).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button',{name:'Select phrase a blanket of snow'}));
+  await user.click(screen.getByRole('button',{name:'Match metaphor'}));
+  const change=onEvent.mock.calls.map(([event])=>event).find((event)=>event.type==='change'&&Object.prototype.hasOwnProperty.call(event.value.matches,'__proto__'));
+  expect(change).toEqual({type:'change',value:{matches:{['__proto__']:'metaphor'}}});
+  if(change?.type==='change'){
+    expect(Object.getPrototypeOf(change.value.matches)).toBe(Object.prototype);
+    expect(Object.prototype.hasOwnProperty.call(change.value.matches,'__proto__')).toBe(true);
+  }
+});
