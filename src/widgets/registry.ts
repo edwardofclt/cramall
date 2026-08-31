@@ -118,6 +118,10 @@ export type WidgetEventMap = {
     | { type: 'interaction'; action: 'select-item' | 'place-item' | 'reset' }
     | { type: 'change'; value: { placements: Record<string, string> } }
     | { type: 'complete'; value: { placements: Record<string, string> } };
+  'word-root-builder':
+    | { type: 'interaction'; action: 'select-prefix' | 'select-root' | 'select-suffix' | 'check' | 'reset' }
+    | { type: 'change'; value: { parts: string[]; word: string } }
+    | { type: 'complete'; value: { word: string; meaning: string } };
 };
 
 export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
@@ -163,4 +167,5 @@ export const widgetRegistry = {
   'topographic-map-explorer': lazy(() => import('./science/TopographicMapExplorer')),
   'hazard-solution-designer': lazy(() => import('./science/HazardSolutionDesigner')),
   'resource-sorter': lazy(() => import('./science/ResourceSorter')),
+  'word-root-builder': lazy(() => import('./reading/WordRootBuilder')),
 } satisfies WidgetRegistry;

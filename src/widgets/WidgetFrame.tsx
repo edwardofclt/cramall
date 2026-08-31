@@ -138,6 +138,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['resource-sorter'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'word-root-builder': {
+      const Widget = widgetRegistry['word-root-builder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

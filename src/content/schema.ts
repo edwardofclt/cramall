@@ -35,6 +35,7 @@ export const WIDGET_TYPES = [
   'topographic-map-explorer',
   'hazard-solution-designer',
   'resource-sorter',
+  'word-root-builder',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -994,6 +995,42 @@ export const ResourceSorterWidgetRefSchema = z.object({
   config: ResourceSorterWidgetConfigSchema,
 }).strict();
 
+const WordRootTextSchema = z.string().trim().transform((value) => value.replace(/\s+/g, ' ')).pipe(z.string().min(1));
+const wordRootVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+const WordTargetSchema = z.object({
+  word: WordRootTextSchema,
+  meaning: WordRootTextSchema,
+}).strict();
+
+export const WordRootBuilderWidgetConfigSchema = z.object({
+  root: WordRootTextSchema,
+  prefixes: z.array(WordRootTextSchema).optional(),
+  suffixes: z.array(WordRootTextSchema).optional(),
+  targets: z.array(WordTargetSchema).min(1),
+}).strict().superRefine((value, context) => {
+  const prefixes = value.prefixes ?? [];
+  const suffixes = value.suffixes ?? [];
+  const prefixKeys = prefixes.map(wordRootVisualKey);
+  const suffixKeys = suffixes.map(wordRootVisualKey);
+  const targetKeys = value.targets.map((target) => wordRootVisualKey(target.word));
+  if (new Set(prefixKeys).size !== prefixKeys.length || new Set(suffixKeys).size !== suffixKeys.length || new Set(targetKeys).size !== targetKeys.length) {
+    context.addIssue({code: z.ZodIssueCode.custom, message: 'prefixes, suffixes, and target words must be unique after normalization'});
+  }
+  const buildCounts = new Map<string, number>();
+  for (const prefix of ['', ...prefixes]) for (const suffix of ['', ...suffixes]) {
+    const word = `${prefix}${value.root}${suffix}`;
+    buildCounts.set(word, (buildCounts.get(word) ?? 0) + 1);
+  }
+  if (value.targets.some((target) => buildCounts.get(target.word) !== 1)) {
+    context.addIssue({code: z.ZodIssueCode.custom, path: ['targets'], message: 'every target must be constructible exactly once from the authored morphemes'});
+  }
+});
+
+export const WordRootBuilderWidgetRefSchema = z.object({
+  type: z.literal('word-root-builder'),
+  config: WordRootBuilderWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1026,6 +1063,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   TopographicMapExplorerWidgetRefSchema,
   HazardSolutionDesignerWidgetRefSchema,
   ResourceSorterWidgetRefSchema,
+  WordRootBuilderWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
