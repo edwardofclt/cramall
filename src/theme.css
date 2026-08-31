@@ -661,7 +661,7 @@ body {
   line-height: 1.65;
 }
 
-@media (min-width: 48rem) and (min-height: 42rem) {
+@media (min-width: 48rem) {
   .lesson-page[data-stage='worked'][data-worked-passage='true'] {
     width: min(100%, 72rem);
     height: 100dvh;
