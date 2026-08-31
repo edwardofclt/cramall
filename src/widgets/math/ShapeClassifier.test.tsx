@@ -17,6 +17,60 @@ const config = {
 };
 
 describe('ShapeClassifier', () => {
+  test('requires all seven unambiguous triangle diagrams and renders their mathematical evidence', () => {
+    const triangleConfig = {
+      mode: 'classifications' as const,
+      shapes: [
+        ['equilateral', 'equilateral-triangle', ['triangle', 'equilateral-triangle', 'acute-triangle', 'equiangular-triangle']],
+        ['iso-acute', 'isosceles-acute-triangle', ['triangle', 'isosceles-triangle', 'acute-triangle']],
+        ['iso-right', 'isosceles-right-triangle', ['triangle', 'isosceles-triangle', 'right-triangle']],
+        ['iso-obtuse', 'isosceles-obtuse-triangle', ['triangle', 'isosceles-triangle', 'obtuse-triangle']],
+        ['scalene-acute', 'scalene-acute-triangle', ['triangle', 'scalene-triangle', 'acute-triangle']],
+        ['scalene-right', 'scalene-right-triangle', ['triangle', 'scalene-triangle', 'right-triangle']],
+        ['scalene-obtuse', 'scalene-obtuse-triangle', ['triangle', 'scalene-triangle', 'obtuse-triangle']],
+      ].map(([id, diagram, classifications]) => ({ id, label: String(id), diagram, sides: 3, angles: 3, parallelPairs: 0, classifications })),
+      bins: ['triangle', 'equilateral-triangle', 'isosceles-triangle', 'scalene-triangle', 'acute-triangle', 'right-triangle', 'obtuse-triangle', 'equiangular-triangle'].map((classification) => ({ id: classification, label: classification, classification })),
+    };
+    expect(ShapeClassifierWidgetConfigSchema.safeParse(triangleConfig).success).toBe(true);
+    expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...triangleConfig, shapes: [{ ...triangleConfig.shapes[0], classifications: ['triangle', 'equilateral-triangle', 'acute-triangle'] }] }).success).toBe(false);
+    expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...triangleConfig, shapes: [{ ...triangleConfig.shapes[1], diagram: 'isosceles-triangle' }] }).success).toBe(false);
+
+    const { container } = render(<ShapeClassifier config={triangleConfig as never} onEvent={vi.fn()} />);
+    const points = [...container.querySelectorAll('.shape-canonical-diagram polygon')].map((polygon) => polygon.getAttribute('points'));
+    expect(new Set(points).size).toBe(7);
+    expect(screen.getByRole('img', { name: /equilateral.*three equal-side marks.*acute.*equiangular/i })).toBeInTheDocument();
+    expect(screen.getAllByTitle('Right-angle box')).toHaveLength(2);
+    expect(container.querySelector('[data-diagram="scalene-obtuse-triangle"] .shape-equal-mark')).toBeNull();
+  });
+
+  test('returns live status to sorting after a correct classification or placement is removed', async () => {
+    const onEvent = vi.fn(); const user = userEvent.setup();
+    const oneShape = {
+      mode: 'classifications' as const,
+      shapes: [{ id: 'right', label: 'Right scalene', diagram: 'scalene-right-triangle', sides: 3, angles: 3, parallelPairs: 0, classifications: ['triangle', 'scalene-triangle', 'right-triangle'] }],
+      bins: [{ id: 'triangle', label: 'Triangle', classification: 'triangle' }, { id: 'scalene', label: 'Scalene', classification: 'scalene-triangle' }, { id: 'right-angle', label: 'Right', classification: 'right-triangle' }],
+    };
+    render(<ShapeClassifier config={oneShape as never} onEvent={onEvent} />);
+    for (const label of ['Triangle', 'Scalene', 'Right']) { await user.click(screen.getByRole('button', { name: 'Select Right scalene' })); await user.click(screen.getByRole('button', { name: `Place selected shape in ${label}` })); }
+    expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'complete');
+    await user.click(screen.getByRole('button', { name: 'Select Right scalene' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in Right' }));
+    expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'sorting');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  });
+
+  test('returns the legacy branch to sorting after replacement and reset without re-emitting complete', async () => {
+    const onEvent = vi.fn(); const user = userEvent.setup();
+    render(<ShapeClassifier config={config} onEvent={onEvent} />);
+    await user.click(screen.getByRole('button', { name: 'Select Triangle' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in 3 sides' }));
+    await user.click(screen.getByRole('button', { name: 'Select Square' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in 4 sides' }));
+    expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'complete');
+    await user.click(screen.getByRole('button', { name: 'Select Square' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in 3 sides' }));
+    expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'sorting');
+    await user.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'sorting');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  });
+
   test('supports exact multi-bin triangle classifications and correction without changing legacy placements', async () => {
     const onEvent = vi.fn();
     const user = userEvent.setup();
@@ -71,6 +125,28 @@ describe('ShapeClassifier', () => {
     expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...square, bins: [{ ...square.bins[0], parentIds: ['square'] }, ...square.bins.slice(1)] }).success).toBe(false);
     expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...square, bins: [...square.bins, { id: 'square-two', label: 'Another square', classification: 'square' }] }).success).toBe(false);
     expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...square, shapes: [{ ...square.shapes[0], sides: 3 }] }).success).toBe(false);
+  });
+
+  test('draws distinct honest quadrilateral geometries and two marked parallel pairs where authored', () => {
+    const quadrilateralConfig = {
+      mode: 'classifications' as const,
+      shapes: [
+        { id: 'quad', label: 'Quadrilateral', diagram: 'quadrilateral', sides: 4, angles: 4, parallelPairs: 0, classifications: ['quadrilateral'] },
+        { id: 'para', label: 'Parallelogram', diagram: 'parallelogram', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram'] },
+        { id: 'rect', label: 'Rectangle', diagram: 'rectangle', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle'] },
+        { id: 'rhombus', label: 'Rhombus', diagram: 'rhombus', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rhombus'] },
+        { id: 'square', label: 'Square', diagram: 'square', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'] },
+      ],
+      bins: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'].map((classification) => ({ id: classification, label: classification, classification })),
+    };
+    expect(ShapeClassifierWidgetConfigSchema.safeParse(quadrilateralConfig).success).toBe(true);
+    const { container } = render(<ShapeClassifier config={quadrilateralConfig as never} onEvent={vi.fn()} />);
+    const points = [...container.querySelectorAll('.shape-canonical-diagram polygon')].map((polygon) => polygon.getAttribute('points'));
+    expect(new Set(points).size).toBe(5);
+    expect(container.querySelector('[data-diagram="quadrilateral"] [data-parallel-pair]')).toBeNull();
+    expect(container.querySelectorAll('[data-diagram="square"] [data-parallel-pair]')).toHaveLength(2);
+    expect(container.querySelector('[data-diagram="rectangle"] .shape-right-mark')).toBeTruthy();
+    expect(container.querySelector('[data-diagram="rhombus"] [data-equal-sides="4"]')).toBeTruthy();
   });
 
   test('retains two correct button placements and completes once', async () => {

@@ -540,22 +540,22 @@ const LegacyShapeClassifierWidgetConfigSchema = z.object({
 });
 
 export const ShapeDiagramSchema = z.enum([
-  'acute-triangle', 'obtuse-triangle', 'right-triangle', 'isosceles-triangle', 'isosceles-right-triangle', 'equilateral-triangle', 'scalene-triangle',
+  'equilateral-triangle', 'isosceles-acute-triangle', 'isosceles-right-triangle', 'isosceles-obtuse-triangle', 'scalene-acute-triangle', 'scalene-right-triangle', 'scalene-obtuse-triangle',
   'quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square',
 ]);
 export const ShapeClassificationSchema = z.enum([
-  'triangle', 'acute-triangle', 'obtuse-triangle', 'right-triangle', 'isosceles-triangle', 'equilateral-triangle', 'scalene-triangle',
+  'triangle', 'acute-triangle', 'right-triangle', 'obtuse-triangle', 'equiangular-triangle', 'equilateral-triangle', 'isosceles-triangle', 'scalene-triangle',
   'quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square',
 ]);
 
 const diagramMemberships: Record<z.infer<typeof ShapeDiagramSchema>, readonly z.infer<typeof ShapeClassificationSchema>[]> = {
-  'acute-triangle': ['triangle', 'acute-triangle'],
-  'obtuse-triangle': ['triangle', 'obtuse-triangle'],
-  'right-triangle': ['triangle', 'right-triangle'],
-  'isosceles-triangle': ['triangle', 'isosceles-triangle'],
+  'equilateral-triangle': ['triangle', 'equilateral-triangle', 'acute-triangle', 'equiangular-triangle'],
+  'isosceles-acute-triangle': ['triangle', 'isosceles-triangle', 'acute-triangle'],
   'isosceles-right-triangle': ['triangle', 'isosceles-triangle', 'right-triangle'],
-  'equilateral-triangle': ['triangle', 'equilateral-triangle', 'isosceles-triangle'],
-  'scalene-triangle': ['triangle', 'scalene-triangle'],
+  'isosceles-obtuse-triangle': ['triangle', 'isosceles-triangle', 'obtuse-triangle'],
+  'scalene-acute-triangle': ['triangle', 'scalene-triangle', 'acute-triangle'],
+  'scalene-right-triangle': ['triangle', 'scalene-triangle', 'right-triangle'],
+  'scalene-obtuse-triangle': ['triangle', 'scalene-triangle', 'obtuse-triangle'],
   quadrilateral: ['quadrilateral'],
   parallelogram: ['quadrilateral', 'parallelogram'],
   rectangle: ['quadrilateral', 'parallelogram', 'rectangle'],
@@ -563,7 +563,7 @@ const diagramMemberships: Record<z.infer<typeof ShapeDiagramSchema>, readonly z.
   square: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'],
 };
 const allowedParents: Partial<Record<z.infer<typeof ShapeClassificationSchema>, readonly z.infer<typeof ShapeClassificationSchema>[]>> = {
-  'acute-triangle': ['triangle'], 'obtuse-triangle': ['triangle'], 'right-triangle': ['triangle'], 'isosceles-triangle': ['triangle'], 'equilateral-triangle': ['isosceles-triangle'], 'scalene-triangle': ['triangle'],
+  'acute-triangle': ['triangle'], 'right-triangle': ['triangle'], 'obtuse-triangle': ['triangle'], 'equiangular-triangle': ['equilateral-triangle'], 'equilateral-triangle': ['triangle'], 'isosceles-triangle': ['triangle'], 'scalene-triangle': ['triangle'],
   parallelogram: ['quadrilateral'], rectangle: ['parallelogram'], rhombus: ['parallelogram'], square: ['rectangle', 'rhombus'],
 };
 const ClassificationShapeSchema = ShapeSchema.extend({
