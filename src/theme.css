@@ -2210,3 +2210,13 @@ body {
 .money button { min-height: 44px; }
 .money output { font-variant-numeric: tabular-nums; font-weight: 800; }
 .money-total { display: block; font-size: 1.125rem; }
+.widget-experiment.clock { display: grid; justify-items: center; gap: .75rem; }
+.clock-controls { display: grid; width: 100%; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
+.clock button { min-height: 44px; }
+.clock-face { display: block; width: min(100%, 15rem); height: auto; }
+.clock-rim { fill: var(--c-card); stroke: var(--c-ink); stroke-width: 3; }
+.clock-hour-marker { fill: var(--c-ink); font-size: 8px; font-weight: 800; }
+.clock-hour-hand { stroke: var(--c-ink); stroke-width: 6; stroke-linecap: round; }
+.clock-minute-hand { stroke: var(--c-ink); stroke-width: 3; stroke-linecap: square; }
+.clock-center { fill: var(--c-accent-action); stroke: var(--c-ink); stroke-width: 1; }
+.clock output { font-variant-numeric: tabular-nums; font-size: 1.5rem; font-weight: 800; }

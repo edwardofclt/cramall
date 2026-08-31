@@ -66,6 +66,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['money-counter'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'clock-elapsed-time': {
+      const Widget = widgetRegistry['clock-elapsed-time'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

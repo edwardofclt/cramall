@@ -9,6 +9,7 @@ export const WIDGET_TYPES = [
   'area-model-multiplier',
   'array-builder',
   'money-counter',
+  'clock-elapsed-time',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -310,6 +311,41 @@ export const MoneyCounterWidgetRefSchema = z.object({
   config: MoneyCounterWidgetConfigSchema,
 }).strict();
 
+const TimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/);
+const MinuteStepSchema = z.union([z.literal(5), z.literal(15)]);
+const minutePart = (time: string) => Number(time.slice(3));
+
+const SetTimeConfigSchema = z.object({
+  mode: z.literal('set-time'),
+  targetTime: TimeSchema,
+  minuteStep: MinuteStepSchema.optional(),
+}).strict();
+
+const ElapsedTimeConfigSchema = z.object({
+  mode: z.literal('elapsed'),
+  startTime: TimeSchema,
+  elapsedMinutes: z.number().int().min(0).max(1439),
+  minuteStep: MinuteStepSchema.optional(),
+}).strict();
+
+export const ClockElapsedTimeWidgetConfigSchema = z.discriminatedUnion('mode', [
+  SetTimeConfigSchema,
+  ElapsedTimeConfigSchema,
+]).superRefine((value, context) => {
+  if (value.mode === 'set-time' && minutePart(value.targetTime) % (value.minuteStep ?? 5) !== 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['targetTime'],
+      message: 'target must align to minuteStep',
+    });
+  }
+});
+
+export const ClockElapsedTimeWidgetRefSchema = z.object({
+  type: z.literal('clock-elapsed-time'),
+  config: ClockElapsedTimeWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -324,6 +360,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   AreaModelMultiplierWidgetRefSchema,
   ArrayBuilderWidgetRefSchema,
   MoneyCounterWidgetRefSchema,
+  ClockElapsedTimeWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({
