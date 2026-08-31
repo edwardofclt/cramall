@@ -37,6 +37,13 @@ function block(selector) {
   return value;
 }
 
+function compositeHex(foreground, background, alpha) {
+  const mixed = hexToRgb(foreground).map((channel, index) =>
+    Math.round(channel * alpha + hexToRgb(background)[index] * (1 - alpha)),
+  );
+  return `#${mixed.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`;
+}
+
 test('normal and semantic text token pairs meet WCAG AA 4.5:1', () => {
   const white = token('c-card');
   const page = token('c-bg');
@@ -57,6 +64,19 @@ test('white-on-action colors and every subject action color meet 4.5:1', () => {
     expect(subject.actionColor, `${subject.id} action color`).toBeDefined();
     expect(contrast(white, subject.actionColor), subject.id).toBeGreaterThanOrEqual(4.5);
     expect(subject.actionColor).not.toBe(subject.color);
+  }
+});
+
+test('unit-number rendered text meets 4.5:1 for every subject', () => {
+  const rule = block('.unit-number');
+  const opacity = Number(/opacity:\s*([\d.]+)/.exec(rule)?.[1] ?? '1');
+  const foreground = token('c-on-accent');
+  for (const subject of SUBJECTS) {
+    const renderedForeground = compositeHex(foreground, subject.actionColor, opacity);
+    expect(
+      contrast(renderedForeground, subject.actionColor),
+      `${subject.id} unit-number`,
+    ).toBeGreaterThanOrEqual(4.5);
   }
 });
 

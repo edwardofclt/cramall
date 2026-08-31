@@ -245,7 +245,6 @@ body {
 }
 
 .unit-number {
-  opacity: 0.85;
   font-size: 0.875rem;
   white-space: nowrap;
 }
