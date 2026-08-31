@@ -577,6 +577,14 @@ export const ProbabilitySpinnerWidgetConfigSchema = z.object({
   if (new Set(value.segments.map((segment) => segment.id)).size !== value.segments.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['segments'], message: 'segment ids must be unique' });
   }
+  const totalWeight = value.segments.reduce((sum, segment) => sum + (segment.weight ?? 1), 0);
+  if (!Number.isFinite(totalWeight) || totalWeight <= 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['segments'],
+      message: 'total segment weight must be finite and positive',
+    });
+  }
   if (value.targetOutcomeId && !value.segments.some((segment) => segment.id === value.targetOutcomeId)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetOutcomeId'], message: 'unknown outcome' });
   }

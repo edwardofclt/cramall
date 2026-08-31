@@ -56,6 +56,21 @@ describe('ProbabilitySpinner', () => {
     }).success).toBe(false);
   });
 
+  test('rejects overflowing aggregate weights while preserving a finite boundary total', () => {
+    expect(ProbabilitySpinnerWidgetConfigSchema.safeParse({
+      segments: [
+        { id: 'a', label: 'A', weight: Number.MAX_VALUE },
+        { id: 'b', label: 'B', weight: Number.MAX_VALUE },
+      ],
+    }).success).toBe(false);
+    expect(ProbabilitySpinnerWidgetConfigSchema.safeParse({
+      segments: [
+        { id: 'a', label: 'A', weight: Number.MAX_VALUE / 2 },
+        { id: 'b', label: 'B', weight: Number.MAX_VALUE / 2 },
+      ],
+    }).success).toBe(true);
+  });
+
   test('renders weighted, labelled segment areas and a frequency table', () => {
     render(
       <ProbabilitySpinner
