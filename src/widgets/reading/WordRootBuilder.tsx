@@ -4,6 +4,24 @@ import {useCompletionLatch} from '../useCompletionLatch';
 
 type WordValue = {parts: string[]; word: string};
 type WordRootBuilderProps = WidgetProps<'word-root-builder'>;
+type Construction = {prefix: string; suffix: string};
+
+function revisionHint(config: WordRootBuilderProps['config'], prefix: string, suffix: string) {
+  const constructions: Construction[] = [];
+  for (const target of config.targets) for (const targetPrefix of ['', ...(config.prefixes ?? [])]) for (const targetSuffix of ['', ...(config.suffixes ?? [])]) {
+    if (`${targetPrefix}${config.root}${targetSuffix}` === target.word) constructions.push({prefix: targetPrefix,suffix: targetSuffix});
+  }
+  const prefixCanChange = (config.prefixes?.length ?? 0) > 0;
+  const suffixCanChange = (config.suffixes?.length ?? 0) > 0;
+  const prefixMatches = constructions.some((construction) => construction.prefix === prefix);
+  const suffixMatches = constructions.some((construction) => construction.suffix === suffix);
+  if (prefixMatches && !suffixMatches && suffixCanChange) return 'Reconsider the suffix.';
+  if (suffixMatches && !prefixMatches && prefixCanChange) return 'Reconsider the prefix.';
+  if (prefixCanChange && suffixCanChange) return 'Reconsider both prefix and suffix.';
+  if (prefixCanChange) return 'Reconsider the prefix.';
+  if (suffixCanChange) return 'Reconsider the suffix.';
+  return 'This word is not an authored target word yet.';
+}
 
 function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
   const key = JSON.stringify(config);
@@ -51,7 +69,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     const target = config.targets.find((candidate) => candidate.word === next.word);
     if (!target) {
       setCheckedTarget(null);
-      setStatus(`${next.word} is not an authored target word yet. Reconsider the prefix or suffix.`);
+      setStatus(`${next.word} is not an authored target word yet. ${revisionHint(config,prefix,suffix)}`);
       return;
     }
     setCheckedTarget(target.word);
@@ -75,7 +93,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     <fieldset>
       <legend>Prefix</legend>
       {(config.prefixes ?? []).map((candidate) => <button key={candidate} aria-label={`Select prefix ${candidate}`} aria-pressed={prefix === candidate} onClick={() => selectPrefix(candidate)}>{candidate}<span aria-hidden="true"> prefix</span></button>)}
-      {(config.prefixes?.length ?? 0) > 0 && <button aria-label="Select no prefix" aria-pressed={prefix === ''} onClick={() => selectPrefix('')}>No prefix</button>}
+      {Object.prototype.hasOwnProperty.call(config,'prefixes') && <button aria-label="Select no prefix" aria-pressed={prefix === ''} onClick={() => selectPrefix('')}>No prefix</button>}
     </fieldset>
     <fieldset>
       <legend>Root</legend>
@@ -84,7 +102,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     <fieldset>
       <legend>Suffix</legend>
       {(config.suffixes ?? []).map((candidate) => <button key={candidate} aria-label={`Select suffix ${candidate}`} aria-pressed={suffix === candidate} onClick={() => selectSuffix(candidate)}>{candidate}<span aria-hidden="true"> suffix</span></button>)}
-      {(config.suffixes?.length ?? 0) > 0 && <button aria-label="Select no suffix" aria-pressed={suffix === ''} onClick={() => selectSuffix('')}>No suffix</button>}
+      {Object.prototype.hasOwnProperty.call(config,'suffixes') && <button aria-label="Select no suffix" aria-pressed={suffix === ''} onClick={() => selectSuffix('')}>No suffix</button>}
     </fieldset>
     <div className="word-root-assembled" aria-label="Assembled word"><strong>Assembled word:</strong> {value().word}</div>
     <div><button aria-label="Check word" onClick={check}>Check word</button> <button onClick={reset}>Start over</button></div>

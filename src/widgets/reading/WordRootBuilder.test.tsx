@@ -40,3 +40,25 @@ test('lets a learner revise to explicit blank affixes after completion without e
   expect(screen.getByRole('status')).toHaveTextContent('look');
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(0);
 });
+
+test('renders explicit blank controls for schema-valid present empty affix arrays',()=>{
+  render(<WordRootBuilder config={{root:'view',prefixes:[],suffixes:[],targets:[{word:'view',meaning:'look'}]}} onEvent={vi.fn()}/>);
+
+  expect(screen.getByRole('button',{name:'Select no prefix'})).toHaveAttribute('aria-pressed','true');
+  expect(screen.getByRole('button',{name:'Select no suffix'})).toHaveAttribute('aria-pressed','true');
+});
+
+test('points only to word parts that can be revised after an invalid check',async()=>{
+  const user = userEvent.setup();
+  const {rerender} = render(<WordRootBuilder config={{root:'view',prefixes:['re'],targets:[{word:'review',meaning:'see again'}]}} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Check word'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/reconsider the prefix\.$/i);
+
+  rerender(<WordRootBuilder config={{root:'view',suffixes:['er'],targets:[{word:'viewer',meaning:'a person who looks'}]}} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Check word'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/reconsider the suffix\.$/i);
+
+  rerender(<WordRootBuilder config={{root:'view',prefixes:['re'],suffixes:['er'],targets:[{word:'reviewer',meaning:'a person who reviews'}]}} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Check word'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/reconsider both prefix and suffix\.$/i);
+});
