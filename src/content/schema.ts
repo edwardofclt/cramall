@@ -375,6 +375,40 @@ const WeightSchema = z.object({
   value: z.number().positive().finite(),
 }).strict();
 
+const BALANCE_TOLERANCE = 1e-9;
+// Sixteen retained weights bound exhaustive left/right subset comparisons to 2^16 (65,536).
+const MAX_MAKE_EQUAL_WEIGHTS = 16;
+
+function stableBalanceTotal(values: number[]) {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  if (!Number.isFinite(total)) return total;
+  const normalized = Number(total.toPrecision(12));
+  return Object.is(normalized, -0) ? 0 : normalized;
+}
+
+function balanceTotalsMatch(left: number, right: number) {
+  return Math.abs(left - right) <= BALANCE_TOLERANCE * Math.max(1, Math.abs(left), Math.abs(right));
+}
+
+function subsetTotals(weights: Array<{ value: number }>) {
+  const totals = [0];
+  for (const weight of weights) {
+    totals.push(...totals.map((total) => total + weight.value));
+  }
+  return totals.map((total) => stableBalanceTotal([total]));
+}
+
+function hasReachableNonzeroBalance(
+  left: Array<{ value: number }>,
+  right: Array<{ value: number }>,
+) {
+  const leftTotals = subsetTotals(left);
+  const rightTotals = subsetTotals(right);
+  return leftTotals.some((leftTotal) => leftTotal > 0 && rightTotals.some(
+    (rightTotal) => rightTotal > 0 && balanceTotalsMatch(leftTotal, rightTotal),
+  ));
+}
+
 export const BalanceScaleWidgetConfigSchema = z.object({
   left: z.array(WeightSchema).min(1),
   right: z.array(WeightSchema).min(1),
@@ -383,6 +417,21 @@ export const BalanceScaleWidgetConfigSchema = z.object({
   const ids = [...value.left, ...value.right].map((weight) => weight.id);
   if (new Set(ids).size !== ids.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate ids' });
+  }
+  if (value.task !== 'make-equal') return;
+
+  if (ids.length > MAX_MAKE_EQUAL_WEIGHTS) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: `make-equal supports at most ${MAX_MAKE_EQUAL_WEIGHTS} weights for bounded reachability validation`,
+    });
+    return;
+  }
+  if (!hasReachableNonzeroBalance(value.left, value.right)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'make-equal needs a reachable nonzero balance',
+    });
   }
 });
 

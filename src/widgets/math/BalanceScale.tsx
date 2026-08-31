@@ -6,11 +6,23 @@ type Relation = 'left' | 'equal' | 'right';
 type Weight = { id: string; label: string; value: number };
 type Totals = { leftTotal: number; rightTotal: number };
 type Action = 'add-weight' | 'remove-weight' | 'check' | 'reset';
+const BALANCE_TOLERANCE = 1e-9;
+
+function stableTotal(values: Weight[]) {
+  const total = values.reduce((sum, weight) => sum + weight.value, 0);
+  if (!Number.isFinite(total)) return total;
+  const normalized = Number(total.toPrecision(12));
+  return Object.is(normalized, -0) ? 0 : normalized;
+}
+
+function balanceTotalsMatch(left: number, right: number) {
+  return Math.abs(left - right) <= BALANCE_TOLERANCE * Math.max(1, Math.abs(left), Math.abs(right));
+}
 
 function balanceRelation({ leftTotal, rightTotal }: Totals): Relation {
+  if (balanceTotalsMatch(leftTotal, rightTotal)) return 'equal';
   if (leftTotal > rightTotal) return 'left';
-  if (leftTotal < rightTotal) return 'right';
-  return 'equal';
+  return 'right';
 }
 
 function relationText(relation: Relation) {
@@ -39,12 +51,8 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
   }, [key]);
 
   const totals = (ids: string[]): Totals => ({
-    leftTotal: config.left
-      .filter((weight) => ids.includes(weight.id))
-      .reduce((sum, weight) => sum + weight.value, 0),
-    rightTotal: config.right
-      .filter((weight) => ids.includes(weight.id))
-      .reduce((sum, weight) => sum + weight.value, 0),
+    leftTotal: stableTotal(config.left.filter((weight) => ids.includes(weight.id))),
+    rightTotal: stableTotal(config.right.filter((weight) => ids.includes(weight.id))),
   });
 
   const emit = (ids: string[], action: Action, success = false) => {
@@ -67,8 +75,11 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
   };
 
   const checkBalance = () => {
-    const balanced = truth === 'equal';
-    setStatus(balanced ? 'Scale is balanced.' : 'Totals are not equal yet.');
+    const meaningful = value.leftTotal > 0 && value.rightTotal > 0;
+    const balanced = meaningful && truth === 'equal';
+    setStatus(!meaningful
+      ? 'Add at least one weight to each pan before checking.'
+      : balanced ? 'Scale is balanced.' : 'Totals are not equal yet.');
     emit(active, 'check', balanced);
   };
 

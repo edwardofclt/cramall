@@ -47,6 +47,25 @@ test('rejects empty pans and nonpositive weights', () => {
     left: [{ id: 'same', label: 'A', value: 1 }],
     right: [{ id: 'same', label: 'B', value: 1 }],
   }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'left-two', label: '2', value: 2 }],
+    right: [{ id: 'right-one', label: '1', value: 1 }],
+    task: 'make-equal',
+  }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'left-two', label: '2', value: 2 }],
+    right: [{ id: 'right-one', label: '1', value: 1 }],
+    task: 'compare',
+  }).success).toBe(true);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: Array.from({ length: 17 }, (_, index) => ({
+      id: `left-${index}`,
+      label: String(index + 1),
+      value: index + 1,
+    })),
+    right: [{ id: 'right', label: '1', value: 1 }],
+    task: 'make-equal',
+  }).success).toBe(false);
 });
 
 test('makes active weights and each pan readable before a balance check completes', async () => {
@@ -77,6 +96,59 @@ test('makes active weights and each pan readable before a balance check complete
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'check' },
     { type: 'change', value: { leftTotal: 0, rightTotal: 0 } },
-    { type: 'complete', value: { leftTotal: 0, rightTotal: 0 } },
+  ]);
+  expect(screen.getByRole('status')).toHaveTextContent('Add at least one weight to each pan before checking.');
+});
+
+test('uses stable decimal totals for an equal comparison and completion', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <BalanceScale
+      config={{
+        left: [
+          { id: 'left-tenth', label: '0.1', value: 0.1 },
+          { id: 'left-two-tenths', label: '0.2', value: 0.2 },
+        ],
+        right: [{ id: 'right-three-tenths', label: '0.3', value: 0.3 }],
+        task: 'compare',
+      }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'level');
+  expect(screen.getByRole('group')).toHaveAccessibleName(/left total 0.3; right total 0.3/i);
+  await user.click(screen.getByRole('button', { name: 'Balanced' }));
+
+  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'check' },
+    { type: 'change', value: { leftTotal: 0.3, rightTotal: 0.3 } },
+    { type: 'complete', value: { leftTotal: 0.3, rightTotal: 0.3 } },
+  ]);
+});
+
+test('preserves a right-heavy comparison after tolerant equality handling', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <BalanceScale
+      config={{
+        left: [{ id: 'left-one', label: '1', value: 1 }],
+        right: [{ id: 'right-two', label: '2', value: 2 }],
+        task: 'compare',
+      }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'right');
+  await user.click(screen.getByRole('button', { name: 'Right is heavier' }));
+  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'check' },
+    { type: 'change', value: { leftTotal: 1, rightTotal: 2 } },
+    { type: 'complete', value: { leftTotal: 1, rightTotal: 2 } },
   ]);
 });
