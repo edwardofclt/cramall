@@ -39,6 +39,7 @@ export const WIDGET_TYPES = [
   'context-clue-detective',
   'story-elements-mapper',
   'theme-evidence-collector',
+  'central-idea-organizer',
 ] as const;
 
 export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
@@ -1154,6 +1155,42 @@ export const ThemeEvidenceCollectorWidgetRefSchema=z.object({
   config:ThemeEvidenceCollectorWidgetConfigSchema,
 }).strict();
 
+const CentralIdeaTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ')).pipe(z.string().min(1));
+const centralIdeaVisualKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
+const CentralDetailSchema=z.object({
+  id:CentralIdeaTextSchema,
+  text:CentralIdeaTextSchema,
+  supports:z.array(CentralIdeaTextSchema).min(1),
+}).strict();
+
+export const CentralIdeaOrganizerWidgetConfigSchema=z.object({
+  mainIdeaChoices:z.array(CentralIdeaTextSchema).min(2),
+  details:z.array(CentralDetailSchema).min(2),
+  requiredDetailCount:z.number().int().min(1).max(5).optional(),
+}).strict().superRefine((value,context)=>{
+  const required=value.requiredDetailCount??2;
+  const ideaKeys=value.mainIdeaChoices.map(centralIdeaVisualKey);
+  const detailIds=value.details.map((detail)=>centralIdeaVisualKey(detail.id));
+  const detailTexts=value.details.map((detail)=>centralIdeaVisualKey(detail.text));
+  const ideasUnique=new Set(ideaKeys).size===ideaKeys.length;
+  const detailsUnique=new Set(detailIds).size===detailIds.length&&new Set(detailTexts).size===detailTexts.length;
+  const supportsValid=value.details.every((detail)=>{
+    const supportKeys=detail.supports.map(centralIdeaVisualKey);
+    return new Set(supportKeys).size===supportKeys.length
+      &&detail.supports.every((idea)=>value.mainIdeaChoices.includes(idea));
+  });
+  const solvable=required<=value.details.length
+    &&value.mainIdeaChoices.some((idea)=>value.details.filter((detail)=>detail.supports.includes(idea)).length>=required);
+  if(!ideasUnique||!detailsUnique||!supportsValid||!solvable){
+    context.addIssue({code:z.ZodIssueCode.custom,message:'ideas/details must be unique, valid, and at least one idea solvable'});
+  }
+});
+
+export const CentralIdeaOrganizerWidgetRefSchema=z.object({
+  type:z.literal('central-idea-organizer'),
+  config:CentralIdeaOrganizerWidgetConfigSchema,
+}).strict();
+
 export const WidgetRefSchema = z.discriminatedUnion('type', [
   z.object({
     type: z.literal('place-value-builder'),
@@ -1190,6 +1227,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
   ContextClueDetectiveWidgetRefSchema,
   StoryElementsMapperWidgetRefSchema,
   ThemeEvidenceCollectorWidgetRefSchema,
+  CentralIdeaOrganizerWidgetRefSchema,
 ]);
 
 export const LearnCardSchema = z.object({

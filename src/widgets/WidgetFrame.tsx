@@ -154,6 +154,10 @@ function RenderWidget(ref: WidgetFrameProps) {
       const Widget = widgetRegistry['theme-evidence-collector'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;
     }
+    case 'central-idea-organizer': {
+      const Widget = widgetRegistry['central-idea-organizer'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     default: {
       const exhaustive: never = ref;
       void exhaustive;

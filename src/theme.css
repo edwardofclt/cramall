@@ -2407,3 +2407,10 @@ body {
 .theme-evidence-choice[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .theme-evidence-marker { font-weight: 900; white-space: nowrap; }
 .theme-evidence-controls button { min-height: 44px; }
+.widget-experiment.central { display: grid; gap: .75rem; }
+.widget-experiment.central header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
+.central-idea-choices { display: grid; gap: .5rem; }
+.central-idea-choice { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
+.central-idea-choice[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.central-idea-marker { font-weight: 900; white-space: nowrap; }
+.central-idea-controls button { min-height: 44px; }
