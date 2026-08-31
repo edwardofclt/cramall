@@ -845,7 +845,7 @@ export const ErosionSimulatorWidgetConfigSchema = z.object({
   targetAgent: ErosionAgentSchema.optional(),
 }).strict().superRefine((value, context) => {
   if (value.targetAgent && !value.agents.includes(value.targetAgent)) context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetAgent'], message: 'target agent unavailable' });
-  if (value.terrain === 'rock' && value.vegetation) context.addIssue({ code: z.ZodIssueCode.custom, path: ['vegetation'], message: 'vegetation cover is not modeled on rock' });
+  if (value.terrain === 'rock' && value.vegetation !== undefined) context.addIssue({ code: z.ZodIssueCode.custom, path: ['vegetation'], message: 'vegetation cover is not modeled on rock' });
 });
 export const ErosionSimulatorWidgetRefSchema = z.object({ type: z.literal('erosion-simulator'), config: ErosionSimulatorWidgetConfigSchema }).strict();
 

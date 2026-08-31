@@ -15,11 +15,11 @@ function terrainDescription(terrain: 'soil' | 'sand' | 'rock') {
 
 function outcomeFor(terrain: 'soil' | 'sand' | 'rock', run: Run) {
   const protectedMovement = run.vegetation && terrain !== 'rock';
-  const amount = protectedMovement ? 'less movement' : terrain === 'rock' ? 'a small amount of worn material' : 'more loose material';
-  const pattern = run.agent === 'water' ? 'channel' : run.agent === 'wind' ? (protectedMovement ? 'anchored-ripples' : 'wind-ripples') : 'scrape';
+  const amount = protectedMovement ? 'less movement of loose material' : terrain === 'rock' ? 'a small amount of worn material' : 'more movement of loose material';
+  const pattern = run.agent === 'water' ? (protectedMovement ? 'rooted-channel' : 'channel') : run.agent === 'wind' ? (protectedMovement ? 'anchored-ripples' : 'wind-ripples') : (protectedMovement ? 'rooted-scrape' : 'scrape');
   const shape = `${terrain}-${run.agent}-${protectedMovement ? 'covered' : 'bare'}`;
   const effect = run.agent === 'water'
-    ? terrain === 'soil' ? 'A water path moved soil downhill.' : `A water path carries ${amount} downhill.`
+    ? terrain === 'soil' ? `A water path moved soil downhill, with ${amount}.` : `A water path carries ${amount} downhill.`
     : run.agent === 'wind'
       ? `Wind streaks shift ${amount} across the surface.`
       : `An ice scrape moves ${amount} along the surface.`;
@@ -52,7 +52,10 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
   };
   const changeInputs = (next: Inputs, action: 'select-agent' | 'toggle-vegetation') => {
     emit(next, action);
-    setStatus('Inputs changed; the displayed result is stale. Run the authored erosion model again.');
+    const changed = next.agent !== inputs.agent || next.vegetation !== inputs.vegetation;
+    setStatus(changed
+      ? lastRun ? 'Inputs changed; the displayed result is stale. Run the authored erosion model again.' : 'Inputs changed; run the authored erosion model.'
+      : lastRun ? 'The current input matches the displayed authored model result.' : 'Choose an erosion agent, then run the authored model.');
   };
   const run = () => {
     emit(inputs, 'run');
