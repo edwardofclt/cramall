@@ -81,6 +81,19 @@ test('rejects empty pans and nonpositive weights', () => {
     right: [{ id: 'zeroish', label: 'one', value: 1 }],
     task: 'compare',
   }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [
+      { id: 'huge-one', label: 'huge one', value: 1e308 },
+      { id: 'huge-two', label: 'huge two', value: 1e308 },
+    ],
+    right: [{ id: 'right-one', label: '1', value: 1 }],
+    task: 'compare',
+  }).success).toBe(false);
+  expect(BalanceScaleWidgetConfigSchema.safeParse({
+    left: [{ id: 'maximum', label: 'maximum', value: Number.MAX_VALUE }],
+    right: [{ id: 'right-one', label: '1', value: 1 }],
+    task: 'compare',
+  }).success).toBe(true);
 });
 
 test('makes active weights and each pan readable before a balance check completes', async () => {

@@ -392,6 +392,11 @@ const WeightSchema = z.object({
 
 // Sixteen retained weights bound exhaustive left/right subset comparisons to 2^16 (65,536).
 const MAX_MAKE_EQUAL_WEIGHTS = 16;
+const MAX_FINITE_BALANCE_TOTAL = (() => {
+  const maximum = exactDecimalFromNumber(Number.MAX_VALUE);
+  if (!maximum) throw new Error('Number.MAX_VALUE must be an exact balance decimal.');
+  return maximum;
+})();
 
 function subsetTotals(weights: Array<{ value: number }>): ExactDecimal[] {
   const values = weights.map((weight) => exactDecimalFromNumber(weight.value));
@@ -416,6 +421,15 @@ function hasReachableNonzeroBalance(
   ));
 }
 
+function hasFinitePanTotal(weights: Array<{ value: number }>) {
+  const values = weights.map((weight) => exactDecimalFromNumber(weight.value));
+  if (values.some((value) => !value)) return false;
+  return compareExactDecimals(
+    sumExactDecimals(values as ExactDecimal[]),
+    MAX_FINITE_BALANCE_TOTAL,
+  ) <= 0;
+}
+
 export const BalanceScaleWidgetConfigSchema = z.object({
   left: z.array(WeightSchema).min(1),
   right: z.array(WeightSchema).min(1),
@@ -424,6 +438,20 @@ export const BalanceScaleWidgetConfigSchema = z.object({
   const ids = [...value.left, ...value.right].map((weight) => weight.id);
   if (new Set(ids).size !== ids.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate ids' });
+  }
+  if (!hasFinitePanTotal(value.left)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['left'],
+      message: 'left total must not exceed the largest finite number',
+    });
+  }
+  if (!hasFinitePanTotal(value.right)) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['right'],
+      message: 'right total must not exceed the largest finite number',
+    });
   }
   if (value.task !== 'make-equal') return;
 
