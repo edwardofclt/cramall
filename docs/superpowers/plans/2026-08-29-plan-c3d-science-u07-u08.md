@@ -177,6 +177,65 @@ function incorrectAnswer(question: Question): Answer {
   return question.choices.find(({ id }) => id !== question.correctChoiceId)!.id;
 }
 
+const selfContainedPromptFacts = {
+  'science-u07-l01-q01': 'Map key: Ridge 200 m; Valley 100 m.',
+  'science-u07-l01-q03': 'Map key: Ridge 200 m; Valley 100 m.',
+  'science-u07-l01-q04': 'Map key: Ridge 200 m; Valley 100 m.',
+  'science-u07-l01-q07': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l01-q08': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l01-q09': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l01-q10': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l01-q11': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l01-q12': 'Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4.',
+  'science-u07-l02-q01': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q03': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q04': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q05': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q06': 'Explorer note: named-point buttons show printed elevations but not plotted locations.',
+  'science-u07-l02-q07': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q08': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q09': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q10': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q11': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l02-q12': 'Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m.',
+  'science-u07-l03-q01': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q02': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q03': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q04': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q06': 'The on-screen erosion activity is an authored prediction model; the supplied tray record is the evidence.',
+  'science-u07-l03-q07': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q08': 'Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs.',
+  'science-u07-l03-q09': 'Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls.',
+  'science-u07-l03-q10': 'Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls.',
+  'science-u07-l03-q11': 'Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls.',
+  'science-u07-l03-q12': 'Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls.',
+  'science-u07-l03-q13': 'Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls.',
+  'science-u07-l04-q01': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q02': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q03': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q04': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q05': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q06': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q07': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q08': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q10': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q11': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q12': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+  'science-u07-l04-q13': 'Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years.',
+} as const;
+
+test('all 44 source-dependent Unit 7 questions embed their complete standalone facts', () => {
+  const questions = unit07Lessons.flatMap((lesson) => lesson.quiz.pool);
+  expect(Object.keys(selfContainedPromptFacts)).toHaveLength(44);
+  for (const [questionId, fact] of Object.entries(selfContainedPromptFacts)) {
+    const question = questions.find(({ id }) => id === questionId);
+    expect(question, questionId).toBeDefined();
+    expect(question!.prompt, questionId).toContain(fact);
+  }
+});
+
+
+
 test('Unit 7 is the exact reviewed Science wave', () => {
   expect(unit07Lessons).toHaveLength(specs.length);
   for (const [lessonIndex, lesson] of unit07Lessons.entries()) {
@@ -388,7 +447,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-reading",
     "reviewCardId": "science-u07-l01-c1",
     "type": "multiple-choice",
-    "prompt": "Which printed point has the higher elevation?",
+    "prompt": "Map key: Ridge 200 m; Valley 100 m. Which printed point has the higher elevation?",
     "choices": [
       {
         "id": "a",
@@ -434,7 +493,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-reading",
     "reviewCardId": "science-u07-l01-c1",
     "type": "multiple-choice",
-    "prompt": "What is the printed elevation of Valley?",
+    "prompt": "Map key: Ridge 200 m; Valley 100 m. What is the printed elevation of Valley?",
     "choices": [
       {
         "id": "a",
@@ -461,7 +520,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-reading",
     "reviewCardId": "science-u07-l01-c1",
     "type": "fill-blank",
-    "prompt": "The Ridge entry is ___ m.",
+    "prompt": "Map key: Ridge 200 m; Valley 100 m. The Ridge entry is ___ m.",
     "acceptedAnswers": [
       "200",
       "two hundred"
@@ -519,7 +578,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "earth-feature-patterns",
     "reviewCardId": "science-u07-l01-c2",
     "type": "multiple-choice",
-    "prompt": "Which mapped group spans more north-to-south rows?",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. Which mapped group spans more north-to-south rows?",
     "choices": [
       {
         "id": "a",
@@ -546,7 +605,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "earth-feature-patterns",
     "reviewCardId": "science-u07-l01-c2",
     "type": "multiple-choice",
-    "prompt": "Which statement analyzes the mapped coordinates?",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. Which statement analyzes the mapped coordinates?",
     "choices": [
       {
         "id": "a",
@@ -573,7 +632,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-pattern-claim",
     "reviewCardId": "science-u07-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which is the strongest pattern claim from the coordinate map?",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. Which is the strongest pattern claim from the coordinate map?",
     "choices": [
       {
         "id": "a",
@@ -600,7 +659,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-pattern-claim",
     "reviewCardId": "science-u07-l01-c3",
     "type": "true-false",
-    "prompt": "The provided locations alone prove why the peaks formed.",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. The provided locations alone prove why the peaks formed.",
     "choices": [
       {
         "id": "true",
@@ -619,7 +678,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-pattern-claim",
     "reviewCardId": "science-u07-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which mapped evidence supports the western-band claim?",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. Which mapped evidence supports the western-band claim?",
     "choices": [
       {
         "id": "a",
@@ -646,7 +705,7 @@ const scienceU07L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-pattern-claim",
     "reviewCardId": "science-u07-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim is unsupported?",
+    "prompt": "Coordinate map: peaks P1 A1 through P6 A6; valleys V1 C2, V2 C3, V3 C4. Which claim is unsupported?",
     "choices": [
       {
         "id": "a",
@@ -957,7 +1016,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-comparison",
     "reviewCardId": "science-u07-l02-c1",
     "type": "multiple-choice",
-    "prompt": "Which entry has the lower printed elevation?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which entry has the lower printed elevation?",
     "choices": [
       {
         "id": "a",
@@ -1003,7 +1062,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-comparison",
     "reviewCardId": "science-u07-l02-c1",
     "type": "multiple-choice",
-    "prompt": "Where are H1 B1, H2 D1, and H3 F1 relative to the coast points?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Where are H1 B1, H2 D1, and H3 F1 relative to the coast points?",
     "choices": [
       {
         "id": "a",
@@ -1030,7 +1089,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-data-comparison",
     "reviewCardId": "science-u07-l02-c1",
     "type": "fill-blank",
-    "prompt": "The representative Hill entry is ___ m.",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. The representative Hill entry is ___ m.",
     "acceptedAnswers": [
       "50",
       "fifty"
@@ -1042,7 +1101,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "multi-point-pattern",
     "reviewCardId": "science-u07-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Why compare the B, D, and F column pairs?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Why compare the B, D, and F column pairs?",
     "choices": [
       {
         "id": "a",
@@ -1069,7 +1128,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "multi-point-pattern",
     "reviewCardId": "science-u07-l02-c2",
     "type": "true-false",
-    "prompt": "The named point buttons provide printed values, not plotted locations on the contour drawing.",
+    "prompt": "Explorer note: named-point buttons show printed elevations but not plotted locations. The named point buttons provide printed values, not plotted locations on the contour drawing.",
     "choices": [
       {
         "id": "true",
@@ -1088,7 +1147,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "multi-point-pattern",
     "reviewCardId": "science-u07-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Which mapped set supports the higher northern group?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which mapped set supports the higher northern group?",
     "choices": [
       {
         "id": "a",
@@ -1115,7 +1174,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "multi-point-pattern",
     "reviewCardId": "science-u07-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Which comparison analyzes all six mapped points?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which comparison analyzes all six mapped points?",
     "choices": [
       {
         "id": "a",
@@ -1142,7 +1201,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-interpretation-evidence",
     "reviewCardId": "science-u07-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which interpretation is supported by the coordinate map?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which interpretation is supported by the coordinate map?",
     "choices": [
       {
         "id": "a",
@@ -1169,7 +1228,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-interpretation-evidence",
     "reviewCardId": "science-u07-l02-c3",
     "type": "true-false",
-    "prompt": "The interpretation should be limited to the supplied packet.",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. The interpretation should be limited to the supplied packet.",
     "choices": [
       {
         "id": "true",
@@ -1188,7 +1247,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-interpretation-evidence",
     "reviewCardId": "science-u07-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which evidence best supports the interpretation?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which evidence best supports the interpretation?",
     "choices": [
       {
         "id": "a",
@@ -1215,7 +1274,7 @@ const scienceU07L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "map-interpretation-evidence",
     "reviewCardId": "science-u07-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which question remains unanswered?",
+    "prompt": "Map table: hills H1 B1, H2 D1, H3 F1 are 50 m; coast points C1 B4, C2 D4, C3 F4 are 0 m. Which question remains unanswered?",
     "choices": [
       {
         "id": "a",
@@ -1493,7 +1552,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "single-process-variable",
     "reviewCardId": "science-u07-l03-c1",
     "type": "multiple-choice",
-    "prompt": "Which process is tested?",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. Which process is tested?",
     "choices": [
       {
         "id": "a",
@@ -1520,7 +1579,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "single-process-variable",
     "reviewCardId": "science-u07-l03-c1",
     "type": "true-false",
-    "prompt": "Vegetation cover is the single varied condition.",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. Vegetation cover is the single varied condition.",
     "choices": [
       {
         "id": "true",
@@ -1539,7 +1598,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "single-process-variable",
     "reviewCardId": "science-u07-l03-c1",
     "type": "multiple-choice",
-    "prompt": "Which condition must stay the same?",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. Which condition must stay the same?",
     "choices": [
       {
         "id": "a",
@@ -1566,7 +1625,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "single-process-variable",
     "reviewCardId": "science-u07-l03-c1",
     "type": "fill-blank",
-    "prompt": "The one varied condition is ___ cover.",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. The one varied condition is ___ cover.",
     "acceptedAnswers": [
       "vegetation",
       "plant"
@@ -1610,7 +1669,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-fair-test",
     "reviewCardId": "science-u07-l03-c2",
     "type": "true-false",
-    "prompt": "The erosion activity supplies physical observations from soil trays.",
+    "prompt": "The on-screen erosion activity is an authored prediction model; the supplied tray record is the evidence. The erosion activity supplies physical observations from soil trays.",
     "choices": [
       {
         "id": "true",
@@ -1629,7 +1688,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-fair-test",
     "reviewCardId": "science-u07-l03-c2",
     "type": "multiple-choice",
-    "prompt": "Which prediction fits the design?",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. Which prediction fits the design?",
     "choices": [
       {
         "id": "a",
@@ -1656,7 +1715,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-fair-test",
     "reviewCardId": "science-u07-l03-c2",
     "type": "multiple-choice",
-    "prompt": "Which plan is unfair?",
+    "prompt": "Fair test: two matching soil trays get equal water on the same slope; only vegetation cover differs. Which plan is unfair?",
     "choices": [
       {
         "id": "a",
@@ -1683,7 +1742,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-observation-evidence",
     "reviewCardId": "science-u07-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which result was observed for bare soil?",
+    "prompt": "Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls. Which result was observed for bare soil?",
     "choices": [
       {
         "id": "a",
@@ -1710,7 +1769,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-observation-evidence",
     "reviewCardId": "science-u07-l03-c3",
     "type": "true-false",
-    "prompt": "The covered tray still showed some water erosion.",
+    "prompt": "Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls. The covered tray still showed some water erosion.",
     "choices": [
       {
         "id": "true",
@@ -1729,7 +1788,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-observation-evidence",
     "reviewCardId": "science-u07-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim is supported?",
+    "prompt": "Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls. Which claim is supported?",
     "choices": [
       {
         "id": "a",
@@ -1756,7 +1815,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-observation-evidence",
     "reviewCardId": "science-u07-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which evidence uses both trays?",
+    "prompt": "Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls. Which evidence uses both trays?",
     "choices": [
       {
         "id": "a",
@@ -1783,7 +1842,7 @@ const scienceU07L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "erosion-observation-evidence",
     "reviewCardId": "science-u07-l03-c3",
     "type": "fill-blank",
-    "prompt": "The bare tray formed a deeper ___.",
+    "prompt": "Tray record: bare soil had a deeper channel and 14 spoonfuls; covered soil had a shallow channel and 5 spoonfuls. The bare tray formed a deeper ___.",
     "acceptedAnswers": [
       "channel"
     ],
@@ -2055,7 +2114,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "relative-layer-order",
     "reviewCardId": "science-u07-l04-c1",
     "type": "multiple-choice",
-    "prompt": "Which layer is relatively older in the authored stack?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. Which layer is relatively older in the authored stack?",
     "choices": [
       {
         "id": "a",
@@ -2082,7 +2141,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "relative-layer-order",
     "reviewCardId": "science-u07-l04-c1",
     "type": "true-false",
-    "prompt": "Relative-age ranks are not calendar years.",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. Relative-age ranks are not calendar years.",
     "choices": [
       {
         "id": "true",
@@ -2101,7 +2160,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "relative-layer-order",
     "reviewCardId": "science-u07-l04-c1",
     "type": "multiple-choice",
-    "prompt": "Which layer is relatively younger?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. Which layer is relatively younger?",
     "choices": [
       {
         "id": "a",
@@ -2128,7 +2187,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "relative-layer-order",
     "reviewCardId": "science-u07-l04-c1",
     "type": "fill-blank",
-    "prompt": "The relatively older layer is the ___ plant layer.",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. The relatively older layer is the ___ plant layer.",
     "acceptedAnswers": [
       "lower"
     ],
@@ -2139,7 +2198,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "rock-fossil-patterns",
     "reviewCardId": "science-u07-l04-c2",
     "type": "multiple-choice",
-    "prompt": "What fossils are in the upper layer?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. What fossils are in the upper layer?",
     "choices": [
       {
         "id": "a",
@@ -2166,7 +2225,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "rock-fossil-patterns",
     "reviewCardId": "science-u07-l04-c2",
     "type": "true-false",
-    "prompt": "The lower layer has plant fossils without shells.",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. The lower layer has plant fossils without shells.",
     "choices": [
       {
         "id": "true",
@@ -2185,7 +2244,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "rock-fossil-patterns",
     "reviewCardId": "science-u07-l04-c2",
     "type": "multiple-choice",
-    "prompt": "What pattern matters most?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. What pattern matters most?",
     "choices": [
       {
         "id": "a",
@@ -2212,7 +2271,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "rock-fossil-patterns",
     "reviewCardId": "science-u07-l04-c2",
     "type": "multiple-choice",
-    "prompt": "What does the explorer provide?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. What does the explorer provide?",
     "choices": [
       {
         "id": "a",
@@ -2266,7 +2325,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "landscape-change-explanation",
     "reviewCardId": "science-u07-l04-c3",
     "type": "true-false",
-    "prompt": "The layers reveal the exact number of years between settings.",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. The layers reveal the exact number of years between settings.",
     "choices": [
       {
         "id": "true",
@@ -2285,7 +2344,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "landscape-change-explanation",
     "reviewCardId": "science-u07-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which explanation is supported?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. Which explanation is supported?",
     "choices": [
       {
         "id": "a",
@@ -2312,7 +2371,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "landscape-change-explanation",
     "reviewCardId": "science-u07-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which evidence should be cited?",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. Which evidence should be cited?",
     "choices": [
       {
         "id": "a",
@@ -2339,7 +2398,7 @@ const scienceU07L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "landscape-change-explanation",
     "reviewCardId": "science-u07-l04-c3",
     "type": "fill-blank",
-    "prompt": "The evidence supports change over ___ time.",
+    "prompt": "Layer model: lower plant layer—rank 2, plant fossils, no shells; upper shell layer—rank 1, marine shells. Larger ranks are relatively older; ranks are not years. The evidence supports change over ___ time.",
     "acceptedAnswers": [
       "relative"
     ],
@@ -2501,6 +2560,41 @@ function incorrectAnswer(question: Question): Answer {
   if (question.type === 'sort') return [...question.correctOrder].reverse();
   return question.choices.find(({ id }) => id !== question.correctChoiceId)!.id;
 }
+
+const selfContainedPromptFacts = {
+  'science-u08-l01-q06': 'Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials.',
+  'science-u08-l01-q08': 'Sorter setup: sunlight is labeled renewable and coal nonrenewable.',
+  'science-u08-l01-q09': 'Source A: wind, sunlight, and dammed water are renewable. Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials.',
+  'science-u08-l01-q11': 'Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials.',
+  'science-u08-l01-q12': 'Source A: wind, sunlight, and dammed water are renewable. Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials.',
+  'science-u08-l02-q05': 'Packet fact: burning fossil fuels releases air pollution.',
+  'science-u08-l02-q07': 'Packet fact: wind turbines produce electricity without burning fuel at the turbine but may affect flying wildlife.',
+  'science-u08-l02-q08': 'Packet fact: solar panels produce electricity from sunlight but require space and materials.',
+  'science-u08-l02-q09': 'Packet facts: wind avoids fuel burning at the turbine but may affect wildlife; dams provide controllable electricity but change river habitat.',
+  'science-u08-l02-q11': 'Packet: wind may affect wildlife; dams change river habitat; solar needs space and materials; fossil-fuel burning pollutes air; local conditions vary.',
+  'science-u08-l02-q12': 'Packet: wind may affect wildlife; dams change river habitat; solar needs space and materials; fossil-fuel burning pollutes air; local conditions vary.',
+  'science-u08-l03-q11': 'Plan facts: storm shutters reduce hurricane window damage; early warnings add preparation time; neither removes all risk.',
+  'science-u08-l03-q12': 'Plan facts: storm shutters reduce hurricane window damage; early warnings add preparation time; neither removes all risk.',
+  'science-u08-l04-q05': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q07': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q08': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q09': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q10': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q11': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+  'science-u08-l04-q12': 'Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water.',
+} as const;
+
+test('all 20 source-dependent Unit 8 questions embed their complete standalone facts', () => {
+  const questions = unit08Lessons.flatMap((lesson) => lesson.quiz.pool);
+  expect(Object.keys(selfContainedPromptFacts)).toHaveLength(20);
+  for (const [questionId, fact] of Object.entries(selfContainedPromptFacts)) {
+    const question = questions.find(({ id }) => id === questionId);
+    expect(question, questionId).toBeDefined();
+    expect(question!.prompt, questionId).toContain(fact);
+  }
+});
+
+
 
 test('Unit 8 is the exact reviewed Science wave', () => {
   expect(unit08Lessons).toHaveLength(specs.length);
@@ -2812,7 +2906,7 @@ const scienceU08L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-kind",
     "reviewCardId": "science-u08-l01-c2",
     "type": "true-false",
-    "prompt": "Nuclear fuels are classified as nonrenewable in the source.",
+    "prompt": "Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials. Nuclear fuels are classified as nonrenewable in the source.",
     "choices": [
       {
         "id": "true",
@@ -2858,7 +2952,7 @@ const scienceU08L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-kind",
     "reviewCardId": "science-u08-l01-c2",
     "type": "multiple-choice",
-    "prompt": "What does the sorter do?",
+    "prompt": "Sorter setup: sunlight is labeled renewable and coal nonrenewable. What does the sorter do?",
     "choices": [
       {
         "id": "a",
@@ -2885,7 +2979,7 @@ const scienceU08L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-information",
     "reviewCardId": "science-u08-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which sentence combines both sources?",
+    "prompt": "Source A: wind, sunlight, and dammed water are renewable. Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials. Which sentence combines both sources?",
     "choices": [
       {
         "id": "a",
@@ -2931,7 +3025,7 @@ const scienceU08L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-information",
     "reviewCardId": "science-u08-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which information comes from Source B?",
+    "prompt": "Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials. Which information comes from Source B?",
     "choices": [
       {
         "id": "a",
@@ -2958,7 +3052,7 @@ const scienceU08L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-information",
     "reviewCardId": "science-u08-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim is unsupported?",
+    "prompt": "Source A: wind, sunlight, and dammed water are renewable. Source B: fossil and nuclear fuels are nonrenewable and use limited Earth materials. Which claim is unsupported?",
     "choices": [
       {
         "id": "a",
@@ -3352,7 +3446,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-environment-effect",
     "reviewCardId": "science-u08-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Which effect is linked to burning fossil fuels in the packet?",
+    "prompt": "Packet fact: burning fossil fuels releases air pollution. Which effect is linked to burning fossil fuels in the packet?",
     "choices": [
       {
         "id": "a",
@@ -3398,7 +3492,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-environment-effect",
     "reviewCardId": "science-u08-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Which statement about wind is accurate?",
+    "prompt": "Packet fact: wind turbines produce electricity without burning fuel at the turbine but may affect flying wildlife. Which statement about wind is accurate?",
     "choices": [
       {
         "id": "a",
@@ -3425,7 +3519,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-environment-effect",
     "reviewCardId": "science-u08-l02-c2",
     "type": "multiple-choice",
-    "prompt": "What is one solar-panel consideration?",
+    "prompt": "Packet fact: solar panels produce electricity from sunlight but require space and materials. What is one solar-panel consideration?",
     "choices": [
       {
         "id": "a",
@@ -3452,7 +3546,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-choice-comparison",
     "reviewCardId": "science-u08-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which comparison is balanced?",
+    "prompt": "Packet facts: wind avoids fuel burning at the turbine but may affect wildlife; dams provide controllable electricity but change river habitat. Which comparison is balanced?",
     "choices": [
       {
         "id": "a",
@@ -3498,7 +3592,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-choice-comparison",
     "reviewCardId": "science-u08-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which information is still useful for a local decision?",
+    "prompt": "Packet: wind may affect wildlife; dams change river habitat; solar needs space and materials; fossil-fuel burning pollutes air; local conditions vary. Which information is still useful for a local decision?",
     "choices": [
       {
         "id": "a",
@@ -3525,7 +3619,7 @@ const scienceU08L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "resource-choice-comparison",
     "reviewCardId": "science-u08-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim goes beyond the packet?",
+    "prompt": "Packet: wind may affect wildlife; dams change river habitat; solar needs space and materials; fossil-fuel burning pollutes air; local conditions vary. Which claim goes beyond the packet?",
     "choices": [
       {
         "id": "a",
@@ -4066,7 +4160,7 @@ const scienceU08L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-impact-solution",
     "reviewCardId": "science-u08-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which pair forms the authored hurricane plan?",
+    "prompt": "Plan facts: storm shutters reduce hurricane window damage; early warnings add preparation time; neither removes all risk. Which pair forms the authored hurricane plan?",
     "choices": [
       {
         "id": "a",
@@ -4093,7 +4187,7 @@ const scienceU08L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-impact-solution",
     "reviewCardId": "science-u08-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which statement is accurate?",
+    "prompt": "Plan facts: storm shutters reduce hurricane window damage; early warnings add preparation time; neither removes all risk. Which statement is accurate?",
     "choices": [
       {
         "id": "a",
@@ -4488,7 +4582,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-comparison",
     "reviewCardId": "science-u08-l04-c2",
     "type": "multiple-choice",
-    "prompt": "What is a strength of a floodwater channel?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. What is a strength of a floodwater channel?",
     "choices": [
       {
         "id": "a",
@@ -4534,7 +4628,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-comparison",
     "reviewCardId": "science-u08-l04-c2",
     "type": "multiple-choice",
-    "prompt": "What is a channel limitation?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. What is a channel limitation?",
     "choices": [
       {
         "id": "a",
@@ -4561,7 +4655,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-comparison",
     "reviewCardId": "science-u08-l04-c2",
     "type": "multiple-choice",
-    "prompt": "Why is blocking every drain a poor choice?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. Why is blocking every drain a poor choice?",
     "choices": [
       {
         "id": "a",
@@ -4588,7 +4682,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-justification",
     "reviewCardId": "science-u08-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which combined plan is best supported?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. Which combined plan is best supported?",
     "choices": [
       {
         "id": "a",
@@ -4615,7 +4709,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-justification",
     "reviewCardId": "science-u08-l04-c3",
     "type": "true-false",
-    "prompt": "The combined plan still has limits and cannot guarantee safety.",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. The combined plan still has limits and cannot guarantee safety.",
     "choices": [
       {
         "id": "true",
@@ -4634,7 +4728,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-justification",
     "reviewCardId": "science-u08-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Why combine channel and warning?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. Why combine channel and warning?",
     "choices": [
       {
         "id": "a",
@@ -4661,7 +4755,7 @@ const scienceU08L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "hazard-solution-justification",
     "reviewCardId": "science-u08-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which justification is complete?",
+    "prompt": "Flood options: a channel redirects some water but needs land and maintenance; a warning provides preparation time but does not stop water; blocked drains can trap water. Which justification is complete?",
     "choices": [
       {
         "id": "a",

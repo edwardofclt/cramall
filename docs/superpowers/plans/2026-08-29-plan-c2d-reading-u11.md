@@ -16,6 +16,7 @@
 - Modify only the source/test paths named in this plan. Never edit Reading indexes, shared contracts, generated standards, `.github/**`, or `src/characters/**`.
 - The code blocks below are complete final-file literals. Copy them exactly; do not design helpers, prose, IDs, options, checks, mappings, or widget fields during execution.
 - Every lesson has exactly three cards, three visible-prior-material checks, 13 q01–q13 questions, threshold 8, Winnie intros, exact regular indicators, and `[...READING_OE_CODES]` resolving to all six ordered OE codes.
+- Every inline check has the complete source or record snippet it needs in the current card's preceding `blocks`; `expectedVisiblePriorSnippets` pins this for all 15 checks.
 - The complete source remains visible through `workedExample.passage` and `quiz.reference`. Solo work is sufficient; optional read-aloud is assistance only. No widget state writes scoring, progress, analytics, or storage.
 
 ---
@@ -1124,6 +1125,10 @@ export const unit11Lessons = [
             "text": "The question asks for school actions that can reduce food waste."
           },
           {
+            "kind": "example",
+            "text": "Source snippets — Note 1: Letting students request a smaller first portion can reduce untouched food. Note 5: The school colors are blue and silver. Note 6: Music plays in the lunchroom on Fridays."
+          },
+          {
             "kind": "tip",
             "text": "Personal preference is not the test."
           },
@@ -1165,6 +1170,10 @@ export const unit11Lessons = [
             "text": "Portions, share table, compost, audit, and bin posters qualify."
           },
           {
+            "kind": "example",
+            "text": "Source snippet — Note 4: A one-week waste audit can identify which foods are discarded most often."
+          },
+          {
             "kind": "tip",
             "text": "Reject mascot/colors/music for this question."
           },
@@ -1204,6 +1213,10 @@ export const unit11Lessons = [
           {
             "kind": "example",
             "text": "Compost posters help students sort scraps, supporting a compost action."
+          },
+          {
+            "kind": "example",
+            "text": "Source snippet — Note 2: A supervised share table may allow unopened approved items to be used by another student, following school rules."
           },
           {
             "kind": "tip",
@@ -1664,6 +1677,10 @@ export const unit11Lessons = [
             "text": "Reflective backpacks fit visibility; crossing guard fits crossings; helmet practice fits travel habits."
           },
           {
+            "kind": "example",
+            "text": "Source snippet — C2: Repaint faded crosswalk stripes. Useful categories: Visibility — V1/V2/V3; Crossings — C1/C2/C3; Travel habits — T1/T2/T3."
+          },
+          {
             "kind": "tip",
             "text": "A note may connect broadly, but use the strongest supplied grouping."
           },
@@ -1703,6 +1720,10 @@ export const unit11Lessons = [
           {
             "kind": "example",
             "text": "Visibility findings make people/signs easier to see; crossings organize safer crossing points; habits prepare travelers."
+          },
+          {
+            "kind": "example",
+            "text": "Source snippets — V1: Trim branches that block drivers’ view of a school-zone sign. V2: Add reflective material to backpacks for low-light visibility. V3: Use bright pavement markings near the school entrance."
           },
           {
             "kind": "tip",
@@ -2122,6 +2143,10 @@ export const unit11Lessons = [
             "text": "Faithful paraphrase: Chen explains that small boxes can feed bees when suitable flowers bloom at varied times."
           },
           {
+            "kind": "example",
+            "text": "Source text: “A shallow window box can offer nectar when it holds several locally suitable flowers that bloom at different times.”"
+          },
+          {
             "kind": "tip",
             "text": "Never present copied or lightly changed wording as your own."
           },
@@ -2161,6 +2186,10 @@ export const unit11Lessons = [
           {
             "kind": "example",
             "text": "Every element is visible in the practice-source metadata."
+          },
+          {
+            "kind": "example",
+            "text": "Practice-source metadata — Author: Nia Chen. Title: Window Boxes for Native Bees. Publisher: Cram All Student Science Notes. Year: 2026."
           },
           {
             "kind": "tip",
@@ -3630,6 +3659,54 @@ const expectedSources = [
     ]
   }
 ] as const;
+const expectedVisiblePriorSnippets = [
+  { cardId: 'reading-u11-l01-c1', snippets: ['What features help a small schoolyard patch serve pollinators?'] },
+  { cardId: 'reading-u11-l01-c2', snippets: ['The source covers flower timing, plant choice, shelter/water, care, and limits.'] },
+  { cardId: 'reading-u11-l01-c3', snippets: ['Staggered blooms, suitable native plants, safe shelter/water, and careful maintenance answer the inquiry.'] },
+  { cardId: 'reading-u11-l02-c1', snippets: ['Source B supplies an author role and publisher; A lacks a publisher; C lacks both.'] },
+  { cardId: 'reading-u11-l02-c2', snippets: ['B gives checkable prevention actions and explanatory purpose; A entertains without evidence.'] },
+  { cardId: 'reading-u11-l02-c3', snippets: ['Only B meets author, evidence, date, and purpose in the supplied exercise.'] },
+  {
+    cardId: 'reading-u11-l03-c1',
+    snippets: [
+      'Note 1: Letting students request a smaller first portion can reduce untouched food.',
+      'Note 5: The school colors are blue and silver.',
+      'Note 6: Music plays in the lunchroom on Fridays.',
+    ],
+  },
+  { cardId: 'reading-u11-l03-c2', snippets: ['Note 4: A one-week waste audit can identify which foods are discarded most often.'] },
+  { cardId: 'reading-u11-l03-c3', snippets: ['Note 2: A supervised share table may allow unopened approved items to be used by another student, following school rules.'] },
+  { cardId: 'reading-u11-l04-c1', snippets: ['Visibility, crossings, and travel habits each fit three notes.'] },
+  {
+    cardId: 'reading-u11-l04-c2',
+    snippets: [
+      'C2: Repaint faded crosswalk stripes.',
+      'Useful categories: Visibility — V1/V2/V3; Crossings — C1/C2/C3; Travel habits — T1/T2/T3.',
+    ],
+  },
+  {
+    cardId: 'reading-u11-l04-c3',
+    snippets: [
+      'V1: Trim branches that block drivers’ view of a school-zone sign.',
+      'V2: Add reflective material to backpacks for low-light visibility.',
+      'V3: Use bright pavement markings near the school entrance.',
+    ],
+  },
+  {
+    cardId: 'reading-u11-l05-c1',
+    snippets: ['Source text: “A shallow window box can offer nectar when it holds several locally suitable flowers that bloom at different times.”'],
+  },
+  {
+    cardId: 'reading-u11-l05-c2',
+    snippets: [
+      'Author: Nia Chen',
+      'Title: Window Boxes for Native Bees',
+      'Publisher: Cram All Student Science Notes',
+      'Year: 2026',
+    ],
+  },
+  { cardId: 'reading-u11-l05-c3', snippets: ['Credit is required for quotations, paraphrases, and borrowed ideas.'] },
+] as const;
 const normalize = (value: string): string => value.normalize('NFKC').toLocaleLowerCase('en-US').replace(/,/g, '').trim().replace(/\s+/g, ' ');
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
@@ -3656,6 +3733,17 @@ describe('Reading unit 11 literal content', () => {
         expect(card.blocks.some(block=>block.text.startsWith('Support:')||block.text.startsWith('Response frame:')||block.text.startsWith('Stretch:'))).toBe(true);
         if ('widget' in card) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
       }
+    }
+  });
+
+  test('places every source snippet needed by an inline check in its current card first', () => {
+    const cards = new Map(unit11Lessons.flatMap(lesson=>lesson.learnCards.map(card=>[card.id,card] as const)));
+    expect(expectedVisiblePriorSnippets).toHaveLength(15);
+    for (const { cardId, snippets } of expectedVisiblePriorSnippets) {
+      const card = cards.get(cardId);
+      expect(card?.check).toBeDefined();
+      const visiblePriorMaterial = card?.blocks.map(block=>block.text).join('\n') ?? '';
+      for (const snippet of snippets) expect(visiblePriorMaterial).toContain(snippet);
     }
   });
 
@@ -3687,7 +3775,7 @@ describe('Reading unit 11 literal content', () => {
 
 **Produces:** The exact `reading-u11-l01` object and its exact manifest/card/check/widget/source/route assertions, appended in manifest order.
 
-- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, and `expectedSources`, plus the complete shared assertions if this is the unit's first slice.
+- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, `expectedSources`, and `expectedVisiblePriorSnippets`, plus the complete shared assertions if this is the unit's first slice.
 - [ ] **Step 2 (2–5 minutes): Prove red.** Run `npm test -- src/content/reading/u11.test.ts`; expect a missing-module failure.
 - [ ] **Step 3 (2–5 minutes): Add identity, intro, source, and card 1.** Copy the `reading-u11-l01` object from the final `u11.ts` literal through the end of `reading-u11-l01-c1`.
 - [ ] **Step 4 (2–5 minutes): Add cards 2–3 and the worked example.** Continue copying the same literal through `workedExample`; preserve every rich-block kind, check choice ID, source string, and widget config.
@@ -3706,7 +3794,7 @@ describe('Reading unit 11 literal content', () => {
 
 **Produces:** The exact `reading-u11-l02` object and its exact manifest/card/check/widget/source/route assertions, appended in manifest order.
 
-- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, and `expectedSources`, plus the complete shared assertions if this is the unit's first slice.
+- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, `expectedSources`, and `expectedVisiblePriorSnippets`, plus the complete shared assertions if this is the unit's first slice.
 - [ ] **Step 2 (2–5 minutes): Prove red.** Run `npm test -- src/content/reading/u11.test.ts`; expect the exact expected lesson count to exceed the current export by one.
 - [ ] **Step 3 (2–5 minutes): Add identity, intro, source, and card 1.** Copy the `reading-u11-l02` object from the final `u11.ts` literal through the end of `reading-u11-l02-c1`.
 - [ ] **Step 4 (2–5 minutes): Add cards 2–3 and the worked example.** Continue copying the same literal through `workedExample`; preserve every rich-block kind, check choice ID, source string, and widget config.
@@ -3725,7 +3813,7 @@ describe('Reading unit 11 literal content', () => {
 
 **Produces:** The exact `reading-u11-l03` object and its exact manifest/card/check/widget/source/route assertions, appended in manifest order.
 
-- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, and `expectedSources`, plus the complete shared assertions if this is the unit's first slice.
+- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, `expectedSources`, and `expectedVisiblePriorSnippets`, plus the complete shared assertions if this is the unit's first slice.
 - [ ] **Step 2 (2–5 minutes): Prove red.** Run `npm test -- src/content/reading/u11.test.ts`; expect the exact expected lesson count to exceed the current export by one.
 - [ ] **Step 3 (2–5 minutes): Add identity, intro, source, and card 1.** Copy the `reading-u11-l03` object from the final `u11.ts` literal through the end of `reading-u11-l03-c1`.
 - [ ] **Step 4 (2–5 minutes): Add cards 2–3 and the worked example.** Continue copying the same literal through `workedExample`; preserve every rich-block kind, check choice ID, source string, and widget config.
@@ -3744,7 +3832,7 @@ describe('Reading unit 11 literal content', () => {
 
 **Produces:** The exact `reading-u11-l04` object and its exact manifest/card/check/widget/source/route assertions, appended in manifest order.
 
-- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, and `expectedSources`, plus the complete shared assertions if this is the unit's first slice.
+- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, `expectedSources`, and `expectedVisiblePriorSnippets`, plus the complete shared assertions if this is the unit's first slice.
 - [ ] **Step 2 (2–5 minutes): Prove red.** Run `npm test -- src/content/reading/u11.test.ts`; expect the exact expected lesson count to exceed the current export by one.
 - [ ] **Step 3 (2–5 minutes): Add identity, intro, source, and card 1.** Copy the `reading-u11-l04` object from the final `u11.ts` literal through the end of `reading-u11-l04-c1`.
 - [ ] **Step 4 (2–5 minutes): Add cards 2–3 and the worked example.** Continue copying the same literal through `workedExample`; preserve every rich-block kind, check choice ID, source string, and widget config.
@@ -3763,7 +3851,7 @@ describe('Reading unit 11 literal content', () => {
 
 **Produces:** The exact `reading-u11-l05` object and its exact manifest/card/check/widget/source/route assertions, appended in manifest order.
 
-- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, and `expectedSources`, plus the complete shared assertions if this is the unit's first slice.
+- [ ] **Step 1 (2–5 minutes): Add the exact red test slice.** From the final `u11.test.ts` literal, copy this lesson's entries in `expectedManifest`, `expectedCards`, `expectedRoutes`, `expectedChecks`, `expectedWidgets`, `expectedSources`, and `expectedVisiblePriorSnippets`, plus the complete shared assertions if this is the unit's first slice.
 - [ ] **Step 2 (2–5 minutes): Prove red.** Run `npm test -- src/content/reading/u11.test.ts`; expect the exact expected lesson count to exceed the current export by one.
 - [ ] **Step 3 (2–5 minutes): Add identity, intro, source, and card 1.** Copy the `reading-u11-l05` object from the final `u11.ts` literal through the end of `reading-u11-l05-c1`.
 - [ ] **Step 4 (2–5 minutes): Add cards 2–3 and the worked example.** Continue copying the same literal through `workedExample`; preserve every rich-block kind, check choice ID, source string, and widget config.
@@ -3784,7 +3872,7 @@ describe('Reading unit 11 literal content', () => {
 
 - [ ] **Step 1 (2–5 minutes): Run focused tests.** Run `npm test -- src/content/reading/u11.test.ts src/content/schema.test.ts src/content/content-validation.test.ts`.
 - [ ] **Step 2 (2–5 minutes): Run TypeScript.** Run `npx tsc -b --pretty false`.
-- [ ] **Step 3 (2–5 minutes): Run mechanical scans.** Verify canonical q01–q13 sequences, exact three-card/13-question counts, threshold 8, ordered six-code OE arrays, one tag/card mapping per card, exact widget counts, no empty lesson/card/pool arrays, and no planning-marker or live-collaboration/oral-scoring prose.
+- [ ] **Step 3 (2–5 minutes): Run mechanical scans.** Verify canonical q01–q13 sequences, exact three-card/13-question counts, all 15 `expectedVisiblePriorSnippets` rows against the current cards, threshold 8, ordered six-code OE arrays, one tag/card mapping per card, exact widget counts, no empty lesson/card/pool arrays, and no planning-marker or live-collaboration/oral-scoring prose.
 - [ ] **Step 4 (2–5 minutes): Inspect scope.** Run `git diff --check` and verify the wave commit range touches only the owned paths.
 - [ ] **Step 5 (2–5 minutes): Request independent review.** Review standard fidelity, source-before-question visibility, answer/distractor correctness, differentiated supports, widget configs, and accessibility/solo framing; return defects to the owning lesson.
 
