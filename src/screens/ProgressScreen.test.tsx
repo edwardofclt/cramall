@@ -70,11 +70,11 @@ describe('ProgressScreen', () => {
 
     expect(screen.getByRole('progressbar', { name: /reading completion/i })).toHaveAttribute(
       'aria-valuemax',
-      '2',
+      String(getSubject('reading').units.flatMap((unit) => unit.lessons).length),
     );
     expect(screen.getByRole('progressbar', { name: /science completion/i })).toHaveAttribute(
       'aria-valuemax',
-      '4',
+      String(getSubject('science').units.flatMap((unit) => unit.lessons).length),
     );
     expect(screen.getAllByRole('progressbar')).toHaveLength(3);
     expect(screen.queryByText(/no authored lessons yet/i)).toBeNull();
