@@ -653,7 +653,7 @@ const scienceU05L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "conversion-device-boundary",
     "reviewCardId": "science-u05-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which statement is accurate?",
+    "prompt": "On-screen model: a hand-crank generator connects to a buzzer to trace motion → electric → sound. Which statement accurately describes what this model contributes?",
     "choices": [
       {
         "id": "a",
@@ -985,7 +985,7 @@ const scienceU05L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-goal",
     "reviewCardId": "science-u05-l02-c1",
     "type": "multiple-choice",
-    "prompt": "What is the desired output?",
+    "prompt": "Goal: use battery-stored energy to light a reading space for at least 10 seconds. What is the desired output?",
     "choices": [
       {
         "id": "a",
@@ -1012,7 +1012,7 @@ const scienceU05L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-goal",
     "reviewCardId": "science-u05-l02-c1",
     "type": "fill-blank",
-    "prompt": "The lamp must stay lit for ___ seconds.",
+    "prompt": "Goal: use battery-stored energy to light a reading space for at least 10 seconds. The lamp must stay lit for ___ seconds.",
     "acceptedAnswers": [
       "10",
       "ten"
@@ -1097,7 +1097,7 @@ const scienceU05L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-constraints",
     "reviewCardId": "science-u05-l02-c2",
     "type": "multiple-choice",
-    "prompt": "What does the conversion activity contribute?",
+    "prompt": "On-screen battery-to-lamp conversion activity: connect a battery model to a lamp model to trace stored → electric → light. What does this conversion activity contribute?",
     "choices": [
       {
         "id": "a",
@@ -1580,7 +1580,7 @@ const scienceU05L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-test-observations",
     "reviewCardId": "science-u05-l03-c2",
     "type": "multiple-choice",
-    "prompt": "What happened in Trial 2?",
+    "prompt": "Supplied record: Trial 1 lit for 6 seconds, Trial 2 lit for 7 seconds, and Trial 3 lit for 6 seconds; each then flickered off. The goal was 10 seconds. What happened in Trial 2?",
     "choices": [
       {
         "id": "a",
@@ -1653,7 +1653,7 @@ const scienceU05L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-test-observations",
     "reviewCardId": "science-u05-l03-c2",
     "type": "fill-blank",
-    "prompt": "Trial 1 stayed lit for ___ seconds.",
+    "prompt": "Supplied record: Trial 1 lit for 6 seconds, Trial 2 lit for 7 seconds, and Trial 3 lit for 6 seconds; each then flickered off. The goal was 10 seconds. Trial 1 stayed lit for ___ seconds.",
     "acceptedAnswers": [
       "6",
       "six"
@@ -1665,7 +1665,7 @@ const scienceU05L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-test-judgment",
     "reviewCardId": "science-u05-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Did the prototype meet the ten-second goal?",
+    "prompt": "Supplied record: Trial 1 lit for 6 seconds, Trial 2 lit for 7 seconds, and Trial 3 lit for 6 seconds; each then flickered off. The goal was 10 seconds. Did the prototype meet the ten-second goal?",
     "choices": [
       {
         "id": "a",
@@ -1711,7 +1711,7 @@ const scienceU05L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-test-judgment",
     "reviewCardId": "science-u05-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which judgment uses all three trials?",
+    "prompt": "Supplied record: Trial 1 lit for 6 seconds, Trial 2 lit for 7 seconds, and Trial 3 lit for 6 seconds; each then flickered off. The goal was 10 seconds. Which judgment uses all three trials?",
     "choices": [
       {
         "id": "a",
@@ -1738,7 +1738,7 @@ const scienceU05L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "device-test-judgment",
     "reviewCardId": "science-u05-l03-c3",
     "type": "multiple-choice",
-    "prompt": "What pattern is supported?",
+    "prompt": "Supplied record: Trial 1 lit for 6 seconds, Trial 2 lit for 7 seconds, and Trial 3 lit for 6 seconds; each then flickered off. The goal was 10 seconds. What pattern is supported?",
     "choices": [
       {
         "id": "a",
@@ -1901,6 +1901,39 @@ Insert this exact object immediately before the closing `] as const;` of `specs`
   },
 ```
 
+Also append this exact regression table to `src/content/science/u05.test.ts`; it pins the complete source context required when any listed question is sampled alone:
+
+```ts
+test('sampled device questions include the complete goal and test records they require', () => {
+  const sourcedPrompt = (questionId: string, requiredSources: readonly string[]) => [questionId, requiredSources] as const;
+  const requiredPromptSources = [
+    sourcedPrompt('science-u05-l01-q13', ['On-screen model', 'hand-crank generator', 'buzzer', 'motion → electric → sound']),
+    sourcedPrompt('science-u05-l02-q03', ['battery-stored energy', 'light a reading space', '10 seconds']),
+    sourcedPrompt('science-u05-l02-q04', ['battery-stored energy', 'light a reading space', '10 seconds']),
+    sourcedPrompt('science-u05-l02-q08', ['On-screen battery-to-lamp conversion activity', 'stored → electric → light']),
+    ...['q05', 'q08', 'q09', 'q11', 'q12'].map((questionId) => sourcedPrompt(
+      `science-u05-l03-${questionId}`,
+      ['Trial 1 lit for 6 seconds', 'Trial 2 lit for 7 seconds', 'Trial 3 lit for 6 seconds', 'goal was 10 seconds'],
+    )),
+    ...['q01', 'q03', 'q04'].map((questionId) => sourcedPrompt(
+      `science-u05-l04-${questionId}`,
+      ['Trials 1–3 stayed lit for 6, 7, and 6 seconds', 'goal was 10 seconds'],
+    )),
+    ...['q11', 'q12'].map((questionId) => sourcedPrompt(
+      `science-u05-l04-${questionId}`,
+      ['Trials 1–3 stayed lit for 6, 7, and 6 seconds', 'goal was 10 seconds', 'three retests each stayed lit for 10 seconds without flicker'],
+    )),
+  ] as const;
+
+  const questions = new Map(unit05Lessons.flatMap((lesson) => lesson.quiz.pool).map((question) => [question.id, question]));
+  for (const [questionId, requiredSources] of requiredPromptSources) {
+    const prompt = questions.get(questionId)?.prompt;
+    expect(prompt, `${questionId} should exist`).toBeDefined();
+    for (const source of requiredSources) expect(prompt, `${questionId} should include ${source}`).toContain(source);
+  }
+});
+```
+
 - [ ] **Step 2: Run the focused test red.** Run `npm test -- src/content/science/u05.test.ts`. Expected: FAIL because the test expects 4 lesson rows while production exports 3.
 
 - [ ] **Step 3: Add only metadata, intro, three differentiated cards, and worked example.** Insert immediately before the unit export:
@@ -2012,7 +2045,7 @@ const scienceU05L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "refinement-need",
     "reviewCardId": "science-u05-l04-c1",
     "type": "multiple-choice",
-    "prompt": "What evidence shows a refinement is needed?",
+    "prompt": "First-test record: Trials 1–3 stayed lit for 6, 7, and 6 seconds, then flickered off. The goal was 10 seconds. What evidence shows a refinement is needed?",
     "choices": [
       {
         "id": "a",
@@ -2058,7 +2091,7 @@ const scienceU05L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "refinement-need",
     "reviewCardId": "science-u05-l04-c1",
     "type": "multiple-choice",
-    "prompt": "Which is the best problem statement?",
+    "prompt": "First-test record: Trials 1–3 stayed lit for 6, 7, and 6 seconds, then flickered off. The goal was 10 seconds. Which is the best problem statement?",
     "choices": [
       {
         "id": "a",
@@ -2085,7 +2118,7 @@ const scienceU05L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "refinement-need",
     "reviewCardId": "science-u05-l04-c1",
     "type": "fill-blank",
-    "prompt": "The highest first-test result was ___ seconds.",
+    "prompt": "First-test record: Trials 1–3 stayed lit for 6, 7, and 6 seconds, then flickered off. The goal was 10 seconds. The highest first-test result was ___ seconds.",
     "acceptedAnswers": [
       "7",
       "seven"
@@ -2248,7 +2281,7 @@ const scienceU05L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "refinement-evidence",
     "reviewCardId": "science-u05-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which comparison is correct?",
+    "prompt": "First-test record: Trials 1–3 stayed lit for 6, 7, and 6 seconds, then flickered off. The goal was 10 seconds. After replacing only a loose clip, the three retests each stayed lit for 10 seconds without flicker. Which comparison is correct?",
     "choices": [
       {
         "id": "a",
@@ -2275,7 +2308,7 @@ const scienceU05L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "refinement-evidence",
     "reviewCardId": "science-u05-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim is supported?",
+    "prompt": "First-test record: Trials 1–3 stayed lit for 6, 7, and 6 seconds, then flickered off. The goal was 10 seconds. After replacing only a loose clip, the three retests each stayed lit for 10 seconds without flicker. Which claim is supported?",
     "choices": [
       {
         "id": "a",
@@ -2685,7 +2718,7 @@ const scienceU06L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "plant-structures",
     "reviewCardId": "science-u06-l01-c1",
     "type": "multiple-choice",
-    "prompt": "Where are blackberry thorns described?",
+    "prompt": "Blackberry description: Thorns grow along its stems. Where are the thorns described?",
     "choices": [
       {
         "id": "a",
@@ -3059,6 +3092,24 @@ Insert this exact object immediately before the closing `] as const;` of `specs`
   },
 ```
 
+Also append this exact regression table to `src/content/science/u06.test.ts`; it pins the complete description or matcher required when either listed question is sampled alone:
+
+```ts
+test('sampled structure questions include the complete description or matcher they require', () => {
+  const requiredPromptSources = [
+    ['science-u06-l01-q03', ['Blackberry description', 'Thorns grow along its stems']],
+    ['science-u06-l02-q08', ['On-screen matcher', 'beak with gathering food', 'wings with flight', 'heart with moving blood', 'lungs with taking in air']],
+  ] as const;
+
+  const questions = new Map(unit06Lessons.flatMap((lesson) => lesson.quiz.pool).map((question) => [question.id, question]));
+  for (const [questionId, requiredSources] of requiredPromptSources) {
+    const prompt = questions.get(questionId)?.prompt;
+    expect(prompt, `${questionId} should exist`).toBeDefined();
+    for (const source of requiredSources) expect(prompt, `${questionId} should include ${source}`).toContain(source);
+  }
+});
+```
+
 - [ ] **Step 2: Run the focused test red.** Run `npm test -- src/content/science/u06.test.ts`. Expected: FAIL because the test expects 2 lesson rows while production exports 1.
 
 - [ ] **Step 3: Add only metadata, intro, three differentiated cards, and worked example.** Insert immediately before the unit export:
@@ -3347,7 +3398,7 @@ const scienceU06L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "animal-structure-functions",
     "reviewCardId": "science-u06-l02-c2",
     "type": "multiple-choice",
-    "prompt": "What does the matcher provide?",
+    "prompt": "On-screen matcher: pair a wren’s beak with gathering food, wings with flight, heart with moving blood, and lungs with taking in air. What does the matcher provide?",
     "choices": [
       {
         "id": "a",

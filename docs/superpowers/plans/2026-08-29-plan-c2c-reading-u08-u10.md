@@ -2100,7 +2100,7 @@ export const unit09Lessons = [
           },
           {
             "kind": "example",
-            "text": "Jalen groans; Mei grins because their priorities differ."
+            "text": "Jalen groans; Mei grins because Mei values safety and new indoor events."
           },
           {
             "kind": "tip",
@@ -2440,7 +2440,7 @@ export const unit09Lessons = [
         },
         {
           "type": "multiple-choice",
-          "prompt": "How do readers’ understanding deepen?",
+          "prompt": "How does the story deepen readers’ understanding?",
           "choices": [
             {
               "id": "a",
@@ -2998,6 +2998,21 @@ describe('Reading unit 9 literal content', () => {
         if ('widget' in card) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
       }
     }
+  });
+
+  test('shows Mei’s reason before its inline check', () => {
+    const perspectiveLesson = unit09Lessons.find(({ id }) => id === 'reading-u09-l02')!;
+    const contrastCard = perspectiveLesson.learnCards.find(({ id }) => id === 'reading-u09-l02-c2')!;
+    expect(contrastCard.blocks[1]).toEqual({
+      kind: 'example',
+      text: 'Jalen groans; Mei grins because Mei values safety and new indoor events.',
+    });
+  });
+
+  test('uses a grammatical q11 prompt', () => {
+    const perspectiveLesson = unit09Lessons.find(({ id }) => id === 'reading-u09-l02')!;
+    expect(perspectiveLesson.quiz.pool.find(({ id }) => id === 'reading-u09-l02-q11')!.prompt)
+      .toBe('How does the story deepen readers’ understanding?');
   });
 
   test('keeps exact pools, unique visible answers, balanced MC keys, and solo framing', () => {
