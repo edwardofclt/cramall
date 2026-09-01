@@ -450,3 +450,13 @@ test('every card has an immediate exact missed-result review route', () => {
     expect(actualTargets).toEqual(expectedTargets);
   }
 });
+
+test('keeps sampled L01 transfer questions self-contained', () => {
+  const questions = unit02Lessons[0]!.quiz.pool;
+  expect(questions[0]!.prompt).toBe(
+    'Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. What is the energy source?',
+  );
+  expect(questions[2]!.prompt).toBe(
+    'Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. Which transfer path matches this phenomenon?',
+  );
+});

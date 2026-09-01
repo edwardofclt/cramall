@@ -303,9 +303,14 @@ describe('Science unit 1 energy and motion lessons', () => {
 
   test('describes collision energy as transfers instead of energy being used up', () => {
     const collisionInstruction = instructionalText(unit01Lessons[2]);
+    const collisionTip = unit01Lessons[2].learnCards[0].blocks[2]!.text;
 
     expect(collisionInstruction).toMatch(/transfers to surroundings as sound and thermal \(heat\) energy/i);
     expect(collisionInstruction).not.toMatch(/change into sound or warmth/i);
+    expect(collisionTip).toBe(
+      'Describe what changed before and after the collision without assigning exact values. Do not say energy was “used up.” First name an observable effect, such as the block moving, the marble slowing, or a sound; then infer that energy transferred.',
+    );
+    expect(collisionTip).not.toMatch(/observed energy transfer/i);
   });
 
   test('names the potential-to-kinetic energy change in the roller-coaster explanation', () => {

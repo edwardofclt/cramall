@@ -120,7 +120,7 @@ const scienceU02L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "transfer-source-receiver",
     "reviewCardId": "science-u02-l01-c1",
     "type": "multiple-choice",
-    "prompt": "In the example, what is the energy source?",
+    "prompt": "Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. What is the energy source?",
     "choices": [
       {
         "id": "a",
@@ -166,7 +166,7 @@ const scienceU02L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "transfer-source-receiver",
     "reviewCardId": "science-u02-l01-c1",
     "type": "multiple-choice",
-    "prompt": "Which path matches the phenomenon?",
+    "prompt": "Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. Which transfer path matches this phenomenon?",
     "choices": [
       {
         "id": "a",

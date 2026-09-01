@@ -1069,7 +1069,7 @@ export const unit01Lessons = [
         blocks: [
           { kind: 'text', text: 'In a collision, look for changes in speed or direction before and after objects bump. A moving object may slow, stop, or bounce back while the object it hits may begin moving. The energy of motion can transfer from the moving object to the object it hits, and some energy transfers to surroundings as sound and thermal (heat) energy.' },
           { kind: 'example', text: 'On a miniature roller coaster, a marble rolls down a track and bumps a light foam block at the bottom. The marble slows, and the block slides forward. The real coaster ride is only the familiar idea; this small model is the safe way to observe a collision.' },
-          { kind: 'tip', text: 'Describe what changed before and after the collision, including changes in energy of motion, without assigning exact values. Do not say energy was “used up”; say where you observed energy transfer or a change.' },
+          { kind: 'tip', text: 'Describe what changed before and after the collision without assigning exact values. Do not say energy was “used up.” First name an observable effect, such as the block moving, the marble slowing, or a sound; then infer that energy transferred.' },
         ],
         check: {
           prompt: 'Which note best describes a motion change in the model roller coaster collision?',
