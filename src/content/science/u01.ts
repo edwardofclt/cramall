@@ -1,5 +1,507 @@
 import type { Lesson } from '../schema';
 
+const scienceU01L04Core = {
+  "id": "science-u01-l04",
+  "unitId": "science-u01",
+  "title": "Predict Collision Energy Outcomes",
+  "indicatorCodes": [
+    "4-PS3-3"
+  ],
+  "intro": [
+    {
+      "speaker": "sandy",
+      "pose": "talk",
+      "text": "A roller coaster car rolls toward a stopped coaster car on the same level track, and the two cars latch during their collision."
+    },
+    {
+      "speaker": "sandy",
+      "pose": "think",
+      "text": "Which before-and-after motion observations can support a prediction about the joined coaster cars?"
+    },
+    {
+      "speaker": "sandy",
+      "pose": "talk",
+      "text": "We will keep the track and cars alike, change one release condition, and infer energy changes only from observable motion and effects."
+    },
+    {
+      "speaker": "sandy",
+      "pose": "cheer",
+      "text": "Let’s predict, model, and explain a roller coaster collision carefully!"
+    }
+  ],
+  "learnCards": [
+    {
+      "id": "science-u01-l04-c1",
+      "title": "Read before-and-after motion",
+      "blocks": [
+        {
+          "kind": "text",
+          "text": "Before a roller coaster collision, record each coaster car as moving, slower, faster, stopped, and traveling left or right. Afterward, record the same motion features. These are observations; energy transfer is an inference from the changes."
+        },
+        {
+          "kind": "example",
+          "text": "Before the bump, coaster car A rolls right and coaster car B is stopped. After the latch, the joined roller coaster cars roll right more slowly than A did before. The direction and speed words describe what changed."
+        },
+        {
+          "kind": "tip",
+          "text": "Support: Draw a before/after T-chart for both coaster cars. Circle only motion words you could observe."
+        }
+      ],
+      "check": {
+        "prompt": "Which note is a useful before-and-after observation for the roller coaster collision?",
+        "choices": [
+          {
+            "id": "motion-note",
+            "text": "Before: car B was stopped; after: car B moved right."
+          },
+          {
+            "id": "energy-number",
+            "text": "The coaster car had exactly 12 energy units."
+          },
+          {
+            "id": "track-style",
+            "text": "The roller coaster track looked exciting."
+          }
+        ],
+        "correctChoiceId": "motion-note",
+        "explanation": "The note compares observable coaster car motion before and after the collision."
+      }
+    },
+    {
+      "id": "science-u01-l04-c2",
+      "title": "Make a fair collision prediction",
+      "blocks": [
+        {
+          "kind": "text",
+          "text": "A fair roller coaster prediction changes one condition while keeping the same coaster cars, track, bumper, and release method. The collision-ramp widget is a controllable model for trying the prediction, not physical evidence."
+        },
+        {
+          "kind": "example",
+          "text": "Keep both coaster car masses and the track angle fixed. Change only car A from a slower to a faster release and predict the joined cars’ direction after the collision."
+        },
+        {
+          "kind": "tip",
+          "text": "Response frame: If coaster car A starts ____, I predict the joined cars will move ____ because ____; the model represents the prediction but does not test a physical track."
+        }
+      ],
+      "widget": {
+        "type": "collision-ramp",
+        "config": {
+          "rampAngle": 5,
+          "massA": 2,
+          "massB": 8,
+          "speedA": 1,
+          "target": "predict-direction"
+        }
+      },
+      "check": {
+        "prompt": "Which roller coaster plan asks a fair, testable collision question?",
+        "choices": [
+          {
+            "id": "one-change",
+            "text": "Keep both cars and the track the same; change only car A’s release speed."
+          },
+          {
+            "id": "many-changes",
+            "text": "Change both cars, the track, and the bumper together."
+          },
+          {
+            "id": "model-proof",
+            "text": "Press the model button and call its animation physical evidence."
+          }
+        ],
+        "correctChoiceId": "one-change",
+        "explanation": "A fair coaster car comparison changes one planned condition and keeps the rest alike."
+      }
+    },
+    {
+      "id": "science-u01-l04-c3",
+      "title": "Infer energy change from motion",
+      "blocks": [
+        {
+          "kind": "text",
+          "text": "When one coaster car slows and another begins moving during a collision, their energy of motion changes. Sound or warmth can be an observable effect of energy transferred to the track, air, or bumpers; energy itself is inferred, not seen."
+        },
+        {
+          "kind": "example",
+          "text": "Car A rolls right, car B is stopped, and the cars latch. After the collision, A is slower and B moves right. Those paired roller coaster observations support a qualitative energy-transfer explanation."
+        },
+        {
+          "kind": "tip",
+          "text": "Stretch: Explain two coaster car motion changes and one possible surrounding effect without assigning exact energy or claiming that the model supplied evidence."
+        }
+      ],
+      "demo": {
+        "type": "roller-coaster",
+        "focus": "collision"
+      },
+      "check": {
+        "prompt": "Which roller coaster prediction correctly connects motion observations to energy?",
+        "choices": [
+          {
+            "id": "transfer-inference",
+            "text": "If car A slows and car B begins moving, infer that energy of motion transferred during the collision."
+          },
+          {
+            "id": "visible-energy",
+            "text": "If a label appears, energy itself became visible."
+          },
+          {
+            "id": "used-up",
+            "text": "If the cars slow, all energy was used up and disappeared."
+          }
+        ],
+        "correctChoiceId": "transfer-inference",
+        "explanation": "Observable coaster car motion changes can support a qualitative energy-transfer inference."
+      }
+    }
+  ],
+  "workedExample": {
+    "title": "Apply: Predict Collision Energy Outcomes",
+    "steps": [
+      "Record that coaster car A rolls right, coaster car B is stopped, and the two roller coaster cars latch after the bump.",
+      "Predict that the joined coaster cars will move right because A is the only moving car before the collision.",
+      "Compare the after-motion: car A is slower and car B now moves right with it; a bump sound is also observed.",
+      "Infer that energy of motion changed and transferred between the cars and surroundings; the observations are evidence, while the widget and roller coaster demo are replayable models."
+    ]
+  }
+} satisfies Omit<Lesson, 'quiz'>;
+
+const scienceU01L04Questions: Lesson['quiz']['pool'] = [
+  {
+    "id": "science-u01-l04-q01",
+    "conceptTag": "collision-motion-evidence",
+    "reviewCardId": "science-u01-l04-c1",
+    "type": "multiple-choice",
+    "prompt": "Which note is a before-and-after roller coaster motion observation?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Before: Cart A moved right; after: the stuck carts moved right"
+      },
+      {
+        "id": "b",
+        "text": "The carts had exactly 12 energy units"
+      },
+      {
+        "id": "c",
+        "text": "An on-screen collision counts as physical evidence"
+      },
+      {
+        "id": "d",
+        "text": "Cart A was the best-looking cart"
+      }
+    ],
+    "correctChoiceId": "a",
+    "explanation": "It states observable directions before and after."
+  },
+  {
+    "id": "science-u01-l04-q02",
+    "conceptTag": "collision-motion-evidence",
+    "reviewCardId": "science-u01-l04-c1",
+    "type": "true-false",
+    "prompt": "A cart beginning to move after a collision is an observable motion change.",
+    "choices": [
+      {
+        "id": "true",
+        "text": "True — starting to move can be observed"
+      },
+      {
+        "id": "false",
+        "text": "False — motion cannot be observed"
+      }
+    ],
+    "correctChoiceId": "true",
+    "explanation": "Beginning to move is an observable change."
+  },
+  {
+    "id": "science-u01-l04-q03",
+    "conceptTag": "collision-motion-evidence",
+    "reviewCardId": "science-u01-l04-c1",
+    "type": "multiple-choice",
+    "prompt": "Before a roller coaster bump, car A moves right and car B is stopped. After they latch, both move right. What changed for car B?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Its color changed"
+      },
+      {
+        "id": "b",
+        "text": "It began moving right"
+      },
+      {
+        "id": "c",
+        "text": "It became lighter"
+      },
+      {
+        "id": "d",
+        "text": "Its exact energy appeared"
+      }
+    ],
+    "correctChoiceId": "b",
+    "explanation": "Cart B changed from still to moving right."
+  },
+  {
+    "id": "science-u01-l04-q04",
+    "conceptTag": "collision-motion-evidence",
+    "reviewCardId": "science-u01-l04-c1",
+    "type": "multiple-choice",
+    "prompt": "Which statement is an inference rather than a direct observation?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Cart A moved right before the bump"
+      },
+      {
+        "id": "b",
+        "text": "Cart B was still before the bump"
+      },
+      {
+        "id": "c",
+        "text": "Energy transferred during the collision"
+      },
+      {
+        "id": "d",
+        "text": "The joined carts moved right afterward"
+      }
+    ],
+    "correctChoiceId": "c",
+    "explanation": "Energy transfer explains observed changes but is not directly seen."
+  },
+  {
+    "id": "science-u01-l04-q05",
+    "conceptTag": "collision-outcome-prediction",
+    "reviewCardId": "science-u01-l04-c2",
+    "type": "multiple-choice",
+    "prompt": "Which plan makes a fair roller coaster collision comparison?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Change both carts and the track"
+      },
+      {
+        "id": "b",
+        "text": "Change cart mass and speed together"
+      },
+      {
+        "id": "c",
+        "text": "Use a different bumper each time"
+      },
+      {
+        "id": "d",
+        "text": "Keep both carts and the track the same while changing only Cart A’s speed"
+      }
+    ],
+    "correctChoiceId": "d",
+    "explanation": "Only one planned condition changes."
+  },
+  {
+    "id": "science-u01-l04-q06",
+    "conceptTag": "collision-outcome-prediction",
+    "reviewCardId": "science-u01-l04-c2",
+    "type": "true-false",
+    "prompt": "A useful prediction names an observable outcome before the test.",
+    "choices": [
+      {
+        "id": "true",
+        "text": "True — it says what motion is expected"
+      },
+      {
+        "id": "false",
+        "text": "False — predictions are written only afterward"
+      }
+    ],
+    "correctChoiceId": "true",
+    "explanation": "A prediction states an expected observable result."
+  },
+  {
+    "id": "science-u01-l04-q07",
+    "conceptTag": "collision-outcome-prediction",
+    "reviewCardId": "science-u01-l04-c2",
+    "type": "multiple-choice",
+    "prompt": "If only Cart A changes from slower to faster, which prediction fits the lesson?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "The stuck carts are more likely to move in Cart A’s direction"
+      },
+      {
+        "id": "b",
+        "text": "The track must change color"
+      },
+      {
+        "id": "c",
+        "text": "No motion can change"
+      },
+      {
+        "id": "d",
+        "text": "The exact energy amount becomes visible"
+      }
+    ],
+    "correctChoiceId": "a",
+    "explanation": "Faster motion gives the same cart more energy of motion, supporting the directional prediction."
+  },
+  {
+    "id": "science-u01-l04-q08",
+    "conceptTag": "collision-outcome-prediction",
+    "reviewCardId": "science-u01-l04-c2",
+    "type": "multiple-choice",
+    "prompt": "What does the collision-ramp activity provide?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Physical evidence from real carts"
+      },
+      {
+        "id": "b",
+        "text": "A simplified model for trying a prediction"
+      },
+      {
+        "id": "c",
+        "text": "A measurement of exact energy"
+      },
+      {
+        "id": "d",
+        "text": "Proof that every collision matches"
+      }
+    ],
+    "correctChoiceId": "b",
+    "explanation": "The activity represents a prediction and does not collect physical observations."
+  },
+  {
+    "id": "science-u01-l04-q09",
+    "conceptTag": "collision-energy-inference",
+    "reviewCardId": "science-u01-l04-c3",
+    "type": "multiple-choice",
+    "prompt": "Coaster car A slows while coaster car B begins moving after they collide. Which inference is supported?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "No energy changed anywhere"
+      },
+      {
+        "id": "b",
+        "text": "An energy label is an observation of energy"
+      },
+      {
+        "id": "c",
+        "text": "Energy of motion transferred during the collision"
+      },
+      {
+        "id": "d",
+        "text": "Cart B created energy from nothing"
+      }
+    ],
+    "correctChoiceId": "c",
+    "explanation": "The paired motion changes support a transfer inference."
+  },
+  {
+    "id": "science-u01-l04-q10",
+    "conceptTag": "collision-energy-inference",
+    "reviewCardId": "science-u01-l04-c3",
+    "type": "true-false",
+    "prompt": "Energy itself must be visible for motion changes to support an energy inference.",
+    "choices": [
+      {
+        "id": "true",
+        "text": "True — only visible energy counts"
+      },
+      {
+        "id": "false",
+        "text": "False — observable effects can support an inference"
+      }
+    ],
+    "correctChoiceId": "false",
+    "explanation": "Scientists infer energy changes from observable motion and effects."
+  },
+  {
+    "id": "science-u01-l04-q11",
+    "conceptTag": "collision-energy-inference",
+    "reviewCardId": "science-u01-l04-c3",
+    "type": "multiple-choice",
+    "prompt": "Which observation supports that some energy reached the surroundings?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "A label stayed attached"
+      },
+      {
+        "id": "b",
+        "text": "The track remained blue"
+      },
+      {
+        "id": "c",
+        "text": "The model button was pressed"
+      },
+      {
+        "id": "d",
+        "text": "A sound was heard during the bump"
+      }
+    ],
+    "correctChoiceId": "d",
+    "explanation": "Sound can be an observable effect of transfer to the surroundings."
+  },
+  {
+    "id": "science-u01-l04-q12",
+    "conceptTag": "collision-energy-inference",
+    "reviewCardId": "science-u01-l04-c3",
+    "type": "multiple-choice",
+    "prompt": "Which explanation stays qualitative and within the lesson boundary?",
+    "choices": [
+      {
+        "id": "a",
+        "text": "Cart A slowed and Cart B moved, so their energy of motion changed during the collision"
+      },
+      {
+        "id": "b",
+        "text": "The collision produced exactly 18 units of force"
+      },
+      {
+        "id": "c",
+        "text": "The carts accelerated by a measured rate"
+      },
+      {
+        "id": "d",
+        "text": "Completing the activity guarantees the real-world result"
+      }
+    ],
+    "correctChoiceId": "a",
+    "explanation": "It connects motion observations to a qualitative energy inference."
+  },
+  {
+    "id": "science-u01-l04-q13",
+    "type": "sort",
+    "prompt": "Order the roller coaster explanation from observation to inference.",
+    "items": [
+      {
+        "id": "infer",
+        "text": "Infer that energy of motion transferred during the collision."
+      },
+      {
+        "id": "before",
+        "text": "Record car A moving right and car B stopped before the collision."
+      },
+      {
+        "id": "after",
+        "text": "Record both joined coaster cars moving right afterward."
+      }
+    ],
+    "correctOrder": [
+      "before",
+      "after",
+      "infer"
+    ],
+    "explanation": "A sound explanation records before and after motion before inferring energy transfer.",
+    "conceptTag": "collision-energy-inference",
+    "reviewCardId": "science-u01-l04-c3"
+  }
+];
+
+const scienceU01L04Lesson: Lesson = {
+  ...scienceU01L04Core,
+  quiz: { passThreshold: 8, pool: scienceU01L04Questions },
+};
+
 export const unit01Lessons = [
   {
     id: 'science-u01-l01',
@@ -823,4 +1325,5 @@ export const unit01Lessons = [
       ],
     },
   },
+  scienceU01L04Lesson,
 ] satisfies Lesson[];

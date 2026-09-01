@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
+import { normalizeAnswerText } from '../answer-normalization';
 import { validateLesson, type LearnCard, type Question } from '../schema';
-import { gradeAnswer } from '../../quiz/engine';
+import { buildResult, gradeAnswer } from '../../quiz/engine';
 import { unit01Lessons } from './u01';
 
 const expectedLessons = [
@@ -19,16 +20,12 @@ const expectedLessons = [
     title: 'Ask Questions About Collisions',
     indicatorCodes: ['4-PS3-3'],
   },
+  {
+    id: 'science-u01-l04',
+    title: 'Predict Collision Energy Outcomes',
+    indicatorCodes: ['4-PS3-3'],
+  },
 ] as const;
-
-function normalizedVisibleText(value: string): string {
-  return value
-    .normalize('NFKC')
-    .toLocaleLowerCase('en-US')
-    .replace(/,/g, '')
-    .trim()
-    .replace(/\s+/g, ' ');
-}
 
 function visibleOptions(question: Question): Array<{ id: string; text: string }> {
   if ('choices' in question) return question.choices;
@@ -91,7 +88,7 @@ describe('Science unit 1 energy and motion lessons', () => {
     }
   });
 
-  test('keeps every lesson schema-valid, widget-free, and canonically numbered', () => {
+  test('keeps every lesson schema-valid, canonically numbered, and on its exact widget allocation', () => {
     for (const lesson of unit01Lessons) {
       expect(validateLesson(lesson)).toEqual([]);
       expect(lesson.learnCards).toHaveLength(3);
@@ -99,7 +96,11 @@ describe('Science unit 1 energy and motion lessons', () => {
         Array.from({ length: 3 }, (_, index) => `${lesson.id}-c${index + 1}`),
       );
       expect(lesson.learnCards.every((card) => card.blocks.length >= 1)).toBe(true);
-      expect(lesson.learnCards.every((card) => !('widget' in card))).toBe(true);
+      expect(lesson.learnCards.flatMap((card, index) => card.widget === undefined ? [] : [{ card: index + 1, value: card.widget }])).toEqual(
+        lesson.id === 'science-u01-l04'
+          ? [{ card: 2, value: { type: 'collision-ramp', config: { rampAngle: 5, massA: 2, massB: 8, speedA: 1, target: 'predict-direction' } } }]
+          : [],
+      );
       expect(lesson.quiz.passThreshold).toBe(8);
       expect(lesson.quiz.pool).toHaveLength(13);
       expect(lesson.quiz.pool.map(({ id }) => id)).toEqual(
@@ -134,12 +135,18 @@ describe('Science unit 1 energy and motion lessons', () => {
         cardId: 'science-u01-l03-c3',
         demo: { type: 'roller-coaster', focus: 'collision' },
       },
+      {
+        lessonId: 'science-u01-l04',
+        cardId: 'science-u01-l04-c3',
+        demo: { type: 'roller-coaster', focus: 'collision' },
+      },
     ]);
 
-    expect(attached).toHaveLength(3);
+    expect(attached).toHaveLength(4);
     expect(attached[0]?.demo?.focus).toBe('speed-energy');
     expect(attached[1]?.demo?.focus).toBe('evidence');
     expect(attached[2]?.demo?.focus).toBe('collision');
+    expect(attached[3]?.demo?.focus).toBe('collision');
   });
 
   test('maps one unique concept tag to each card and targets every card', () => {
@@ -168,12 +175,15 @@ describe('Science unit 1 energy and motion lessons', () => {
       ['science-u01-l03-c1', /collision|before.*after/i],
       ['science-u01-l03-c2', /testable.*question|release height/i],
       ['science-u01-l03-c3', /prediction|predict/i],
+      ['science-u01-l04-c1', /collision|before.*after/i],
+      ['science-u01-l04-c2', /fair|testable|release speed/i],
+      ['science-u01-l04-c3', /prediction|energy.*transfer/i],
     ]);
     const cards: LearnCard[] = unit01Lessons.flatMap((lesson) =>
       lesson.learnCards as LearnCard[],
     );
 
-    expect(cards).toHaveLength(9);
+    expect(cards).toHaveLength(12);
     for (const card of cards) {
       const check = card.check;
       expect(check, `${card.id} needs a practice check`).toBeDefined();
@@ -181,7 +191,7 @@ describe('Science unit 1 energy and motion lessons', () => {
 
       expect(check.choices).toHaveLength(3);
       expect(new Set(check.choices.map(({ id }) => id)).size).toBe(check.choices.length);
-      expect(new Set(check.choices.map(({ text }) => normalizedVisibleText(text))).size).toBe(
+      expect(new Set(check.choices.map(({ text }) => normalizeAnswerText(text))).size).toBe(
         check.choices.length,
       );
       expect(check.choices.some(({ id }) => id === check.correctChoiceId)).toBe(true);
@@ -204,7 +214,7 @@ describe('Science unit 1 energy and motion lessons', () => {
       for (const question of lesson.quiz.pool) {
         const options = visibleOptions(question);
         expect(new Set(options.map(({ id }) => id)).size).toBe(options.length);
-        expect(new Set(options.map(({ text }) => normalizedVisibleText(text))).size).toBe(
+        expect(new Set(options.map(({ text }) => normalizeAnswerText(text))).size).toBe(
           options.length,
         );
       }
@@ -316,11 +326,46 @@ describe('Science unit 1 energy and motion lessons', () => {
     expect(cerTip).not.toMatch(/read aloud|listen|evaluate your speech/i);
   });
 
+  test('pins L04 differentiation, exact routes, and immediate review targets', () => {
+    const lesson = unit01Lessons[3]!;
+    const tags = ['collision-motion-evidence', 'collision-outcome-prediction', 'collision-energy-inference'] as const;
+    const cards = lesson.learnCards.map(({ id }) => id);
+    expect(lesson.intro.map(({ speaker, pose }) => ({ speaker, pose }))).toEqual([
+      { speaker: 'sandy', pose: 'talk' },
+      { speaker: 'sandy', pose: 'think' },
+      { speaker: 'sandy', pose: 'talk' },
+      { speaker: 'sandy', pose: 'cheer' },
+    ]);
+    expect(lesson.learnCards.map((card) => card.blocks.map(({ kind }) => kind))).toEqual([
+      ['text', 'example', 'tip'], ['text', 'example', 'tip'], ['text', 'example', 'tip'],
+    ]);
+    expect(lesson.learnCards.map((card) => card.blocks[2]!.text.split(':')[0])).toEqual(['Support', 'Response frame', 'Stretch']);
+    expect(lesson.workedExample.steps.length).toBeGreaterThanOrEqual(3);
+    for (const question of lesson.quiz.pool) {
+      const cardIndex = cards.indexOf(question.reviewCardId);
+      expect(cardIndex).toBeGreaterThanOrEqual(0);
+      expect(question.conceptTag).toBe(tags[cardIndex]);
+    }
+    expect(new Set(lesson.quiz.pool.map(({ conceptTag }) => conceptTag))).toEqual(new Set(tags));
+    for (const card of lesson.learnCards) {
+      const question = lesson.quiz.pool.find(({ reviewCardId }) => reviewCardId === card.id)!;
+      const wrong = question.type === 'sort'
+        ? [...question.correctOrder].reverse()
+        : question.type === 'fill-blank'
+          ? '__not_an_accepted_answer__'
+          : question.choices.find(({ id }) => id !== question.correctChoiceId)!.id;
+      const missed = buildResult([question], [wrong]).missed[0]!;
+      expect(missed.reviewCardId).toBe(card.id);
+      expect(`/lesson/${lesson.id}?card=${missed.reviewCardId}`).toBe(`/lesson/${lesson.id}?card=${card.id}`);
+      expect(`card:${new URLSearchParams(`card=${missed.reviewCardId}`).get('card')}`).toBe(`card:${card.id}`);
+    }
+  });
+
   test('balances multiple-choice correct-option positions within each lesson', () => {
     for (const lesson of unit01Lessons) {
-      const keys = lesson.quiz.pool
-        .filter((question) => question.type === 'multiple-choice')
-        .map((question) => question.correctChoiceId);
+      const keys = lesson.quiz.pool.flatMap((question) =>
+        question.type === 'multiple-choice' ? [question.correctChoiceId] : [],
+      );
       const counts = new Map<string, number>();
       for (const key of keys) counts.set(key, (counts.get(key) ?? 0) + 1);
 
