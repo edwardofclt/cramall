@@ -1,16 +1,18 @@
-import { describe, expect, test } from 'vitest';
-import { CONTENT_REGISTRIES, getSubject } from '../subjects';
+import { expect, test } from 'vitest';
+import { PLANNED_LESSONS, READING_OE_CODES } from '../curriculum';
 import { lessonsByUnit } from './index';
 
-describe('Reading lesson registry', () => {
-  test('exposes only Unit 1 and makes both authored lessons visible to the subject map', () => {
-    const expectedLessonIds = ['reading-u01-l01', 'reading-u01-l02'];
-
-    expect(Object.keys(lessonsByUnit)).toEqual(['reading-u01']);
-    expect(lessonsByUnit['reading-u01']?.map(({ id }) => id)).toEqual(expectedLessonIds);
-    expect(Object.keys(CONTENT_REGISTRIES.reading)).toEqual(['reading-u01']);
-    expect(
-      getSubject('reading').units.find(({ id }) => id === 'reading-u01')?.lessons.map(({ id }) => id),
-    ).toEqual(expectedLessonIds);
-  });
+test('Reading registry matches all planned rows and OE metadata in unit order', () => {
+  const expected = PLANNED_LESSONS.filter(({ id }) => id.startsWith('reading-'));
+  expect(Object.keys(lessonsByUnit)).toEqual([...new Set(expected.map(({ unitId }) => unitId))]);
+  const lessons = Object.values(lessonsByUnit).flat();
+  expect(lessons.map(({ id, unitId, title, indicatorCodes }) => ({
+    id, unitId, title, indicatorCodes,
+  }))).toEqual(expected.map(({ id, unitId, title, indicatorCodes }) => ({
+    id, unitId, title, indicatorCodes: [...indicatorCodes],
+  })));
+  for (const lesson of lessons) {
+    expect(lesson.crossCuttingExpectationCodes).toEqual([...READING_OE_CODES]);
+    expect(lesson.indicatorCodes.some((code) => code.startsWith('ELA.4.OE.'))).toBe(false);
+  }
 });
