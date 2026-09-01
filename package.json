@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "build:single": "tsc -b && vite build --mode single --outDir dist-single",
+    "standards:check": "node scripts/check-standards-parity.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
   },
