@@ -46,7 +46,7 @@ The following three existing raw `Lesson` objects and their complete accepted fo
 | `science-u01-l02` — **Explain Speed and Energy with Evidence** | `4-PS3-1` | 3 / 13 | c3 roller-coaster `evidence` demo |
 | `science-u01-l03` — **Ask Questions About Collisions** | `4-PS3-3` | 3 / 13 | c3 roller-coaster `collision` demo |
 
-Before Task 1, run `git diff --exit-code 388b540 -- src/content/science/u01.ts src/content/science/u01.test.ts`. If an intentionally accepted later commit changed either path, record that replacement baseline hash and compare against it. L04 constants are inserted before the export and one reference is appended after the three accepted literals; no accepted learner string, answer, check, demo, route, or assertion is weakened.
+Before Task 1, run `git diff --exit-code 388b540 -- src/content/science/u01.ts src/content/science/u01.test.ts`. If an intentionally accepted later commit changed either path, record that replacement baseline hash and compare against it. L04 constants are inserted before the export and one reference is appended after the three accepted literals. The only authorized correction to an accepted learner string is the exact L03-C1 evidence-language replacement printed below; no accepted answer, check, demo, route, or assertion is weakened.
 
 ## Unit 1 lesson tasks
 
@@ -157,11 +157,27 @@ test('pins L04 differentiation, exact routes, and immediate review targets', () 
 });
 ```
 
+Also extend the existing collision-energy regression with this exact learner-language check:
+
+```ts
+const collisionTip = unit01Lessons[2].learnCards[0].blocks[2]!.text;
+expect(collisionTip).toBe(
+  'Describe what changed before and after the collision without assigning exact values. Do not say energy was “used up.” First name an observable effect, such as the block moving, the marble slowing, or a sound; then infer that energy transferred.',
+);
+expect(collisionTip).not.toMatch(/observed energy transfer/i);
+```
+
 Keep every other accepted assertion, including source depth, fixed near-bottom markers, qualitative/solo boundaries, assembled reasoning, and MC balance.
 
 - [ ] **Step 2: Run the focused test red.** Run `npm test -- src/content/science/u01.test.ts`. Expected: FAIL at the exact four-versus-three metadata/card/demo counts because L04 is not yet exported; the accepted qualitative, solo, source-depth, fixed-marker, and reasoning assertions remain active.
 
-- [ ] **Step 3: Add only metadata, intro, three differentiated cards, and worked example.** Insert before the existing `unit01Lessons` export.
+- [ ] **Step 3: Correct the accepted L03 evidence tip, then add only L04 metadata, intro, three differentiated cards, and worked example.** Replace the exact L03-C1 tip with:
+
+```ts
+{ kind: 'tip', text: 'Describe what changed before and after the collision without assigning exact values. Do not say energy was “used up.” First name an observable effect, such as the block moving, the marble slowing, or a sound; then infer that energy transferred.' },
+```
+
+Then insert the L04 literal before the existing `unit01Lessons` export.
 
 ```ts
 const scienceU01L04Core = {
@@ -883,6 +899,16 @@ test('every card has an immediate exact missed-result review route', () => {
     expect(actualTargets).toEqual(expectedTargets);
   }
 });
+
+test('keeps sampled L01 transfer questions self-contained', () => {
+  const questions = unit02Lessons[0]!.quiz.pool;
+  expect(questions[0]!.prompt).toBe(
+    'Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. What is the energy source?',
+  );
+  expect(questions[2]!.prompt).toBe(
+    'Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. Which transfer path matches this phenomenon?',
+  );
+});
 ```
 
 - [ ] **Step 2: Run the focused test red.** Run `npm test -- src/content/science/u02.test.ts`. Expected: FAIL because `./u02` does not exist.
@@ -1016,7 +1042,7 @@ const scienceU02L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "transfer-source-receiver",
     "reviewCardId": "science-u02-l01-c1",
     "type": "multiple-choice",
-    "prompt": "In the example, what is the energy source?",
+    "prompt": "Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. What is the energy source?",
     "choices": [
       {
         "id": "a",
@@ -1062,7 +1088,7 @@ const scienceU02L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "transfer-source-receiver",
     "reviewCardId": "science-u02-l01-c1",
     "type": "multiple-choice",
-    "prompt": "Which path matches the phenomenon?",
+    "prompt": "Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. Which transfer path matches this phenomenon?",
     "choices": [
       {
         "id": "a",
