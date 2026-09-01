@@ -1393,7 +1393,7 @@ export const unit02Lessons = [
         },
         {
           "type": "multiple-choice",
-          "prompt": "Which response best checks the word submarine?",
+          "prompt": "In “The submarine traveled under the sea,” which response best checks the word submarine?",
           "choices": [
             {
               "id": "a",
@@ -3146,6 +3146,16 @@ describe('Reading unit 2 literal content', () => {
       expect(Math.max(...counts.values())-Math.min(...counts.values())).toBeLessThanOrEqual(1);
       expect(JSON.stringify(lesson)).not.toMatch(/live (partner|classmate|collaboration)|recording score|words per minute score/i);
     }
+  });
+
+  test('gives the submarine morphology check the sentence context named in its feedback', () => {
+    const question = unit02Lessons[0]!.quiz.pool.find(
+      ({ id }) => id === 'reading-u02-l01-q11',
+    );
+
+    expect(question?.prompt).toBe(
+      'In “The submarine traveled under the sea,” which response best checks the word submarine?',
+    );
   });
 });
 ```
