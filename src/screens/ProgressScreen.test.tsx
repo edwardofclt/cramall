@@ -74,7 +74,7 @@ describe('ProgressScreen', () => {
     );
     expect(screen.getByRole('progressbar', { name: /science completion/i })).toHaveAttribute(
       'aria-valuemax',
-      '3',
+      '4',
     );
     expect(screen.getAllByRole('progressbar')).toHaveLength(3);
     expect(screen.queryByText(/no authored lessons yet/i)).toBeNull();
