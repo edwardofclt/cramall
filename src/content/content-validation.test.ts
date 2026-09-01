@@ -1,7 +1,8 @@
 import { lessonsByUnit as mathLessons } from './math';
 import { lessonsByUnit as readingLessons } from './reading';
 import { lessonsByUnit as scienceLessons } from './science';
-import { allLessons, SUBJECTS, getSubject } from './subjects';
+import { PLANNED_LESSONS, READING_OE_CODES } from './curriculum';
+import { allLessons, SUBJECTS, getSubject, standards } from './subjects';
 import * as contentSchema from './schema';
 import { validateLesson, type Lesson, type Subject, type SubjectId } from './schema';
 
@@ -133,4 +134,52 @@ test('a concept tag may use each lesson’s own review card', () => {
     { quiz: { pool: [{ conceptTag: 'place-value', reviewCardId: 'math-u01-l01-c1' }] } },
     { quiz: { pool: [{ conceptTag: 'place-value', reviewCardId: 'math-u02-l01-c1' }] } },
   ])).not.toThrow();
+});
+
+test('runtime catalog equals the exact 89-row authored manifest', () => {
+  expect(allLessons().map(({ id, unitId, title, indicatorCodes }) => ({
+    id, unitId, title, indicatorCodes,
+  }))).toEqual(PLANNED_LESSONS.map(({ id, unitId, title, indicatorCodes }) => ({
+    id, unitId, title, indicatorCodes: [...indicatorCodes],
+  })));
+});
+
+test('all 31 units are populated with the exact subject totals', () => {
+  expect(SUBJECTS.flatMap(({ units }) => units)).toHaveLength(31);
+  expect(SUBJECTS.every(({ units }) => units.every(({ lessons }) => lessons.length > 0))).toBe(true);
+  expect(getSubject('math').units.flatMap(({ lessons }) => lessons)).toHaveLength(33);
+  expect(getSubject('reading').units.flatMap(({ lessons }) => lessons)).toHaveLength(24);
+  expect(getSubject('science').units.flatMap(({ lessons }) => lessons)).toHaveLength(32);
+});
+
+test('the full catalog has exact card, question, and threshold totals', () => {
+  const lessons = allLessons();
+  expect(lessons.flatMap(({ learnCards }) => learnCards)).toHaveLength(267);
+  expect(lessons.flatMap(({ quiz }) => quiz.pool)).toHaveLength(1_157);
+  for (const lesson of lessons) {
+    expect(lesson.learnCards).toHaveLength(3);
+    expect(lesson.quiz.pool).toHaveLength(13);
+    expect(lesson.quiz.passThreshold).toBe(8);
+  }
+});
+
+test('every generated regular indicator is covered by its own subject lessons', () => {
+  for (const subject of SUBJECTS) {
+    const covered = new Set(subject.units.flatMap(({ lessons }) =>
+      lessons.flatMap(({ indicatorCodes }) => indicatorCodes)));
+    for (const { code } of standards[subject.id].indicators) expect(covered.has(code)).toBe(true);
+  }
+});
+
+test('Reading alone declares the exact generated OE array', () => {
+  for (const subject of SUBJECTS) {
+    for (const lesson of subject.units.flatMap(({ lessons }) => lessons)) {
+      expect(lesson.indicatorCodes.some((code) => code.startsWith('ELA.4.OE.'))).toBe(false);
+      if (subject.id === 'reading') {
+        expect(lesson.crossCuttingExpectationCodes).toEqual([...READING_OE_CODES]);
+      } else {
+        expect(lesson.crossCuttingExpectationCodes).toBeUndefined();
+      }
+    }
+  }
 });
