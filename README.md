@@ -1,6 +1,6 @@
 # Cram All
 
-Cram All is a browser-only, fourth-grade learning app for short guided lessons, worked examples, and 10-question quick checks. It currently includes two pilot math lessons, a progress view, and a Parent Corner for reviewing and moving a child's local progress. There is no account, server, or cloud sync: the app and its data stay in the browser.
+Cram All is a browser-only, fourth-grade learning app with 89 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, and 32 Science lessons in 8 units. There is no account, server, or cloud sync: the app and its data stay in the browser.
 
 ## Quick start (under 5 minutes)
 
@@ -16,9 +16,11 @@ Open the local URL printed by Vite, choose **Math**, and start **Numbers to the 
 ## Test and build
 
 ```sh
+npm run standards:check  # verify research/generated standards parity
 npm test                 # run all behavior and content-validation tests
-npm run build             # create the normal multi-file build in dist/
-npm run build:single      # create one self-contained dist-single/index.html
+npx tsc -b --pretty false
+npm run build            # create the normal multi-file build in dist/
+npm run build:single     # create one self-contained dist-single/index.html
 ```
 
 The normal build must be served over HTTP. After `npm run build`, run:
@@ -45,28 +47,24 @@ Because there is no backend, Cram All has no login, cross-device sync, remote ba
 
 ## Content layout
 
-- `src/content/schema.ts` defines the lesson/question schema and permanent content validation rules.
-- `src/content/subjects.ts` combines standards units with the registered lessons for Math, Reading, and Science.
-- `src/content/math/u01.ts` contains the two current pilot lessons.
-- `src/content/math/index.ts` registers lesson arrays by unit ID. Reading and Science have matching subject folders.
-- `src/content/standards/standards.json` is the standards data consumed by the app. Its source snapshot is `docs/research/sc-grade4-standards.json`.
-- `src/content/content-validation.test.ts` checks registration, standards coverage, pass thresholds, and review-card relationships.
+- `src/content/curriculum.ts` is the authored 89-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
+- `src/content/schema.ts` defines lesson/question/widget schemas and permanent content validation rules.
+- `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, and Science.
+- `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, and `src/content/science/u01.ts` through `u08.ts` contain learner-facing authored lessons.
+- Each subject's `index.ts` registers one exported `unitNNLessons` array under its canonical unit ID.
+- `src/content/standards/standards.json` is generated only by `node scripts/build-standards.mjs` from `docs/research/sc-grade4-standards.json`; never hand-edit it.
+- `src/content/content-validation.test.ts` checks exact catalog identity, standards coverage, OE policy, pass thresholds, and review-card relationships.
+- `src/content/lesson-quality.test.ts` deterministically samples, grades, and checks result deep links for every lesson.
 
 ### Add and validate a lesson
 
-1. Find the destination subject and unit in `src/content/standards/standards.json`. Use its exact unit ID and only indicator codes listed for that unit.
-2. Add a `Lesson` object to the unit module, such as `src/content/math/u01.ts`. Give the lesson, every learn card, and every question unique stable IDs.
-3. Supply every required section from `LessonSchema`: `unitId`, title, indicator codes, intro dialogue, at least one learn card, a worked example, and a quiz.
-4. Give the quiz at least 13 valid questions and keep `passThreshold: 8`. Every question needs an explanation, concept tag, and `reviewCardId` that points to a real learn card in that lesson. Choice answers must reference a real choice; sort answers must be a complete permutation of their item IDs.
-5. If this is the first lesson module for a unit, export its lesson array and register it under the exact unit ID in `src/content/<subject>/index.ts`'s `lessonsByUnit` map.
-6. Run the focused validation, then the complete suite:
-
-   ```sh
-   npm test -- src/content/content-validation.test.ts src/content/schema.test.ts
-   npm test
-   ```
-
-7. Run both production builds and smoke-test the lesson in a browser.
+1. Find the destination unit in `src/content/standards/standards.json` and its authored row in `src/content/curriculum.ts`. Use the exact canonical ID, title, unit ID, and only the indicator codes allocated there.
+2. Add one literal `Lesson` object to the matching `src/content/<subject>/uNN.ts` export. Give the lesson, its 3 learn cards, and its 13 questions unique canonical IDs.
+3. Keep `passThreshold: 8`, use at least two natural question types, map each concept tag to one same-lesson review card, and make every card reachable from at least one missed question.
+4. For Reading only, spread `READING_OE_CODES` into `crossCuttingExpectationCodes`; never put an OE code in `indicatorCodes`.
+5. Use a widget only when its exact `{ type, config }` parses `WidgetRefSchema` and the type exists in `widgetRegistry`. The card prose and quiz must remain understandable without the widget.
+6. Run the unit test, `src/content/schema.test.ts`, `src/content/content-validation.test.ts`, `src/content/lesson-quality.test.ts`, and `npx tsc -b --pretty false`. Independently review standards fidelity, every answer, original-text provenance, and child-safe wording.
+7. Run `npm run standards:check`, the full test suite, both builds, and the browser/review-link smoke path before release.
 
 ## Widgets
 
