@@ -472,11 +472,11 @@ export const unit04Lessons = [
         },
         {
           "type": "true-false",
-          "prompt": "The theme is implied because readers infer it from actions and consequences.",
+          "prompt": "Before the final explanatory paragraph, readers must infer the theme from Mateo’s actions and their consequences.",
           "choices": [
             {
               "id": "true",
-              "text": "True — no sentence states it directly"
+              "text": "True — the events imply the message before it is explained"
             },
             {
               "id": "false",
@@ -484,7 +484,7 @@ export const unit04Lessons = [
             }
           ],
           "correctChoiceId": "true",
-          "explanation": "The narration leaves the message for readers to infer.",
+          "explanation": "Mateo never states the message; the final explanatory paragraph names the theme after the narrative events imply it.",
           "id": "reading-u04-l01-q10",
           "conceptTag": "theme-development",
           "reviewCardId": "reading-u04-l01-c3"
@@ -840,6 +840,13 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 4 literal content', () => {
+  test('describes the theme as inferred before the final explanatory paragraph states it', () => {
+    const question = unit04Lessons[0]!.quiz.pool.find(({ id }) => id === 'reading-u04-l01-q10');
+    expect(question?.prompt).toBe('Before the final explanatory paragraph, readers must infer the theme from Mateo’s actions and their consequences.');
+    expect('choices' in question! && question.choices[0]!.text).toBe('True — the events imply the message before it is explained');
+    expect(question?.explanation).toBe('Mateo never states the message; the final explanatory paragraph names the theme after the narrative events imply it.');
+  });
+
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {
     expectUnitLessons(unit04Lessons, expectedManifest, 'reading');
     expect(unit04Lessons.map(lesson=>({id:lesson.id,cards:lesson.learnCards.map((card,index)=>({id:card.id,title:card.title,conceptTag:expectedCards.find(row=>row.id===lesson.id)!.cards[index]!.conceptTag}))}))).toEqual(expectedCards);
@@ -1142,7 +1149,7 @@ export const unit05Lessons = [
         },
         {
           "type": "multiple-choice",
-          "prompt": "Which idea is implied by the research paragraph?",
+          "prompt": "Which central idea is supported by the research paragraph’s observations?",
           "choices": [
             {
               "id": "a",
@@ -1162,7 +1169,7 @@ export const unit05Lessons = [
             }
           ],
           "correctChoiceId": "c",
-          "explanation": "The grouped observations point to multiple benefits.",
+          "explanation": "The grouped observations support several connected benefits.",
           "id": "reading-u05-l01-q03",
           "conceptTag": "central-idea",
           "reviewCardId": "reading-u05-l01-c1"
@@ -1691,6 +1698,12 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 5 literal content', () => {
+  test('asks what the research observations support without calling the stated idea implied', () => {
+    const question = unit05Lessons[0]!.quiz.pool.find(({ id }) => id === 'reading-u05-l01-q03');
+    expect(question?.prompt).toBe('Which central idea is supported by the research paragraph’s observations?');
+    expect(question?.explanation).toBe('The grouped observations support several connected benefits.');
+  });
+
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {
     expectUnitLessons(unit05Lessons, expectedManifest, 'reading');
     expect(unit05Lessons.map(lesson=>({id:lesson.id,cards:lesson.learnCards.map((card,index)=>({id:card.id,title:card.title,conceptTag:expectedCards.find(row=>row.id===lesson.id)!.cards[index]!.conceptTag}))}))).toEqual(expectedCards);
@@ -3908,6 +3921,10 @@ export const unit07Lessons = [
             "text": "The table shows exact amounts; the map description shows spatial patterns."
           },
           {
+            "kind": "example",
+            "text": "Rainfall table description: West Station — 8 a.m. 0.4 inch, noon 1.2 inches, 4 p.m. 1.5 inches. Central Station — 8 a.m. 0.1 inch, noon 0.8 inch, 4 p.m. 1.3 inches. East Station — 8 a.m. 0 inch, noon 0.3 inch, 4 p.m. 0.9 inch."
+          },
+          {
             "kind": "tip",
             "text": "State the exact information, not “the visual helps.”"
           },
@@ -4826,6 +4843,13 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 7 literal content', () => {
+  test('places the complete rainfall table before the card 1 inline check', () => {
+    const card = unit07Lessons.find(({ id }) => id === 'reading-u07-l02')!.learnCards[0]!;
+    const priorMaterial = card.blocks.map(({ text }) => text).join('\n');
+    expect(priorMaterial).toContain('Rainfall table description: West Station — 8 a.m. 0.4 inch, noon 1.2 inches, 4 p.m. 1.5 inches. Central Station — 8 a.m. 0.1 inch, noon 0.8 inch, 4 p.m. 1.3 inches. East Station — 8 a.m. 0 inch, noon 0.3 inch, 4 p.m. 0.9 inch.');
+    expect(card.check?.prompt).toBe('Which station has 1.5 inches at 4 p.m.?');
+  });
+
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {
     expectUnitLessons(unit07Lessons, expectedManifest, 'reading');
     expect(unit07Lessons.map(lesson=>({id:lesson.id,cards:lesson.learnCards.map((card,index)=>({id:card.id,title:card.title,conceptTag:expectedCards.find(row=>row.id===lesson.id)!.cards[index]!.conceptTag}))}))).toEqual(expectedCards);

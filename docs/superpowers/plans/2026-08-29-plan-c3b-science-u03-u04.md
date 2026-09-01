@@ -448,7 +448,7 @@ const scienceU03L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "amplitude-pattern",
     "reviewCardId": "science-u03-l01-c2",
     "type": "multiple-choice",
-    "prompt": "Which wave has larger amplitude?",
+    "prompt": "Wave A has crests and troughs close to the baseline. Wave B has crests and troughs farther from the same baseline. Which wave has larger amplitude?",
     "choices": [
       {
         "id": "a",
@@ -548,7 +548,7 @@ const scienceU03L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-model-limits",
     "reviewCardId": "science-u03-l01-c3",
     "type": "multiple-choice",
-    "prompt": "Which statement accurately describes the activity?",
+    "prompt": "An app activity shows an authored wave graph and lets a learner change its amplitude. It does not measure a physical rope. Which statement accurately describes the activity?",
     "choices": [
       {
         "id": "a",
@@ -962,7 +962,7 @@ const scienceU03L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wavelength-comparison",
     "reviewCardId": "science-u03-l02-c2",
     "type": "multiple-choice",
-    "prompt": "Which drawing has shorter wavelength?",
+    "prompt": "Drawing A has neighboring crests closer together than Drawing B. Which drawing has shorter wavelength?",
     "choices": [
       {
         "id": "a",
@@ -1062,7 +1062,7 @@ const scienceU03L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wavelength-model-boundary",
     "reviewCardId": "science-u03-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Why is no wave-maker widget used on this card?",
+    "prompt": "The available wave-maker has controls labeled amplitude and frequency, but no control labeled wavelength. Why is it not used to compare wavelength on this card?",
     "choices": [
       {
         "id": "a",
@@ -1135,7 +1135,7 @@ const scienceU03L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wavelength-model-boundary",
     "reviewCardId": "science-u03-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which explanation stays within the boundary?",
+    "prompt": "Grade 4 wavelength comparisons are qualitative and do not use exact numerical measurements. Which explanation stays within this boundary?",
     "choices": [
       {
         "id": "a",
@@ -1429,7 +1429,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-object-observation",
     "reviewCardId": "science-u03-l03-c1",
     "type": "multiple-choice",
-    "prompt": "Which is an observable change in the cork case?",
+    "prompt": "A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Which is an observable change?",
     "choices": [
       {
         "id": "a",
@@ -1475,7 +1475,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-object-observation",
     "reviewCardId": "science-u03-l03-c1",
     "type": "multiple-choice",
-    "prompt": "Where does the cork remain in the written case?",
+    "prompt": "A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Where did the cork remain?",
     "choices": [
       {
         "id": "a",
@@ -1502,7 +1502,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-object-observation",
     "reviewCardId": "science-u03-l03-c1",
     "type": "multiple-choice",
-    "prompt": "Which note is most relevant?",
+    "prompt": "A learner needs evidence for the claim that waves can cause objects to move. Which note is most relevant?",
     "choices": [
       {
         "id": "a",
@@ -1529,7 +1529,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-caused-motion",
     "reviewCardId": "science-u03-l03-c2",
     "type": "multiple-choice",
-    "prompt": "What does the water-wave activity provide?",
+    "prompt": "An app water-wave activity changes authored amplitude and cycle controls on a graph; it does not observe or measure a physical tray or cork. What does the activity provide?",
     "choices": [
       {
         "id": "a",
@@ -1629,7 +1629,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-motion-model-limits",
     "reviewCardId": "science-u03-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which claim is supported by the written cork observation?",
+    "prompt": "A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Which claim is supported by this written observation?",
     "choices": [
       {
         "id": "a",
@@ -1675,7 +1675,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-motion-model-limits",
     "reviewCardId": "science-u03-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which evidence should support the claim?",
+    "prompt": "Claim: Waves can cause objects to move. A cork was nearly still before ripples and bobbed as they passed. Which evidence should support the claim?",
     "choices": [
       {
         "id": "a",
@@ -1713,7 +1713,7 @@ const scienceU03L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "wave-motion-model-limits",
     "reviewCardId": "science-u03-l03-c3",
     "type": "multiple-choice",
-    "prompt": "Which explanation avoids overclaiming?",
+    "prompt": "A written observation says a cork was nearly still before ripples and bobbed as they passed. An app graph changes authored values but does not observe the cork. Which explanation avoids overclaiming?",
     "choices": [
       {
         "id": "a",
@@ -2156,7 +2156,7 @@ const scienceU03L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "reflected-light-path",
     "reviewCardId": "science-u03-l04-c2",
     "type": "true-false",
-    "prompt": "The reflection activity is a model rather than an observation of someone seeing.",
+    "prompt": "An app reflection activity draws an authored light path from a source to an object to an eye; it does not observe a real person. The activity is a model rather than an observation of someone seeing.",
     "choices": [
       {
         "id": "true",
@@ -2775,7 +2775,7 @@ const scienceU04L01Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "encode-pattern",
     "reviewCardId": "science-u04-l01-c2",
     "type": "true-false",
-    "prompt": "The message activity sends information to a live person outside the app.",
+    "prompt": "An in-app message activity encodes and decodes A with an authored key; it has no connection to another person. The activity sends information to a live person outside the app.",
     "choices": [
       {
         "id": "true",
@@ -3198,7 +3198,7 @@ const scienceU04L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "morse-pattern",
     "reviewCardId": "science-u04-l02-c1",
     "type": "multiple-choice",
-    "prompt": "Which pattern does the printed reference assign to A?",
+    "prompt": "A printed Morse reference states A = dot-dash. Which pattern does it assign to A?",
     "choices": [
       {
         "id": "a",
@@ -3382,7 +3382,7 @@ const scienceU04L02Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "code-clarity-comparison",
     "reviewCardId": "science-u04-l02-c3",
     "type": "multiple-choice",
-    "prompt": "Which evidence favors Morse on a printed card?",
+    "prompt": "A learner must choose a code for a printed card. Written Morse uses visible dots and dashes; a drum code uses low and high sounds that may be affected by noise. Which evidence favors Morse?",
     "choices": [
       {
         "id": "a",
@@ -3666,7 +3666,7 @@ const scienceU04L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "binary-grid-values",
     "reviewCardId": "science-u04-l03-c1",
     "type": "multiple-choice",
-    "prompt": "What are the two values in this picture code?",
+    "prompt": "A picture code assigns every grid square one of two values: black or white. What are the two values in this picture code?",
     "choices": [
       {
         "id": "a",
@@ -3712,7 +3712,7 @@ const scienceU04L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "binary-grid-values",
     "reviewCardId": "science-u04-l03-c1",
     "type": "multiple-choice",
-    "prompt": "In the intended diagonal, which squares are black?",
+    "prompt": "An intended 2 × 2 grid is read from top-left across each row: black, white | white, black. Which squares are black?",
     "choices": [
       {
         "id": "a",
@@ -3739,7 +3739,7 @@ const scienceU04L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "binary-grid-values",
     "reviewCardId": "science-u04-l03-c1",
     "type": "fill-blank",
-    "prompt": "The top-left square in the intended picture is ___.",
+    "prompt": "An intended 2 × 2 grid is read from top-left across each row: black, white | white, black. The top-left square is ___.",
     "acceptedAnswers": [
       "black"
     ],
@@ -3750,7 +3750,7 @@ const scienceU04L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "binary-grid-order",
     "reviewCardId": "science-u04-l03-c2",
     "type": "multiple-choice",
-    "prompt": "Where does the agreed reading order begin?",
+    "prompt": "For a 2 × 2 grid, the sender and receiver agree to start at top-left, read left to right, and then continue on the next row. Where does the reading order begin?",
     "choices": [
       {
         "id": "a",
@@ -3804,7 +3804,7 @@ const scienceU04L03Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "binary-grid-order",
     "reviewCardId": "science-u04-l03-c2",
     "type": "multiple-choice",
-    "prompt": "What pattern represents the diagonal in row order?",
+    "prompt": "An intended 2 × 2 grid has black top-left and bottom-right squares and white top-right and bottom-left squares. What pattern represents it in row order?",
     "choices": [
       {
         "id": "a",
@@ -4281,7 +4281,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-evidence",
     "reviewCardId": "science-u04-l04-c2",
     "type": "multiple-choice",
-    "prompt": "Which solutions decoded all four characters?",
+    "prompt": "Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which solutions decoded all four characters?",
     "choices": [
       {
         "id": "a",
@@ -4308,7 +4308,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-evidence",
     "reviewCardId": "science-u04-l04-c2",
     "type": "true-false",
-    "prompt": "The drum solution had one decoding error in the stated noise condition.",
+    "prompt": "Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. The drum solution had one decoding error in the noise condition.",
     "choices": [
       {
         "id": "true",
@@ -4327,7 +4327,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-evidence",
     "reviewCardId": "science-u04-l04-c2",
     "type": "multiple-choice",
-    "prompt": "Which accurate solution used fewer values?",
+    "prompt": "Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which accurate solution used fewer values?",
     "choices": [
       {
         "id": "a",
@@ -4354,7 +4354,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-evidence",
     "reviewCardId": "science-u04-l04-c2",
     "type": "multiple-choice",
-    "prompt": "Why is this a fair comparison?",
+    "prompt": "Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Why is this a fair comparison?",
     "choices": [
       {
         "id": "a",
@@ -4381,7 +4381,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-choice",
     "reviewCardId": "science-u04-l04-c3",
     "type": "multiple-choice",
-    "prompt": "Which choice is best justified for accurate compact print?",
+    "prompt": "Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which choice is best justified for accurate compact print?",
     "choices": [
       {
         "id": "a",
@@ -4427,7 +4427,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-choice",
     "reviewCardId": "science-u04-l04-c3",
     "type": "multiple-choice",
-    "prompt": "What is one Morse limitation in the example?",
+    "prompt": "Example choice: For an accurate printed card, Morse decoded all four characters using 12 values, but readers still need the shared key. What is one Morse limitation in this example?",
     "choices": [
       {
         "id": "a",
@@ -4481,7 +4481,7 @@ const scienceU04L04Questions: Lesson['quiz']['pool'] = [
     "conceptTag": "message-solution-choice",
     "reviewCardId": "science-u04-l04-c3",
     "type": "fill-blank",
-    "prompt": "Complete the justification: I choose Morse because it decoded 4/4 and used ___ values.",
+    "prompt": "Results: Morse decoded 4/4 using 12 values; grid decoded 4/4 using 16 values. Complete the justification: I choose Morse because it decoded 4/4 and used ___ values.",
     "acceptedAnswers": [
       "12",
       "twelve"
@@ -4512,6 +4512,66 @@ export const unit04Lessons: Lesson[] = [
 - [ ] **Step 8: Inspect and stage only owned paths.** Run `git diff --check -- src/content/science/u04.ts src/content/science/u04.test.ts`, then `git add src/content/science/u04.ts src/content/science/u04.test.ts`, `git diff --check --cached`, and `git diff --cached --name-only`. Require exactly those two paths.
 
 - [ ] **Step 9: Commit the reviewer-sized lesson.** Run `git commit -m "feat(content): compare message solutions"`.
+
+## Post-review self-contained Quick Check remediation
+
+- [ ] Append the following exact regression to `src/content/science/u03.test.ts`, run it red against the original context-dependent prompts, then make only the prompt replacements already printed in Tasks 1–4:
+
+```ts
+test('every scenario-dependent Quick Check prompt includes its complete usable context', () => {
+  const expectedPrompts = {
+    'science-u03-l01-q05': 'Wave A has crests and troughs close to the baseline. Wave B has crests and troughs farther from the same baseline. Which wave has larger amplitude?',
+    'science-u03-l01-q09': 'An app activity shows an authored wave graph and lets a learner change its amplitude. It does not measure a physical rope. Which statement accurately describes the activity?',
+    'science-u03-l02-q05': 'Drawing A has neighboring crests closer together than Drawing B. Which drawing has shorter wavelength?',
+    'science-u03-l02-q09': 'The available wave-maker has controls labeled amplitude and frequency, but no control labeled wavelength. Why is it not used to compare wavelength on this card?',
+    'science-u03-l02-q12': 'Grade 4 wavelength comparisons are qualitative and do not use exact numerical measurements. Which explanation stays within this boundary?',
+    'science-u03-l03-q01': 'A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Which is an observable change?',
+    'science-u03-l03-q03': 'A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Where did the cork remain?',
+    'science-u03-l03-q04': 'A learner needs evidence for the claim that waves can cause objects to move. Which note is most relevant?',
+    'science-u03-l03-q05': 'An app water-wave activity changes authored amplitude and cycle controls on a graph; it does not observe or measure a physical tray or cork. What does the activity provide?',
+    'science-u03-l03-q09': 'A cork was nearly still near a tape mark before repeating ripples. While ripples passed, it bobbed up and down near the same mark. Which claim is supported by this written observation?',
+    'science-u03-l03-q11': 'Claim: Waves can cause objects to move. A cork was nearly still before ripples and bobbed as they passed. Which evidence should support the claim?',
+    'science-u03-l03-q13': 'A written observation says a cork was nearly still before ripples and bobbed as they passed. An app graph changes authored values but does not observe the cork. Which explanation avoids overclaiming?',
+    'science-u03-l04-q08': 'An app reflection activity draws an authored light path from a source to an object to an eye; it does not observe a real person. The activity is a model rather than an observation of someone seeing.',
+  } as const;
+
+  const questions = new Map(unit03Lessons.flatMap((lesson) => lesson.quiz.pool).map((question) => [question.id, question]));
+  for (const [questionId, expectedPrompt] of Object.entries(expectedPrompts)) {
+    expect(questions.get(questionId)?.prompt, questionId).toBe(expectedPrompt);
+  }
+});
+```
+
+- [ ] Append the following exact regression to `src/content/science/u04.test.ts`, run it red against the original context-dependent prompts, then make only the prompt replacements already printed in Tasks 5–8:
+
+```ts
+test('every scenario-dependent Quick Check prompt includes its complete usable context', () => {
+  const expectedPrompts = {
+    'science-u04-l01-q08': 'An in-app message activity encodes and decodes A with an authored key; it has no connection to another person. The activity sends information to a live person outside the app.',
+    'science-u04-l02-q03': 'A printed Morse reference states A = dot-dash. Which pattern does it assign to A?',
+    'science-u04-l02-q11': 'A learner must choose a code for a printed card. Written Morse uses visible dots and dashes; a drum code uses low and high sounds that may be affected by noise. Which evidence favors Morse?',
+    'science-u04-l03-q01': 'A picture code assigns every grid square one of two values: black or white. What are the two values in this picture code?',
+    'science-u04-l03-q03': 'An intended 2 × 2 grid is read from top-left across each row: black, white | white, black. Which squares are black?',
+    'science-u04-l03-q04': 'An intended 2 × 2 grid is read from top-left across each row: black, white | white, black. The top-left square is ___.',
+    'science-u04-l03-q05': 'For a 2 × 2 grid, the sender and receiver agree to start at top-left, read left to right, and then continue on the next row. Where does the reading order begin?',
+    'science-u04-l03-q07': 'An intended 2 × 2 grid has black top-left and bottom-right squares and white top-right and bottom-left squares. What pattern represents it in row order?',
+    'science-u04-l04-q05': 'Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which solutions decoded all four characters?',
+    'science-u04-l04-q06': 'Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. The drum solution had one decoding error in the noise condition.',
+    'science-u04-l04-q07': 'Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which accurate solution used fewer values?',
+    'science-u04-l04-q08': 'Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Why is this a fair comparison?',
+    'science-u04-l04-q09': 'Three solutions encoded the same four-character message under the same conditions: Morse decoded 4/4 using 12 values; drums decoded 3/4 using 10 values in background noise; grid decoded 4/4 using 16 values. Which choice is best justified for accurate compact print?',
+    'science-u04-l04-q11': 'Example choice: For an accurate printed card, Morse decoded all four characters using 12 values, but readers still need the shared key. What is one Morse limitation in this example?',
+    'science-u04-l04-q13': 'Results: Morse decoded 4/4 using 12 values; grid decoded 4/4 using 16 values. Complete the justification: I choose Morse because it decoded 4/4 and used ___ values.',
+  } as const;
+
+  const questions = new Map(unit04Lessons.flatMap((lesson) => lesson.quiz.pool).map((question) => [question.id, question]));
+  for (const [questionId, expectedPrompt] of Object.entries(expectedPrompts)) {
+    expect(questions.get(questionId)?.prompt, questionId).toBe(expectedPrompt);
+  }
+});
+```
+
+- [ ] Run `npm test -- src/content/science/u03.test.ts src/content/science/u04.test.ts`; require both new regressions and the existing exact route/widget tests to pass without changing question IDs, types, routes, answer keys, choices, explanations, or widgets.
 
 ## Wave verification and handoff
 
