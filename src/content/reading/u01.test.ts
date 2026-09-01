@@ -1,4 +1,6 @@
 import { describe, expect, test } from 'vitest';
+import { READING_OE_CODES } from '../curriculum';
+import { expectUnitLessons } from '../unit-test-helpers';
 import { validateLesson, type LearnCard, type Question } from '../schema';
 import { unit01Lessons } from './u01';
 
@@ -11,6 +13,11 @@ const expectedLessons = [
     id: 'reading-u01-l02',
     title: 'Read with Expression and Intonation',
   },
+] as const;
+
+const expectedManifest = [
+  { id: 'reading-u01-l01', unitId: 'reading-u01', title: 'Read Accurately at a Good Pace', indicatorCodes: ['ELA.4.F.4.2'] },
+  { id: 'reading-u01-l02', unitId: 'reading-u01', title: 'Read with Expression and Intonation', indicatorCodes: ['ELA.4.F.4.2'] },
 ] as const;
 
 const expectedPassageQuestionIds = [
@@ -142,10 +149,12 @@ function correctChoiceText(question: Question): string {
 describe('Reading unit 1 fluency lessons', () => {
   test('exports the exact two requested lessons and standards metadata', () => {
     expect(unit01Lessons.map(({ id, title }) => ({ id, title }))).toEqual(expectedLessons);
+    expectUnitLessons(unit01Lessons, expectedManifest, 'reading');
 
     for (const lesson of unit01Lessons) {
       expect(lesson.unitId).toBe('reading-u01');
       expect(lesson.indicatorCodes).toEqual(['ELA.4.F.4.2']);
+      expect(lesson.crossCuttingExpectationCodes).toEqual([...READING_OE_CODES]);
       expect(lesson.intro).toHaveLength(4);
       expect(lesson.intro.every(({ speaker }) => speaker === 'winnie')).toBe(true);
     }

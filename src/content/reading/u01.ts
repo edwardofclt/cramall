@@ -1,3 +1,4 @@
+import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
 const accuracyPassage = `On Saturday morning, Maya arrived at the community garden before the volunteers began planting. A blue sign beside the gate read, “Pollinator Patch—Please Walk Slowly.” Maya opened the garden map and traced a route from the tool shed to the sunflower bed. Her partner, Eli, carried two trowels and a small watering can. “Let’s check the labels before we dig,” Maya said.
@@ -22,6 +23,7 @@ export const unit01Lessons = [
     unitId: 'reading-u01',
     title: 'Read Accurately at a Good Pace',
     indicatorCodes: ['ELA.4.F.4.2'],
+    crossCuttingExpectationCodes: [...READING_OE_CODES],
     intro: [
       { speaker: 'winnie', pose: 'talk', text: 'Fluent reading begins with getting the words right and understanding what they say.' },
       { speaker: 'winnie', pose: 'think', text: 'A useful pace is not a race; it gives your brain time to build meaning.' },
@@ -297,6 +299,7 @@ export const unit01Lessons = [
     unitId: 'reading-u01',
     title: 'Read with Expression and Intonation',
     indicatorCodes: ['ELA.4.F.4.2'],
+    crossCuttingExpectationCodes: [...READING_OE_CODES],
     intro: [
       { speaker: 'winnie', pose: 'talk', text: 'Accurate words and an appropriate pace create a strong base for fluent reading.' },
       { speaker: 'winnie', pose: 'think', text: 'Expression adds feeling and emphasis that fit the author’s meaning.' },
