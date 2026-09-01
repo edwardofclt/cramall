@@ -1492,6 +1492,7 @@ export const LessonSchema = z.object({
   unitId: UnitIdSchema,
   title: z.string().min(1),
   indicatorCodes: z.array(z.string()).min(1),
+  crossCuttingExpectationCodes: z.array(z.string().min(1)).optional(),
   intro: z.array(DialogueLineSchema).min(1),
   learnCards: z.array(LearnCardSchema).min(1),
   workedExample: z.object({

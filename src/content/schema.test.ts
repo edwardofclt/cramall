@@ -38,6 +38,19 @@ test('valid lesson parses and validates clean', () => {
   expect(LessonSchema.parse(makeLesson())).toBeTruthy();
   expect(validateLesson(makeLesson())).toEqual([]);
 });
+test('lesson schema preserves optional cross-cutting expectation codes', () => {
+  const lesson = {
+    ...makeLesson(),
+    crossCuttingExpectationCodes: [
+      'ELA.4.OE.1', 'ELA.4.OE.2', 'ELA.4.OE.3',
+      'ELA.4.OE.4', 'ELA.4.OE.5', 'ELA.4.OE.6',
+    ],
+  };
+
+  expect(LessonSchema.parse(lesson).crossCuttingExpectationCodes).toEqual(
+    lesson.crossCuttingExpectationCodes,
+  );
+});
 test.each(WIDGET_TYPES)('%s accepts its fixture and rejects unknown config keys', (type) => {
   const valid = validWidgetRefByType[type];
   expect(WidgetRefSchema.safeParse(valid).success).toBe(true);
