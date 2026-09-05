@@ -21,7 +21,7 @@ export const unit03Lessons = [
           { kind: 'example', text: 'For 24, the pairs are 1 × 24, 2 × 12, 3 × 8, and 4 × 6.' },
           { kind: 'tip', text: 'Test divisors in order and stop after the factors begin repeating.' },
         ],
-        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 3, columns: 5, targetProduct: 24, editable: true } },
       },
       {
         id: 'math-u03-l01-c2',

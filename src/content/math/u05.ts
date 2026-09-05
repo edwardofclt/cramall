@@ -20,9 +20,10 @@ export const unit05Lessons = [
         blocks: [
           { kind: 'text', text: 'Break the dividend into friendly place-value parts or use partial quotients while keeping groups equal.' },
           { kind: 'example', text: '936 ÷ 4 can be split into 800 ÷ 4, 120 ÷ 4, and 16 ÷ 4, giving 200 + 30 + 4 = 234.' },
+          { kind: 'example', text: 'Smaller numbers show the same equal-groups idea: 72 ÷ 4 asks how many are in each of 4 equal rows, and 4 rows of 18 make 72.' },
           { kind: 'tip', text: 'Estimate first so the quotient has a sensible number of digits.' },
         ],
-        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 18, targetProduct: 72, editable: true } },
       },
       {
         id: 'math-u05-l01-c2',

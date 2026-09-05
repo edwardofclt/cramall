@@ -479,6 +479,24 @@ const scienceU06L02Core = {
               "animal": "wren",
               "structure": "wing",
               "function": "moves through air"
+            },
+            {
+              "id": "lungs",
+              "animal": "wren",
+              "structure": "lungs",
+              "function": "takes in air"
+            },
+            {
+              "id": "heart",
+              "animal": "wren",
+              "structure": "heart",
+              "function": "moves blood"
+            },
+            {
+              "id": "feathers",
+              "animal": "wren",
+              "structure": "feathers",
+              "function": "protects the body"
             }
           ]
         }

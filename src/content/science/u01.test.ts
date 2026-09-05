@@ -98,7 +98,7 @@ describe('Science unit 1 energy and motion lessons', () => {
       expect(lesson.learnCards.every((card) => card.blocks.length >= 1)).toBe(true);
       expect(lesson.learnCards.flatMap((card, index) => card.widget === undefined ? [] : [{ card: index + 1, value: card.widget }])).toEqual(
         lesson.id === 'science-u01-l04'
-          ? [{ card: 2, value: { type: 'collision-ramp', config: { rampAngle: 5, massA: 2, massB: 8, speedA: 1, target: 'predict-direction' } } }]
+          ? [{ card: 2, value: { type: 'collision-ramp', config: { rampAngle: 0, massA: 4, massB: 4, speedA: 3, speedB: 3, target: 'predict-direction' } } }]
           : [],
       );
       expect(lesson.quiz.passThreshold).toBe(8);

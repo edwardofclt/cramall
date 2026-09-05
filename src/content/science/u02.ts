@@ -69,13 +69,22 @@ const scienceU02L01Core = {
         "type": "energy-transfer-builder",
         "config": {
           "sources": [
-            "Sun"
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
           ],
           "transfers": [
-            "light"
+            "light",
+            "sound",
+            "electric current",
+            "heat"
           ],
           "targets": [
-            "paper square"
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
           ],
           "requiredPath": [
             "Sun",
@@ -484,13 +493,22 @@ const scienceU02L02Core = {
         "type": "energy-transfer-builder",
         "config": {
           "sources": [
-            "tuning fork"
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
           ],
           "transfers": [
-            "sound"
+            "light",
+            "sound",
+            "electric current",
+            "heat"
           ],
           "targets": [
-            "paper bits"
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
           ],
           "requiredPath": [
             "tuning fork",
@@ -937,13 +955,22 @@ const scienceU02L03Core = {
         "type": "energy-transfer-builder",
         "config": {
           "sources": [
-            "battery"
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
           ],
           "transfers": [
-            "electric current"
+            "light",
+            "sound",
+            "electric current",
+            "heat"
           ],
           "targets": [
-            "motor"
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
           ],
           "requiredPath": [
             "battery",

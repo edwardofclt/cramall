@@ -98,7 +98,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'From 9:45 to 10:05 is 15 + 5 = 20 minutes.' },
           { kind: 'tip', text: 'The minute hand moving one full circle represents 60 minutes.' },
         ],
-        widget: { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5 } },
+        widget: { type: 'clock-elapsed-time', config: { mode: 'set-time', targetTime: '10:05', minuteStep: 5 } },
       },
       {
         id: 'math-u09-l02-c3',

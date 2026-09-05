@@ -98,7 +98,7 @@ const expectedRoutes = {
 
 const expectedWidgets = {
   'math-u09-l01-c1': { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100] } },
-  'math-u09-l02-c2': { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5 } },
+  'math-u09-l02-c2': { type: 'clock-elapsed-time', config: { mode: 'set-time', targetTime: '10:05', minuteStep: 5 } },
   'math-u09-l03-c2': { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0 } },
   'math-u09-l05-c1': { type: 'balance-scale', config: { left: [{ id: 'three-feet', label: '3 feet', value: 36 }], right: [{ id: 'thirty-six-inches', label: '36 inches', value: 36 }], task: 'compare' } },
 } as const;

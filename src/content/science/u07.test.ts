@@ -38,6 +38,16 @@ const specs = [
                 "id": "valley",
                 "label": "Valley",
                 "elevation": 100
+              },
+              {
+                "id": "bench",
+                "label": "Bench",
+                "elevation": 150
+              },
+              {
+                "id": "marsh",
+                "label": "Marsh",
+                "elevation": 60
               }
             ],
             "targetPointId": "ridge"
@@ -140,17 +150,37 @@ const specs = [
             ],
             "points": [
               {
-                "id": "coast",
-                "label": "Coast",
+                "id": "h1",
+                "label": "H1 hill (B1)",
+                "elevation": 50
+              },
+              {
+                "id": "h2",
+                "label": "H2 hill (D1)",
+                "elevation": 50
+              },
+              {
+                "id": "h3",
+                "label": "H3 hill (F1)",
+                "elevation": 50
+              },
+              {
+                "id": "c1",
+                "label": "C1 coast (B4)",
                 "elevation": 0
               },
               {
-                "id": "hill",
-                "label": "Hill",
-                "elevation": 50
+                "id": "c2",
+                "label": "C2 coast (D4)",
+                "elevation": 0
+              },
+              {
+                "id": "c3",
+                "label": "C3 coast (F4)",
+                "elevation": 0
               }
             ],
-            "targetPointId": "coast"
+            "targetPointId": "c2"
           }
         }
       },
@@ -236,7 +266,9 @@ const specs = [
           "config": {
             "terrain": "soil",
             "agents": [
-              "water"
+              "water",
+              "wind",
+              "ice"
             ],
             "vegetation": false,
             "targetAgent": "water"
@@ -325,20 +357,30 @@ const specs = [
           "config": {
             "layers": [
               {
+                "id": "top-sand",
+                "label": "Top sandy layer",
+                "age": 1
+              },
+              {
                 "id": "upper-shells",
                 "label": "Upper shell layer",
-                "age": 1,
+                "age": 2,
                 "artifact": "marine shell fossils"
               },
               {
                 "id": "lower-plants",
                 "label": "Lower plant layer",
-                "age": 2,
+                "age": 3,
                 "artifact": "plant fossils without shells"
+              },
+              {
+                "id": "base-gravel",
+                "label": "Base gravel layer",
+                "age": 4
               }
             ],
-            "prompt": "Which layer is relatively older?",
-            "targetLayerId": "lower-plants"
+            "prompt": "Which layer holds marine shell fossils?",
+            "targetLayerId": "upper-shells"
           }
         }
       },

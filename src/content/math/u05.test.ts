@@ -47,7 +47,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u05-l01-c1': { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+  'math-u05-l01-c1': { type: 'array-builder', config: { rows: 1, columns: 18, targetProduct: 72, editable: true } },
 } as const;
 
 test('u05 is the exact validated 2-lesson unit', () => {

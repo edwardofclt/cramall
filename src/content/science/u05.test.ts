@@ -35,6 +35,24 @@ const specs = [
                 "label": "Buzzer",
                 "energyIn": "electric",
                 "energyOut": "sound"
+              },
+              {
+                "id": "lamp",
+                "label": "Lamp",
+                "energyIn": "electric",
+                "energyOut": "light"
+              },
+              {
+                "id": "heater",
+                "label": "Heater",
+                "energyIn": "electric",
+                "energyOut": "heat"
+              },
+              {
+                "id": "spring",
+                "label": "Wind-up spring",
+                "energyIn": "stored",
+                "energyOut": "motion"
               }
             ],
             "requiredStart": "crank",
@@ -133,6 +151,24 @@ const specs = [
                 "label": "Lamp",
                 "energyIn": "electric",
                 "energyOut": "light"
+              },
+              {
+                "id": "buzzer",
+                "label": "Buzzer",
+                "energyIn": "electric",
+                "energyOut": "sound"
+              },
+              {
+                "id": "motor",
+                "label": "Motor",
+                "energyIn": "electric",
+                "energyOut": "motion"
+              },
+              {
+                "id": "windup",
+                "label": "Wind-up spring",
+                "energyIn": "stored",
+                "energyOut": "motion"
               }
             ],
             "requiredStart": "battery",

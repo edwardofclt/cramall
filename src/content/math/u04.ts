@@ -21,7 +21,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'Because 6 × 7 = 42, 6 × 70 = 420 and 6 × 700 = 4,200.' },
           { kind: 'tip', text: 'Name the unit: 42 tens equals 420, while 42 hundreds equals 4,200.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 30, b: 4, splitA: [30], splitB: [4], targetProduct: 120 } },
+        widget: { type: 'area-model-multiplier', config: { a: 6, b: 70, splitA: [6], splitB: [10, 10, 10, 10, 10, 10, 10], targetProduct: 420 } },
       },
       {
         id: 'math-u04-l01-c2',
@@ -157,7 +157,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'If one basket has 6 acorns and another has 4 times as many, the larger basket has 4 × 6 = 24.' },
           { kind: 'tip', text: 'Do not confuse “4 times as many” with “4 more than.”' },
         ],
-        widget: { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 6, targetProduct: 24, editable: true } },
       },
       {
         id: 'math-u04-l03-c2',

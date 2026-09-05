@@ -97,7 +97,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'Eight rows of 5 squares contain 40 square units.' },
           { kind: 'tip', text: 'The unit square’s side length determines whether the label is square inches, square feet, or another square unit.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40 } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 5, targetProduct: 40, editable: true } },
       },
       {
         id: 'math-u10-l02-c3',

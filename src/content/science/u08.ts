@@ -78,6 +78,31 @@ const scienceU08L01Core = {
               "id": "coal",
               "label": "Coal",
               "kind": "nonrenewable"
+            },
+            {
+              "id": "wind",
+              "label": "Wind",
+              "kind": "renewable"
+            },
+            {
+              "id": "dam-water",
+              "label": "Water behind a dam",
+              "kind": "renewable"
+            },
+            {
+              "id": "oil",
+              "label": "Oil",
+              "kind": "nonrenewable"
+            },
+            {
+              "id": "gas",
+              "label": "Natural gas",
+              "kind": "nonrenewable"
+            },
+            {
+              "id": "uranium",
+              "label": "Uranium",
+              "kind": "nonrenewable"
             }
           ],
           "bins": [

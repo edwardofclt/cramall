@@ -77,7 +77,7 @@ const scienceU01L04Core = {
         },
         {
           "kind": "example",
-          "text": "Keep both coaster car masses and the track angle fixed. Change only car A from a slower to a faster release and predict the joined cars’ direction after the collision."
+          "text": "The two coaster cars roll toward each other at matching speeds, so the model starts with neither side winning. Keep both coaster car masses fixed and change only car A from a slower to a faster release, then predict the joined cars’ direction after the collision."
         },
         {
           "kind": "tip",
@@ -87,10 +87,11 @@ const scienceU01L04Core = {
       "widget": {
         "type": "collision-ramp",
         "config": {
-          "rampAngle": 5,
-          "massA": 2,
-          "massB": 8,
-          "speedA": 1,
+          "rampAngle": 0,
+          "massA": 4,
+          "massB": 4,
+          "speedA": 3,
+          "speedB": 3,
           "target": "predict-direction"
         }
       },
