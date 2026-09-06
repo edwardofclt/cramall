@@ -3,6 +3,8 @@ import { normalizeMorseAscii } from '../../content/schema';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
+type CoachPhase = 'none' | 'strategy' | 'retry';
+
 const MORSE: Record<string, string> = {
   A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
 };
@@ -23,10 +25,13 @@ export default function MessageSender({ config, onEvent }: WidgetProps<'message-
   const alphabet = effectiveAlphabet(config.encoding, config.alphabet);
   const [encoded, setEncoded] = useState('');
   const [sent, setSent] = useState(false);
+  const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
   const [status, setStatus] = useState('Build the message with the code reference.');
   const { completeOnce } = useCompletionLatch(key);
   const reverseAlphabet = new Map(Object.entries(alphabet).map(([character, code]) => [code, character]));
   const decoded = encoded ? encoded.split(' ').map((code) => reverseAlphabet.get(code) ?? '?').join('') : '';
+  const expectedGroups = [...message].map((character) => alphabet[character]!);
+  const enteredGroups = encoded.split(' ');
   const visiblyComplete = sent && decoded === message;
 
   useEffect(() => { setEncoded(''); setSent(false); setStatus('Build the message with the code reference.'); }, [key]);
@@ -35,6 +40,11 @@ export default function MessageSender({ config, onEvent }: WidgetProps<'message-
     setEncoded(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { encoded: next } });
+  };
+  const coachWrong = () => {
+    const cue = coachPhase === 'none' ? 'strategy' : 'retry';
+    setCoachPhase(cue);
+    onEvent({ type: 'coach', cue });
   };
   const append = (symbol: string) => {
     setSent(false);
@@ -49,16 +59,20 @@ export default function MessageSender({ config, onEvent }: WidgetProps<'message-
   const send = () => {
     setSent(true);
     const successful = decoded === message;
-    setStatus(successful ? `Decoded message: ${message}` : `Decoded message: ${decoded || 'none yet'}. Compare each character group with the reference.`);
+    const firstMismatch = expectedGroups.findIndex((expected, index) => enteredGroups[index] !== expected);
+    setStatus(successful
+      ? `Decoded message: ${message}`
+      : `First mismatched character group: ${firstMismatch === -1 ? expectedGroups.length + 1 : firstMismatch + 1}. Compare that group with the reference, then revise.`);
     emit(encoded, 'send');
     if (successful) completeOnce(() => onEvent({ type: 'complete', value: { encoded, decoded: message } }));
+    else coachWrong();
   };
   const reset = () => {
     setSent(false);
+    setCoachPhase('none');
     setStatus('Build the message with the code reference.');
     emit('', 'reset');
   };
-  const enteredGroups = encoded.split(' ');
   const relevantCharacters = [...new Set([...message])];
   const symbolControls = config.encoding === 'morse'
     ? [['Add dot', '.'], ['Add dash', '-']] as const
@@ -75,7 +89,7 @@ export default function MessageSender({ config, onEvent }: WidgetProps<'message-
       <ul>{relevantCharacters.map((character) => <li key={character}>{config.encoding === 'binary' && character === ' ' ? 'Space' : character} = {alphabet[character]}</li>)}</ul>
     </section>
     <div className="message-entry" role="group" aria-label={`Entered code grouped by character: ${enteredGroups.join(' character separator ') || 'empty'}`}>
-      {enteredGroups.map((group, index) => <span key={`${group}-${index}`}><span data-testid="encoded-character-group" className="encoded-character-group">{group || '…'}</span>{index < enteredGroups.length - 1 && <span data-testid="encoded-character-separator" className="encoded-character-separator" aria-label="character separator">|</span>}</span>)}
+      {enteredGroups.map((group, index) => <span key={`${group}-${index}`}><span data-testid="encoded-character-group" data-group-index={index + 1} data-group-state={sent ? (group === expectedGroups[index] ? 'correct' : 'mismatch') : 'pending'} className="encoded-character-group">{group || '…'}</span>{index < enteredGroups.length - 1 && <span data-testid="encoded-character-separator" className="encoded-character-separator" aria-label="character separator">|</span>}</span>)}
     </div>
     <div className="message-controls" aria-label="Code symbol controls">
       {symbolControls.map(([label, symbol]) => <button key={symbol} aria-label={label} onClick={() => append(symbol)}>{symbol}</button>)}

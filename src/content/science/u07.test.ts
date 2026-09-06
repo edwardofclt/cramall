@@ -380,7 +380,14 @@ const specs = [
               }
             ],
             "prompt": "Which layer is relatively older?",
-            "targetLayerId": "lower-plants"
+            "targetLayerId": "lower-plants",
+            "evidencePrompt": "Which evidence supports this relative-age conclusion?",
+            "evidenceChoices": [
+              { "id": "fossil-order", "text": "The lower layer has plant fossils without shells below the upper shell layer." },
+              { "id": "calendar-years", "text": "Rank 2 means the lower layer is two years old." },
+              { "id": "invented-process", "text": "The ranks prove the exact process that formed the rock." }
+            ],
+            "requiredEvidenceId": "fossil-order"
           }
         }
       },
@@ -583,6 +590,17 @@ test('Unit 7 map and erosion widgets connect Sandy coaching to fair comparisons 
   expect(mapConfig.targetPattern).toBe('band');
   const erosionConfig = (erosionCard.widget as { config: { comparison?: unknown } }).config;
   expect(erosionConfig.comparison).toEqual({ variable: 'vegetation', values: [false, true] });
+});
+
+test('rock-layer widget coaches relative rank with fossil evidence and no invented age', () => {
+  const card = unit07Lessons[3]!.learnCards[1]!;
+  expect(card.widgetCoach?.intro).toHaveLength(2);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/rank.*fossil|fossil.*rank/i);
+  expect(card.widgetCoach?.reactions.retry?.text).toMatch(/years|process/i);
+  expect(card.widgetCoach?.reactions.complete.text).toMatch(/relative-age.*rank.*fossil|rank.*fossil/i);
+  const config = (card.widget as { config: { evidenceChoices?: Array<{ id: string }>; requiredEvidenceId?: string } }).config;
+  expect(config.evidenceChoices).toHaveLength(3);
+  expect(config.requiredEvidenceId).toBe('fossil-order');
 });
 
 test('every card has an immediate exact missed-result review route', () => {

@@ -106,13 +106,22 @@ const specs = [
                 "id": "beak",
                 "animal": "wren",
                 "structure": "beak",
-                "function": "gathers food"
+                "function": "gathers food",
+                "kind": "external"
               },
               {
                 "id": "wing",
                 "animal": "wren",
                 "structure": "wing",
-                "function": "moves through air"
+                "function": "moves through air",
+                "kind": "external"
+              },
+              {
+                "id": "lungs",
+                "animal": "wren",
+                "structure": "lungs",
+                "function": "takes in air",
+                "kind": "internal"
               }
             ]
           }
@@ -425,4 +434,16 @@ test('sampled structure questions include the complete description or matcher th
     expect(prompt, `${questionId} should exist`).toBeDefined();
     for (const source of requiredSources) expect(prompt, `${questionId} should include ${source}`).toContain(source);
   }
+});
+
+test('animal matcher card coaches a connected internal/external system explanation', () => {
+  const card = unit06Lessons[1]!.learnCards[1]!;
+  expect(card.widgetCoach?.intro).toHaveLength(2);
+  expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/outside|inside|function/i);
+  expect(card.widgetCoach?.reactions.retry?.text).toMatch(/internal.*external|external.*internal/i);
+  expect(card.widgetCoach?.reactions.complete.text).toMatch(/cooperate.*system/i);
+  const pairs = (card.widget as { config: { pairs: Array<{ kind?: string }> } }).config.pairs;
+  expect(pairs.some(({ kind }) => kind === 'internal')).toBe(true);
+  expect(pairs.some(({ kind }) => kind === 'external')).toBe(true);
 });

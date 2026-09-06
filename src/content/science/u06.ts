@@ -472,15 +472,36 @@ const scienceU06L02Core = {
               "id": "beak",
               "animal": "wren",
               "structure": "beak",
-              "function": "gathers food"
+              "function": "gathers food",
+              "kind": "external"
             },
             {
               "id": "wing",
               "animal": "wren",
               "structure": "wing",
-              "function": "moves through air"
+              "function": "moves through air",
+              "kind": "external"
+            },
+            {
+              "id": "lungs",
+              "animal": "wren",
+              "structure": "lungs",
+              "function": "takes in air",
+              "kind": "internal"
             }
           ]
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Match each wren structure to its job, then connect an external part with an internal part in the system map." },
+          { "speaker": "kid", "text": "I will explain how different structure jobs cooperate instead of leaving two isolated matches." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Sort outside structures from inside structures, then match each one to the function in the lesson.", "pose": "think" },
+          "retry": { "text": "Revisit the structure and function pair, then use one internal and one external match to explain cooperation.", "pose": "oops" },
+          "milestone": { "text": "Your pairs are ready to connect; look for the different jobs that support one animal system.", "pose": "talk" },
+          "complete": { "text": "You connected internal and external structures and explained how their different jobs cooperate in the animal system.", "pose": "cheer" }
         }
       }
     },

@@ -74,3 +74,15 @@ test('names binary space visibly and uses character separators in controls and e
   expect(screen.getByLabelText('character separator')).toBeInTheDocument();
   expect(screen.getByRole('group', { name: /entered code grouped by character.*character separator/i })).toBeInTheDocument();
 });
+
+test('identifies the first mismatched character group without revealing the target code', async () => {
+  const user = userEvent.setup();
+  render(<MessageSender config={{ encoding: 'binary', message: 'A' }} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', { name: 'Add one' }));
+  await user.click(screen.getByRole('button', { name: 'Send message' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent(/first mismatched character group: 1/i);
+  expect(screen.getByRole('status')).not.toHaveTextContent('01000001');
+  expect(screen.getByTestId('encoded-character-group')).toHaveAttribute('data-group-state', 'mismatch');
+});

@@ -3,29 +3,39 @@ import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
 const INITIAL_STATUS = 'Select a structure, then choose the function it helps an animal perform.';
+type CoachPhase = 'none' | 'strategy' | 'retry';
 
 export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<'animal-structure-matcher'>) {
   const key = JSON.stringify(config);
-  const emptyState = () => ({ key, selected: null as string | null, matches: {} as Record<string, string>, status: INITIAL_STATUS });
+  const emptyState = () => ({ key, selected: null as string | null, matches: {} as Record<string, string>, systemConnected: false, status: INITIAL_STATUS });
   const [state, setState] = useState(emptyState);
   const currentState = state.key === key ? state : emptyState();
   if (state.key !== key) setState(currentState);
-  const { selected, matches, status } = currentState;
+  const { selected, matches, systemConnected, status } = currentState;
+  const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
   const { completeOnce } = useCompletionLatch(key);
   const pairFor = (id: string) => config.pairs.find((pair) => pair.id === id)!;
-  const liveComplete = config.pairs.every((pair) => matches[pair.id] === pair.function);
+  const hasCooperatingKinds = config.pairs.some((pair) => pair.kind === 'internal') && config.pairs.some((pair) => pair.kind === 'external');
+  const allCorrect = config.pairs.every((pair) => matches[pair.id] === pair.function);
+  const liveComplete = allCorrect && (!hasCooperatingKinds || systemConnected);
 
-  const emit = (next: Record<string, string>, action: 'select-structure' | 'match' | 'reset') => {
-    setState((previous) => previous.key === key ? { ...previous, matches: next } : previous);
+  const coachWrong = () => {
+    const cue = coachPhase === 'none' ? 'strategy' : 'retry';
+    setCoachPhase(cue);
+    onEvent({ type: 'coach', cue });
+  };
+
+  const emit = (next: Record<string, string>, action: 'select-structure' | 'match' | 'reset', nextSystemConnected = false) => {
+    setState((previous) => previous.key === key ? { ...previous, matches: next, systemConnected: nextSystemConnected } : previous);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { matches: next } });
-    if (config.pairs.every((pair) => next[pair.id] === pair.function)) {
+    if (config.pairs.every((pair) => next[pair.id] === pair.function) && (!hasCooperatingKinds || nextSystemConnected)) {
       completeOnce(() => onEvent({ type: 'complete', value: { matches: next } }));
     }
   };
   const select = (id: string) => {
     const pair = pairFor(id);
-    setState({ key, selected: id, matches, status: `Selected: ${pair.animal} ${pair.structure}. Choose the function this structure helps it perform.` });
+    setState({ key, selected: id, matches, systemConnected: false, status: `Selected: ${pair.animal} ${pair.structure}. Choose the function this structure helps it perform.` });
     emit(matches, 'select-structure');
   };
   const match = (fn: string) => {
@@ -36,10 +46,24 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
     const feedback = correct
       ? `Correct: The function “${fn}” matches the ${pair.animal}'s ${pair.structure}.${config.pairs.every((item) => next[item.id] === item.function) ? ' All matches are complete.' : ' Select another structure.'}`
       : `${fn} does not match the ${pair.animal}'s ${pair.structure}. Select that structure again to choose another function.`;
-    setState({ key, selected: null, matches: next, status: feedback });
+    const allNextCorrect = config.pairs.every((item) => next[item.id] === item.function);
+    setState({ key, selected: null, matches: next, systemConnected: false, status: allNextCorrect && hasCooperatingKinds
+      ? 'All matches are correct. Now connect one internal and one external structure in the cooperating-system map.'
+      : feedback });
     emit(next, 'match');
+    if (allNextCorrect && hasCooperatingKinds) onEvent({ type: 'coach', cue: 'milestone' });
+    if (!correct) coachWrong();
+  };
+  const connectSystem = () => {
+    if (!hasCooperatingKinds || !allCorrect) return;
+    const internal = config.pairs.find((pair) => pair.kind === 'internal')!;
+    const external = config.pairs.find((pair) => pair.kind === 'external')!;
+    setState({ key, selected: null, matches, systemConnected: true, status: `Connected ${external.structure} and ${internal.structure}: their different jobs cooperate in one animal system.` });
+    emit(matches, 'match', true);
+    completeOnce(() => onEvent({ type: 'complete', value: { matches } }));
   };
   const reset = () => {
+    setCoachPhase('none');
     setState(emptyState());
     emit({}, 'reset');
   };
@@ -79,6 +103,14 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
       {config.pairs.filter((pair) => matches[pair.id]).map((pair) => <p key={pair.id}>{pair.animal} {pair.structure} <span aria-hidden="true">→</span> {matches[pair.id]}</p>)}
       {!Object.keys(matches).length && <p>No matches yet.</p>}
     </section>
+    {hasCooperatingKinds && <section className="animal-system-map" data-testid="animal-system-map" aria-label="Cooperating animal system">
+      <h4>Cooperating system map</h4>
+      <p>External structures connect with internal structures so different jobs can support the whole animal.</p>
+      <div className="animal-system-links">
+        {config.pairs.filter((pair) => matches[pair.id]).map((pair) => <span key={pair.id} data-kind={pair.kind}>{pair.kind}: {pair.structure} → {matches[pair.id]}</span>)}
+      </div>
+      <button type="button" aria-label="Connect cooperating system" disabled={!allCorrect || systemConnected} onClick={connectSystem}>{systemConnected ? 'Connected cooperating system' : 'Connect cooperating system'}</button>
+    </section>}
     <button className="animal-reset" onClick={reset}>Start over</button>
     <p role="status">{status}</p>
   </section>;

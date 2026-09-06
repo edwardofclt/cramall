@@ -1424,7 +1424,26 @@ const scienceU07L04Core = {
             }
           ],
           "prompt": "Which layer is relatively older?",
-          "targetLayerId": "lower-plants"
+          "targetLayerId": "lower-plants",
+          "evidencePrompt": "Which evidence supports this relative-age conclusion?",
+          "evidenceChoices": [
+            { "id": "fossil-order", "text": "The lower layer has plant fossils without shells below the upper shell layer." },
+            { "id": "calendar-years", "text": "Rank 2 means the lower layer is two years old." },
+            { "id": "invented-process", "text": "The ranks prove the exact process that formed the rock." }
+          ],
+          "requiredEvidenceId": "fossil-order"
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Check the relative-age rank, then choose the fossil evidence that supports the layer-order conclusion." },
+          { "speaker": "kid", "text": "I will connect rank and fossil pattern without turning relative order into years or an invented process." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Compare the printed ranks first, then use the fossil pattern as evidence for the relative conclusion.", "pose": "think" },
+          "retry": { "text": "Choose evidence from the shown rank and fossils; do not treat a rank as a calendar age or process.", "pose": "oops" },
+          "milestone": { "text": "You identified the older rank; now attach the fossil evidence that supports the relative-age claim.", "pose": "talk" },
+          "complete": { "text": "You supported a relative-age conclusion with rank and fossil evidence while staying within the model data.", "pose": "cheer" }
         }
       }
     },

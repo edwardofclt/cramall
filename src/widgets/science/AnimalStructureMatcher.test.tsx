@@ -149,3 +149,28 @@ test('trims terms and rejects blank or whitespace-equivalent animal choices', ()
     ],
   }).success).toBe(false);
 });
+
+test('requires an internal and external match to be connected as one cooperating system', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  const systemConfig = {
+    pairs: [
+      { id: 'beak', animal: 'Wren', structure: 'beak', function: 'gathers food', kind: 'external' as const },
+      { id: 'lungs', animal: 'Wren', structure: 'lungs', function: 'takes in air', kind: 'internal' as const },
+    ],
+  };
+  render(<AnimalStructureMatcher config={systemConfig} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Wren beak' }));
+  await user.click(screen.getByRole('button', { name: 'Match gathers food' }));
+  await user.click(screen.getByRole('button', { name: 'Select Wren lungs' }));
+  await user.click(screen.getByRole('button', { name: 'Match takes in air' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent(/connect.*internal.*external|cooperating system/i);
+  expect(screen.getByTestId('animal-system-map')).toHaveTextContent(/external.*internal/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
+
+  await user.click(screen.getByRole('button', { name: /connect cooperating system/i }));
+  expect(screen.getByTestId('widget-animal-structure-matcher')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});

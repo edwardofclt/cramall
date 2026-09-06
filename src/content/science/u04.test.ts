@@ -428,3 +428,14 @@ test('every scenario-dependent Quick Check prompt includes its complete usable c
     expect(questions.get(questionId)?.prompt, questionId).toBe(expectedPrompt);
   }
 });
+
+test('message widgets carry Sandy coaching for first-mismatch repair', () => {
+  const cards = unit04Lessons.flatMap((lesson) => lesson.learnCards).filter((card) => card.widget?.type === 'message-sender');
+  expect(cards).toHaveLength(2);
+  for (const card of cards) {
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/mismatch|reference/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/shared|decode/i);
+  }
+});

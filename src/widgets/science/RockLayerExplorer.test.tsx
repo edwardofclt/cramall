@@ -101,3 +101,32 @@ test('rejects blank, visually equivalent, and duplicate layer fields or a missin
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers: [{ id: 'top', label: 'Top', age: 1 }, { id: 'bottom', label: 'Bottom', age: 1 }] }).success).toBe(false);
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ ...valid, targetLayerId: 'missing' }).success).toBe(false);
 });
+
+test('requires a fossil or rank evidence choice after the relative-age rank is checked', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  const config = {
+    layers,
+    targetLayerId: 'bottom',
+    evidencePrompt: 'Which evidence supports this relative-age conclusion?',
+    evidenceChoices: [
+      { id: 'fossil-order', text: 'The lower layer has plant fossils below the shell layer.' },
+      { id: 'years', text: 'Rank 3 means the layer is three years old.' },
+    ],
+    requiredEvidenceId: 'fossil-order',
+  };
+  render(<RockLayerExplorer config={config} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
+  await user.click(screen.getByRole('button', { name: 'Check layer' }));
+  expect(screen.getByRole('status')).toHaveTextContent(/choose.*evidence/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
+
+  await user.click(screen.getByRole('button', { name: /three years old/i }));
+  expect(screen.getByRole('status')).toHaveTextContent(/revise|evidence/i);
+  await user.click(screen.getByRole('button', { name: /lower layer has plant fossils/i }));
+  expect(screen.getByTestId('rock-selected-evidence')).toHaveTextContent(/plant fossils/i);
+  expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).not.toHaveTextContent(/years old/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
