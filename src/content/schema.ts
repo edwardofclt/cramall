@@ -1066,6 +1066,9 @@ export const RockLayerExplorerWidgetConfigSchema = z.object({
   if (hasEvidencePrompt && (value.evidencePrompt === undefined || value.evidenceChoices === undefined || value.requiredEvidenceId === undefined)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['evidenceChoices'], message: 'an evidence prompt requires evidence choices and a required evidence id' });
   }
+  if (hasEvidencePrompt && value.targetLayerId === undefined) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetLayerId'], message: 'evidence choices require a scored target layer' });
+  }
   if (value.requiredEvidenceId !== undefined && !evidenceIds.includes(rockLayerVisualKey(value.requiredEvidenceId))) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredEvidenceId'], message: 'required evidence must name a choice' });
   }

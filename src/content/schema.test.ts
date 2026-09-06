@@ -686,3 +686,14 @@ test('Credibility production contracts require unique criteria and enough author
   expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse({ ...base, requiredReasonCount: 3 }).success).toBe(false);
   expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse({ ...base, sources: [{ ...source, judgments: source.judgments.map((judgment) => ({ ...judgment, extra: true })) }] }).success).toBe(false);
 });
+
+test('Rock evidence contracts require a scored target layer', () => {
+  const layers = [{ id: 'top', label: 'Top', age: 1 }, { id: 'bottom', label: 'Bottom', age: 2 }];
+  const evidence = {
+    evidencePrompt: 'Choose evidence.',
+    evidenceChoices: [{ id: 'rank', text: 'The larger rank is relatively older.' }, { id: 'years', text: 'The rank is years.' }],
+    requiredEvidenceId: 'rank',
+  };
+  expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers, ...evidence, targetLayerId: 'bottom' }).success).toBe(true);
+  expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers, ...evidence }).success).toBe(false);
+});

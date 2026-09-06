@@ -174,3 +174,29 @@ test('requires an internal and external match to be connected as one cooperating
   expect(screen.getByTestId('widget-animal-structure-matcher')).toHaveAttribute('data-state', 'complete');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
+
+test('resets bounded coaching when the authored animal config changes', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  const firstConfig = {
+    pairs: [
+      { id: 'beak', animal: 'Bird', structure: 'beak', function: 'gathers food' },
+      { id: 'fin', animal: 'Fish', structure: 'fin', function: 'swims' },
+    ],
+  };
+  const view = render(<AnimalStructureMatcher config={firstConfig} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Select Bird beak' }));
+  await user.click(screen.getByRole('button', { name: 'Match swims' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy']);
+
+  onEvent.mockClear();
+  view.rerender(<AnimalStructureMatcher config={{
+    pairs: [
+      { id: 'wing', animal: 'Bird', structure: 'wing', function: 'moves air' },
+      { id: 'tail', animal: 'Fish', structure: 'tail', function: 'steers' },
+    ],
+  }} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Select Bird wing' }));
+  await user.click(screen.getByRole('button', { name: 'Match steers' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy']);
+});

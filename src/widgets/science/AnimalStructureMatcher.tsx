@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
@@ -13,6 +13,7 @@ export default function AnimalStructureMatcher({ config, onEvent }: WidgetProps<
   if (state.key !== key) setState(currentState);
   const { selected, matches, systemConnected, status } = currentState;
   const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
+  useEffect(() => { setCoachPhase('none'); }, [key]);
   const { completeOnce } = useCompletionLatch(key);
   const pairFor = (id: string) => config.pairs.find((pair) => pair.id === id)!;
   const hasCooperatingKinds = config.pairs.some((pair) => pair.kind === 'internal') && config.pairs.some((pair) => pair.kind === 'external');

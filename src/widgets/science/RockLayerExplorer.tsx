@@ -4,6 +4,7 @@ import {useCompletionLatch} from '../useCompletionLatch';
 
 const defaultPrompt = 'Select a rock layer. Larger relative-age ranks are relatively older in this model.';
 type CoachPhase = 'none' | 'strategy' | 'retry';
+const rockEvidenceKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
 
 export default function RockLayerExplorer({config,onEvent}:WidgetProps<'rock-layer-explorer'>) {
   const key = JSON.stringify(config);
@@ -15,7 +16,7 @@ export default function RockLayerExplorer({config,onEvent}:WidgetProps<'rock-lay
   const {completeOnce} = useCompletionLatch(key);
   const evidenceChoices = config.evidenceChoices ?? [];
   const hasEvidence = config.evidenceChoices !== undefined;
-  const isComplete = config.targetLayerId !== undefined && selected === config.targetLayerId && checked === config.targetLayerId && (!hasEvidence || selectedEvidence === config.requiredEvidenceId);
+  const isComplete = config.targetLayerId !== undefined && selected === config.targetLayerId && checked === config.targetLayerId && (!hasEvidence || rockEvidenceKey(selectedEvidence ?? '') === rockEvidenceKey(config.requiredEvidenceId ?? ''));
 
   useEffect(() => {
     setSelected(null);
@@ -73,7 +74,7 @@ export default function RockLayerExplorer({config,onEvent}:WidgetProps<'rock-lay
     setSelectedEvidence(evidenceId);
     onEvent({type: 'interaction', action: 'check'});
     onEvent({type: 'change', value: {selectedLayerId: selected}});
-    if (evidenceId !== config.requiredEvidenceId) {
+    if (rockEvidenceKey(evidenceId) !== rockEvidenceKey(config.requiredEvidenceId ?? '')) {
       setStatus('Revise the evidence choice. Use the relative rank and fossil pattern from the lesson; ranks are not years.');
       coachWrong();
       return;

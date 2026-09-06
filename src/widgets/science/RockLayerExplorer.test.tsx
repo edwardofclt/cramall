@@ -130,3 +130,24 @@ test('requires a fossil or rank evidence choice after the relative-age rank is c
   expect(screen.getByRole('status')).not.toHaveTextContent(/years old/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
+
+test('normalizes evidence ids when a valid authored choice differs only by case', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<RockLayerExplorer config={{
+    layers,
+    targetLayerId: 'bottom',
+    evidencePrompt: 'Choose evidence.',
+    evidenceChoices: [
+      { id: 'FOSSIL-ORDER', text: 'The fossil order supports the relative rank.' },
+      { id: 'CALENDAR-YEARS', text: 'The rank names a calendar year.' },
+    ],
+    requiredEvidenceId: 'fossil-order',
+  }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
+  await user.click(screen.getByRole('button', { name: 'Check layer' }));
+  await user.click(screen.getByRole('button', { name: /fossil order supports/i }));
+  expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});

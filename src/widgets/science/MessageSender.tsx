@@ -34,7 +34,7 @@ export default function MessageSender({ config, onEvent }: WidgetProps<'message-
   const enteredGroups = encoded.split(' ');
   const visiblyComplete = sent && decoded === message;
 
-  useEffect(() => { setEncoded(''); setSent(false); setStatus('Build the message with the code reference.'); }, [key]);
+  useEffect(() => { setEncoded(''); setSent(false); setCoachPhase('none'); setStatus('Build the message with the code reference.'); }, [key]);
 
   const emit = (next: string, action: 'append-symbol' | 'remove-symbol' | 'send' | 'reset') => {
     setEncoded(next);

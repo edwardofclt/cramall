@@ -86,3 +86,19 @@ test('identifies the first mismatched character group without revealing the targ
   expect(screen.getByRole('status')).not.toHaveTextContent('01000001');
   expect(screen.getByTestId('encoded-character-group')).toHaveAttribute('data-group-state', 'mismatch');
 });
+
+test('resets bounded coaching when the authored config changes', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  const view = render(<MessageSender config={{ encoding: 'binary', message: 'A' }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Add one' }));
+  await user.click(screen.getByRole('button', { name: 'Send message' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy']);
+
+  onEvent.mockClear();
+  view.rerender(<MessageSender config={{ encoding: 'binary', message: 'B' }} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Add one' }));
+  await user.click(screen.getByRole('button', { name: 'Send message' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy']);
+});
