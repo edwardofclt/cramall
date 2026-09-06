@@ -65,7 +65,7 @@ const expectedRoutes = {
 const expectedWidgets = {
   'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Build 5/8 by adding two eighths.' } },
   'math-u07-l02-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, task: 'groups', taskPrompt: 'Build 3/4 from unit fractions.' } },
-  'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5/6 of the circle.' } },
+  'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5 whole units among 6 learners.' } },
 } as const;
 
 test('u07 is the exact validated 3-lesson unit', () => {
@@ -95,11 +95,16 @@ test('u07 is the exact validated 3-lesson unit', () => {
       new Set(lesson.learnCards.map(({ id }) => id)),
     );
 
-    for (const card of lesson.learnCards) {
+  for (const card of lesson.learnCards) {
       const expectedWidget = expectedWidgets[card.id as keyof typeof expectedWidgets];
       expect(card.widget).toEqual(expectedWidget);
       if (card.widget) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
       if (card.widget) expect(card.widgetCoach?.intro).toHaveLength(2);
+      if (card.id === 'math-u07-l03-c1') {
+        if (card.widget?.type === 'fraction-models') expect(card.widget.config.taskPrompt).toContain('5 whole units');
+        expect(card.widgetCoach?.reactions.strategy?.text ?? '').not.toContain('circle');
+        expect(card.widgetCoach?.reactions.complete.text).toContain('five whole units fairly');
+      }
     }
   }
 });

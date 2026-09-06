@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
-const equivalent = (a: number, b: number, c: number, d: number) => a * d === c * b;
 const fractionText = (numerator: number, denominator: number) => `${numerator}/${denominator}`;
 
 type FractionModelProps = {
@@ -50,14 +49,14 @@ function FractionModel({ kind, denominator, numerator, wholeCount = 1, label }: 
   return <div className="fraction-view" data-testid="fraction-view" data-kind={kind}>{wholes}</div>;
 }
 
-function FairShareModel({ denominator, numerator, target }: { denominator: number; numerator: number; target: number }) {
+function FairShareModel({ denominator, numerator, target, wholeUnits }: { denominator: number; numerator: number; target: number; wholeUnits: number }) {
   return (
     <div
       className="fair-share-model"
       data-testid="fair-share-model"
       data-equal={numerator === target ? 'yes' : 'no'}
       role="group"
-      aria-label={`Fair sharing model: ${denominator} recipients each receive ${numerator} of ${denominator} equal parts`}
+      aria-label={`Fair sharing model: ${wholeUnits} whole units distributed among ${denominator} recipients; each receives ${numerator} of ${denominator} equal parts`}
     >
       <div className="fair-share-recipients">
         {Array.from({ length: denominator }, (_, recipientIndex) => (
@@ -86,8 +85,8 @@ function FairShareModel({ denominator, numerator, target }: { denominator: numbe
       </div>
       <p data-testid="fair-share-state" role="status">
         {numerator === target
-          ? `Every learner receives an equal ${numerator}/${denominator} share.`
-          : `Distribute the same number of parts to every learner: ${numerator} of ${denominator} so far.`}
+          ? `Each learner receives an equal ${numerator}/${denominator} share: ${wholeUnits} whole units are shared fairly.`
+          : `${wholeUnits} whole units are cut into ${denominator} equal parts each. Distribute the same number to every learner: ${numerator} of ${denominator} so far.`}
       </p>
     </div>
   );
@@ -128,7 +127,11 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
   const target = config.target ?? (config.task === 'equivalent' ? config.comparisonTarget : undefined);
   const comparisonTarget = config.comparisonTarget ?? (config.task === 'equivalent' ? config.target : undefined);
   const totalNumerator = (wholeCount - 1) * config.denominator + numerator;
-  const totalTargetNumerator = target ? (wholeCount - 1) * config.denominator + target.numerator : undefined;
+  const totalTargetNumerator = target ? (wholeCount - 1) * target.denominator + target.numerator : undefined;
+  const totalTargetDenominator = target?.denominator;
+  const valuesEquivalent = (next: number) => Boolean(target) && (
+    ((wholeCount - 1) * config.denominator + next) * totalTargetDenominator! === totalTargetNumerator! * config.denominator
+  );
 
   useEffect(() => {
     setNumerator(initial);
@@ -137,7 +140,7 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
 
   const matches = (next: number) => Boolean(target) && (
     config.allowEquivalent || config.task === 'equivalent'
-      ? equivalent((wholeCount - 1) * config.denominator + next, config.denominator, totalTargetNumerator!, target!.denominator)
+      ? valuesEquivalent(next)
       : (wholeCount - 1) * config.denominator + next === totalTargetNumerator && config.denominator === target!.denominator
   );
   const matchesCurrentTarget = matches(numerator);
@@ -166,7 +169,7 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
         value: {
           numerator: next,
           denominator: config.denominator,
-          equivalent: equivalent((wholeCount - 1) * config.denominator + next, config.denominator, totalTargetNumerator!, target!.denominator),
+          equivalent: valuesEquivalent(next),
         },
       }));
     }
@@ -184,9 +187,9 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
         <strong>Goal:</strong> {config.taskPrompt ?? `Build ${targetLabel}`}
         {target && <span> Target value: {fractionText(totalTargetNumerator!, target.denominator)}.</span>}
       </div>
-      {config.task === 'equivalent' && comparisonTarget && <p className="fraction-task-hint" data-testid="fraction-equivalence-hint">Compare two equal-sized wholes: {fractionText(totalNumerator, config.denominator)} and {fractionText(comparisonTarget.numerator, comparisonTarget.denominator)}.</p>}
+      {config.task === 'equivalent' && comparisonTarget && <p className="fraction-task-hint" data-testid="fraction-equivalence-hint">Compare two equal-sized wholes: {fractionText(totalNumerator, config.denominator)} and {fractionText((wholeCount - 1) * comparisonTarget.denominator + comparisonTarget.numerator, comparisonTarget.denominator)}.</p>}
       {config.task === 'change' && target && <p className="fraction-equation" data-testid="fraction-equation"><span>Start: {fractionText(config.numerator ?? 0, config.denominator)}</span>{' '}<span>Change: {changeText}</span>{' '}<span>Result: {fractionText(totalTargetNumerator!, config.denominator)}</span></p>}
-      {config.task === 'share' && <p className="fraction-task-hint" data-testid="fair-share-distribution">One whole is split into {config.denominator} equal shares. Each share stays the same size.</p>}
+      {config.task === 'share' && <p className="fraction-task-hint" data-testid="fair-share-distribution">{target?.numerator ?? numerator} whole units are cut into {config.denominator} equal parts each. Each learner receives {target ? fractionText(target.numerator, target.denominator) : fractionText(numerator, config.denominator)} when every part is shared.</p>}
       <div className="fraction-controls" role="group" aria-label="Change the shaded amount">
         <button type="button" onClick={() => commit(0, 'clear-model')}>Clear model</button>
         <button type="button" onClick={() => commit(numerator + 1, 'select-piece')} disabled={numerator >= config.denominator}>Add one part</button>
@@ -202,7 +205,7 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
           <p>These models use a same-sized whole, so their shaded amounts can be compared fairly.</p>
         </div>
       ) : config.task === 'share' ? (
-        <FairShareModel denominator={config.denominator} numerator={numerator} target={target?.numerator ?? numerator} />
+        <FairShareModel denominator={config.denominator} numerator={numerator} target={target?.numerator ?? numerator} wholeUnits={target?.numerator ?? numerator} />
       ) : config.task === 'groups' ? (
         <FractionGroupsModel denominator={config.denominator} numerator={numerator} />
       ) : <div className="fraction-models-views">{modelKinds.map((kind) => <FractionModel key={kind} kind={kind} denominator={config.denominator} numerator={numerator} wholeCount={wholeCount} label="Current" />)}</div>}

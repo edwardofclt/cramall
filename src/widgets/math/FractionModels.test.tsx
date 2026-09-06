@@ -200,7 +200,8 @@ test('explains fair-sharing distribution and exposes add/remove controls', async
     />,
   );
 
-  expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('6 equal shares');
+  expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('5 whole units');
+  expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('Each learner receives 5/6');
   expect(screen.getAllByTestId('fair-share-recipient')).toHaveLength(6);
   expect(screen.getAllByTestId('fair-share-unit')).toHaveLength(36);
   await user.click(screen.getByRole('button', { name: 'Add one part' }));
@@ -211,6 +212,7 @@ test('explains fair-sharing distribution and exposes add/remove controls', async
   await user.click(screen.getByRole('button', { name: 'Shade part 5 of 6' }));
   expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('Fraction complete.');
+  expect(screen.getByTestId('fair-share-state')).toHaveTextContent('Each learner receives an equal 5/6 share');
 });
 
 test('renders repeated unit-fraction groups with boundaries and labels', async () => {
@@ -247,4 +249,31 @@ test('uses the computed multi-whole target in the fallback goal', () => {
   );
 
   expect(screen.getByTestId('widget-task')).toHaveTextContent('Build 5/4');
+});
+
+test('normalizes equivalent multi-whole targets with unlike denominators', async () => {
+  const user = userEvent.setup();
+  const onEvent = vi.fn();
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 4,
+        numerator: 0,
+        wholeCount: 2,
+        target: { numerator: 1, denominator: 2 },
+        allowEquivalent: true,
+      }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByTestId('widget-task')).toHaveTextContent('Build 3/2');
+  await user.click(screen.getByRole('button', { name: 'Shade part 2 of 4' }));
+
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls[onEvent.mock.calls.length - 1]?.[0]).toEqual({
+    type: 'complete',
+    value: { numerator: 2, denominator: 4, equivalent: true },
+  });
 });

@@ -181,17 +181,17 @@ export const unit07Lessons = [
           { kind: 'example', text: 'Three brownies shared among 4 learners gives 3 ÷ 4 = 3/4 brownie per learner.' },
           { kind: 'tip', text: 'Every recipient must receive the same amount.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5/6 of the circle.' } },
+        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5 whole units among 6 learners.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Share five equal sixth-size pieces of the circle to model 5/6 for each fair share.' },
-            { speaker: 'kid', text: 'I will count five equal pieces and leave one sixth unshaded.' },
+            { speaker: 'guide', pose: 'think', text: 'Cut five whole units into sixths and distribute one equal sixth-size part to each learner from every unit.' },
+            { speaker: 'kid', text: 'I will give every learner the same five sixth-size pieces, so each share is 5/6.' },
           ],
           reactions: {
-            strategy: { text: 'Look for the next unshaded sixth and compare the circle with five selected pieces.', pose: 'think' },
+            strategy: { text: 'Look for the next waiting sixth in every learner row and keep each distribution equal.', pose: 'think' },
             retry: { text: 'Keep every share the same size: count sixths instead of changing the whole.', pose: 'oops' },
-            milestone: { text: 'The circle now shows several equal shares—keep counting sixths.', pose: 'cheer' },
-            complete: { text: 'You modeled 5/6: five of six equal circle parts are selected.', pose: 'cheer' },
+            milestone: { text: 'Every learner row now shows the same growing share—keep distributing sixths.', pose: 'cheer' },
+            complete: { text: 'You shared five whole units fairly: every learner receives 5/6.', pose: 'cheer' },
           },
         },
       },
