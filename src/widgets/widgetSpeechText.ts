@@ -36,7 +36,12 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'shape-classifier':
       return 'mode' in ref.config
         ? add('Classify the shapes.', 'Select every class that fits.', ...ref.config.shapes.map((shape) => shape.label), ...ref.config.bins.map((bin) => bin.label))
-        : add('Classify the shapes.', `Classify by ${ref.config.rule}.`, ...ref.config.shapes.map((shape) => shape.label), ...ref.config.bins.map((bin) => bin.label));
+        : add(
+          'Classify the shapes.',
+          `Classify by ${ref.config.rule === 'parallelPairs' ? 'pairs of parallel sides' : ref.config.rule}.`,
+          ...ref.config.shapes.map((shape) => shape.label),
+          ...ref.config.bins.map((bin) => bin.label),
+        );
     case 'data-plot-builder':
       return add(ref.config.prompt, ref.config.taskPrompt, `Categories: ${ref.config.categories.join(', ')}.`);
     case 'probability-spinner': {

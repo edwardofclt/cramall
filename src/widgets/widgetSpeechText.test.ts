@@ -129,4 +129,25 @@ describe('widgetSpeechText', () => {
     expect(text).toContain('Event to classify: Red.');
     expect(text).not.toContain('red-segment');
   });
+
+  test('uses the learner-facing label for a legacy shape rule', () => {
+    const ref = parse({
+      type: 'shape-classifier',
+      config: {
+        shapes: [
+          { id: 'shape-a', label: 'Rectangle', sides: 4, angles: 4, parallelPairs: 2 },
+          { id: 'shape-b', label: 'Triangle', sides: 3, angles: 3, parallelPairs: 0 },
+        ],
+        bins: [
+          { id: 'bin-two', label: 'Two pairs', value: 2 },
+          { id: 'bin-zero', label: 'No pairs', value: 0 },
+        ],
+        rule: 'parallelPairs',
+      },
+    });
+
+    const text = widgetSpeechText(ref).join(' ');
+    expect(text).toContain('Classify by pairs of parallel sides.');
+    expect(text).not.toContain('parallelPairs');
+  });
 });
