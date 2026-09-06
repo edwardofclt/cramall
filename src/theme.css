@@ -78,6 +78,15 @@
   justify-self: center;
 }
 
+.widget-coach-intro-live {
+  min-inline-size: 0;
+}
+
+.widget-coach-scene[data-speaker='kid'] .widget-coach-intro-live {
+  grid-column: 2;
+  grid-row: 1;
+}
+
 .widget-coach-controls {
   display: flex;
   justify-content: flex-end;
@@ -93,6 +102,22 @@
   opacity: 0.7;
 }
 
+.widget-coach-intro[data-active='yes'] {
+  padding-block: 0.25rem;
+  border-width: 0;
+  background: transparent;
+}
+
+.widget-coach-intro[data-active='yes'] .widget-coach-controls {
+  min-block-size: 0;
+  justify-content: flex-end;
+}
+
+.widget-coach-intro[data-active='yes'] .btn {
+  opacity: 0.65;
+  cursor: default;
+}
+
 .widget-coach-reaction {
   display: grid;
   grid-template-columns: minmax(4.5rem, 5rem) minmax(0, 1fr);
@@ -105,7 +130,7 @@
   background: var(--c-peek-bg);
 }
 
-.widget-coach-reaction > svg {
+.widget-coach-reaction > span {
   justify-self: center;
 }
 

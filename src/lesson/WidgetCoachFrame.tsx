@@ -15,16 +15,13 @@ export type WidgetCoachFrameProps = WidgetFrameProps & {
 
 type Phase = 'intro' | 'active';
 
-const FOCUSABLE =
-  'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
 function IntroLine({ line, guide }: { line: WidgetCoachLine; guide: GuideId }) {
   const speakingGuide = line.speaker === 'guide';
   return (
     <div className="widget-coach-scene" data-speaker={line.speaker}>
-      <SpeechBubble align={speakingGuide ? 'center' : 'right'}>
-        {line.text}
-      </SpeechBubble>
+      <div className="widget-coach-intro-live" data-testid="widget-coach-intro-live" aria-live="polite" aria-atomic="true">
+        <SpeechBubble align={speakingGuide ? 'center' : 'right'}>{line.text}</SpeechBubble>
+      </div>
       <Character
         guide={guide}
         pose={speakingGuide ? line.pose ?? 'talk' : 'idle'}
@@ -49,9 +46,13 @@ function Reaction({
 }) {
   return (
     <div className="widget-coach-reaction" data-testid="widget-coach-reaction">
-      <Character guide={guide} pose={pose ?? 'talk'} size={76} allowOverflow />
-      <div className="widget-coach-reaction-copy" role="status" aria-live="polite" aria-atomic="true">
-        <SpeechBubble align="left">{text}</SpeechBubble>
+      <span aria-hidden="true">
+        <Character guide={guide} pose={pose ?? 'talk'} size={76} allowOverflow />
+      </span>
+      <div className="widget-coach-reaction-copy">
+        <div className="widget-coach-reaction-live" role="status" aria-live="polite" aria-atomic="true">
+          <SpeechBubble align="left">{text}</SpeechBubble>
+        </div>
         <button type="button" className="btn widget-coach-dismiss" aria-label="Dismiss" onClick={onDismiss}>
           Dismiss
         </button>
@@ -84,7 +85,6 @@ function WidgetCoachRun({
   const [introIndex, setIntroIndex] = useState(0);
   const [reaction, setReaction] = useState<WidgetCoach['reactions'][CoachCue | 'complete'] | null>(null);
   const seen = useRef(new Set<CoachCue | 'complete'>());
-  const activityRef = useRef<HTMLDivElement>(null);
   const onIntroActiveChangeRef = useRef(onIntroActiveChange);
   const intro = coach.intro[introIndex] ?? coach.intro[0]!;
   const isLastIntroLine = introIndex === coach.intro.length - 1;
@@ -128,25 +128,25 @@ function WidgetCoachRun({
 
   function activate() {
     setPhase('active');
-    // Keep the next Tab target in the widget. The wrapper itself is not inserted into the
-    // browser tab order, so keyboard learners land on the first real widget control.
-    requestAnimationFrame(() => {
-      activityRef.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
-    });
   }
 
   return (
     <div className="widget-coach-frame" style={widgetCoachStyle(phase)}>
-      {phase === 'intro' && (
-        <div className="widget-coach-intro" data-testid="widget-coach-intro">
-          <IntroLine line={intro} guide={guide} />
-          <div className="widget-coach-controls">
-            <button type="button" className="btn btn-primary" aria-label={isLastIntroLine ? 'Try it' : 'Next'} onClick={isLastIntroLine ? activate : advanceIntro}>
-              {isLastIntroLine ? 'Try it' : 'Next'} <span aria-hidden="true">→</span>
-            </button>
-          </div>
+      <div className="widget-coach-intro" data-testid="widget-coach-intro" data-active={phase === 'active' ? 'yes' : undefined}>
+        {phase === 'intro' && <IntroLine line={intro} guide={guide} />}
+        <div className="widget-coach-controls">
+          <button
+            type="button"
+            className="btn btn-primary"
+            aria-label={isLastIntroLine ? 'Try it' : 'Next'}
+            aria-disabled={phase === 'active' ? true : undefined}
+            tabIndex={phase === 'active' ? -1 : undefined}
+            onClick={phase === 'active' ? undefined : isLastIntroLine ? activate : advanceIntro}
+          >
+            {isLastIntroLine ? 'Try it' : 'Next'} <span aria-hidden="true">→</span>
+          </button>
         </div>
-      )}
+      </div>
 
       {reaction && (
         <Reaction
@@ -158,7 +158,6 @@ function WidgetCoachRun({
       )}
 
       <div
-        ref={activityRef}
         className="widget-coach-activity"
         data-testid="widget-coach-activity"
         {...(phase === 'intro' ? ({ inert: '' } as Record<string, string>) : {})}
