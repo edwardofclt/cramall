@@ -479,6 +479,18 @@ describe('Reading unit 9 literal content', () => {
     });
   });
 
+  test('connects the point-of-view manipulative to a two-line Winnie bridge and reactions', () => {
+    const card = unit09Lessons.find(({ id }) => id === 'reading-u09-l01')!.learnCards.find(({ id }) => id === 'reading-u09-l01-c3')!;
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.intro.map(line => line.speaker)).toEqual(['guide', 'kid']);
+    expect(card.widgetCoach?.reactions).toEqual(expect.objectContaining({
+      strategy: expect.any(Object),
+      retry: expect.any(Object),
+      milestone: expect.any(Object),
+      complete: expect.any(Object),
+    }));
+  });
+
   test('uses a grammatical q11 prompt', () => {
     const perspectiveLesson = unit09Lessons.find(({ id }) => id === 'reading-u09-l02')!;
     expect(perspectiveLesson.quiz.pool.find(({ id }) => id === 'reading-u09-l02-q11')!.prompt)

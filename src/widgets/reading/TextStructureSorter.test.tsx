@@ -22,8 +22,10 @@ test('retains select-then-bin placements in authored order and completes once',a
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'select-excerpt'},
     {type:'change',value:{placements:{}}},
+    {type:'coach',cue:'strategy'},
     {type:'interaction',action:'place-structure'},
     {type:'change',value:{placements:{steps:'sequence'}}},
+    {type:'coach',cue:'milestone'},
   ]);
 
   await user.click(screen.getByRole('button',{name:'Select Rain fell, so the field flooded.'}));
@@ -55,7 +57,7 @@ test('keeps full excerpts, selection, and incorrect placements visible for revis
   expect(rain).toHaveTextContent('Selected');
   await user.click(screen.getByRole('button',{name:'Place selected excerpt in description'}));
   expect(screen.getByTestId('text-structure-placement-rain')).toHaveTextContent('Placed in description');
-  const feedback=screen.getByText(/^This arrangement needs revision/);
+  const feedback=screen.getByText(/is placed in description/);
   expect(feedback).toBeVisible();
   expect(feedback).not.toHaveTextContent(/cause and effect/i);
 });
@@ -72,7 +74,7 @@ test('exits visible success after revision while keeping completion latched thro
 
   await user.click(screen.getByRole('button',{name:'Place selected excerpt in description'}));
   expect(screen.getByTestId('widget-text-structure-sorter')).toHaveAttribute('data-state','revision');
-  expect(screen.getByText(/^This arrangement needs revision/)).toBeVisible();
+  expect(screen.getByText(/is placed in description/)).toBeVisible();
   await user.click(screen.getByRole('button',{name:'Start over'}));
   expect(screen.getByTestId('text-structure-placement-rain')).toHaveTextContent('Not placed yet');
   expect(screen.getByTestId('text-structure-placement-steps')).toHaveTextContent('Not placed yet');
@@ -114,6 +116,24 @@ test('normalizes authoring text and rejects blank, equivalent, or unsupported ex
   expect(TextStructureSorterWidgetConfigSchema.safeParse({excerpts:[config.excerpts[0],{id:'other',text:' rain fell, so the field flooded. ',structure:'description'}]}).success).toBe(false);
   expect(TextStructureSorterWidgetConfigSchema.safeParse({excerpts:[config.excerpts[0],{id:'other',text:'Other',structure:'chronological'}]}).success).toBe(false);
   expect(TextStructureSorterWidgetConfigSchema.safeParse({excerpts:[config.excerpts[0],{id:' ',text:'Other',structure:'description'}]}).success).toBe(false);
+});
+
+test('uses only authored structures and gives relationship-specific retry coaching',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<TextStructureSorter config={{
+    availableStructures:['sequence','compare-contrast'],
+    excerpts:[
+      {id:'steps',text:'First mix, then bake.',structure:'sequence'},
+      {id:'materials',text:'Wood costs less, while composite lasts longer.',structure:'compare-contrast'},
+    ],
+  }} onEvent={onEvent}/>);
+  expect(screen.queryByRole('button',{name:'Place selected excerpt in cause and effect'})).not.toBeInTheDocument();
+  expect(screen.queryByRole('button',{name:'Place selected excerpt in problem and solution'})).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button',{name:'Select First mix, then bake.'}));
+  await user.click(screen.getByRole('button',{name:'Place selected excerpt in compare and contrast'}));
+  expect(screen.getByText(/what relationship does it show/i)).toHaveTextContent('First mix, then bake.');
+  expect(screen.getByText(/what relationship does it show/i)).not.toHaveTextContent(/sequence/i);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
 });
 
 test('rejects digit-only IDs before Record property ordering can change authored order',()=>{

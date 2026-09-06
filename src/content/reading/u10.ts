@@ -592,6 +592,7 @@ export const unit10Lessons = [
         "widget": {
           "type": "figurative-language-matcher",
           "config": {
+            "availableKinds": ["simile", "metaphor", "idiom"],
             "pairs": [
               {
                 "id": "simile",
@@ -612,6 +613,18 @@ export const unit10Lessons = [
                 "meaning": "the setup was easy"
               }
             ]
+          }
+        },
+        "widgetCoach": {
+          "intro": [
+            {"speaker": "guide", "pose": "talk", "text": "You just learned three ways a phrase can mean more than its literal words. Let’s match each phrase to its kind."},
+            {"speaker": "kid", "text": "I’ll use the phrase and its meaning as clues."}
+          ],
+          "reactions": {
+            "strategy": {"text": "Read the phrase and meaning together before choosing its language kind.", "pose": "think"},
+            "retry": {"text": "Reread the acted-on phrase’s meaning and look for the clue that explains how it works.", "pose": "oops"},
+            "milestone": {"text": "Great clue finding: one phrase now has a supported language kind.", "pose": "cheer"},
+            "complete": {"text": "You matched the phrases by using their meanings and language clues.", "pose": "cheer"}
           }
         },
         "check": {

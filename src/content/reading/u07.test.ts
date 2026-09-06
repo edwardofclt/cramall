@@ -385,6 +385,7 @@ const expectedWidgets = [
         "ref": {
           "type": "text-structure-sorter",
           "config": {
+            "availableStructures": ["problem-solution", "sequence", "compare-contrast"],
             "excerpts": [
               {
                 "id": "repair",

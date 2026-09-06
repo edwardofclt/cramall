@@ -571,6 +571,7 @@ const expectedWidgets = [
         "ref": {
           "type": "figurative-language-matcher",
           "config": {
+            "availableKinds": ["simile", "metaphor", "idiom"],
             "pairs": [
               {
                 "id": "simile",

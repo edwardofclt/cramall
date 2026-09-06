@@ -2,7 +2,7 @@ import {useState} from 'react';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
-const structures=['sequence','compare-contrast','cause-effect','problem-solution','description'] as const;
+const defaultStructures=['sequence','compare-contrast','cause-effect','problem-solution','description'] as const;
 const structureLabel=(structure:string)=>structure.replace(/-/g,' and ');
 type TextStructureSorterProps=WidgetProps<'text-structure-sorter'>;
 type Placements=Record<string,string>;
@@ -12,6 +12,7 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const [placements,setPlacements]=useState<Placements>({});
   const {completeOnce}=useCompletionLatch(key);
+  const structures=config.availableStructures ?? defaultStructures;
 
   const inAuthoredOrder=(next:Placements)=>Object.fromEntries(
     config.excerpts.flatMap((excerpt)=>next[excerpt.id]===undefined?[]:[[excerpt.id,next[excerpt.id]]]),
@@ -19,9 +20,15 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
   const correct=(next:Placements)=>config.excerpts.every((excerpt)=>next[excerpt.id]===excerpt.structure);
   const emit=(next:Placements,action:'select-excerpt'|'place-structure'|'reset')=>{
     const ordered=inAuthoredOrder(next);
+    const previousCorrectCount=config.excerpts.filter((excerpt)=>placements[excerpt.id]===excerpt.structure).length;
+    const nextCorrectCount=config.excerpts.filter((excerpt)=>ordered[excerpt.id]===excerpt.structure).length;
+    const actedOn=selectedId===null?undefined:config.excerpts.find((excerpt)=>excerpt.id===selectedId);
     setPlacements(ordered);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{placements:ordered}});
+    if(action==='select-excerpt') onEvent({type:'coach',cue:'strategy'});
+    if(action==='place-structure'&&nextCorrectCount>previousCorrectCount&&nextCorrectCount===1) onEvent({type:'coach',cue:'milestone'});
+    if(action==='place-structure'&&actedOn&&ordered[actedOn.id]!==actedOn.structure) onEvent({type:'coach',cue:'retry'});
     if(correct(ordered)){
       completeOnce(()=>onEvent({type:'complete',value:{placements:ordered}}));
     }
@@ -33,11 +40,14 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
   const isCorrect=correct(placements);
   const placementCount=Object.keys(placements).length;
   const state=isCorrect?'complete':placementCount>0?'revision':'sorting';
+  const incorrect=config.excerpts.find((excerpt)=>placements[excerpt.id]!==undefined&&placements[excerpt.id]!==excerpt.structure);
   const status=isCorrect
     ?'Every text structure is correct.'
-    :placementCount>0
-      ?'This arrangement needs revision. Select an excerpt to try a different structure.'
-      :selectedId?'Choose a structure for the selected excerpt.':'Select an excerpt.';
+    :incorrect
+      ?`“${incorrect.text}” is placed in ${structureLabel(placements[incorrect.id]??'')}. What relationship does it show? Reread the excerpt and try again.`
+      :placementCount>0
+        ?'This arrangement is taking shape. Select an excerpt to place or revise.'
+        :selectedId?'Choose a structure for the selected excerpt.':'Select an excerpt.';
 
   return <section className="card widget-experiment structures" data-testid="widget-text-structure-sorter" data-state={state}>
     <header>

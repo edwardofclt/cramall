@@ -24,7 +24,7 @@ test('applies the selected target forms to the complete visible source and compl
   onEvent.mockClear();
 
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
-  expect(screen.getByRole('status')).toHaveTextContent('I carried my book.');
+  expect(screen.getByRole('status')).toHaveTextContent(/reread both passages/i);
   expect(screen.getByTestId('pov-source-passage')).toBeVisible();
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'apply'},
@@ -34,6 +34,18 @@ test('applies the selected target forms to the complete visible source and compl
 
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
+});
+
+test('keeps a rewritten passage visible and prompts a post-rewrite meaning check',async()=>{
+  const user=userEvent.setup();
+  render(<PovSwitcher config={thirdToFirst} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
+  await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
+  await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  expect(screen.getByTestId('pov-source-passage')).toHaveTextContent('Ava carried Ava’s book.');
+  expect(screen.getByTestId('pov-rewritten-passage')).toHaveTextContent('I carried my book.');
+  expect(screen.getByRole('status')).toHaveTextContent(/reread both passages/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/event and meaning stay the same/i);
 });
 
 test('rewrites both directions at word boundaries while preserving punctuation and untouched text',()=>{
@@ -94,10 +106,8 @@ test('retains revisable choices in authored order with keyboard and non-color ma
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   expect(my).toHaveAttribute('aria-pressed','true');
   expect(my).toHaveTextContent('✓ Selected');
-  expect(onEvent.mock.calls.slice(-2).map(([event])=>event)).toEqual([
-    {type:'interaction',action:'select-pronoun'},
-    {type:'change',value:{selectedPronouns:['I','my']}},
-  ]);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'interaction',action:'select-pronoun'});
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'change',value:{selectedPronouns:['I','my']}});
 });
 
 test('gives bounded apply guidance and leaves completion view after a successful revision',async()=>{

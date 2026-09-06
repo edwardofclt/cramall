@@ -93,6 +93,7 @@ export const unit07Lessons = [
         "widget": {
           "type": "text-structure-sorter",
           "config": {
+            "availableStructures": ["problem-solution", "sequence", "compare-contrast"],
             "excerpts": [
               {
                 "id": "repair",
@@ -110,6 +111,18 @@ export const unit07Lessons = [
                 "structure": "compare-contrast"
               }
             ]
+          }
+        },
+        "widgetCoach": {
+          "intro": [
+            {"speaker": "guide", "pose": "talk", "text": "You just read three repair relationships. Let’s sort each excerpt by what its ideas are doing."},
+            {"speaker": "kid", "text": "I’ll look for the relationship, not just a signal word."}
+          ],
+          "reactions": {
+            "strategy": {"text": "Read the whole excerpt, then name the relationship between its ideas.", "pose": "think"},
+            "retry": {"text": "Reread the acted-on excerpt and ask what job its ideas do together.", "pose": "oops"},
+            "milestone": {"text": "Nice reasoning: one relationship is supported by the excerpt.", "pose": "cheer"},
+            "complete": {"text": "You matched each excerpt to the relationship that organizes its meaning.", "pose": "cheer"}
           }
         },
         "check": {

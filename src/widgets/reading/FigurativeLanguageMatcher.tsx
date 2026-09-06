@@ -3,7 +3,7 @@ import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
 type FigurativeLanguageMatcherProps=WidgetProps<'figurative-language-matcher'>;
-const kinds=['simile','metaphor','personification','idiom'] as const;
+const defaultKinds=['simile','metaphor','personification','idiom'] as const;
 const ownMatch=(values:Record<string,string>,id:string)=>Object.prototype.hasOwnProperty.call(values,id)?values[id]:undefined;
 
 function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatcherProps){
@@ -11,6 +11,7 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const [matches,setMatches]=useState<Record<string,string>>({});
   const {completeOnce}=useCompletionLatch(key);
+  const kinds=config.availableKinds ?? defaultKinds;
   const orderedMatches=(values:Record<string,string>)=>Object.fromEntries(
     config.pairs.flatMap((pair)=>{
       const value=ownMatch(values,pair.id);
@@ -20,9 +21,15 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
   const correct=(values:Record<string,string>)=>config.pairs.every((pair)=>ownMatch(values,pair.id)===pair.kind);
   const emit=(values:Record<string,string>,action:'select-phrase'|'match'|'reset')=>{
     const ordered=orderedMatches(values);
+    const previousCorrectCount=config.pairs.filter((pair)=>ownMatch(matches,pair.id)===pair.kind).length;
+    const nextCorrectCount=config.pairs.filter((pair)=>ownMatch(ordered,pair.id)===pair.kind).length;
+    const actedOn=selectedId===null?undefined:config.pairs.find((pair)=>pair.id===selectedId);
     setMatches(ordered);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{matches:ordered}});
+    if(action==='select-phrase') onEvent({type:'coach',cue:'strategy'});
+    if(action==='match'&&nextCorrectCount>previousCorrectCount&&nextCorrectCount===1) onEvent({type:'coach',cue:'milestone'});
+    if(action==='match'&&actedOn&&ordered[actedOn.id]!==actedOn.kind) onEvent({type:'coach',cue:'retry'});
     if(correct(ordered))completeOnce(()=>onEvent({type:'complete',value:{matches:ordered}}));
   };
   const select=(id:string)=>{
@@ -43,12 +50,15 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     return value!==undefined&&value!==pair.kind;
   });
   const state=currentComplete?'complete':Object.keys(matches).length?'revision':'matching';
+  const wrongPair=config.pairs.find((pair)=>ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind);
   const status=currentComplete
     ?'Every figurative phrase is matched.'
     :selectedId!==null
-      ?'Phrase selected. Choose a language type, then revise any match that needs another look.'
+      ?wrongPair
+        ?`The match for “${wrongPair.phrase}” needs another look. What clue tells you how the phrase works? Reread its meaning and try another type.`
+        :'Phrase selected. Choose a language type, then revise any match that needs another look.'
       :hasWrongMatch
-        ?'One or more matches need revision. Select a phrase to try again.'
+        ?`The match for “${wrongPair?.phrase??'this phrase'}” needs another look. Select it and reread its meaning.`
         :'Select a phrase, then choose its language type.';
 
   return <section className="card widget-experiment figurative" data-testid="widget-figurative-language-matcher" data-state={state}>

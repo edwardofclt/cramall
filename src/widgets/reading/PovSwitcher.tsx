@@ -50,6 +50,8 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
     setAttemptedApply(false);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{selectedPronouns:ordered}});
+    if(action==='select-pronoun'&&ordered.length===1) onEvent({type:'coach',cue:'strategy'});
+    if(action==='select-pronoun'&&isReady(ordered)) onEvent({type:'coach',cue:'milestone'});
   };
   const apply=()=>{
     const ordered=inAuthoredOrder(selectedPronouns);
@@ -59,6 +61,7 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
     onEvent({type:'change',value:{selectedPronouns:ordered}});
     if(!ready){
       setAppliedText(null);
+      onEvent({type:'coach',cue:'retry'});
       return;
     }
     const rewrittenText=rewritePassage(config.passage,config.from,config.requiredPronouns);
@@ -69,7 +72,7 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
   const currentComplete=ready&&appliedText!==null;
   const state=currentComplete?'complete':selectedPronouns.length?'revision':'choosing';
   const status=currentComplete
-    ?appliedText
+    ?'Reread both passages: did the event and meaning stay the same?'
     :attemptedApply
       ?'Choose two target forms, then apply your rewrite.'
       :ready
@@ -87,6 +90,10 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
       <strong>Source passage</strong>
       <span>{config.passage}</span>
     </blockquote>
+    {appliedText&&<blockquote className="pov-rewritten-passage" data-testid="pov-rewritten-passage">
+      <strong>Rewritten passage</strong>
+      <span>{appliedText}</span>
+    </blockquote>}
     <div className="pov-pronoun-options" aria-label="Target forms">
       {config.pronounOptions.map((pronoun)=>{
         const selected=selectedPronouns.includes(pronoun);

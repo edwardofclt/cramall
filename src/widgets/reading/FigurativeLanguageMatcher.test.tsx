@@ -49,6 +49,7 @@ test('emits unchanged matches when selecting and retains wrong matches for revis
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'select-phrase'},
     {type:'change',value:{matches:{}}},
+    {type:'coach',cue:'strategy'},
   ]);
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Match metaphor'}));
@@ -57,6 +58,7 @@ test('emits unchanged matches when selecting and retains wrong matches for revis
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'match'},
     {type:'change',value:{matches:{flash:'metaphor'}}},
+    {type:'coach',cue:'retry'},
   ]);
 });
 
@@ -72,7 +74,7 @@ test('leaves visible success after revision without rearming completion',async()
   await user.click(screen.getByRole('button',{name:'Select phrase fast as lightning'}));
   await user.click(screen.getByRole('button',{name:'Match metaphor'}));
   expect(screen.getByTestId('widget-figurative-language-matcher')).toHaveAttribute('data-state','revision');
-  expect(screen.getByText('Phrase selected. Choose a language type, then revise any match that needs another look.')).toBeVisible();
+  expect(screen.getByText(/The match for “fast as lightning” needs another look/)).toBeVisible();
   await user.click(screen.getByRole('button',{name:'Select phrase fast as lightning'}));
   await user.click(screen.getByRole('button',{name:'Match simile'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
@@ -133,6 +135,18 @@ test('normalizes text and rejects ambiguous pairs or array-index IDs',()=>{
     {pairs:[{...pairs[0],kind:'hyperbole'},pairs[1]]},
   ];
   for(const value of invalid)expect(FigurativeLanguageMatcherWidgetConfigSchema.safeParse(value).success).toBe(false);
+});
+
+test('uses only authored language kinds and names the acted-on phrase without leaking its answer',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<FigurativeLanguageMatcher config={{pairs,availableKinds:['simile','idiom']}} onEvent={onEvent}/>);
+  expect(screen.queryByRole('button',{name:'Match metaphor'})).not.toBeInTheDocument();
+  expect(screen.queryByRole('button',{name:'Match personification'})).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button',{name:'Select phrase fast as lightning'}));
+  await user.click(screen.getByRole('button',{name:'Match idiom'}));
+  expect(screen.getByText(/what clue tells you how the phrase works/i)).toHaveTextContent('fast as lightning');
+  expect(screen.getByText(/what clue tells you how the phrase works/i)).not.toHaveTextContent(/simile/i);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
 });
 
 test('rejects prototype property IDs while continuing to accept ordinary normalized IDs',()=>{
