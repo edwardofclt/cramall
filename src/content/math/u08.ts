@@ -40,6 +40,18 @@ export const unit08Lessons = [
           { kind: 'tip', text: 'Count the equal parts in the model before choosing the denominator.' },
         ],
         widget: { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.1, b: 0.35, step: 0.01, display: 'fraction', denominator: 100 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the hundredths line to connect 0.10 with 10/100 and 0.35 with 35/100.' },
+            { speaker: 'kid', text: 'I will compare the markers while keeping the authored denominator visible.' },
+          ],
+          reactions: {
+            strategy: { text: 'Count tenths landmarks first, then read the exact hundredths at each marker.', pose: 'think' },
+            retry: { text: 'Keep the denominator at 100 so the label still tells how many hundredths you have.', pose: 'oops' },
+            milestone: { text: 'Nice—the tenth landmarks help you estimate before you read the exact hundredths.', pose: 'cheer' },
+            complete: { text: 'The line shows 10/100 is less than 35/100, matching 0.10 < 0.35.', pose: 'cheer' },
+          },
+        },
       },
     ],
     workedExample: {
@@ -90,6 +102,18 @@ export const unit08Lessons = [
           { kind: 'tip', text: 'Write 1.0 to emphasize that one whole equals ten tenths or one hundred hundredths.' },
         ],
         widget: { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.48, b: 0.52, step: 0.01, display: 'number' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Place 0.48 and 0.52 around the 0.5 benchmark, then compare their positions.' },
+            { speaker: 'kid', text: 'I will use the half-way landmark to explain which decimal is greater.' },
+          ],
+          reactions: {
+            strategy: { text: 'One marker is just below 0.5 and the other is just above it—use that benchmark.', pose: 'think' },
+            retry: { text: 'Look at the tenths first. The marker farther right represents the greater decimal.', pose: 'oops' },
+            milestone: { text: 'You used 0.5 as a landmark instead of guessing from the digits.', pose: 'cheer' },
+            complete: { text: '0.48 is less than 0.52 because its marker is left of the other one on the line.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u08-l02-c2',

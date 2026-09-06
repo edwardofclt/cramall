@@ -59,13 +59,13 @@ export function formatNumberLineValue(
   display: 'number' | 'fraction' = 'number',
   denominator?: number,
 ): string {
-  if (display === 'number' || !denominator) return String(value);
+  if (display === 'number' || !denominator) {
+    return Number.isInteger(value) ? value.toLocaleString('en-US') : String(Number(value.toFixed(10)));
+  }
   const numerator = Math.round(value * denominator);
-  const gcd = (a: number, b: number): number => (b === 0 ? Math.abs(a) : gcd(b, a % b));
-  const divisor = gcd(numerator, denominator);
-  const top = numerator / divisor;
-  const bottom = denominator / divisor;
-  return bottom === 1 ? String(top) : `${top}/${bottom}`;
+  if (numerator === 0) return '0';
+  if (numerator === denominator) return '1';
+  return `${numerator}/${denominator}`;
 }
 
 function tickValues(
@@ -73,12 +73,33 @@ function tickValues(
   max: number,
   display: 'number' | 'fraction',
   denominator?: number,
+  markerStep?: number,
 ): number[] {
+  if (display === 'fraction' && denominator && denominator >= 100 && (max - min) * denominator > 10) {
+    const landmarkStep = 10 / denominator;
+    const ticks: number[] = [];
+    for (let value = Math.ceil(min / landmarkStep) * landmarkStep; value <= max + landmarkStep / 2; value += landmarkStep) {
+      ticks.push(Number(value.toFixed(10)));
+    }
+    if (ticks[0] !== min) ticks.unshift(min);
+    if (ticks[ticks.length - 1] !== max) ticks.push(max);
+    return ticks;
+  }
   if (display === 'fraction' && denominator && (max - min) * denominator <= 10) {
     return Array.from(
       { length: Math.round((max - min) * denominator) + 1 },
       (_, index) => Number((min + index / denominator).toFixed(10)),
     );
+  }
+  if (display === 'number' && markerStep !== undefined && markerStep < 1 && max - min <= 2) {
+    const landmarkStep = 0.1;
+    const ticks: number[] = [];
+    for (let value = Math.ceil(min / landmarkStep) * landmarkStep; value <= max + landmarkStep / 2; value += landmarkStep) {
+      ticks.push(Number(value.toFixed(10)));
+    }
+    if (ticks[0] !== min) ticks.unshift(min);
+    if (ticks[ticks.length - 1] !== max) ticks.push(max);
+    return ticks;
   }
   const step = tickStep(max - min);
   const ticks: number[] = [];
@@ -330,7 +351,7 @@ export default function NumberLineCompare({
     );
   };
 
-  const ticks = tickValues(min, max, display, denominator);
+  const ticks = tickValues(min, max, display, denominator, step);
 
   return (
     <div
@@ -452,8 +473,10 @@ export default function NumberLineCompare({
       {state !== 'choosing' && (
         <p className="nl-feedback" data-testid="nl-feedback" data-tone={state} role="status">
           {state === 'correct'
-            ? `🎉 Yes! ${format(a)} is ${WORDS[truth]} ${format(b)}.`
-            : 'Not quite — the number farther to the right is always bigger. Try again!'}
+          ? `🎉 Yes! ${format(a)} is ${WORDS[truth]} ${format(b)}.`
+            : truth === '='
+              ? 'Not quite — these markers are on the same point, so choose equal to (=). Try again!'
+              : 'Not quite — the number farther to the right is always bigger. Try again!'}
         </p>
       )}
     </div>

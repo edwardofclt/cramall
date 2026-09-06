@@ -121,3 +121,88 @@ test('shows the fraction goal and meaningful progress cues', async () => {
   expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
   expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
 });
+
+test('shows equivalent fractions as side-by-side equal-sized wholes', () => {
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 4,
+        numerator: 2,
+        task: 'equivalent',
+        comparisonTarget: { numerator: 1, denominator: 2 },
+        taskPrompt: 'Compare 2/4 and 1/2.',
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('fraction-equivalence')).toHaveTextContent('2/4');
+  expect(screen.getByTestId('fraction-equivalence')).toHaveTextContent('1/2');
+  expect(screen.getAllByTestId('fraction-whole')).toHaveLength(2);
+  expect(screen.getByTestId('fraction-equivalence')).toHaveTextContent('same-sized whole');
+});
+
+test('renders multiple wholes without hiding an improper fraction', () => {
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 4,
+        numerator: 1,
+        wholeCount: 2,
+        target: { numerator: 1, denominator: 4 },
+        taskPrompt: 'Build 5/4.',
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('fraction-total')).toHaveTextContent('5/4');
+  expect(screen.getAllByTestId('fraction-whole')).toHaveLength(2);
+  expect(screen.getByTestId('fraction-total')).toHaveTextContent('1 whole and 1/4');
+});
+
+test('makes the start, change, and result visible for an operation model', () => {
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 8,
+        numerator: 3,
+        target: { numerator: 5, denominator: 8 },
+        task: 'change',
+        taskPrompt: 'Add two eighths.',
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  const equation = screen.getByTestId('fraction-equation');
+  expect(equation).toHaveTextContent('Start: 3/8');
+  expect(equation).toHaveTextContent('Change: +2/8');
+  expect(equation).toHaveTextContent('Result: 5/8');
+});
+
+test('explains fair-sharing distribution and exposes add/remove controls', async () => {
+  const user = userEvent.setup();
+  render(
+    <FractionModels
+      config={{
+        mode: 'circles',
+        denominator: 6,
+        numerator: 0,
+        target: { numerator: 5, denominator: 6 },
+        task: 'share',
+        taskPrompt: 'Share five sixths fairly.',
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('6 equal shares');
+  await user.click(screen.getByRole('button', { name: 'Add one part' }));
+  expect(screen.getByTestId('fraction-total')).toHaveTextContent('1/6');
+  await user.click(screen.getByRole('button', { name: 'Remove one part' }));
+  expect(screen.getByTestId('fraction-total')).toHaveTextContent('0/6');
+});

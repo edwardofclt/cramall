@@ -167,9 +167,11 @@ describe('PlaceValueBuilder', () => {
 describe('NumberLineCompare', () => {
   const CONFIG = { min: 0, max: 100, a: 25, b: 52 };
 
-  test('reduces fraction labels and keeps whole values whole', () => {
+  test('keeps authored denominator labels and keeps whole values whole', () => {
     expect(formatNumberLineValue(0.25, 'fraction', 4)).toBe('1/4');
-    expect(formatNumberLineValue(0.5, 'fraction', 4)).toBe('1/2');
+    expect(formatNumberLineValue(0.5, 'fraction', 4)).toBe('2/4');
+    expect(formatNumberLineValue(0.1, 'fraction', 100)).toBe('10/100');
+    expect(formatNumberLineValue(0.35, 'fraction', 100)).toBe('35/100');
     expect(formatNumberLineValue(1, 'fraction', 4)).toBe('1');
     expect(formatNumberLineValue(0, 'fraction', 4)).toBe('0');
   });
@@ -197,6 +199,30 @@ describe('NumberLineCompare', () => {
     expect(screen.getByRole('img')).toHaveAccessibleName(
       'Number line from 0 to 1. Marker A is at 1/4. Marker B is at 3/4.',
     );
+  });
+
+  test('shows tenths landmarks on a fine-grained decimal line', () => {
+    render(
+      <NumberLineCompare
+        config={{ min: 0, max: 1, a: 0.35, b: 0.65, step: 0.01, display: 'number' }}
+        onEvent={noEvent}
+      />,
+    );
+
+    expect(screen.getAllByText('0.1').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('0.5').length).toBeGreaterThan(0);
+  });
+
+  test('keeps hundredths labels visible on a denominator-100 line', () => {
+    render(
+      <NumberLineCompare
+        config={{ min: 0, max: 1, a: 0.1, b: 0.35, step: 0.01, display: 'fraction', denominator: 100 }}
+        onEvent={noEvent}
+      />,
+    );
+
+    expect(screen.getAllByText('10/100').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('35/100').length).toBeGreaterThan(0);
   });
 
   test('starts in the choosing state with both markers on the line', () => {
@@ -233,6 +259,15 @@ describe('NumberLineCompare', () => {
     await tap(user, 'less than');
 
     expect(root).toHaveAttribute('data-state', 'correct');
+  });
+
+  test('gives equality-specific retry coaching when markers overlap', async () => {
+    const user = userEvent.setup();
+    render(<NumberLineCompare config={{ min: 0, max: 10, a: 5, b: 5 }} onEvent={noEvent} />);
+
+    await tap(user, 'less than');
+
+    expect(screen.getByTestId('nl-feedback')).toHaveTextContent(/same point|equal to/i);
   });
 
   test('the steppers move a marker and the comparison uses where it lands', async () => {

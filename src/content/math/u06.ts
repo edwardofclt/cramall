@@ -31,7 +31,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '3/4 × 2/2 = 6/8, so 3/4 and 6/8 are equivalent.' },
           { kind: 'tip', text: 'Changing only the numerator or only the denominator changes the value.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, taskPrompt: 'Build 1/2 with fourths.' } },
+        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, task: 'equivalent', comparisonTarget: { numerator: 1, denominator: 2 }, taskPrompt: 'Build 1/2 with fourths.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'Build one half with four equal parts, then use the model to see why two fourths names the same amount.' },
@@ -237,6 +237,18 @@ export const unit06Lessons = [
           { kind: 'tip', text: 'A numerator equal to the denominator names 1 whole.' },
         ],
         widget: { type: 'number-line-compare', config: { min: 0, max: 2, a: 0.5, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the benchmark line to compare one half and one whole plus one half.' },
+            { speaker: 'kid', text: 'I will locate both fractions and use their positions to choose a symbol.' },
+          ],
+          reactions: {
+            strategy: { text: 'Count fourths between the landmarks: 1/2 is two fourths, while 1 1/2 is farther right.', pose: 'think' },
+            retry: { text: 'Check which marker is farther right, and make sure both fractions name the same-sized parts.', pose: 'oops' },
+            milestone: { text: 'Great—the line is showing how a fraction greater than one sits past the whole.', pose: 'cheer' },
+            complete: { text: 'You compared the fractions by their locations and benchmarks, not just by their symbols.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u06-l04-c2',

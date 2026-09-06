@@ -22,6 +22,18 @@ export const unit01Lessons: Lesson[] = [
           { kind: 'example', text: 'In 68,405,013, the 68 is in the millions period, 405 is in the thousands period, and 013 is in the ones period.' },
         ],
         widget: { type: 'place-value-builder', config: { periods: 3 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the chart to group this giant number into ones, thousands, and millions periods.' },
+            { speaker: 'kid', text: 'I will place digits and watch each place tell me its value.' },
+          ],
+          reactions: {
+            strategy: { text: 'Start at the ones period, then scan left by groups of three digits.', pose: 'think' },
+            retry: { text: 'That digit belongs in a different place. Check its period before moving it.', pose: 'oops' },
+            milestone: { text: 'Nice—the periods are lining up so the number is easier to read.', pose: 'cheer' },
+            complete: { text: 'Your chart organizes each digit, which makes its place value—and expanded form—easier to name.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u01-l01-c2',
@@ -41,6 +53,18 @@ export const unit01Lessons: Lesson[] = [
           { kind: 'tip', text: 'A zero has no value to add, so you may leave that addend out.' },
         ],
         widget: { type: 'place-value-builder', config: { target: 4302 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Build 4,302 in the chart, then use each nonzero digit to make an expanded-form addend.' },
+            { speaker: 'kid', text: 'I will place every digit and connect its column to its value.' },
+          ],
+          reactions: {
+            strategy: { text: 'Look at the column before naming a digit’s value: thousands, hundreds, tens, or ones.', pose: 'think' },
+            retry: { text: 'That digit is in the wrong place. Move it to match the number in the goal.', pose: 'oops' },
+            milestone: { text: 'Good—each placed digit gives you one piece of the expanded form.', pose: 'cheer' },
+            complete: { text: '4,302 is 4,000 + 300 + 2: your model just became expanded form.', pose: 'cheer' },
+          },
+        },
       },
     ],
     workedExample: {
@@ -159,7 +183,19 @@ export const unit01Lessons: Lesson[] = [
           { kind: 'example', text: '52,014 is greater than 51,999 because the thousands digits are 2 and 1.' },
           { kind: 'tip', text: 'If the first digits match, keep moving right until you find a difference.' },
         ],
-        widget: { type: 'number-line-compare', config: { min: 0, max: 100, a: 25, b: 52 } },
+        widget: { type: 'number-line-compare', config: { min: 51000, max: 53000, a: 52014, b: 51999, step: 1 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Place 52,014 and 51,999 on the line, then compare from the greatest place.' },
+            { speaker: 'kid', text: 'I will look for the first digit that changes before choosing a symbol.' },
+          ],
+          reactions: {
+            strategy: { text: 'Compare the ten-thousands digits first: that is where these numbers separate.', pose: 'think' },
+            retry: { text: 'Read the markers again from left to right. The first different place decides the comparison.', pose: 'oops' },
+            milestone: { text: 'You found the useful place value—now the number line makes the order visible.', pose: 'cheer' },
+            complete: { text: '52,014 is greater than 51,999, because its marker sits farther right on the line.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u01-l02-c2',

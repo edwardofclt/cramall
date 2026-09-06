@@ -81,7 +81,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u06-l01-c2': { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, taskPrompt: 'Build 1/2 with fourths.' } },
+  'math-u06-l01-c2': { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, task: 'equivalent', comparisonTarget: { numerator: 1, denominator: 2 }, taskPrompt: 'Build 1/2 with fourths.' } },
   'math-u06-l04-c1': { type: 'number-line-compare', config: { min: 0, max: 2, a: 0.5, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
 } as const;
 
@@ -119,6 +119,10 @@ test('u06 is the exact validated 4-lesson unit', () => {
       if (card.id === 'math-u06-l01-c2') {
         expect(card.widgetCoach?.intro).toHaveLength(2);
         expect(card.widgetCoach?.reactions.complete.text).toContain('equivalent');
+      }
+      if (card.id === 'math-u06-l04-c1') {
+        expect(card.widgetCoach?.intro).toHaveLength(2);
+        expect(card.widgetCoach?.reactions.complete.text).toContain('locations');
       }
     }
   }

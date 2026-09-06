@@ -21,7 +21,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'A bar model with 3 of 8 parts selected gains 2 more eighths, showing 5/8.' },
           { kind: 'tip', text: 'Describe the start, the change, and the result so the model matches the equation.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, taskPrompt: 'Build 5/8 by adding two eighths.' } },
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Build 5/8 by adding two eighths.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'Start with 3/8, then build 5/8 by adding two equal eighth-size parts to the bar.' },
@@ -101,7 +101,7 @@ export const unit07Lessons = [
           { kind: 'example', text: '3 × 1/4 = 1/4 + 1/4 + 1/4 = 3/4.' },
           { kind: 'tip', text: 'Keep the denominator because every group contains the same unit-size part.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, taskPrompt: 'Build 3/4 from unit fractions.' } },
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, task: 'groups', taskPrompt: 'Build 3/4 from unit fractions.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'Build three copies of one fourth so the bar shows 3/4 as repeated equal groups.' },
@@ -181,7 +181,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'Three brownies shared among 4 learners gives 3 ÷ 4 = 3/4 brownie per learner.' },
           { kind: 'tip', text: 'Every recipient must receive the same amount.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, taskPrompt: 'Share 5/6 of the circle.' } },
+        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5/6 of the circle.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'Share five equal sixth-size pieces of the circle to model 5/6 for each fair share.' },

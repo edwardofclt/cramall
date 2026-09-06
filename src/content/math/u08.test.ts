@@ -98,6 +98,7 @@ test('u08 is the exact validated 3-lesson unit', () => {
       const expectedWidget = expectedWidgets[card.id as keyof typeof expectedWidgets];
       expect(card.widget).toEqual(expectedWidget);
       if (card.widget) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
+      if (card.widget) expect(card.widgetCoach?.intro).toHaveLength(2);
     }
   }
 });
