@@ -624,7 +624,7 @@ export const unit11Lessons = [
           },
           {
             "kind": "example",
-            "text": "Only B meets author, evidence, date, and purpose in the supplied exercise."
+            "text": "B is the best fit for this question because its expertise, accountable publisher, evidence, current date, and purpose all support the judgment."
           },
           {
             "kind": "tip",
@@ -688,8 +688,6 @@ export const unit11Lessons = [
                 ]
               }
             ],
-            "criteria": ["author", "evidence", "date", "purpose"],
-            "credibleIds": ["blog", "extension"],
             "question": "Which source should Maya use to explain safe mosquito prevention?",
             "requiredReasonCount": 2,
             "answers": {
@@ -716,7 +714,7 @@ export const unit11Lessons = [
             }
           ],
           "correctChoiceId": "a",
-          "explanation": "It alone satisfies all four visible criteria."
+          "explanation": "It is the best fit because it supports all five visible criteria."
         }
       }
     ],
@@ -724,19 +722,19 @@ export const unit11Lessons = [
       "title": "Judge supplied credibility signals together",
       "passage": {
         "title": "Three invented Cram All practice source records",
-        "text": "Three invented Cram All practice source records\n\nSource A — Mosquito Myths Blog. Author: Kai Reed. Date: 2024. Publisher: not supplied. Purpose: entertain with surprising claims. Evidence notes: none supplied. Excerpt: “My secret leaf trick chases every mosquito forever!”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: 2026. Publisher: Sample County Extension. Purpose: explain mosquito prevention. Evidence notes: cites local monitoring guidance and gives checkable actions. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: unclear. Evidence notes: none. Excerpt: “Share this now!”\n\nThese records are invented for practice. A credible judgment uses visible authorship/publisher, evidence, date context, and purpose together. A recent date, polished screen, or official-sounding name alone is not proof."
+          "text": "Three invented Cram All practice source records\n\nSource A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Evidence: “A leaf trick chases every mosquito forever.”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Evidence: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: share a quick message. Evidence: “Share this now!”\n\nThese records are invented for practice. A question-specific judgment weighs five visible criteria: expertise, publisher/accountability, evidence/citations, currency/relevance, and purpose/bias. A recent date, polished screen, or official-sounding name alone is not proof."
       },
       "steps": [
-        "Create four columns: author/publisher, evidence, date, purpose.",
+        "Create five columns: expertise, publisher/accountability, evidence/citations, currency/relevance, purpose/bias.",
         "Fill each record only from supplied metadata.",
-        "Judge B most credible and explain the missing signals in A and C."
+        "Judge B as the best fit for this question and explain why A and C need more checking."
       ]
     },
     "quiz": {
       "passThreshold": 8,
       "reference": {
         "title": "Read “Three invented Cram All practice source records”",
-        "text": "Three invented Cram All practice source records\n\nSource A — Mosquito Myths Blog. Author: Kai Reed. Date: 2024. Publisher: not supplied. Purpose: entertain with surprising claims. Evidence notes: none supplied. Excerpt: “My secret leaf trick chases every mosquito forever!”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: 2026. Publisher: Sample County Extension. Purpose: explain mosquito prevention. Evidence notes: cites local monitoring guidance and gives checkable actions. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: unclear. Evidence notes: none. Excerpt: “Share this now!”\n\nThese records are invented for practice. A credible judgment uses visible authorship/publisher, evidence, date context, and purpose together. A recent date, polished screen, or official-sounding name alone is not proof."
+          "text": "Three invented Cram All practice source records\n\nSource A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Evidence: “A leaf trick chases every mosquito forever.”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Evidence: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: share a quick message. Evidence: “Share this now!”\n\nThese records are invented for practice. A question-specific judgment weighs five visible criteria: expertise, publisher/accountability, evidence/citations, currency/relevance, and purpose/bias. A recent date, polished screen, or official-sounding name alone is not proof."
       },
       "pool": [
         {
@@ -1034,7 +1032,7 @@ export const unit11Lessons = [
             }
           ],
           "correctChoiceId": "c",
-          "explanation": "It explicitly weighs four criteria.",
+          "explanation": "It explicitly weighs all five criteria.",
           "id": "reading-u11-l02-q12",
           "conceptTag": "credibility-judgment",
           "reviewCardId": "reading-u11-l02-c3"

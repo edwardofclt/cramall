@@ -703,7 +703,7 @@ const expectedChecks = [
             }
           ],
           "correctChoiceId": "a",
-          "explanation": "It alone satisfies all four visible criteria."
+          "explanation": "It is the best fit because it supports all five visible criteria."
         }
       }
     ]
@@ -985,8 +985,6 @@ const expectedWidgets = [
                   ]
                 }
               ],
-              "criteria": ["author", "evidence", "date", "purpose"],
-              "credibleIds": ["blog", "extension"],
               "question": "Which source should Maya use to explain safe mosquito prevention?",
               "requiredReasonCount": 2,
               "answers": {
@@ -1033,14 +1031,14 @@ const expectedSources = [
     "id": "reading-u11-l02",
     "passage": {
       "title": "Three invented Cram All practice source records",
-      "text": "Three invented Cram All practice source records\n\nSource A — Mosquito Myths Blog. Author: Kai Reed. Date: 2024. Publisher: not supplied. Purpose: entertain with surprising claims. Evidence notes: none supplied. Excerpt: “My secret leaf trick chases every mosquito forever!”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: 2026. Publisher: Sample County Extension. Purpose: explain mosquito prevention. Evidence notes: cites local monitoring guidance and gives checkable actions. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: unclear. Evidence notes: none. Excerpt: “Share this now!”\n\nThese records are invented for practice. A credible judgment uses visible authorship/publisher, evidence, date context, and purpose together. A recent date, polished screen, or official-sounding name alone is not proof."
+      "text": "Three invented Cram All practice source records\n\nSource A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Evidence: “A leaf trick chases every mosquito forever.”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Evidence: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: share a quick message. Evidence: “Share this now!”\n\nThese records are invented for practice. A question-specific judgment weighs five visible criteria: expertise, publisher/accountability, evidence/citations, currency/relevance, and purpose/bias. A recent date, polished screen, or official-sounding name alone is not proof."
     },
     "reference": {
       "title": "Read “Three invented Cram All practice source records”",
-      "text": "Three invented Cram All practice source records\n\nSource A — Mosquito Myths Blog. Author: Kai Reed. Date: 2024. Publisher: not supplied. Purpose: entertain with surprising claims. Evidence notes: none supplied. Excerpt: “My secret leaf trick chases every mosquito forever!”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: 2026. Publisher: Sample County Extension. Purpose: explain mosquito prevention. Evidence notes: cites local monitoring guidance and gives checkable actions. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: unclear. Evidence notes: none. Excerpt: “Share this now!”\n\nThese records are invented for practice. A credible judgment uses visible authorship/publisher, evidence, date context, and purpose together. A recent date, polished screen, or official-sounding name alone is not proof."
+      "text": "Three invented Cram All practice source records\n\nSource A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Evidence: “A leaf trick chases every mosquito forever.”\n\nSource B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Evidence: “Standing water can become mosquito habitat. Empty small containers after rain.”\n\nSource C — Mystery Screenshot. Author: not supplied. Date: not supplied. Publisher: not supplied. Purpose: share a quick message. Evidence: “Share this now!”\n\nThese records are invented for practice. A question-specific judgment weighs five visible criteria: expertise, publisher/accountability, evidence/citations, currency/relevance, and purpose/bias. A recent date, polished screen, or official-sounding name alone is not proof."
     },
     "evidence": [
-      "Mosquito Myths Blog",
+      "Amazing Mosquito Facts",
       "County Extension Mosquito Guide",
       "Mystery Screenshot"
     ]
@@ -1100,7 +1098,7 @@ const expectedVisiblePriorSnippets = [
   { cardId: 'reading-u11-l01-c3', snippets: ['Staggered blooms, suitable native plants, safe shelter/water, and careful maintenance answer the inquiry.'] },
   { cardId: 'reading-u11-l02-c1', snippets: ['Source B supplies an author role and publisher; A lacks a publisher; C lacks both.'] },
   { cardId: 'reading-u11-l02-c2', snippets: ['B gives checkable prevention actions and explanatory purpose; A entertains without evidence.'] },
-  { cardId: 'reading-u11-l02-c3', snippets: ['Only B meets author, evidence, date, and purpose in the supplied exercise.'] },
+  { cardId: 'reading-u11-l02-c3', snippets: ['B is the best fit for this question because its expertise, accountable publisher, evidence, current date, and purpose all support the judgment.'] },
   {
     cardId: 'reading-u11-l03-c1',
     snippets: [

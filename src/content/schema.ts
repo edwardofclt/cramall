@@ -1552,13 +1552,12 @@ const LegacyCriteriaFieldSchema = z.array(CredibilityCriterionSchema).optional()
     if (criteria !== undefined && criteria.length === 0) {
       context.addIssue({code: z.ZodIssueCode.too_small, minimum: 1, type: 'array', inclusive: true, message: 'Array must contain at least 1 element(s)'});
     }
-  })
-  .transform((criteria) => criteria ?? []);
+  });
 
 export const SourceCredibilityCheckerWidgetConfigSchema=z.object({
   sources:z.array(CredibilitySourceSchema).min(1),
   criteria:LegacyCriteriaFieldSchema,
-  credibleIds:z.array(CredibilityIdSchema).optional().default([]),
+  credibleIds:z.array(CredibilityIdSchema).optional(),
   question: CredibilityTextSchema.optional(),
   requiredReasonCount: z.number().int().min(1).max(5).optional(),
   answers: z.record(CredibilityIdSchema, z.enum(['credible-for-question','needs-checking'])).optional(),
@@ -1576,9 +1575,8 @@ export const SourceCredibilityCheckerWidgetConfigSchema=z.object({
     || value.requiredReasonCount !== undefined
     || value.answers !== undefined
     || value.sources.some((source)=>source.judgments !== undefined);
-  // Reasoned records may still receive legacy defaults from Zod; enforce the old
-  // derived-id contract only when no question-specific judgment is present.
-  const legacyMode = !productionMode && (value.criteria.length > 0 || value.credibleIds.length > 0);
+  // Enforce the legacy derived-id contract only when no question-specific judgment is present.
+  const legacyMode = !productionMode && ((value.criteria?.length ?? 0) > 0 || (value.credibleIds?.length ?? 0) > 0);
   let productionValid = true;
   if (productionMode) {
     const answers = value.answers;

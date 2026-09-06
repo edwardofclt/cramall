@@ -240,8 +240,6 @@ const reasonedSources = [
 
 test('reasoned mode keeps the question and every source criterion visible', () => {
   render(<SourceCredibilityChecker config={{
-    criteria: ['author', 'evidence', 'date', 'purpose'],
-    credibleIds: ['blog', 'extension'],
     question: 'Which source should Maya use to explain safe mosquito prevention?',
     requiredReasonCount: 2,
     answers: { extension: 'credible-for-question', blog: 'needs-checking' },
@@ -264,8 +262,6 @@ test('reasoned mode grades ratings and selected reason stamps, then latches comp
   const onEvent = vi.fn();
   const user = userEvent.setup();
   render(<SourceCredibilityChecker config={{
-    criteria: ['author', 'evidence', 'date', 'purpose'],
-    credibleIds: ['blog', 'extension'],
     question: 'Which source should Maya use to explain safe mosquito prevention?',
     requiredReasonCount: 2,
     answers: { extension: 'credible-for-question', blog: 'needs-checking' },
@@ -281,15 +277,29 @@ test('reasoned mode grades ratings and selected reason stamps, then latches comp
   await user.click(screen.getByRole('button', { name: 'Check source judgments' }));
 
   expect(screen.getByRole('status')).toHaveTextContent(/fits this question/i);
-  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'interaction', action: 'select-reason' });
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({
+    type: 'change',
+    value: {
+      ratings: { extension: 'credible-for-question', blog: 'needs-checking' },
+      reasons: { extension: ['expertise', 'publisher'], blog: ['expertise', 'publisher'] },
+    },
+  });
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toEqual([[
+    {
+      type: 'complete',
+      value: {
+        ratings: { extension: 'credible-for-question', blog: 'needs-checking' },
+        reasons: { extension: ['expertise', 'publisher'], blog: ['expertise', 'publisher'] },
+      },
+    },
+  ]]);
 });
 
 test('reasoned mode retries with one missing criterion without revealing the answer', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
   render(<SourceCredibilityChecker config={{
-    criteria: ['author', 'evidence', 'date', 'purpose'],
-    credibleIds: ['blog', 'extension'],
     question: 'Which source should Maya use to explain safe mosquito prevention?',
     requiredReasonCount: 2,
     answers: { extension: 'credible-for-question', blog: 'needs-checking' },

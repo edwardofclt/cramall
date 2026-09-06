@@ -155,9 +155,9 @@ export type WidgetEventMap = {
     | {type:'change';value:{matches:Record<string,string>}}
     | {type:'complete';value:{matches:Record<string,string>}};
   'source-credibility-checker':
-    | {type:'interaction';action:'rate-source'|'check'|'reset'}
-    | {type:'change';value:{ratings:Record<string,'credible'|'needs-checking'>}}
-    | {type:'complete';value:{ratings:Record<string,'credible'|'needs-checking'>}};
+    | {type:'interaction';action:'rate-source'|'select-reason'|'check'|'reset'}
+    | {type:'change';value:{ratings:Record<string,'credible'|'needs-checking'|'credible-for-question'>;reasons?:Record<string,string[]>}}
+    | {type:'complete';value:{ratings:Record<string,'credible'|'needs-checking'|'credible-for-question'>;reasons?:Record<string,string[]>}};
 };
 
 export type CoachCue = 'strategy' | 'retry' | 'milestone';

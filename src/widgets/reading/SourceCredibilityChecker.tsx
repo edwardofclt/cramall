@@ -10,7 +10,7 @@ type CredibilityState='rating'|'revision'|'complete';
 type ReasonedSource=Source & {judgments:NonNullable<Source['judgments']>};
 
 const ownRating=(ratings:Record<string,Rating>,id:string)=>Object.prototype.hasOwnProperty.call(ratings,id)?ratings[id]:undefined;
-const missingCriteria=(source:Source,criteria:SourceCredibilityCheckerProps['config']['criteria'])=>criteria.filter((criterion)=>
+const missingCriteria=(source:Source,criteria:NonNullable<SourceCredibilityCheckerProps['config']['criteria']>)=>criteria.filter((criterion)=>
   criterion==='author'?source.author===undefined
     :criterion==='evidence'?(source.claims?.length??0)===0
       :criterion==='date'?source.date===undefined
@@ -55,10 +55,8 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
     const reasonsInOrder=orderedReasons(nextReasons);
     setRatings(ratingsInOrder);
     setSelectedReasons(reasonsInOrder);
-    onEvent({type:'interaction',action:action==='select-reason'?'rate-source':action});
-    // The shared legacy event map still names the rating-only payload; reasoned
-    // records intentionally add their authored reason IDs without changing old cards.
-    onEvent({type:'change',value:{ratings:ratingsInOrder,reasons:reasonsInOrder}} as never);
+    onEvent({type:'interaction',action});
+    onEvent({type:'change',value:{ratings:ratingsInOrder,reasons:reasonsInOrder}});
     return {ratings:ratingsInOrder,reasons:reasonsInOrder};
   };
   const rate=(sourceId:string,rating:ReasonedRating)=>{
@@ -86,7 +84,7 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
     if(wrong.length===0){
       setViewState('complete');
       setStatus('Strong work: you compared why one source fits this question and why another needs checking.');
-      completeOnce(()=>onEvent({type:'complete',value:{ratings:emitted.ratings,reasons:emitted.reasons}} as never));
+      completeOnce(()=>onEvent({type:'complete',value:{ratings:emitted.ratings,reasons:emitted.reasons}}));
       return;
     }
     const source=wrong[0]!;
