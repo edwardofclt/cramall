@@ -641,39 +641,62 @@ export const unit11Lessons = [
             "sources": [
               {
                 "id": "blog",
-                "title": "Mosquito Myths Blog",
+                "title": "Amazing Mosquito Facts",
                 "author": "Kai Reed",
-                "date": "2024",
-                "purpose": "entertain with surprising claims",
-                "claims": []
+                "date": "2018",
+                "publisher": "Popular Posts",
+                "purpose": "entertain readers with surprising claims",
+                "claims": ["A leaf trick chases every mosquito forever."],
+                "judgments": [
+                  {"criterion":"expertise","strength":"concern","reason":"The author role does not show mosquito expertise."},
+                  {"criterion":"publisher","strength":"concern","reason":"The publisher gives no accountability information."},
+                  {"criterion":"evidence","strength":"concern","reason":"The absolute claim has no citation or checkable support."},
+                  {"criterion":"currency","strength":"concern","reason":"The old date may not fit current guidance."},
+                  {"criterion":"purpose","strength":"concern","reason":"Entertainment is not the same as explaining prevention."}
+                ]
               },
               {
                 "id": "extension",
                 "title": "County Extension Mosquito Guide",
-                "author": "Dr. Lena Ortiz",
-                "date": "2026",
+                "author": "Dr. Lena Ortiz, entomology educator",
+                "date": "April 2026",
                 "publisher": "Sample County Extension",
-                "purpose": "explain mosquito prevention",
+                "purpose": "explain safe mosquito prevention for families",
                 "claims": [
                   "Standing water can become mosquito habitat.",
                   "Empty small containers after rain."
+                ],
+                "judgments": [
+                  {"criterion":"expertise","strength":"supports","reason":"The author is an entomology educator."},
+                  {"criterion":"publisher","strength":"supports","reason":"The county extension office is accountable for the guide."},
+                  {"criterion":"evidence","strength":"supports","reason":"The guide gives two checkable prevention actions."},
+                  {"criterion":"currency","strength":"supports","reason":"The 2026 date fits this question."},
+                  {"criterion":"purpose","strength":"supports","reason":"Its purpose is to explain safe prevention."}
                 ]
               },
               {
                 "id": "screenshot",
                 "title": "Mystery Screenshot",
-                "claims": []
+                "purpose": "share a quick message",
+                "claims": ["Share this now!"],
+                "judgments": [
+                  {"criterion":"expertise","strength":"concern","reason":"No author expertise is supplied."},
+                  {"criterion":"publisher","strength":"concern","reason":"No accountable publisher is supplied."},
+                  {"criterion":"evidence","strength":"concern","reason":"The message gives no checkable evidence."},
+                  {"criterion":"currency","strength":"concern","reason":"No date is supplied to judge relevance."},
+                  {"criterion":"purpose","strength":"concern","reason":"Sharing a message does not explain prevention."}
+                ]
               }
             ],
-            "criteria": [
-              "author",
-              "evidence",
-              "date",
-              "purpose"
-            ],
-            "credibleIds": [
-              "extension"
-            ]
+            "criteria": ["author", "evidence", "date", "purpose"],
+            "credibleIds": ["blog", "extension"],
+            "question": "Which source should Maya use to explain safe mosquito prevention?",
+            "requiredReasonCount": 2,
+            "answers": {
+              "blog": "needs-checking",
+              "extension": "credible-for-question",
+              "screenshot": "needs-checking"
+            }
           }
         },
         "check": {

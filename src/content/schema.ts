@@ -1572,11 +1572,13 @@ export const SourceCredibilityCheckerWidgetConfigSchema=z.object({
     const claimKeys=(source.claims ?? []).map(credibilityKey);
     return new Set(claimKeys).size===claimKeys.length;
   });
-  const legacyMode = value.criteria.length > 0 || value.credibleIds.length > 0;
   const productionMode = value.question !== undefined
     || value.requiredReasonCount !== undefined
     || value.answers !== undefined
     || value.sources.some((source)=>source.judgments !== undefined);
+  // Reasoned records may still receive legacy defaults from Zod; enforce the old
+  // derived-id contract only when no question-specific judgment is present.
+  const legacyMode = !productionMode && (value.criteria.length > 0 || value.credibleIds.length > 0);
   let productionValid = true;
   if (productionMode) {
     const answers = value.answers;

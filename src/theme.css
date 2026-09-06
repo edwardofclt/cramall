@@ -2678,6 +2678,14 @@ body {
 .widget-experiment.credibility header p { color: var(--c-ink-soft); font-weight: 700; }
 .credibility-sources { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .65rem; }
 .credibility-source { display: grid; gap: .6rem; align-content: start; padding: .7rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.credibility-source legend { padding-inline: .35rem; font-size: 1.1rem; font-weight: 900; }
+.credibility-judgments { display: grid; gap: .45rem; }
+.credibility-judgments > strong { margin-block-end: .1rem; }
+.credibility-reason { display: grid; min-height: 44px; gap: .18rem; padding: .5rem; border: 2px solid var(--c-ink); border-radius: .45rem; text-align: left; }
+.credibility-reason[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.credibility-reason span:first-child { font-weight: 900; }
+.credibility-reason span:nth-child(2) { overflow-wrap: anywhere; }
+.credibility-reason-progress { margin: 0; font-size: .9rem; font-weight: 800; }
 .credibility-source dl { display: grid; gap: .35rem; }
 .credibility-source dl div { display: grid; grid-template-columns: minmax(5.5rem, auto) minmax(0, 1fr); gap: .5rem; }
 .credibility-source dt { font-weight: 900; }

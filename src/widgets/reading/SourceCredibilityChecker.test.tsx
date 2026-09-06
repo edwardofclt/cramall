@@ -193,3 +193,118 @@ test('normalizes records and rejects ambiguous, unsafe, or incorrectly derived c
     {sources:[{id:'One',title:'Notes',author:'Ada',claims:[]}],criteria:['author'],credibleIds:['one']},
   ])expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse(config).success).toBe(false);
 });
+
+const reasonedSources = [
+  {
+    id: 'extension',
+    title: 'County Extension guide',
+    author: 'Dr. Lena Ortiz, entomologist',
+    date: 'April 2026',
+    publisher: 'Sample County Extension',
+    purpose: 'Explain safe mosquito prevention for families',
+    claims: ['Empty small containers after rain.', 'Standing water can become mosquito habitat.'],
+    judgments: [
+      { criterion: 'expertise' as const, strength: 'supports' as const, reason: 'The author is an entomologist.' },
+      { criterion: 'publisher' as const, strength: 'supports' as const, reason: 'The county extension office is accountable for the guide.' },
+      { criterion: 'evidence' as const, strength: 'supports' as const, reason: 'The guide gives two checkable prevention actions.' },
+      { criterion: 'currency' as const, strength: 'supports' as const, reason: 'The 2026 date fits this question.' },
+      { criterion: 'purpose' as const, strength: 'supports' as const, reason: 'Its purpose is to explain prevention.' },
+    ],
+  },
+  {
+    id: 'blog',
+    title: 'Amazing mosquito facts',
+    author: 'Kai Reed',
+    date: '2018',
+    publisher: 'Popular Posts',
+    purpose: 'Entertain readers with surprising claims',
+    claims: ['A leaf trick chases every mosquito forever.'],
+    judgments: [
+      { criterion: 'expertise' as const, strength: 'concern' as const, reason: 'The author role does not show mosquito expertise.' },
+      { criterion: 'publisher' as const, strength: 'concern' as const, reason: 'The publisher gives no accountability information.' },
+      { criterion: 'evidence' as const, strength: 'concern' as const, reason: 'The absolute claim has no citation or checkable support.' },
+      { criterion: 'currency' as const, strength: 'concern' as const, reason: 'The old date may not fit current guidance.' },
+      { criterion: 'purpose' as const, strength: 'concern' as const, reason: 'Entertainment is not the same as explaining prevention.' },
+    ],
+  },
+] satisfies Array<{
+  id: string;
+  title: string;
+  author?: string;
+  date?: string;
+  publisher?: string;
+  purpose?: string;
+  claims: string[];
+  judgments: Array<{ criterion: 'expertise'|'publisher'|'evidence'|'currency'|'purpose'; strength: 'supports'|'concern'; reason: string }>;
+}>;
+
+test('reasoned mode keeps the question and every source criterion visible', () => {
+  render(<SourceCredibilityChecker config={{
+    criteria: ['author', 'evidence', 'date', 'purpose'],
+    credibleIds: ['blog', 'extension'],
+    question: 'Which source should Maya use to explain safe mosquito prevention?',
+    requiredReasonCount: 2,
+    answers: { extension: 'credible-for-question', blog: 'needs-checking' },
+    sources: reasonedSources,
+  }} onEvent={vi.fn()} />);
+  expect(screen.getByText('Which source should Maya use to explain safe mosquito prevention?')).toBeVisible();
+  for (const source of reasonedSources) {
+    const group = screen.getByRole('group', { name: `Source: ${source.title}` });
+    expect(group).toHaveTextContent(source.author);
+    expect(group).toHaveTextContent(source.publisher);
+    expect(group).toHaveTextContent(source.date);
+    expect(group).toHaveTextContent(source.purpose);
+    for (const judgment of source.judgments) expect(group).toHaveTextContent(judgment.reason);
+  }
+  expect(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' })).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Rate County Extension guide needs more checking' })).toBeVisible();
+});
+
+test('reasoned mode grades ratings and selected reason stamps, then latches completion', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<SourceCredibilityChecker config={{
+    criteria: ['author', 'evidence', 'date', 'purpose'],
+    credibleIds: ['blog', 'extension'],
+    question: 'Which source should Maya use to explain safe mosquito prevention?',
+    requiredReasonCount: 2,
+    answers: { extension: 'credible-for-question', blog: 'needs-checking' },
+    sources: reasonedSources,
+  }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' }));
+  await user.click(screen.getByRole('button', { name: 'Rate Amazing mosquito facts needs more checking' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The author is an entomologist.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The county extension office is accountable for the guide.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The author role does not show mosquito expertise.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The publisher gives no accountability information.' }));
+  await user.click(screen.getByRole('button', { name: 'Check source judgments' }));
+
+  expect(screen.getByRole('status')).toHaveTextContent(/fits this question/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('reasoned mode retries with one missing criterion without revealing the answer', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<SourceCredibilityChecker config={{
+    criteria: ['author', 'evidence', 'date', 'purpose'],
+    credibleIds: ['blog', 'extension'],
+    question: 'Which source should Maya use to explain safe mosquito prevention?',
+    requiredReasonCount: 2,
+    answers: { extension: 'credible-for-question', blog: 'needs-checking' },
+    sources: reasonedSources,
+  }} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' }));
+  await user.click(screen.getByRole('button', { name: 'Rate Amazing mosquito facts credible for this question' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The author is an entomologist.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The county extension office is accountable for the guide.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The author role does not show mosquito expertise.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The publisher gives no accountability information.' }));
+  await user.click(screen.getByRole('button', { name: 'Check source judgments' }));
+  const status = screen.getByRole('status');
+  expect(status).toHaveTextContent(/Amazing mosquito facts/);
+  expect(status).toHaveTextContent(/publisher|expertise|evidence|currency|purpose/i);
+  expect(status).not.toHaveTextContent(/needs more checking|credible for this question/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
+});
