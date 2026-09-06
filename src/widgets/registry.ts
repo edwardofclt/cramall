@@ -144,8 +144,8 @@ export type WidgetEventMap = {
     | {type:'complete';value:{placements:Record<string,string>}};
   'summary-builder':
     | {type:'interaction';action:'toggle-sentence'|'reset'}
-    | {type:'change';value:{selectedIds:string[]}}
-    | {type:'complete';value:{selectedIds:string[]}};
+    | {type:'change';value:{selectedIds:string[];composition?:string}}
+    | {type:'complete';value:{selectedIds:string[];composition?:string}};
   'pov-switcher':
     | {type:'interaction';action:'select-pronoun'|'apply'|'reset'}
     | {type:'change';value:{selectedPronouns:string[]}}

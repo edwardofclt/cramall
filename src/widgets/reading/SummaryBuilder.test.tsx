@@ -2,6 +2,7 @@ import {render,screen,within} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {expect,test,vi} from 'vitest';
 import {SummaryBuilderWidgetConfigSchema} from '../../content/schema';
+import type {WidgetEvent} from '../registry';
 import SummaryBuilder from './SummaryBuilder';
 
 const config={
@@ -29,6 +30,13 @@ const compositionConfig={
   maxCompositionWords:14,
 };
 
+test('types summary completion payloads with optional composition for legacy and new lessons',()=>{
+  const legacy:WidgetEvent<'summary-builder'>={type:'complete',value:{selectedIds:['main']}};
+  const composed:WidgetEvent<'summary-builder'>={type:'complete',value:{selectedIds:['main','detail'],composition:'Bees carry pollen.'}};
+  expect(legacy).toEqual({type:'complete',value:{selectedIds:['main']}});
+  expect(composed).toEqual({type:'complete',value:{selectedIds:['main','detail'],composition:'Bees carry pollen.'}});
+});
+
 test('accepts the required main, keeps a detail concise, then explains an extra',async()=>{
   // Dropping a selected detail, rejecting a concise detail, or completing more than once must fail this test.
   const onEvent=vi.fn(),user=userEvent.setup();
@@ -37,6 +45,8 @@ test('accepts the required main, keeps a detail concise, then explains an extra'
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'toggle-sentence'},
+    {type:'coach',cue:'strategy'},
+    {type:'coach',cue:'milestone'},
     {type:'change',value:{selectedIds:['main']}},
     {type:'complete',value:{selectedIds:['main']}},
   ]);
@@ -103,7 +113,7 @@ test('emits ordered reset state and never rearms completion after revision',asyn
   await user.click(screen.getByRole('button',{name:'Start over'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'reset'},
-    {type:'change',value:{selectedIds:[]}},
+    {type:'change',value:{selectedIds:[],composition:''}},
   ]);
   expect(screen.getByTestId('summary-selected-order')).toHaveTextContent('No sentences selected yet.');
 
@@ -202,4 +212,25 @@ test('keeps source visible and preserves a revision while word bounds are unmet'
   expect(screen.getAllByText('They carry pollen.').length).toBeGreaterThanOrEqual(1);
   await user.type(textbox,' that helps flowers grow');
   expect(screen.getByRole('status')).toHaveTextContent(/ready/i);
+});
+
+test('emits bounded strategy, retry, milestone, and typed composition completion cues',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  const events=onEvent.mock.calls.map(([event])=>event);
+  expect(events.filter((event)=>event.type==='coach')).toEqual([
+    {type:'coach',cue:'strategy'},
+    {type:'coach',cue:'retry'},
+    {type:'coach',cue:'milestone'},
+  ]);
+  await user.type(screen.getByRole('textbox',{name:/summary/i}),'Bees help plants by carrying pollen.');
+  await user.click(screen.getByRole('button',{name:'Finish summary'}));
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({
+    type:'complete',
+    value:{selectedIds:['main','detail'],composition:'Bees help plants by carrying pollen.'},
+  });
 });

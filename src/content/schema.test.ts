@@ -514,6 +514,12 @@ test('Summary, structure, and figurative contracts validate authored limits and 
     requiredMainIds: ['main'], maxSentences: 2, requiredDetailIds: ['detail'], compositionPrompt: 'Explain the big idea.', minCompositionWords: 3, maxCompositionWords: 20,
   };
   expect(SummaryBuilderWidgetConfigSchema.safeParse(summary).success).toBe(true);
+  expect(SummaryBuilderWidgetConfigSchema.safeParse({
+    ...summary,
+    maxSentences: 1,
+    requiredMainIds: ['main'],
+    requiredDetailIds: ['detail'],
+  }).success).toBe(false);
   expect(SummaryBuilderWidgetConfigSchema.safeParse({ ...summary, minCompositionWords: 21, maxCompositionWords: 20 }).success).toBe(false);
   expect(SummaryBuilderWidgetConfigSchema.safeParse({ ...summary, minCompositionWords: 2 }).success).toBe(false);
   expect(TextStructureSorterWidgetConfigSchema.safeParse({ availableStructures: ['sequence'], excerpts: [{ id: 'steps', text: 'First mix.', structure: 'sequence' }, { id: 'other', text: 'Rain caused a flood.', structure: 'cause-effect' }] }).success).toBe(false);

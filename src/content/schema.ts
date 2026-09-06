@@ -1413,6 +1413,7 @@ export const SummaryBuilderWidgetConfigSchema=z.object({
     value.sourceSentences.some((sentence)=>sentence.id===id&&sentence.role==='detail'),
   );
   const requiredDetailsUnique=new Set(requiredDetails).size===requiredDetails.length;
+  const requiredSentenceCount=new Set([...required,...requiredDetails]).size;
   const wordsAreOrdered=value.minCompositionWords === undefined
     || value.maxCompositionWords === undefined
     || value.minCompositionWords <= value.maxCompositionWords;
@@ -1422,6 +1423,7 @@ export const SummaryBuilderWidgetConfigSchema=z.object({
     ||!requiredAreValid
     ||!requiredDetailsUnique
     ||!requiredDetailsAreValid
+    ||requiredSentenceCount>value.maxSentences
     ||!wordsAreOrdered
     ||value.requiredMainIds.length>value.maxSentences){
     context.addIssue({code:z.ZodIssueCode.custom,message:'summary sentences, required main ids, and limit must be unique and valid'});

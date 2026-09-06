@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -15,6 +15,8 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
   const [selectedIds,setSelectedIds]=useState<string[]>([]);
   const [composition,setComposition]=useState('');
   const [attemptedComposition,setAttemptedComposition]=useState(false);
+  const strategyAnnounced=useRef(false);
+  const retryAnnounced=useRef(false);
   const {completeOnce,completed}=useCompletionLatch(key);
   const sourceById=useMemo(()=>new Map(config.sourceSentences.map((sentence)=>[sentence.id,sentence])),[config.sourceSentences]);
   const inAuthoredOrder=(ids:string[])=>config.sourceSentences
@@ -47,25 +49,41 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
     setSelectedIds([]);
     setComposition('');
     setAttemptedComposition(false);
+    strategyAnnounced.current=false;
+    retryAnnounced.current=false;
   },[key]);
 
   const emitValue=(value:SummaryValue)=>{
-    // Summary composition is intentionally ephemeral. The widget event contract in
-    // older lessons only names selectedIds, so retain that contract at the boundary
-    // while exposing the composition to newer consumers when present.
     const eventValue=value.composition===undefined
       ?{selectedIds:value.selectedIds}
       :value;
-    onEvent({type:'change',value:eventValue as never});
+    onEvent({type:'change',value:eventValue});
   };
 
-  const emitSelection=(ids:string[],action:'toggle-sentence'|'reset')=>{
+  const emitSelection=(ids:string[],action:'toggle-sentence'|'reset',compositionOverride?:string)=>{
     const ordered=inAuthoredOrder(ids);
+    const nextPlanValid=planValidFor(ordered);
+    if(action==='reset'){
+      strategyAnnounced.current=false;
+      retryAnnounced.current=false;
+    }
     setSelectedIds(ordered);
     onEvent({type:'interaction',action});
-    emitValue({selectedIds:ordered,composition:composition||undefined});
-    if(!hasCompositionStage&&planValidFor(ordered)){
-      completeOnce(()=>onEvent({type:'complete',value:{selectedIds:ordered} as never}));
+    if(!strategyAnnounced.current&&ordered.length>0){
+      strategyAnnounced.current=true;
+      onEvent({type:'coach',cue:'strategy'});
+    }
+    if(ordered.length>0&&!nextPlanValid&&!retryAnnounced.current){
+      retryAnnounced.current=true;
+      onEvent({type:'coach',cue:'retry'});
+    }
+    if(nextPlanValid&&!planValid){
+      retryAnnounced.current=false;
+      onEvent({type:'coach',cue:'milestone'});
+    }
+    emitValue({selectedIds:ordered,composition:compositionOverride??(composition||undefined)});
+    if(!hasCompositionStage&&nextPlanValid){
+      completeOnce(()=>onEvent({type:'complete',value:{selectedIds:ordered}}));
     }
   };
 
@@ -90,7 +108,12 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
   const submitComposition=()=>{
     setAttemptedComposition(true);
     if(planValid&&compositionValid){
-      completeOnce(()=>onEvent({type:'complete',value:{selectedIds,composition} as never}));
+      completeOnce(()=>onEvent({type:'complete',value:{selectedIds,composition}}));
+    } else {
+      if(!retryAnnounced.current){
+        retryAnnounced.current=true;
+        onEvent({type:'coach',cue:'retry'});
+      }
     }
   };
 
@@ -168,7 +191,7 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
     <div className="summary-controls"><button type="button" onClick={()=>{
       setComposition('');
       setAttemptedComposition(false);
-      emitSelection([],'reset');
+      emitSelection([],'reset','');
     }}>Start over</button></div>
     <p role="status">{currentValid?'Summary ready. You wrote a plan and a bounded response.':feedback}</p>
   </section>;
