@@ -180,6 +180,10 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
   const changeText = change >= 0 ? `+${change}/${config.denominator}` : `${change}/${config.denominator}`;
   const mixedDescription = wholeCount > 1 ? `${wholeCount - 1} whole${wholeCount > 2 ? 's' : ''} and ${numerator}/${config.denominator}` : undefined;
   const targetLabel = target ? fractionText(totalTargetNumerator!, target.denominator) : fractionText(totalNumerator, config.denominator);
+  const comparisonTotalNumerator = comparisonTarget ? (wholeCount - 1) * comparisonTarget.denominator + comparisonTarget.numerator : undefined;
+  const comparisonDescription = comparisonTarget && wholeCount > 1
+    ? `${wholeCount - 1} whole${wholeCount > 2 ? 's' : ''} and ${comparisonTarget.numerator}/${comparisonTarget.denominator}`
+    : undefined;
 
   return (
     <section className="card widget-experiment fraction-models" data-testid="widget-fraction-models" data-state={visiblyComplete ? 'complete' : 'choosing'} data-complete={visiblyComplete ? 'yes' : 'no'}>
@@ -201,7 +205,10 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
       {config.task === 'equivalent' && comparisonTarget ? (
         <div className="fraction-equivalence" data-testid="fraction-equivalence">
           <div><strong>{fractionText(totalNumerator, config.denominator)}</strong>{modelKinds.map((kind) => <FractionModel key={`selected-${kind}`} kind={kind} denominator={config.denominator} numerator={numerator} wholeCount={wholeCount} label="Selected" />)}</div>
-          <div><strong>{fractionText(comparisonTarget.numerator, comparisonTarget.denominator)}</strong><FractionModel kind={modelKinds[0]!} denominator={comparisonTarget.denominator} numerator={comparisonTarget.numerator} label="Comparison" /></div>
+          <div role="group" aria-label={`Comparison model: ${fractionText(comparisonTotalNumerator!, comparisonTarget.denominator)}${comparisonDescription ? ` made from ${comparisonDescription}` : ''}`}>
+            <strong data-testid="fraction-equivalence-target-label">{fractionText(comparisonTotalNumerator!, comparisonTarget.denominator)}</strong>
+            <FractionModel kind={modelKinds[0]!} denominator={comparisonTarget.denominator} numerator={comparisonTarget.numerator} wholeCount={wholeCount} label="Comparison" />
+          </div>
           <p>These models use a same-sized whole, so their shaded amounts can be compared fairly.</p>
         </div>
       ) : config.task === 'share' ? (

@@ -277,3 +277,27 @@ test('normalizes equivalent multi-whole targets with unlike denominators', async
     value: { numerator: 2, denominator: 4, equivalent: true },
   });
 });
+
+test('shows the normalized whole offset in the equivalent comparison model', () => {
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 4,
+        numerator: 2,
+        wholeCount: 2,
+        target: { numerator: 1, denominator: 2 },
+        comparisonTarget: { numerator: 1, denominator: 2 },
+        task: 'equivalent',
+        allowEquivalent: true,
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  const comparison = screen.getByTestId('fraction-equivalence');
+  expect(comparison).toHaveTextContent('6/4');
+  expect(comparison).toHaveTextContent('3/2');
+  expect(screen.getByRole('group', { name: 'Comparison model: 3/2 made from 1 whole and 1/2' })).toBeInTheDocument();
+  expect(screen.getAllByTestId('fraction-whole')).toHaveLength(4);
+});
