@@ -5,7 +5,7 @@ import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { LessonPlayer } from './LessonPlayer';
 
-const { FIXTURE, READING_FIXTURE } = vi.hoisted(() => {
+const { FIXTURE, READING_FIXTURE, COACHED_FIXTURE } = vi.hoisted(() => {
   const lesson: Lesson = {
     id: 'math-u01-l1',
     unitId: 'math-u01',
@@ -90,9 +90,40 @@ const { FIXTURE, READING_FIXTURE } = vi.hoisted(() => {
     units: [readingUnit],
   };
 
+  const coachedLesson: Lesson = {
+    ...lesson,
+    id: 'math-u01-coached',
+    title: 'Build a number with a guide',
+    learnCards: [
+      {
+        id: 'card-coached',
+        title: 'Build the target number',
+        blocks: [
+          {
+            kind: 'text',
+            text: 'A place tells how much a digit is worth. Build the target one place at a time.',
+          },
+        ],
+        widget: { type: 'place-value-builder', config: { target: 482 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', text: 'Let’s connect place value to the model.', pose: 'talk' },
+            { speaker: 'kid', text: 'I’ll build the target and watch each place change.' },
+          ],
+          reactions: {
+            complete: { text: 'You connected each place to its value!', pose: 'cheer' },
+          },
+        },
+      },
+    ],
+  };
+  const coachedUnit: Unit = { ...unit, lessons: [coachedLesson] };
+  const coachedSubject: Subject = { ...subject, units: [coachedUnit] };
+
   return {
     FIXTURE: { subject, unit, lesson },
     READING_FIXTURE: { subject: readingSubject, unit: readingUnit, lesson: readingLesson },
+    COACHED_FIXTURE: { subject: coachedSubject, unit: coachedUnit, lesson: coachedLesson },
   };
 });
 
@@ -100,12 +131,14 @@ vi.mock('../content/subjects', () => ({
   findLesson: (id: string) => {
     if (id === FIXTURE.lesson.id) return FIXTURE;
     if (id === READING_FIXTURE.lesson.id) return READING_FIXTURE;
+    if (id === COACHED_FIXTURE.lesson.id) return COACHED_FIXTURE;
     return null;
   },
 }));
 
 const LESSON_ID = 'math-u01-l1';
 const READING_LESSON_ID = 'reading-u01-l01';
+const COACHED_LESSON_ID = 'math-u01-coached';
 
 function renderPlayer(entry = `/lesson/${LESSON_ID}`) {
   return render(
@@ -200,6 +233,55 @@ afterEach(() => {
 });
 
 describe('LessonPlayer', () => {
+  test('keeps coached teaching visible, owns Next during the mini-conversation, and preserves events', async () => {
+    const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
+    const user = userEvent.setup();
+    renderPlayer(`/lesson/${COACHED_LESSON_ID}?step=card:card-coached&peek=1&mode=demo`);
+
+    expect(await screen.findByRole('heading', { name: 'Build the target number' })).toBeInTheDocument();
+    expect(screen.getByText(/Build the target one place at a time/)).toBeInTheDocument();
+    expect(screen.getByText(/connect place value to the model/)).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+    expect(currentSearchParams().get('mode')).toBe('demo');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByText(/watch each place change/)).toBeInTheDocument();
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Try it' }));
+    expect(await screen.findByTestId('widget-place-value-builder')).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).not.toHaveAttribute('inert');
+    expect(nav().getByRole('button', { name: /next step/i })).toBeInTheDocument();
+
+    storageSpy.mockClear();
+    await user.click(screen.getByRole('button', { name: 'Add one to the ones place' }));
+    expect(storageSpy).not.toHaveBeenCalled();
+  });
+
+  test('replays coached intro on a fresh Back/Forward history visit', async () => {
+    const user = userEvent.setup();
+    renderPlayer(`/lesson/${COACHED_LESSON_ID}?step=card:card-coached&peek=1&mode=demo`);
+    await screen.findByRole('heading', { name: 'Build the target number' });
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Try it' }));
+    await user.click(nav().getByRole('button', { name: /next step/i }));
+    expect(await screen.findByRole('heading', { name: 'Try one together' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /browser back/i }));
+    expect(await screen.findByRole('heading', { name: 'Build the target number' })).toBeInTheDocument();
+    expect(screen.getByText(/connect place value to the model/)).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
+    expect(currentSearchParams().get('mode')).toBe('demo');
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Try it' }));
+    await user.click(nav().getByRole('button', { name: /next step/i }));
+    await user.click(screen.getByRole('button', { name: /browser forward/i }));
+    expect(await screen.findByRole('heading', { name: 'Try one together' })).toBeInTheDocument();
+  });
+
   test('widget interaction remains ephemeral', async () => {
     const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
     const user = userEvent.setup();

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { LearnCard as LearnCardData, RichBlock } from '../content/schema';
+import type { GuideId, LearnCard as LearnCardData, RichBlock } from '../content/schema';
 import { WidgetFrame } from '../widgets/WidgetFrame';
 import type { WidgetEventHandler } from '../widgets/registry';
 import { ReadAloudButton } from './ReadAloudButton';
@@ -7,6 +7,7 @@ import { RichText, speechText } from './Rich';
 import { AnnouncingDialogue } from './AnnouncingDialogue';
 import { InlineCheck } from './InlineCheck';
 import { LessonDemo } from './LessonDemo';
+import { WidgetCoachFrame } from './WidgetCoachFrame';
 
 function Block({ block }: { block: RichBlock }) {
   if (block.kind === 'example') {
@@ -46,6 +47,10 @@ export type LearnCardProps = {
   onDialogueAnnouncement: (text: string) => void;
   /** Lets the lesson stage reserve its forward control while this dialogue owns it. */
   onDialogueDone?: () => void;
+  guide?: GuideId;
+  stageVisitKey?: string;
+  /** True while the coached widget's mini-conversation owns the lesson forward action. */
+  onWidgetCoachIntroActiveChange?: (active: boolean) => void;
 };
 
 export function LearnCard({
@@ -53,6 +58,9 @@ export function LearnCard({
   onWidgetEvent,
   onDialogueAnnouncement,
   onDialogueDone,
+  guide = 'nutty',
+  stageVisitKey = card.id,
+  onWidgetCoachIntroActiveChange,
 }: LearnCardProps) {
   const [dialogueDone, setDialogueDone] = useState(false);
   const spoken = speechText([card.title, ...card.blocks.map((b) => b.text)]);
@@ -82,7 +90,18 @@ export function LearnCard({
         <Block key={index} block={block} />
       ))}
 
-      {card.widget && <WidgetFrame {...card.widget} onEvent={onWidgetEvent} />}
+      {card.widget && card.widgetCoach ? (
+        <WidgetCoachFrame
+          {...card.widget}
+          coach={card.widgetCoach}
+          guide={guide}
+          visitKey={stageVisitKey}
+          onEvent={onWidgetEvent}
+          onIntroActiveChange={(active) => onWidgetCoachIntroActiveChange?.(!active)}
+        />
+      ) : (
+        card.widget && <WidgetFrame {...card.widget} onEvent={onWidgetEvent} />
+      )}
 
       {card.demo && <LessonDemo demo={card.demo} />}
 
