@@ -30,17 +30,31 @@ const specs = [
             ],
             "points": [
               {
-                "id": "ridge",
-                "label": "Ridge",
-                "elevation": 200
+                "id": "ridge-north",
+                "label": "Ridge North",
+                "x": 35,
+                "y": 40,
+                "elevation": 200,
+                "group": "ridge-band"
+              },
+              {
+                "id": "ridge-south",
+                "label": "Ridge South",
+                "x": 35,
+                "y": 65,
+                "elevation": 200,
+                "group": "ridge-band"
               },
               {
                 "id": "valley",
                 "label": "Valley",
-                "elevation": 100
+                "x": 70,
+                "y": 55,
+                "elevation": 100,
+                "group": "valley"
               }
             ],
-            "targetPointId": "ridge"
+            "targetPattern": "band"
           }
         }
       },
@@ -590,6 +604,19 @@ test('Unit 7 map and erosion widgets connect Sandy coaching to fair comparisons 
   expect(mapConfig.targetPattern).toBe('band');
   const erosionConfig = (erosionCard.widget as { config: { comparison?: unknown } }).config;
   expect(erosionConfig.comparison).toEqual({ variable: 'vegetation', values: [false, true] });
+});
+
+test('opening topographic card uses rich plotted points and in-step Sandy coaching', () => {
+  const card = unit07Lessons[0]!.learnCards[0]!;
+  expect(card.widgetCoach?.intro).toHaveLength(2);
+  expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/elevation|point|contour/i);
+  expect(card.widgetCoach?.reactions.retry?.text).toMatch(/pattern|point|elevation/i);
+  expect(card.widgetCoach?.reactions.complete.text).toMatch(/pattern|elevation|model/i);
+  const config = (card.widget as { config: { points: Array<Record<string, unknown>>; targetPattern?: string; targetPointId?: string } }).config;
+  expect(config.targetPattern).toMatch(/^(band|cluster)$/);
+  expect(config.targetPointId).toBeUndefined();
+  expect(config.points.every((point) => typeof point.x === 'number' && typeof point.y === 'number' && typeof point.group === 'string')).toBe(true);
 });
 
 test('rock-layer widget coaches relative rank with fossil evidence and no invented age', () => {

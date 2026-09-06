@@ -40,7 +40,7 @@ const scienceU07L01Core = {
         },
         {
           "kind": "example",
-          "text": "In the activity key, Ridge is 200 m and Valley is 100 m. Therefore Ridge has the higher printed elevation."
+          "text": "In the activity key, Ridge North and Ridge South are 200 m while Valley is 100 m. Therefore either Ridge point has the higher printed elevation."
         },
         {
           "kind": "tip",
@@ -62,17 +62,43 @@ const scienceU07L01Core = {
           ],
           "points": [
             {
-              "id": "ridge",
-              "label": "Ridge",
-              "elevation": 200
+              "id": "ridge-north",
+              "label": "Ridge North",
+              "x": 35,
+              "y": 40,
+              "elevation": 200,
+              "group": "ridge-band"
+            },
+            {
+              "id": "ridge-south",
+              "label": "Ridge South",
+              "x": 35,
+              "y": 65,
+              "elevation": 200,
+              "group": "ridge-band"
             },
             {
               "id": "valley",
               "label": "Valley",
-              "elevation": 100
+              "x": 70,
+              "y": 55,
+              "elevation": 100,
+              "group": "valley"
             }
           ],
-          "targetPointId": "ridge"
+          "targetPattern": "band"
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Read the contour key, compare the printed elevations, and select the two ridge points that form the visible band." },
+          { "speaker": "kid", "text": "I will use the plotted points and elevation labels to describe the map pattern without guessing a cause." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Start with the elevation key, then select both ridge points from the same plotted group before choosing a pattern.", "pose": "think" },
+          "retry": { "text": "Compare the selected point labels and elevations again; use two same-group points to support the visible band claim.", "pose": "oops" },
+          "milestone": { "text": "Two plotted ridge points are selected. Check their shared group and location before naming the pattern.", "pose": "talk" },
+          "complete": { "text": "You compared printed elevations and identified the visible ridge band from plotted map evidence in this model.", "pose": "cheer" }
         }
       }
     },
