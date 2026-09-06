@@ -115,7 +115,7 @@ export const unit02Lessons = [
         "widgetCoach": {
           "intro": [
             {"speaker":"guide","pose":"think","text":"Let’s snap the root and affixes together, then reread the whole word’s meaning."},
-            {"speaker":"kid","text":"I’ll build it left to right and check whether the whole word fits the sentence."}
+            {"speaker":"kid","text":"I’ll build it left to right and check whether the whole word fits the intended meaning."}
           ],
           "reactions": {
             "strategy": {"text":"Start with the root, then choose only the prefix or suffix that changes its meaning the right way.","pose":"think"},

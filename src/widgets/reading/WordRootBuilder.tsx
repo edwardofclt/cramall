@@ -28,6 +28,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
   const [prefix,setPrefix] = useState('');
   const [suffix,setSuffix] = useState('');
   const [spellingChecked,setSpellingChecked] = useState(false);
+  const [meaningChoice,setMeaningChoice] = useState<string | null>(null);
   const [meaningChecked,setMeaningChecked] = useState(false);
   const [status,setStatus] = useState('Snap the parts together, then check the whole word.');
   const strategyAnnounced = useRef(false);
@@ -37,6 +38,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     setPrefix('');
     setSuffix('');
     setSpellingChecked(false);
+    setMeaningChoice(null);
     setMeaningChecked(false);
     setStatus('Snap the parts together, then check the whole word.');
     strategyAnnounced.current = false;
@@ -59,6 +61,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     setPrefix(nextPrefix);
     setSuffix(nextSuffix);
     setSpellingChecked(false);
+    setMeaningChoice(null);
     setMeaningChecked(false);
     setStatus('Snap the parts together, then check the whole word.');
     emit(value(nextPrefix,nextSuffix),action);
@@ -68,6 +71,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
   const selectSuffix = (nextSuffix: string) => revise(prefix,suffix === nextSuffix ? '' : nextSuffix,'select-suffix');
   const selectRoot = () => {
     setSpellingChecked(false);
+    setMeaningChoice(null);
     setMeaningChecked(false);
     setStatus('The root stays in the middle. Snap on any needed affixes, then check the whole word.');
     emit(value(),'select-root');
@@ -78,6 +82,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     const target = config.targets.find((candidate) => candidate.word === next.word);
     if (!target) {
       setSpellingChecked(false);
+      setMeaningChoice(null);
       setMeaningChecked(false);
       setStatus(`${next.word || 'That combination'} is not an authored target word yet. ${revisionHint(config,prefix,suffix)}`);
       onEvent({type:'coach',cue:'retry'});
@@ -85,9 +90,20 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     }
     if (!spellingChecked) {
       setSpellingChecked(true);
+      setMeaningChoice(null);
       setMeaningChecked(false);
-      setStatus(`The spelling fits. Check the whole-word meaning: ${target.meaning}.`);
+      setStatus('The spelling fits. Choose the whole-word meaning that best matches, then check it.');
       onEvent({type:'coach',cue:'milestone'});
+      return;
+    }
+    if (!meaningChoice) {
+      setStatus('Choose a whole-word meaning before checking your reasoning.');
+      onEvent({type:'coach',cue:'retry'});
+      return;
+    }
+    if (meaningChoice !== target.meaning) {
+      setStatus('That meaning choice does not fit this word. Reread the word parts and choose again.');
+      onEvent({type:'coach',cue:'retry'});
       return;
     }
     setMeaningChecked(true);
@@ -99,6 +115,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     setPrefix('');
     setSuffix('');
     setSpellingChecked(false);
+    setMeaningChoice(null);
     setMeaningChecked(false);
     setStatus('Snap the parts together, then check the whole word.');
     strategyAnnounced.current = false;
@@ -114,6 +131,7 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
   const assembled = value();
   const state = meaningChecked ? 'complete' : spellingChecked ? 'meaning-check' : 'building';
   const target = config.targets.find((candidate) => candidate.word === assembled.word);
+  const meaningOptions = [...new Set(config.targets.map((candidate) => candidate.meaning))];
   const checkLabel = spellingChecked && target ? 'Check whole-word meaning' : 'Check word';
 
   return <section className="card widget-experiment roots" data-testid="widget-word-root-builder" data-state={state} aria-describedby="word-root-guidance">
@@ -156,7 +174,12 @@ function WordRootBuilderBody({config,onEvent}: WordRootBuilderProps) {
     <div className="word-root-assembled" aria-label="Assembled word"><strong>Assembled word:</strong> {assembled.word || '—'}</div>
     {spellingChecked && target && <div className="word-root-meaning-check" data-testid="word-root-meaning-check">
       <strong>Whole-word meaning check</strong>
-      <p>Does the assembled word fit this meaning? <span>{target.meaning}</span></p>
+      <fieldset className="word-root-meaning-options">
+        <legend>Which meaning fits <strong>{assembled.word}</strong>?</legend>
+        {meaningOptions.map((meaning) => <button type="button" key={meaning} className="word-root-meaning-option" aria-label={`Choose whole-word meaning: ${meaning}`} aria-pressed={meaningChoice === meaning} onClick={() => { setMeaningChoice(meaning); setStatus('Meaning choice selected. Check your whole-word reasoning when ready.'); }}>
+          <span>{meaning}</span><span className="word-root-meaning-marker" aria-hidden="true">{meaningChoice === meaning ? '✓ Selected' : '○ Choose'}</span>
+        </button>)}
+      </fieldset>
     </div>}
     <div className="word-root-controls"><button type="button" aria-label={checkLabel} onClick={check}>{checkLabel}</button> <button type="button" onClick={reset}>Start over</button></div>
     <p role="status">{status}</p>

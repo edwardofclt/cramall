@@ -20,6 +20,8 @@ test('snaps configured morphemes into left-to-right slots before checking whole-
     {type:'change',value:{parts:['re','view'],word:'review'}},
     {type:'coach',cue:'milestone'},
   ]);
+  expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(0);
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: see again'}));
   await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByRole('status')).toHaveTextContent('see again');
   expect(onEvent.mock.calls.map(([e])=>e)).toEqual([
@@ -32,6 +34,29 @@ test('snaps configured morphemes into left-to-right slots before checking whole-
   ]);
   await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(1);
+});
+
+test('requires a learner-selected whole-word meaning and coaches a wrong meaning choice',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<WordRootBuilder config={{root:'port',prefixes:['trans'],suffixes:['able'],targets:[{word:'transport',meaning:'carry from one place to another'},{word:'portable',meaning:'able to be carried'}]}} onEvent={onEvent}/>);
+
+  await user.click(screen.getByRole('button',{name:'Select prefix trans'}));
+  await user.click(screen.getByRole('button',{name:'Check word'}));
+  expect(screen.getByTestId('word-root-meaning-check')).toBeVisible();
+  expect(screen.getByRole('button',{name:'Choose whole-word meaning: carry from one place to another'})).toBeVisible();
+  expect(screen.getByRole('button',{name:'Choose whole-word meaning: able to be carried'})).toBeVisible();
+
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: able to be carried'}));
+  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/meaning choice does not fit/i);
+  expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','meaning-check');
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
+
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: carry from one place to another'}));
+  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
+  expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','complete');
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
 
 test('removes a snapped tile with keyboard and gives strategy-specific retry coaching',async()=>{
@@ -63,6 +88,7 @@ test('lets a learner revise to explicit blank affixes after completion without e
   render(<WordRootBuilder config={{root:'view',prefixes:['re'],suffixes:['er'],targets:[{word:'review',meaning:'see again'},{word:'view',meaning:'look'}]}} onEvent={onEvent}/>);
   await user.click(screen.getByRole('button',{name:'Select prefix re'}));
   await user.click(screen.getByRole('button',{name:'Check word'}));
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: see again'}));
   await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','complete');
   onEvent.mockClear();
@@ -70,6 +96,7 @@ test('lets a learner revise to explicit blank affixes after completion without e
   expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','building');
   expect(screen.getByRole('button',{name:'Select no prefix'})).toHaveAttribute('aria-pressed','true');
   await user.click(screen.getByRole('button',{name:'Check word'}));
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: look'}));
   await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByRole('status')).toHaveTextContent('look');
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(0);
