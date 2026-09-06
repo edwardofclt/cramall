@@ -14,6 +14,13 @@ import {
   WIDGET_TYPES,
   WidgetRefSchema,
   WidgetCoachSchema,
+  StoryElementsMapperWidgetConfigSchema,
+  ThemeEvidenceCollectorWidgetConfigSchema,
+  CentralIdeaOrganizerWidgetConfigSchema,
+  SummaryBuilderWidgetConfigSchema,
+  TextStructureSorterWidgetConfigSchema,
+  FigurativeLanguageMatcherWidgetConfigSchema,
+  SourceCredibilityCheckerWidgetConfigSchema,
   validateLesson,
   type Lesson,
   type Question,
@@ -475,4 +482,55 @@ test('ProbabilitySpinner reserves event sentinels so they cannot collide with se
     segments: [{ id: 'none', label: 'None' }, { id: 'blue', label: 'Blue' }],
     eventQuestion: { eventLabel: 'none', classification: 'impossible' },
   }).success).toBe(false);
+});
+
+test('Reading source-based contracts reject incomplete story choices and unknown fields', () => {
+  const production = {
+    textTitle: 'Story',
+    fields: ['character', 'setting'],
+    source: { title: 'Story', text: 'Ava waits.' },
+    choices: [{ id: 'ava', text: 'Ava', field: 'character' }, { id: 'park', text: 'Park', field: 'setting' }],
+    answerChoiceIds: { character: 'missing', setting: 'park' },
+  };
+
+  expect(StoryElementsMapperWidgetConfigSchema.safeParse({ ...production, answerChoiceIds: { character: 'ava', setting: 'park' } }).success).toBe(true);
+  expect(StoryElementsMapperWidgetConfigSchema.safeParse({ ...production, source: undefined }).success).toBe(false);
+  expect(StoryElementsMapperWidgetConfigSchema.safeParse({ ...production, answerChoiceIds: { character: 'ava', setting: 'park' }, choices: [{ id: 'ava', text: 'Ava', field: 'character' }, { id: 'ava', text: 'Ava again', field: 'character' }] }).success).toBe(false);
+  expect(StoryElementsMapperWidgetConfigSchema.safeParse({ ...production, answerChoiceIds: { character: 'ava', setting: 'park' }, unexpected: true }).success).toBe(false);
+});
+
+test('Reading evidence quotes must occur in visible source with case-preserving whitespace matching', () => {
+  const source = { title: 'Garden', text: 'Mateo gives a row\n to Ana. Fish shelter.' };
+  const evidence = [{ id: 'share', text: 'Mateo shares.', supports: ['Generosity'], sourceQuote: 'gives a   row to Ana' }, { id: 'repair', text: 'Ana helps.', supports: ['Generosity'] }, { id: 'plan', text: 'Rows are measured.', supports: ['Planning'] }];
+  expect(ThemeEvidenceCollectorWidgetConfigSchema.safeParse({ themeChoices: ['Generosity', 'Planning'], evidence, source }).success).toBe(true);
+  expect(ThemeEvidenceCollectorWidgetConfigSchema.safeParse({ themeChoices: ['Generosity', 'Planning'], evidence: [{ ...evidence[0], sourceQuote: 'Gives a row to Ana' }], source }).success).toBe(false);
+  expect(ThemeEvidenceCollectorWidgetConfigSchema.safeParse({ themeChoices: ['Generosity', 'Planning'], evidence: [{ ...evidence[0], sourceQuote: 'not in source' }] }).success).toBe(false);
+  expect(CentralIdeaOrganizerWidgetConfigSchema.safeParse({ mainIdeaChoices: ['Marshes help', 'Dogs bark'], details: [{ id: 'd', text: 'Fish shelter.', supports: ['Marshes help'], sourceQuote: 'Fish shelter.' }, { id: 'e', text: 'Plants slow waves.', supports: ['Marshes help'] }], source }).success).toBe(true);
+});
+
+test('Summary, structure, and figurative contracts validate authored limits and available answers', () => {
+  const summary = {
+    sourceSentences: [{ id: 'main', text: 'Bees help plants.', role: 'main' }, { id: 'detail', text: 'They carry pollen.', role: 'detail' }, { id: 'extra', text: 'Blue is a color.', role: 'extra' }],
+    requiredMainIds: ['main'], maxSentences: 2, requiredDetailIds: ['detail'], compositionPrompt: 'Explain the big idea.', minCompositionWords: 3, maxCompositionWords: 20,
+  };
+  expect(SummaryBuilderWidgetConfigSchema.safeParse(summary).success).toBe(true);
+  expect(SummaryBuilderWidgetConfigSchema.safeParse({ ...summary, minCompositionWords: 21, maxCompositionWords: 20 }).success).toBe(false);
+  expect(SummaryBuilderWidgetConfigSchema.safeParse({ ...summary, minCompositionWords: 2 }).success).toBe(false);
+  expect(TextStructureSorterWidgetConfigSchema.safeParse({ availableStructures: ['sequence'], excerpts: [{ id: 'steps', text: 'First mix.', structure: 'sequence' }, { id: 'other', text: 'Rain caused a flood.', structure: 'cause-effect' }] }).success).toBe(false);
+  expect(FigurativeLanguageMatcherWidgetConfigSchema.safeParse({ availableKinds: ['simile'], pairs: [{ id: 's', phrase: 'fast as lightning', kind: 'simile', meaning: 'fast' }, { id: 'm', phrase: 'a beehive', kind: 'metaphor', meaning: 'busy' }] }).success).toBe(false);
+});
+
+test('Credibility production contracts require unique criteria and enough authored reasons', () => {
+  const source = {
+    id: 'guide', title: 'County Guide',
+    judgments: [
+      { criterion: 'expertise', strength: 'supports', reason: 'Written by a specialist.' },
+      { criterion: 'publisher', strength: 'supports', reason: 'The publisher is accountable.' },
+    ],
+  };
+  const base = { question: 'Which source should guide prevention?', sources: [source], requiredReasonCount: 2, answers: { guide: 'credible-for-question' } };
+  expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse(base).success).toBe(true);
+  expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse({ ...base, sources: [{ ...source, judgments: [...source.judgments, source.judgments[0]] }] }).success).toBe(false);
+  expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse({ ...base, requiredReasonCount: 3 }).success).toBe(false);
+  expect(SourceCredibilityCheckerWidgetConfigSchema.safeParse({ ...base, sources: [{ ...source, judgments: source.judgments.map((judgment) => ({ ...judgment, extra: true })) }] }).success).toBe(false);
 });

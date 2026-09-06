@@ -1208,19 +1208,63 @@ export const ContextClueDetectiveWidgetRefSchema = z.object({
 
 const StoryFieldSchema = z.enum(['character','setting','problem','events','solution']);
 const StoryMapTextSchema = z.string().trim().min(1);
+export const WidgetSourceSchema = z.object({
+  title: StoryMapTextSchema,
+  text: StoryMapTextSchema,
+}).strict();
+const sourceWhitespaceKey = (value: string) => value.trim().replace(/\s+/g, ' ');
+const sourceContainsQuote = (source: z.infer<typeof WidgetSourceSchema>, quote: string) =>
+  sourceWhitespaceKey(source.text).includes(sourceWhitespaceKey(quote));
+const StoryChoiceSchema = z.object({
+  id: StoryMapTextSchema,
+  text: StoryMapTextSchema,
+  field: StoryFieldSchema,
+}).strict();
 
 export const StoryElementsMapperWidgetConfigSchema = z.object({
   textTitle: StoryMapTextSchema,
   fields: z.array(StoryFieldSchema).min(2),
-  answers: z.record(z.string(),StoryMapTextSchema),
+  answers: z.record(z.string(),StoryMapTextSchema).optional().default({}),
+  source: WidgetSourceSchema.optional(),
+  choices: z.array(StoryChoiceSchema).min(1).optional(),
+  answerChoiceIds: z.record(z.string(), StoryMapTextSchema).optional(),
 }).strict().superRefine((value,context)=>{
   if(new Set(value.fields).size!==value.fields.length){
     context.addIssue({code:z.ZodIssueCode.custom,path:['fields'],message:'story fields must be unique'});
   }
   const fieldKeys=[...value.fields].sort();
-  const answerKeys=Object.keys(value.answers).sort();
-  if(fieldKeys.length!==answerKeys.length||fieldKeys.some((field,index)=>field!==answerKeys[index])){
-    context.addIssue({code:z.ZodIssueCode.custom,path:['answers'],message:'answers must contain exactly one entry for every story field'});
+  if (Object.keys(value.answers).length > 0) {
+    const answerKeys=Object.keys(value.answers).sort();
+    if(fieldKeys.length!==answerKeys.length||fieldKeys.some((field,index)=>field!==answerKeys[index])){
+      context.addIssue({code:z.ZodIssueCode.custom,path:['answers'],message:'answers must contain exactly one entry for every story field'});
+    }
+  }
+  const hasProduction = value.source !== undefined || value.choices !== undefined || value.answerChoiceIds !== undefined;
+  if (hasProduction) {
+    if (!value.source) context.addIssue({code:z.ZodIssueCode.custom,path:['source'],message:'production story mapping requires a source'});
+    if (!value.choices) context.addIssue({code:z.ZodIssueCode.custom,path:['choices'],message:'production story mapping requires choices'});
+    if (!value.answerChoiceIds) context.addIssue({code:z.ZodIssueCode.custom,path:['answerChoiceIds'],message:'production story mapping requires answer choice ids'});
+    if (!value.source || !value.choices || !value.answerChoiceIds) return;
+
+    const choiceIds = value.choices.map((choice) => sourceWhitespaceKey(choice.id));
+    if (new Set(choiceIds).size !== choiceIds.length) {
+      context.addIssue({code:z.ZodIssueCode.custom,path:['choices'],message:'choice ids must be unique'});
+    }
+    const answerKeys = Object.keys(value.answerChoiceIds).sort();
+    if (fieldKeys.length !== answerKeys.length || fieldKeys.some((field,index)=>field!==answerKeys[index])) {
+      context.addIssue({code:z.ZodIssueCode.custom,path:['answerChoiceIds'],message:'answer choice ids must contain exactly one entry for every story field'});
+    }
+    const selectedIds = Object.values(value.answerChoiceIds);
+    if (new Set(selectedIds.map(sourceWhitespaceKey)).size !== selectedIds.length) {
+      context.addIssue({code:z.ZodIssueCode.custom,path:['answerChoiceIds'],message:'each field must have a distinct correct choice'});
+    }
+    for (const field of value.fields) {
+      const choiceId = value.answerChoiceIds[field];
+      const matching = value.choices.filter((choice) => choice.id === choiceId);
+      if (matching.length !== 1 || matching[0].field !== field) {
+        context.addIssue({code:z.ZodIssueCode.custom,path:['answerChoiceIds',field],message:'answer choice id must name exactly one choice for its field'});
+      }
+    }
   }
 });
 
@@ -1235,12 +1279,14 @@ const ThemeEvidenceSchema=z.object({
   id:ThemeEvidenceTextSchema,
   text:ThemeEvidenceTextSchema,
   supports:z.array(ThemeEvidenceTextSchema).min(1),
+  sourceQuote: ThemeEvidenceTextSchema.optional(),
 }).strict();
 
 export const ThemeEvidenceCollectorWidgetConfigSchema=z.object({
   themeChoices:z.array(ThemeEvidenceTextSchema).min(2),
   evidence:z.array(ThemeEvidenceSchema).min(2),
   requiredEvidenceCount:z.number().int().min(2).max(5).optional(),
+  source: WidgetSourceSchema.optional(),
 }).strict().superRefine((value,context)=>{
   const required=value.requiredEvidenceCount??2;
   const themeKeys=value.themeChoices.map(themeEvidenceVisualKey);
@@ -1255,7 +1301,10 @@ export const ThemeEvidenceCollectorWidgetConfigSchema=z.object({
   });
   const solvable=required<=value.evidence.length
     &&value.themeChoices.some((theme)=>value.evidence.filter((detail)=>detail.supports.includes(theme)).length>=required);
-  if(!themesUnique||!evidenceUnique||!supportsValid||!solvable){
+  const quotesValid=value.evidence.every((detail)=>
+    detail.sourceQuote === undefined || (value.source !== undefined && sourceContainsQuote(value.source, detail.sourceQuote)),
+  );
+  if(!themesUnique||!evidenceUnique||!supportsValid||!solvable||!quotesValid){
     context.addIssue({code:z.ZodIssueCode.custom,message:'themes/evidence must be unique, valid, and at least one theme solvable'});
   }
 });
@@ -1271,12 +1320,14 @@ const CentralDetailSchema=z.object({
   id:CentralIdeaTextSchema,
   text:CentralIdeaTextSchema,
   supports:z.array(CentralIdeaTextSchema).min(1),
+  sourceQuote: CentralIdeaTextSchema.optional(),
 }).strict();
 
 export const CentralIdeaOrganizerWidgetConfigSchema=z.object({
   mainIdeaChoices:z.array(CentralIdeaTextSchema).min(2),
   details:z.array(CentralDetailSchema).min(2),
   requiredDetailCount:z.number().int().min(1).max(5).optional(),
+  source: WidgetSourceSchema.optional(),
 }).strict().superRefine((value,context)=>{
   const required=value.requiredDetailCount??2;
   const ideaKeys=value.mainIdeaChoices.map(centralIdeaVisualKey);
@@ -1291,7 +1342,10 @@ export const CentralIdeaOrganizerWidgetConfigSchema=z.object({
   });
   const solvable=required<=value.details.length
     &&value.mainIdeaChoices.some((idea)=>value.details.filter((detail)=>detail.supports.includes(idea)).length>=required);
-  if(!ideasUnique||!detailsUnique||!supportsValid||!solvable){
+  const quotesValid=value.details.every((detail)=>
+    detail.sourceQuote === undefined || (value.source !== undefined && sourceContainsQuote(value.source, detail.sourceQuote)),
+  );
+  if(!ideasUnique||!detailsUnique||!supportsValid||!solvable||!quotesValid){
     context.addIssue({code:z.ZodIssueCode.custom,message:'ideas/details must be unique, valid, and at least one idea solvable'});
   }
 });
@@ -1313,10 +1367,15 @@ const TextStructureExcerptSchema=z.object({
 
 export const TextStructureSorterWidgetConfigSchema=z.object({
   excerpts:z.array(TextStructureExcerptSchema).min(2),
+  availableStructures: z.array(TextStructureSchema).min(1).optional(),
 }).strict().superRefine((value,context)=>{
   const ids=value.excerpts.map((excerpt)=>textStructureVisualKey(excerpt.id));
   const texts=value.excerpts.map((excerpt)=>textStructureVisualKey(excerpt.text));
-  if(new Set(ids).size!==ids.length||new Set(texts).size!==texts.length){
+  const structuresUnique=value.availableStructures === undefined
+    || new Set(value.availableStructures).size === value.availableStructures.length;
+  const structuresAvailable=value.availableStructures === undefined
+    || value.excerpts.every((excerpt)=>value.availableStructures?.includes(excerpt.structure));
+  if(new Set(ids).size!==ids.length||new Set(texts).size!==texts.length||!structuresUnique||!structuresAvailable){
     context.addIssue({code:z.ZodIssueCode.custom,message:'excerpt ids and text must be unique'});
   }
 });
@@ -1338,17 +1397,32 @@ export const SummaryBuilderWidgetConfigSchema=z.object({
   sourceSentences:z.array(SummarySentenceSchema).min(3),
   requiredMainIds:z.array(SummaryTextSchema).min(1),
   maxSentences:z.number().int().min(1).max(5),
+  requiredDetailIds: z.array(SummaryTextSchema).min(1).optional(),
+  compositionPrompt: SummaryTextSchema.optional(),
+  minCompositionWords: z.number().int().min(3).max(40).optional(),
+  maxCompositionWords: z.number().int().min(3).max(80).optional(),
 }).strict().superRefine((value,context)=>{
   const ids=value.sourceSentences.map((sentence)=>summaryVisualKey(sentence.id));
   const texts=value.sourceSentences.map((sentence)=>summaryVisualKey(sentence.text));
   const required=value.requiredMainIds.map(summaryVisualKey);
+  const requiredDetails=value.requiredDetailIds?.map(summaryVisualKey) ?? [];
   const requiredAreValid=value.requiredMainIds.every((id)=>
     value.sourceSentences.some((sentence)=>sentence.id===id&&sentence.role==='main'),
   );
+  const requiredDetailsAreValid=value.requiredDetailIds === undefined || value.requiredDetailIds.every((id)=>
+    value.sourceSentences.some((sentence)=>sentence.id===id&&sentence.role==='detail'),
+  );
+  const requiredDetailsUnique=new Set(requiredDetails).size===requiredDetails.length;
+  const wordsAreOrdered=value.minCompositionWords === undefined
+    || value.maxCompositionWords === undefined
+    || value.minCompositionWords <= value.maxCompositionWords;
   if(new Set(ids).size!==ids.length
     ||new Set(texts).size!==texts.length
     ||new Set(required).size!==required.length
     ||!requiredAreValid
+    ||!requiredDetailsUnique
+    ||!requiredDetailsAreValid
+    ||!wordsAreOrdered
     ||value.requiredMainIds.length>value.maxSentences){
     context.addIssue({code:z.ZodIssueCode.custom,message:'summary sentences, required main ids, and limit must be unique and valid'});
   }
@@ -1427,11 +1501,16 @@ const FigurativePairSchema=z.object({
 
 export const FigurativeLanguageMatcherWidgetConfigSchema=z.object({
   pairs:z.array(FigurativePairSchema).min(2),
+  availableKinds: z.array(FigurativeKindSchema).min(1).optional(),
 }).strict().superRefine((value,context)=>{
   const ids=value.pairs.map((pair)=>figurativeVisualKey(pair.id));
   const phrases=value.pairs.map((pair)=>figurativeVisualKey(pair.phrase));
   const meanings=value.pairs.map((pair)=>figurativeVisualKey(pair.meaning));
-  if(new Set(ids).size!==ids.length||new Set(phrases).size!==phrases.length||new Set(meanings).size!==meanings.length){
+  const kindsUnique=value.availableKinds === undefined
+    || new Set(value.availableKinds).size === value.availableKinds.length;
+  const kindsAvailable=value.availableKinds === undefined
+    || value.pairs.every((pair)=>value.availableKinds?.includes(pair.kind));
+  if(new Set(ids).size!==ids.length||new Set(phrases).size!==phrases.length||new Set(meanings).size!==meanings.length||!kindsUnique||!kindsAvailable){
     context.addIssue({code:z.ZodIssueCode.custom,path:['pairs'],message:'pair ids, phrases, and meanings must be unique after normalization'});
   }
 });
@@ -1442,6 +1521,7 @@ export const FigurativeLanguageMatcherWidgetRefSchema=z.object({
 }).strict();
 
 const CredibilityCriterionSchema=z.enum(['author','evidence','date','purpose']);
+const CredibilityJudgmentCriterionSchema=z.enum(['expertise','publisher','evidence','currency','purpose']);
 const CredibilityTextSchema=z.string().trim().transform((value)=>value.replace(/\s+/g,' ').normalize('NFC')).pipe(z.string().min(1));
 const credibilityKey=(value:string)=>value.normalize('NFKC').toLocaleLowerCase();
 const CredibilityIdSchema=CredibilityTextSchema
@@ -1454,35 +1534,89 @@ const CredibilitySourceSchema=z.object({
   date:CredibilityTextSchema.optional(),
   publisher:CredibilityTextSchema.optional(),
   purpose:CredibilityTextSchema.optional(),
-  claims:z.array(CredibilityTextSchema),
+  claims:z.array(CredibilityTextSchema).optional().default([]),
+  judgments:z.array(z.object({
+    criterion: CredibilityJudgmentCriterionSchema,
+    strength: z.enum(['supports','concern']),
+    reason: CredibilityTextSchema,
+  }).strict()).min(1).optional(),
 }).strict();
 const sourceMeets=(source:z.infer<typeof CredibilitySourceSchema>,criteria:Array<z.infer<typeof CredibilityCriterionSchema>>)=>criteria.every((criterion)=>
   criterion==='author'?source.author!==undefined
-    :criterion==='evidence'?source.claims.length>0
+      :criterion==='evidence'?(source.claims?.length??0)>0
       :criterion==='date'?source.date!==undefined
         :source.purpose!==undefined,
 );
+const LegacyCriteriaFieldSchema = z.array(CredibilityCriterionSchema).optional()
+  .superRefine((criteria, context) => {
+    if (criteria !== undefined && criteria.length === 0) {
+      context.addIssue({code: z.ZodIssueCode.too_small, minimum: 1, type: 'array', inclusive: true, message: 'Array must contain at least 1 element(s)'});
+    }
+  })
+  .transform((criteria) => criteria ?? []);
 
 export const SourceCredibilityCheckerWidgetConfigSchema=z.object({
   sources:z.array(CredibilitySourceSchema).min(1),
-  criteria:z.array(CredibilityCriterionSchema).min(1),
-  credibleIds:z.array(CredibilityIdSchema),
+  criteria:LegacyCriteriaFieldSchema,
+  credibleIds:z.array(CredibilityIdSchema).optional().default([]),
+  question: CredibilityTextSchema.optional(),
+  requiredReasonCount: z.number().int().min(1).max(5).optional(),
+  answers: z.record(CredibilityIdSchema, z.enum(['credible-for-question','needs-checking'])).optional(),
 }).strict().superRefine((value,context)=>{
   const ids=value.sources.map((source)=>credibilityKey(source.id));
   const titles=value.sources.map((source)=>credibilityKey(source.title));
-  const criteria=value.criteria;
-  const credibleKeys=value.credibleIds.map(credibilityKey);
+  const criteria=value.criteria ?? [];
+  const credibleKeys=value.credibleIds?.map(credibilityKey) ?? [];
   const derived=value.sources.filter((source)=>sourceMeets(source,criteria)).map((source)=>source.id).sort();
   const claimsUnique=value.sources.every((source)=>{
-    const claimKeys=source.claims.map(credibilityKey);
+    const claimKeys=(source.claims ?? []).map(credibilityKey);
     return new Set(claimKeys).size===claimKeys.length;
   });
+  const legacyMode = value.criteria.length > 0 || value.credibleIds.length > 0;
+  const productionMode = value.question !== undefined
+    || value.requiredReasonCount !== undefined
+    || value.answers !== undefined
+    || value.sources.some((source)=>source.judgments !== undefined);
+  let productionValid = true;
+  if (productionMode) {
+    const answers = value.answers;
+    const sourceIds = value.sources.map((source)=>source.id);
+    const answerIds = answers ? Object.keys(answers) : [];
+    const answerKeys = answerIds.map(credibilityKey);
+    const sourceKeys = sourceIds.map(credibilityKey);
+    const reasonsRequired = value.requiredReasonCount ?? 0;
+    const reasonsValid = answers !== undefined && value.requiredReasonCount !== undefined
+      && value.sources.every((source) => {
+        const answer = answers[source.id];
+        if (!answer || source.judgments === undefined) return false;
+        const expectedStrength = answer === 'credible-for-question' ? 'supports' : 'concern';
+        const criteriaForSource = source.judgments.map((judgment) => judgment.criterion);
+        return new Set(criteriaForSource).size === criteriaForSource.length
+          && source.judgments.filter((judgment) => judgment.strength === expectedStrength).length >= reasonsRequired;
+      });
+    productionValid = value.question !== undefined
+      && value.requiredReasonCount !== undefined
+      && answers !== undefined
+      && new Set(answerKeys).size === answerKeys.length
+      && new Set(sourceKeys).size === sourceKeys.length
+      && answerKeys.length === sourceKeys.length
+      && sourceKeys.every((key) => answerKeys.includes(key))
+      && answerKeys.every((key) => sourceKeys.includes(key))
+      && reasonsValid;
+  }
+  const legacyValid = !legacyMode || (
+    value.criteria !== undefined
+      && value.credibleIds !== undefined
+      && new Set(criteria).size === criteria.length
+      && new Set(credibleKeys).size === credibleKeys.length
+      && !productionMode
+      && JSON.stringify([...value.credibleIds].sort()) === JSON.stringify(derived)
+  );
   if(new Set(ids).size!==ids.length
     ||new Set(titles).size!==titles.length
-    ||new Set(criteria).size!==criteria.length
-    ||new Set(credibleKeys).size!==credibleKeys.length
     ||!claimsUnique
-    ||JSON.stringify([...value.credibleIds].sort())!==JSON.stringify(derived)){
+    ||!legacyValid
+    ||!productionValid){
     context.addIssue({code:z.ZodIssueCode.custom,message:'credibleIds must uniquely equal the selected criteria evaluation'});
   }
 });
