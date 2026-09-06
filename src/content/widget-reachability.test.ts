@@ -88,17 +88,14 @@ const RULES: Partial<Record<WidgetRef['type'], Rule>> = {
       : `${c.points.length} points make the Check a coin flip`
   ),
 
-  'rock-layer-explorer': (c) => {
-    if (c.targetLayerId === undefined) return null;
-    if (c.layers.length < 3) return `${c.layers.length} layers make the Check a coin flip`;
-    // RockLayerExplorer appends ", the oldest rank shown" on selection, before Check.
-    const oldest = Math.max(...c.layers.map((layer: any) => layer.age));
-    const target = c.layers.find((layer: any) => layer.id === c.targetLayerId);
-    return target?.age === oldest
-      ? 'targets the oldest layer, which the widget names as oldest on selection - the status '
-        + 'line gives the answer away before the learner commits'
-      : null;
-  },
+  // RockLayerExplorer used to append ", the oldest rank shown" on selection, which answered
+  // an "oldest layer?" prompt before Check. The widget now reports only the selected layer's
+  // own rank, so targeting the oldest layer is fine and only the coin-flip rule remains.
+  'rock-layer-explorer': (c) => (
+    c.targetLayerId === undefined || c.layers.length >= 3
+      ? null
+      : `${c.layers.length} layers make the Check a coin flip`
+  ),
 
   'collision-ramp': (c) => {
     if (c.target !== 'predict-direction') return null;

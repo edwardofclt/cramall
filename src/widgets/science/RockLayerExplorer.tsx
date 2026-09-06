@@ -25,10 +25,12 @@ export default function RockLayerExplorer({config,onEvent}:WidgetProps<'rock-lay
 
   const select = (id: string) => {
     const layer = config.layers.find((candidate) => candidate.id === id)!;
-    const oldest = Math.max(...config.layers.map((candidate) => candidate.age));
     setSelected(id);
     setChecked(null);
-    setStatus(`${layer.label} has relative-age rank ${layer.age}${layer.age === oldest ? ', the oldest rank shown' : ''}. Larger relative-age ranks are relatively older in this model.${layer.artifact ? ` Artifact: ${layer.artifact}.` : ''}`);
+    // Report the selected layer's own rank and artifact, but never rank it against the
+    // others: when the authored question asks for the oldest layer, saying "the oldest
+    // rank shown" here would answer it before the learner presses Check.
+    setStatus(`${layer.label} has relative-age rank ${layer.age}. Larger relative-age ranks are relatively older in this model.${layer.artifact ? ` Artifact: ${layer.artifact}.` : ''}`);
     emit(id, 'select-layer');
   };
 
