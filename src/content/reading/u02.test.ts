@@ -676,6 +676,20 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 2 literal content', () => {
+  test('bridges the roots lesson into a Winnie-coached word build', () => {
+    const card = unit02Lessons[0]!.learnCards[1]!;
+    if (!card.widget || card.widget.type !== 'word-root-builder') throw new Error('word-root widget is missing');
+    if (!('widgetCoach' in card) || !card.widgetCoach) throw new Error('word-root coach is missing');
+    expect(card.widgetCoach.intro).toEqual([
+      expect.objectContaining({ speaker: 'guide', text: expect.stringContaining('snap') }),
+      expect.objectContaining({ speaker: 'kid', text: expect.stringContaining('left to right') }),
+    ]);
+    expect(card.widgetCoach.reactions.strategy?.text).toContain('root');
+    expect(card.widgetCoach.reactions.retry?.text).toContain('whole-word meaning');
+    expect(card.widgetCoach.reactions.milestone?.text).toContain('spelling');
+    expect(card.widgetCoach.reactions.complete.text).toContain('word parts');
+  });
+
   test('keeps the complete context-clue source in the same lesson activity', () => {
     const card = unit02Lessons[1]!.learnCards[0]!;
     expect(card.blocks.some(block => block.text === 'Source passage: Nocturnal animals, creatures that are active at night, include owls and moths.')).toBe(true);

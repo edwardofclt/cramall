@@ -112,6 +112,18 @@ export const unit02Lessons = [
             ]
           }
         },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Let’s snap the root and affixes together, then reread the whole word’s meaning."},
+            {"speaker":"kid","text":"I’ll build it left to right and check whether the whole word fits the sentence."}
+          ],
+          "reactions": {
+            "strategy": {"text":"Start with the root, then choose only the prefix or suffix that changes its meaning the right way.","pose":"think"},
+            "retry": {"text":"That combination needs another look. Recheck the prefix, root, suffix, and the whole-word meaning.","pose":"oops"},
+            "milestone": {"text":"The spelling fits! Now pause and check what the whole word means.","pose":"cheer"},
+            "complete": {"text":"You connected the word parts and checked the whole-word meaning.","pose":"cheer"}
+          }
+        },
         "check": {
           "prompt": "The root port means carry. Which word means able to be carried?",
           "choices": [

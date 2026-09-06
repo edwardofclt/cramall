@@ -697,6 +697,18 @@ export const unit11Lessons = [
             }
           }
         },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Read every source record, then compare its evidence with Maya’s prevention question."},
+            {"speaker":"kid","text":"I’ll weigh the criteria before I choose a source and explain the limits of my judgment."}
+          ],
+          "reactions": {
+            "strategy": {"text":"Start with one source and inspect its expertise, publisher, evidence, date, and purpose.","pose":"think"},
+            "retry": {"text":"That judgment needs another look. Point to the visible criteria that support or weaken this source for the question.","pose":"oops"},
+            "milestone": {"text":"Nice! You connected a source judgment to more than one visible criterion.","pose":"cheer"},
+            "complete": {"text":"You weighed the supplied evidence and explained why the best source fits this question.","pose":"cheer"}
+          }
+        },
         "check": {
           "prompt": "Which is most credible for prevention here?",
           "choices": [
