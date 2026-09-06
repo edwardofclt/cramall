@@ -98,7 +98,7 @@ describe('Science unit 1 energy and motion lessons', () => {
       expect(lesson.learnCards.every((card) => card.blocks.length >= 1)).toBe(true);
       expect(lesson.learnCards.flatMap((card, index) => card.widget === undefined ? [] : [{ card: index + 1, value: card.widget }])).toEqual(
         lesson.id === 'science-u01-l04'
-          ? [{ card: 2, value: { type: 'collision-ramp', config: { rampAngle: 5, massA: 2, massB: 8, speedA: 1, target: 'predict-direction' } } }]
+          ? [{ card: 2, value: { type: 'collision-ramp', config: { rampAngle: 5, massA: 2, massB: 8, speedA: 1, speedB: 1, target: 'compare-motion', controlledVariable: 'speed-a', comparisonRuns: 2, taskPrompt: 'Change only Cart A speed, predict each collision, and compare both modeled runs.' } } }]
           : [],
       );
       expect(lesson.quiz.passThreshold).toBe(8);
@@ -333,6 +333,14 @@ describe('Science unit 1 energy and motion lessons', () => {
 
   test('pins L04 differentiation, exact routes, and immediate review targets', () => {
     const lesson = unit01Lessons[3]!;
+    const collisionCard = lesson.learnCards[1]!;
+    expect(collisionCard.widgetCoach?.intro).toHaveLength(3);
+    expect(collisionCard.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'guide', 'kid']);
+    expect(collisionCard.widgetCoach?.intro.map(({ text }) => text).join(' ')).toMatch(/models a prediction.*not physical evidence/i);
+    expect(collisionCard.widgetCoach?.reactions.strategy?.text).toMatch(/one condition at a time/i);
+    expect(collisionCard.widgetCoach?.reactions.retry?.text).toMatch(/before-and-after motion/i);
+    expect(collisionCard.widgetCoach?.reactions.milestone?.text).toMatch(/Run 1/i);
+    expect(collisionCard.widgetCoach?.reactions.complete.text).toMatch(/compared two modeled collision runs/i);
     const tags = ['collision-motion-evidence', 'collision-outcome-prediction', 'collision-energy-inference'] as const;
     const cards = lesson.learnCards.map(({ id }) => id);
     expect(lesson.intro.map(({ speaker, pose }) => ({ speaker, pose }))).toEqual([

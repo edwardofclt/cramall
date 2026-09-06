@@ -91,7 +91,47 @@ const scienceU01L04Core = {
           "massA": 2,
           "massB": 8,
           "speedA": 1,
-          "target": "predict-direction"
+          "speedB": 1,
+          "target": "compare-motion",
+          "controlledVariable": "speed-a",
+          "comparisonRuns": 2,
+          "taskPrompt": "Change only Cart A speed, predict each collision, and compare both modeled runs."
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          {
+            "speaker": "guide",
+            "pose": "talk",
+            "text": "Keep the coaster cars, track, ramp angle, and Cart B alike while you change only Cart A speed."
+          },
+          {
+            "speaker": "guide",
+            "pose": "think",
+            "text": "This screen models a prediction, not physical evidence from real carts."
+          },
+          {
+            "speaker": "kid",
+            "text": "I will predict, watch the before-and-after motion, and compare both modeled runs."
+          }
+        ],
+        "reactions": {
+          "strategy": {
+            "text": "A fair test changes one condition at a time, so keep the locked setup values alike.",
+            "pose": "think"
+          },
+          "retry": {
+            "text": "Read the visible before-and-after motion and revise your prediction for the next run.",
+            "pose": "oops"
+          },
+          "milestone": {
+            "text": "Run 1 is a useful model result; now change only Cart A speed for a fair comparison.",
+            "pose": "talk"
+          },
+          "complete": {
+            "text": "You compared two modeled collision runs and connected the motion changes to a fair test.",
+            "pose": "cheer"
+          }
         }
       },
       "check": {

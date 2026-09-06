@@ -1,8 +1,13 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import { CollisionRampWidgetConfigSchema } from '../../content/schema';
 import CollisionRamp, { stuckCartDirection } from './CollisionRamp';
+
+const motionPreference = { reduced: false };
+vi.mock('../../app/useReducedMotionPref', () => ({
+  useReducedMotionPref: () => motionPreference.reduced,
+}));
 
 test('grades opposing next-state momenta rather than a hard-coded direction', async () => {
   const onEvent = vi.fn();
@@ -105,4 +110,103 @@ test('labels zero-speed carts as stationary and keeps the cart track horizontall
 test('uses collision wording in the prediction heading only when a cart is moving', () => {
   render(<CollisionRamp config={{ massA: 1, massB: 1, speedA: 1, speedB: 0 }} onEvent={vi.fn()} />);
   expect(screen.getByRole('heading', { name: /after the modeled stuck-cart collision/i })).toBeInTheDocument();
+});
+
+test('runs two locked fair-test comparisons only after a prediction', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<CollisionRamp config={{
+    rampAngle: 5,
+    massA: 2,
+    massB: 2,
+    speedA: 1,
+    speedB: 3,
+    controlledVariable: 'speed-a',
+    comparisonRuns: 2,
+    taskPrompt: 'Change only Cart A speed and compare two modeled runs.',
+  }} onEvent={onEvent} />);
+
+  expect(screen.getByText('Change only Cart A speed and compare two modeled runs.')).toBeInTheDocument();
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'setup');
+  expect(screen.getByRole('button', { name: 'Run collision model' })).toBeDisabled();
+  expect(screen.getByText(/Cart A mass 2.*locked/i)).toBeInTheDocument();
+  expect(screen.getByText(/Ramp angle 5°.*locked/i)).toBeInTheDocument();
+  expect(screen.getByText(/Cart B speed 3.*locked/i)).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'Moves left' }));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'predicted');
+  expect(screen.getByRole('button', { name: 'Run collision model' })).toBeEnabled();
+  await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'running');
+
+  await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+  expect(screen.getByTestId('collision-run-1')).toHaveTextContent(/Before:/i);
+  expect(screen.getByTestId('collision-run-1')).toHaveTextContent(/After model:/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/Run 1 observed/i);
+  expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'milestone')).toBe(true);
+
+  await user.click(screen.getByRole('button', { name: 'Increase Cart A speed' }));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'setup');
+  await user.click(screen.getByRole('button', { name: 'Moves right' }));
+  await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+  await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+  expect(screen.getByText(/Run 2.*before.*after/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Compare runs' })).toBeDisabled();
+  await user.click(screen.getByRole('button', { name: /Run 2 had more Cart A speed/i }));
+  await user.click(screen.getByRole('button', { name: 'Compare runs' }));
+
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'compared');
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-complete', 'yes');
+  expect(screen.getByRole('status')).toHaveTextContent(/compared/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('requires a correct comparison statement and reports strategy feedback without changing locked inputs', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<CollisionRamp config={{
+    massA: 1,
+    massB: 1,
+    speedA: 2,
+    speedB: 2,
+    controlledVariable: 'speed-b',
+    comparisonRuns: 2,
+    taskPrompt: 'Compare Cart B releases.',
+  }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Stays the same' }));
+  await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+  await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+  await user.click(screen.getByRole('button', { name: 'Increase Cart B speed' }));
+  await user.click(screen.getByRole('button', { name: 'Moves left' }));
+  await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+  await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+
+  await user.click(screen.getByRole('button', { name: /Run 1 had more Cart B speed/i }));
+  await user.click(screen.getByRole('button', { name: 'Compare runs' }));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed');
+  expect(screen.getByRole('status')).toHaveTextContent(/revise|compare/i);
+  expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'retry')).toBe(true);
+  expect(screen.getByText(/Cart A mass 1.*locked/i)).toBeInTheDocument();
+  expect(screen.getByText(/Cart A speed 2.*locked/i)).toBeInTheDocument();
+});
+
+test('reduced motion reaches the same observed final state immediately', async () => {
+  motionPreference.reduced = true;
+  const user = userEvent.setup();
+  render(<CollisionRamp config={{
+    massA: 2,
+    massB: 1,
+    speedA: 1,
+    speedB: 1,
+    controlledVariable: 'speed-a',
+    comparisonRuns: 2,
+    taskPrompt: 'Compare modeled motion.',
+  }} onEvent={vi.fn()} />);
+  await user.click(screen.getByRole('button', { name: 'Moves right' }));
+  await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-motion', 'off');
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed');
+  expect(screen.getByTestId('collision-run-1-after')).toHaveAttribute('data-direction', 'right');
+  motionPreference.reduced = false;
 });

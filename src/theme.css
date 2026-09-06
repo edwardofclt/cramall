@@ -2568,6 +2568,37 @@ body {
 .collision-predictions h4, .collision-predictions p { grid-column: 1 / -1; }
 .collision-reset { justify-self: start; min-width: 44px; }
 @media (max-width: 520px) { .collision-predictions { grid-template-columns: 1fr; } }
+.collision-comparison .collision-task,
+.collision-comparison .collision-locked,
+.collision-comparison .collision-comparison-hint { margin: 0; }
+.collision-comparison .collision-task { padding: .65rem .75rem; border-inline-start: 5px solid var(--c-accent-action); background: color-mix(in srgb, var(--c-accent-action) 9%, var(--c-card)); font-weight: 800; }
+.collision-comparison .collision-locked { color: var(--c-ink-soft); font-weight: 700; }
+.collision-comparison .comparison-track { min-height: 11rem; transition: background-color .2s ease; }
+.collision-comparison .comparison-track[data-phase='running'] { background: color-mix(in srgb, var(--c-accent-action) 10%, var(--c-card)); }
+.collision-comparison .collision-position-left { transform: translateX(-8%); }
+.collision-comparison .collision-position-right { transform: translateX(8%); }
+.collision-comparison .collision-position-same { transform: translateX(0); }
+.collision-comparison .comparison-track[data-phase='running'] .collision-cart { animation: collision-cart-roll .32s ease-in-out both; }
+.collision-comparison .comparison-track[data-phase='running'] .collision-cart-b { animation-delay: .04s; }
+.collision-comparison-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.collision-comparison-controls button,
+.collision-compare-choices button { min-height: 44px; }
+.collision-lock-help { grid-column: 1 / -1; justify-self: start; }
+.collision-run-records { display: grid; gap: .5rem; }
+.collision-run-records h4 { margin: 0; }
+.collision-run-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.collision-run-card { display: grid; gap: .35rem; margin: 0; padding: .7rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.collision-run-card h5, .collision-run-card p { margin: 0; }
+.collision-run-card[data-run-phase='running'] { border-style: dashed; }
+.collision-before-after { padding: .55rem; border-inline-start: 5px solid var(--c-accent-action); background: color-mix(in srgb, var(--c-accent-action) 9%, var(--c-card)); font-weight: 800; }
+.collision-compare-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; margin: 0; padding: .75rem; border: 3px solid var(--c-ink); border-radius: .65rem; }
+.collision-compare-choices legend { grid-column: 1 / -1; padding-inline: .25rem; font-weight: 900; }
+.collision-compare-choices button { text-align: left; }
+.collision-compare-choices button[aria-pressed='true'] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
+.collision-comparison-hint { grid-column: 1 / -1; color: var(--c-ink-soft); font-weight: 700; }
+@keyframes collision-cart-roll { from { transform: translateX(0) scale(.98); } to { transform: translateX(8%) scale(1); } }
+@media (prefers-reduced-motion: reduce) { .collision-comparison .comparison-track[data-phase='running'] .collision-cart { animation: none; } }
+@media (max-width: 640px) { .collision-run-grid, .collision-compare-choices { grid-template-columns: 1fr; } }
 .widget-experiment.transfer { display: grid; gap: .75rem; }
 .transfer header h3, .transfer header p, .transfer-group h4, .transfer-path { margin: 0; }
 .transfer header p { color: var(--c-ink-soft); font-weight: 700; }
