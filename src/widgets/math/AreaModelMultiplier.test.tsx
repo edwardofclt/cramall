@@ -69,3 +69,41 @@ test('shows the sum of the partial products', () => {
 
   expect(screen.getByTestId('area-model-partial-sum')).toHaveTextContent('80 + 12 = 92');
 });
+
+test('progressive decomposition hides each partial product until its region is selected', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <AreaModelMultiplier
+      config={{ a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322, revealMode: 'progressive' }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.queryByText('20 × 10 = 200')).not.toBeInTheDocument();
+  expect(screen.getByTestId('area-model-partial-sum')).toHaveTextContent('?');
+
+  await user.click(screen.getByRole('button', { name: 'Select 20 by 10 cell' }));
+  expect(screen.getByText('20 × 10 = 200')).toBeInTheDocument();
+  expect(screen.queryByText('20 × 4 = 80')).not.toBeInTheDocument();
+
+  for (const label of ['Select 20 by 4 cell', 'Select 3 by 10 cell', 'Select 3 by 4 cell']) {
+    await user.click(screen.getByRole('button', { name: label }));
+  }
+
+  expect(screen.getByTestId('area-model-partial-sum')).toHaveTextContent('200 + 80 + 30 + 12 = 322');
+  expect(screen.getByTestId('widget-area-model-multiplier')).toHaveAttribute('data-state', 'complete');
+});
+
+test('unit-square area mode renders every square in an 8 by 5 rectangle', () => {
+  render(
+    <AreaModelMultiplier
+      config={{ a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40, revealMode: 'all' }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getAllByRole('gridcell')).toHaveLength(40);
+  expect(screen.getByTestId('area-model-unit-square-count')).toHaveTextContent('40 unit squares');
+});

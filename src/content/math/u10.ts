@@ -97,7 +97,19 @@ export const unit10Lessons = [
           { kind: 'example', text: 'Eight rows of 5 squares contain 40 square units.' },
           { kind: 'tip', text: 'The unit square’s side length determines whether the label is square inches, square feet, or another square unit.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40 } },
+        widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40, revealMode: 'all' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Cover the 8-by-5 rectangle with unit squares so every square counts once.' },
+            { speaker: 'kid', text: 'Eight rows of five should make 40 square units.' },
+          ],
+          reactions: {
+            strategy: { text: 'Look across one row of five unit squares, then count all eight rows.', pose: 'think' },
+            retry: { text: 'Check that each unit square fills the rectangle without gaps or overlaps.', pose: 'oops' },
+            milestone: { text: 'You can see the equal rows that make the area formula work.', pose: 'cheer' },
+            complete: { text: 'The 40 unit squares confirm that 8 × 5 = 40 square units.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u10-l02-c3',

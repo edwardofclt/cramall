@@ -12,7 +12,8 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
     partsB.map((b, column) => ({ id: `${row}-${column}`, a, b }))
   ));
   const product = config.a * config.b;
-  const partialProductSum = cells.map((cell) => cell.a * cell.b).join(' + ');
+  const progressive = config.revealMode === 'progressive';
+  const unitSquareMode = config.revealMode === 'all' && cells.length === 1;
   const [selected, setSelected] = useState<string[]>([]);
   const { completed, completeOnce } = useCompletionLatch(key);
   const matchesCurrentTarget = config.targetProduct === product && selected.length === cells.length;
@@ -28,6 +29,17 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
       completeOnce(() => onEvent({ type: 'complete', value: { product } }));
     }
   };
+
+  const selectedProducts = cells.map((cell) => (
+    selected.includes(cell.id) ? cell.a * cell.b : null
+  ));
+  const partialSum = selectedProducts.map((value) => value === null ? '?' : String(value)).join(' + ');
+  const splitColumns = config.revealMode === undefined
+    ? `repeat(${partsB.length}, minmax(44px, 1fr))`
+    : partsB.map((part) => `${part}fr`).join(' ');
+  const splitRows = config.revealMode === undefined
+    ? undefined
+    : partsA.map((part) => `${part}fr`).join(' ');
 
   return (
     <section
@@ -45,10 +57,11 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
         data-widget-grid
         role="group"
         aria-label={`Area model partitions for ${config.a} times ${config.b}`}
-        style={{ gridTemplateColumns: `repeat(${partsB.length}, minmax(44px, 1fr))` }}
+        style={{ gridTemplateColumns: splitColumns, ...(splitRows ? { gridTemplateRows: splitRows } : {}) }}
       >
         {cells.map((cell) => {
           const isSelected = selected.includes(cell.id);
+          const showProduct = !progressive || isSelected;
           return (
             <button
               className="area-model-cell"
@@ -59,20 +72,32 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
                 isSelected ? selected.filter((id) => id !== cell.id) : selected.concat(cell.id),
                 'select-cell',
               )}
+              style={unitSquareMode ? { display: 'grid', gridTemplateColumns: `repeat(${cell.b}, minmax(24px, 1fr))` } : undefined}
             >
-              <span>{cell.a} × {cell.b} = {cell.a * cell.b}</span>
+              {unitSquareMode && Array.from({ length: cell.a * cell.b }, (_, index) => (
+                <span
+                  role="gridcell"
+                  className="area-model-unit-square"
+                  aria-label={`Unit square ${index + 1} of ${cell.a * cell.b}`}
+                  key={index}
+                >
+                  <span aria-hidden="true">□</span>
+                </span>
+              ))}
+              <span className="area-model-cell-label">{showProduct ? `${cell.a} × ${cell.b} = ${cell.a * cell.b}` : 'Partial product hidden'}</span>
               <span className="area-model-selection">{isSelected ? 'Selected' : 'Select this part'}</span>
             </button>
           );
         })}
       </div>
-      <output data-testid="area-model-partial-sum">{partialProductSum} = {product}</output>
+      {unitSquareMode && <p data-testid="area-model-unit-square-count">{product} unit squares cover the rectangle.</p>}
+      <output data-testid="area-model-partial-sum">{progressive && !matchesCurrentTarget ? partialSum : `${cells.map((cell) => cell.a * cell.b).join(' + ')} = ${product}`}</output>
       <output data-testid="area-model-total">{config.a} × {config.b} = {product}</output>
       <button className="area-model-reset" onClick={() => commit([], 'reset')}>Start over</button>
       <p role="status">
         {visiblyComplete
           ? 'All partial products make the target.'
-          : `${selected.length} of ${cells.length} cells selected.`}
+          : `${selected.length} of ${cells.length} ${progressive ? 'regions' : 'cells'} selected.`}
       </p>
     </section>
   );

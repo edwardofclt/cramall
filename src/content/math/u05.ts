@@ -22,7 +22,19 @@ export const unit05Lessons = [
           { kind: 'example', text: '936 ÷ 4 can be split into 800 ÷ 4, 120 ÷ 4, and 16 ÷ 4, giving 200 + 30 + 4 = 234.' },
           { kind: 'tip', text: 'Estimate first so the quotient has a sensible number of digits.' },
         ],
-        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 1, targetProduct: 234, editable: true, task: 'division', dividend: 936, divisor: 4, taskPrompt: 'Share 936 into equal groups of 4.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Share 936 into groups of four by revealing friendly place-value chunks.' },
+            { speaker: 'kid', text: 'I will add the partial quotients and keep track of what remains.' },
+          ],
+          reactions: {
+            strategy: { text: 'Start with 800, then 120, then 16; each chunk divides evenly by four.', pose: 'think' },
+            retry: { text: 'Keep the groups equal: the next chunk must still be divisible by four.', pose: 'oops' },
+            milestone: { text: 'Great partial quotient! Add it to the quotient you already built.', pose: 'cheer' },
+            complete: { text: '200 + 30 + 4 makes a quotient of 234, and the remainder is 0.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u05-l01-c2',

@@ -64,8 +64,8 @@ const expectedRoutes = {
 
 const expectedWidgets = {
   'math-u04-l01-c1': { type: 'area-model-multiplier', config: { a: 30, b: 4, splitA: [30], splitB: [4], targetProduct: 120 } },
-  'math-u04-l02-c2': { type: 'area-model-multiplier', config: { a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322 } },
-  'math-u04-l03-c1': { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true } },
+  'math-u04-l02-c2': { type: 'area-model-multiplier', config: { a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322, revealMode: 'progressive' } },
+  'math-u04-l03-c1': { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true, taskPrompt: 'Build an array that shows four times as many as 3.' } },
 } as const;
 
 test('u04 is the exact validated 3-lesson unit', () => {

@@ -21,7 +21,19 @@ export const unit03Lessons = [
           { kind: 'example', text: 'For 24, the pairs are 1 × 24, 2 × 12, 3 × 8, and 4 × 6.' },
           { kind: 'tip', text: 'Test divisors in order and stop after the factors begin repeating.' },
         ],
-        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true, task: 'factor-hunt', taskPrompt: 'Find every factor pair for 24.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Build arrays that make 24, then record each factor pair in order.' },
+            { speaker: 'kid', text: 'I will treat 2 × 12 and 12 × 2 as the same pair.' },
+          ],
+          reactions: {
+            strategy: { text: 'Try a row count that divides 24, then check the matching columns.', pose: 'think' },
+            retry: { text: 'That array does not make a new factor pair for 24. Check the product and try again.', pose: 'oops' },
+            milestone: { text: 'Nice! You found a new unique pair for 24.', pose: 'cheer' },
+            complete: { text: 'You found every factor pair for 24 without counting reversed pairs twice.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u03-l01-c2',

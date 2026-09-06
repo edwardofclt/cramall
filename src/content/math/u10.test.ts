@@ -46,7 +46,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u10-l02-c2': { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40 } },
+  'math-u10-l02-c2': { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40, revealMode: 'all' } },
 } as const;
 
 test('u10 is the exact validated 2-lesson unit', () => {

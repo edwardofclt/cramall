@@ -48,3 +48,60 @@ test('rejects an unreachable product when dimensions cannot be edited or factore
     rows: 2, columns: 3, targetProduct: 397, editable: true,
   }).success).toBe(false);
 });
+
+test('factor hunt keeps unique factor pairs instead of reversed duplicates', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ArrayBuilder
+      config={{ rows: 2, columns: 12, targetProduct: 24, editable: true, task: 'factor-hunt', taskPrompt: 'Find every factor pair for 24.' }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Record current factor pair' }));
+  for (let index = 0; index < 1; index += 1) {
+    await user.click(screen.getByRole('button', { name: 'Add one row' }));
+  }
+  for (let index = 0; index < 4; index += 1) {
+    await user.click(screen.getByRole('button', { name: 'Remove one column' }));
+  }
+  await user.click(screen.getByRole('button', { name: 'Record current factor pair' }));
+  for (let index = 0; index < 5; index += 1) {
+    await user.click(screen.getByRole('button', { name: 'Add one row' }));
+    await user.click(screen.getByRole('button', { name: 'Remove one column' }));
+  }
+  await user.click(screen.getByRole('button', { name: 'Record current factor pair' }));
+
+  expect(screen.getByTestId('array-builder-found-pairs')).toHaveTextContent('2 × 12');
+  expect(screen.getByTestId('array-builder-found-pairs')).toHaveTextContent('3 × 8');
+  expect(screen.getAllByTestId('array-builder-factor-pair')).toHaveLength(2);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'milestone')).toHaveLength(2);
+});
+
+test('division mode reveals the 936 ÷ 4 partial groups and remainder', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ArrayBuilder
+      config={{ rows: 1, columns: 1, targetProduct: 234, editable: true, task: 'division', dividend: 936, divisor: 4, taskPrompt: 'Share 936 into groups of 4.' }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByText('936 ÷ 4')).toBeInTheDocument();
+  expect(screen.getByText('Remainder: 936')).toBeInTheDocument();
+  expect(screen.queryByText('800 ÷ 4 = 200')).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'Share 800 into groups of 4' }));
+  await user.click(screen.getByRole('button', { name: 'Share 120 into groups of 4' }));
+  await user.click(screen.getByRole('button', { name: 'Share 16 into groups of 4' }));
+
+  expect(screen.getByText('800 ÷ 4 = 200')).toBeInTheDocument();
+  expect(screen.getByText('120 ÷ 4 = 30')).toBeInTheDocument();
+  expect(screen.getByText('16 ÷ 4 = 4')).toBeInTheDocument();
+  expect(screen.getByTestId('array-builder-quotient')).toHaveTextContent('Quotient: 234');
+  expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-state', 'complete');
+});

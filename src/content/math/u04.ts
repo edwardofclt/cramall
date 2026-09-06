@@ -22,6 +22,18 @@ export const unit04Lessons = [
           { kind: 'tip', text: 'Name the unit: 42 tens equals 420, while 42 hundreds equals 4,200.' },
         ],
         widget: { type: 'area-model-multiplier', config: { a: 30, b: 4, splitA: [30], splitB: [4], targetProduct: 120 } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the 30-by-4 region to connect four groups of 30 with the product 120.' },
+            { speaker: 'kid', text: 'The rectangle should keep the factors 30 and 4 visible.' },
+          ],
+          reactions: {
+            strategy: { text: 'Select the region after naming 30 groups of four, then check the place value.', pose: 'think' },
+            retry: { text: 'Look again at the two side lengths. The product should be 120, not a place-value shortcut.', pose: 'oops' },
+            milestone: { text: 'Your model keeps the multiple of ten attached to the factor.', pose: 'cheer' },
+            complete: { text: 'The 30-by-4 model shows 120 square units, or four groups of 30.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u04-l01-c2',
@@ -98,7 +110,19 @@ export const unit04Lessons = [
           { kind: 'example', text: '23 × 14 gives 20 × 10, 20 × 4, 3 × 10, and 3 × 4.' },
           { kind: 'tip', text: 'There must be one partial product for every pair of decomposed parts.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322 } },
+        widget: { type: 'area-model-multiplier', config: { a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322, revealMode: 'progressive' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Reveal one rectangle at a time so 23 × 14 becomes four partial products.' },
+            { speaker: 'kid', text: 'I will multiply each row part by each column part before adding.' },
+          ],
+          reactions: {
+            strategy: { text: 'Start with a corner region and name both side lengths before multiplying.', pose: 'think' },
+            retry: { text: 'One region is still hidden. Find the missing pair of decomposed parts.', pose: 'oops' },
+            milestone: { text: 'That partial product is now visible and belongs in the final sum.', pose: 'cheer' },
+            complete: { text: 'All four partial products add to 322, so the decomposition matches 23 × 14.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u04-l02-c3',
@@ -157,7 +181,19 @@ export const unit04Lessons = [
           { kind: 'example', text: 'If one basket has 6 acorns and another has 4 times as many, the larger basket has 4 × 6 = 24.' },
           { kind: 'tip', text: 'Do not confuse “4 times as many” with “4 more than.”' },
         ],
-        widget: { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true, taskPrompt: 'Build an array that shows four times as many as 3.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Build 12 as four equal rows of three to make “four times as many” visible.' },
+            { speaker: 'kid', text: 'I will compare the number of groups with the amount in each group.' },
+          ],
+          reactions: {
+            strategy: { text: 'Keep four equal groups in mind and adjust the array until its product is 12.', pose: 'think' },
+            retry: { text: 'Check whether the array has four equal groups before you compare the amounts.', pose: 'oops' },
+            milestone: { text: 'Your array is showing equal groups that can be compared.', pose: 'cheer' },
+            complete: { text: 'Four groups of three make 12, so the comparison is four times as many.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u04-l03-c2',
