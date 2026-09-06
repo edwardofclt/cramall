@@ -67,6 +67,26 @@ const { FIXTURE, READING_FIXTURE, COACHED_FIXTURE } = vi.hoisted(() => {
     id: 'reading-u01-l01',
     unitId: 'reading-u01',
     title: 'Read a garden passage',
+    learnCards: lesson.learnCards.map((card, index) => index === 0 ? {
+      ...card,
+      widget: {
+        type: 'story-elements-mapper',
+        config: {
+          textTitle: 'The Garden Map',
+          source: {
+            title: 'Maya checks the map',
+            text: 'Maya checked the garden map before choosing a path.',
+          },
+          fields: ['character', 'setting'],
+          choices: [
+            { id: 'choice-maya', text: 'Maya', field: 'character' },
+            { id: 'choice-garden', text: 'The garden', field: 'setting' },
+          ],
+          answers: { character: 'Maya', setting: 'The garden' },
+          answerChoiceIds: { character: 'choice-maya', setting: 'choice-garden' },
+        },
+      },
+    } : card),
     workedExample: {
       title: 'Practice reading the garden scene',
       passage: {
@@ -653,6 +673,20 @@ describe('LessonPlayer', () => {
       expect(utterance.text).toContain('Say the number out loud.');
       // Markup characters never reach the speaker.
       expect(utterance.text).not.toContain('**');
+    });
+
+    test('reads visible widget source material with the learn card', async () => {
+      const { speak } = stubSpeech();
+      const user = userEvent.setup();
+      renderPlayer(`/lesson/${READING_LESSON_ID}?step=card:card-places`);
+      await screen.findByRole('heading', { name: 'Every digit has a place' });
+
+      await user.click(screen.getByRole('button', { name: /read aloud/i }));
+
+      const utterance = speak.mock.calls[0]![0] as { text: string };
+      expect(utterance.text).toContain('Maya checked the garden map before choosing a path.');
+      expect(utterance.text).toContain('The Garden Map');
+      expect(utterance.text).not.toContain('choice-maya');
     });
 
     test('stops the reading when the card is left behind', async () => {

@@ -8,6 +8,7 @@ import { AnnouncingDialogue } from './AnnouncingDialogue';
 import { InlineCheck } from './InlineCheck';
 import { LessonDemo } from './LessonDemo';
 import { WidgetCoachFrame } from './WidgetCoachFrame';
+import { widgetSpeechText } from '../widgets/widgetSpeechText';
 
 function Block({ block }: { block: RichBlock }) {
   if (block.kind === 'example') {
@@ -63,7 +64,11 @@ export function LearnCard({
   onWidgetCoachIntroActiveChange,
 }: LearnCardProps) {
   const [dialogueDone, setDialogueDone] = useState(false);
-  const spoken = speechText([card.title, ...card.blocks.map((b) => b.text)]);
+  const spoken = speechText([
+    card.title,
+    ...card.blocks.map((b) => b.text),
+    ...(card.widget ? widgetSpeechText(card.widget) : []),
+  ]);
 
   return (
     <section className="card stack" aria-labelledby={`learn-card-${card.id}`}>
