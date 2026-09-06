@@ -107,3 +107,32 @@ test('unit-square area mode renders every square in an 8 by 5 rectangle', () => 
   expect(screen.getAllByRole('gridcell')).toHaveLength(40);
   expect(screen.getByTestId('area-model-unit-square-count')).toHaveTextContent('40 unit squares');
 });
+
+test('emits a milestone after forward progress and retry only when a region is undone', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <AreaModelMultiplier
+      config={{ a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322, revealMode: 'progressive' }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Select 20 by 10 cell' }));
+  expect(onEvent.mock.calls.slice(-3).map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'select-cell' },
+    { type: 'change', value: { selectedCells: 1, product: 322 } },
+    { type: 'coach', cue: 'milestone' },
+  ]);
+
+  await user.click(screen.getByRole('button', { name: 'Select 20 by 10 cell' }));
+  expect(onEvent.mock.calls.slice(-3).map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'select-cell' },
+    { type: 'change', value: { selectedCells: 0, product: 322 } },
+    { type: 'coach', cue: 'retry' },
+  ]);
+
+  await user.click(screen.getByRole('button', { name: 'Start over' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach')).toHaveLength(2);
+});

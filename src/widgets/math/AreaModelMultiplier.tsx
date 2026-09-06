@@ -22,11 +22,17 @@ export default function AreaModelMultiplier({ config, onEvent }: WidgetProps<'ar
   useEffect(() => setSelected([]), [key]);
 
   const commit = (next: string[], action: 'select-cell' | 'reset') => {
+    const movedForward = next.length > selected.length;
+    const movedBackward = next.length < selected.length;
     setSelected(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { selectedCells: next.length, product } });
     if (config.targetProduct === product && next.length === cells.length) {
       completeOnce(() => onEvent({ type: 'complete', value: { product } }));
+    } else if (action === 'select-cell' && movedForward) {
+      onEvent({ type: 'coach', cue: 'milestone' });
+    } else if (action === 'select-cell' && movedBackward) {
+      onEvent({ type: 'coach', cue: 'retry' });
     }
   };
 
