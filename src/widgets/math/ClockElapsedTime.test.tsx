@@ -58,9 +58,10 @@ test('elapsed jumps disable overshoots, name the remaining interval, and complet
   await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'milestone')).toHaveLength(1);
   const overshoot = screen.getByRole('button', { name: 'Add 15 minutes' });
-  expect(overshoot).toBeDisabled();
+  expect(overshoot).toHaveAttribute('aria-disabled', 'true');
   expect(screen.getByText(/5 minutes remaining\./, { selector: 'p[role="status"]' })).toBeInTheDocument();
-  await user.click(overshoot);
+  overshoot.focus();
+  await user.keyboard('{Enter}');
   expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
 
   await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
@@ -73,6 +74,64 @@ test('elapsed jumps disable overshoots, name the remaining interval, and complet
   expect(screen.getByTestId('clock-current-result')).toHaveTextContent('9:45 AM');
   expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'no');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'retry')).toHaveLength(1);
+});
+
+test('elapsed jumps offer an accessible final remainder for targets outside the jump set', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ClockElapsedTime
+      config={{ mode: 'elapsed', startTime: '09:00', elapsedMinutes: 7, jumpMinutes: [5, 10, 15] }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
+  const remainder = screen.getByRole('button', { name: 'Add remaining 2 minutes' });
+  expect(remainder).toHaveAttribute('aria-disabled', 'false');
+  await user.click(remainder);
+
+  expect(screen.getByTestId('clock-end-result')).toHaveTextContent('9:07 AM');
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'yes');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('a zero-minute elapsed interval has an explicit completion action', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ClockElapsedTime
+      config={{ mode: 'elapsed', startTime: '09:00', elapsedMinutes: 0, jumpMinutes: [5, 10, 15] }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Complete 0-minute interval' }));
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'yes');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('reset after completion clears progress without replaying completion or retry coaching', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ClockElapsedTime
+      config={{ mode: 'elapsed', startTime: '09:00', elapsedMinutes: 5, jumpMinutes: [5] }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
+  await user.click(screen.getByRole('button', { name: 'Start over' }));
+
+  expect(screen.getByTestId('clock-current-result')).toHaveTextContent('9:00 AM');
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'no');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'retry')).toHaveLength(0);
 });
 
 test('set-time controls emit next time and one completion', async () => {

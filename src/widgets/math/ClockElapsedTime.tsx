@@ -127,6 +127,7 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
 
   const commitJump = (jumpMinutes: number) => {
     const remaining = targetElapsed - progress;
+    if (visiblyComplete) return;
     if (jumpMinutes > remaining) {
       onEvent({ type: 'interaction', action: 'change-minute' });
       onEvent({ type: 'coach', cue: 'retry' });
@@ -152,13 +153,11 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
   };
 
   const resetElapsed = () => {
-    const hadJumps = jumps.length > 0 || progress > 0;
     setProgress(0);
     setJumps([]);
     milestoneSent.current = false;
     onEvent({ type: 'interaction', action: 'reset' });
     onEvent({ type: 'change', value: clockValue(normalizeTime(start)) });
-    if (hadJumps) onEvent({ type: 'coach', cue: 'retry' });
   };
 
   if (interactiveElapsed) {
@@ -190,19 +189,32 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
           )}
         </div>
         <div className="clock-controls" aria-label="Elapsed time jump controls">
-          {(config.jumpMinutes ?? []).map((jump) => (
-            <button
-              key={jump}
-              disabled={jump > remaining || visiblyComplete}
-              aria-label={`Add ${jump} minutes`}
-              onPointerDown={() => {
-                if (jump > remaining && !visiblyComplete) commitJump(jump);
-              }}
-              onClick={() => commitJump(jump)}
-            >
-              Add {jump} minutes
-            </button>
-          ))}
+          {(config.jumpMinutes ?? []).map((jump) => {
+            const ariaDisabled = jump > remaining || visiblyComplete;
+            return (
+              <button
+                key={jump}
+                aria-disabled={ariaDisabled}
+                aria-label={`Add ${jump} minutes`}
+                onClick={() => commitJump(jump)}
+              >
+                Add {jump} minutes
+              </button>
+            );
+          })}
+          {((remaining > 0
+            && !(config.jumpMinutes ?? []).includes(remaining as 5 | 10 | 15)
+            && !(config.jumpMinutes ?? []).some((jump) => jump <= remaining))
+            || (targetElapsed === 0 && progress === 0 && !visiblyComplete))
+            && (
+              <button
+                aria-disabled="false"
+                aria-label={remaining === 0 ? 'Complete 0-minute interval' : `Add remaining ${remaining} minutes`}
+                onClick={() => commitJump(remaining)}
+              >
+                {remaining === 0 ? 'Complete 0-minute interval' : `Add remaining ${remaining} minutes`}
+              </button>
+            )}
           <button onClick={resetElapsed}>Start over</button>
         </div>
         <div className="clock-jump-history" aria-label="Elapsed-time jumps">
