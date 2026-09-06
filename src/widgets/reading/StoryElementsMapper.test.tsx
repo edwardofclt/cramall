@@ -164,3 +164,15 @@ test('supports keyboard placement, named undo/move controls, bounded retry, and 
   await user.click(screen.getByRole('button',{name:'Check story map'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
+
+test('does not celebrate an unsupported first placement, then celebrates the first supported one',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<StoryElementsMapper config={productionConfig} onEvent={onEvent}/>);
+
+  await user.click(screen.getByRole('button',{name:/Place “The windy harbor field” in Character/}));
+  expect(onEvent.mock.calls.map(([event])=>event)).not.toContainEqual({type:'coach',cue:'milestone'});
+
+  await user.click(screen.getByRole('button',{name:'Undo Character'}));
+  await user.click(screen.getByRole('button',{name:/Place “Priya” in Character/}));
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='coach'&&event.cue==='milestone')).toHaveLength(1);
+});

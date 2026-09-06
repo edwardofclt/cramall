@@ -82,7 +82,7 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
       setMapState('mapping');
       setStatus(`${titleCase(field)} placed. Keep tracing the story.`);
       emitProduction(next,'change-field');
-      if (!milestoneSent.current) {
+      if (!milestoneSent.current && answers[field]===choiceId) {
         milestoneSent.current=true;
         onEvent({type:'coach',cue:'milestone'});
       }
