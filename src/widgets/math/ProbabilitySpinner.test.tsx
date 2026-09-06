@@ -147,6 +147,7 @@ describe('ProbabilitySpinner', () => {
     expect(screen.getByRole('button', { name: 'Spin' })).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Spin' }));
     await user.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.queryByText(/Completion also needs/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Possible' })).toBeEnabled();
     expect(screen.getByTestId('spinner-sample-space')).toHaveTextContent('A');
     expect(screen.getByTestId('spinner-sample-space')).toHaveTextContent('B');
@@ -175,6 +176,65 @@ describe('ProbabilitySpinner', () => {
 
     await user.click(screen.getByRole('button', { name: 'Predict B' }));
     await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: 'Possible' }));
+    expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
+  });
+
+  test.each([
+    { eventLabel: 'all' as const, classification: 'certain' as const, label: 'any listed outcome' },
+    { eventLabel: 'none' as const, classification: 'impossible' as const, label: 'an outcome not in the sample space' },
+  ])('classifies $eventLabel from the authored sample space', async ({ eventLabel, classification, label }) => {
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    render(
+      <ProbabilitySpinner
+        config={{ segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], trials: 1, eventQuestion: { eventLabel, classification } }}
+        onEvent={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('spinner-sample-space')).toHaveTextContent(label);
+    await user.click(screen.getByRole('button', { name: 'Predict A' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: classification[0]!.toUpperCase() + classification.slice(1) }));
+    expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
+  });
+
+  test('resets an unfinished coached attempt so prediction and trials can be retried', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    render(
+      <ProbabilitySpinner
+        config={{ segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], trials: 2, eventQuestion: { eventLabel: 'b', classification: 'possible' } }}
+        onEvent={onEvent}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Predict A' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(screen.getByRole('button', { name: 'Spin' })).toBeDisabled();
+    expect(screen.getByText('Completed 0 of 2 trials; 2 remaining.')).toBeInTheDocument();
+    expect(onEvent.mock.calls).toContainEqual([{ type: 'interaction', action: 'reset' }]);
+  });
+
+  test('keeps the coached outcome and completion opportunity identical with reduced motion', async () => {
+    motionPreference.reduced = true;
+    const user = userEvent.setup();
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    render(
+      <ProbabilitySpinner
+        config={{ segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }], trials: 1, eventQuestion: { eventLabel: 'b', classification: 'possible' } }}
+        onEvent={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Predict B' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-motion', 'off');
+    expect(screen.getByTestId('spinner-wheel')).toHaveAttribute('data-spinning', 'false');
+    expect(screen.getByRole('status')).toHaveTextContent('Classify the event');
     await user.click(screen.getByRole('button', { name: 'Possible' }));
     expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
   });

@@ -34,7 +34,7 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
   const exact = (next: Record<string, number>) => config.categories.every((category) => next[category] === config.target[category]);
   const matchesCurrentTarget = exact(values);
   const setupComplete = displayConfirmed && titleConfirmed && labelsConfirmed && scaleConfirmed;
-  const visiblyComplete = completed && matchesCurrentTarget && setupComplete;
+  const visiblyComplete = completed && matchesCurrentTarget && setupComplete && displaySelection === config.kind;
   const categoryTrackWidth = config.categories.length * 7;
 
   useEffect(() => {
@@ -50,6 +50,10 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
   }, [key]);
 
   const confirmDisplay = () => {
+    if (displaySelection !== config.kind) {
+      onEvent({ type: 'coach', cue: 'retry' });
+      return;
+    }
     setDisplayConfirmed(true);
     onEvent({ type: 'coach', cue: 'strategy' });
   };

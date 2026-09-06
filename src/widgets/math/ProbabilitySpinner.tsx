@@ -213,7 +213,7 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
         </ul>
       </div>
       <p className="spinner-progress">Completed {spins} of {trials} trial{trials === 1 ? '' : 's'}; {Math.max(0, trials - spins)} remaining.</p>
-      {config.targetOutcomeId && <p className="spinner-target">Completion also needs: {config.segments.find((segment) => segment.id === config.targetOutcomeId)?.label}.</p>}
+      {config.targetOutcomeId && !coached && <p className="spinner-target">Completion also needs: {config.segments.find((segment) => segment.id === config.targetOutcomeId)?.label}.</p>}
       <div className="spinner-controls">
         <button aria-label="Spin" disabled={(coached && prediction === null) || spins >= trials || completed} onClick={run}>Spin</button>
         <button onClick={reset}>Start over</button>

@@ -166,4 +166,31 @@ describe('DataPlotBuilder', () => {
     await user.click(screen.getByRole('button', { name: 'Increase cat' }));
     expect(screen.getByRole('status')).toHaveTextContent('Plot matches the target.');
   });
+
+  test('does not commit or complete a wrong display choice', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    render(
+      <DataPlotBuilder
+        config={{ kind: 'bar', prompt: 'Build', categories: ['A'], target: { A: 1 }, sourceData: { A: 1 }, displayChoices: ['bar', 'dot'] }}
+        onEvent={onEvent}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Dot plot' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'no');
+    expect(onEvent.mock.calls).toContainEqual([{ type: 'coach', cue: 'retry' }]);
+    expect(screen.getByRole('button', { name: 'Increase A' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Bar graph' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    await user.type(screen.getByRole('textbox', { name: 'Graph title' }), 'A graph');
+    await user.click(screen.getByRole('button', { name: 'Confirm title' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm category labels' }));
+    await user.click(screen.getByRole('button', { name: 'Scale 1' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm scale' }));
+    await user.click(screen.getByRole('button', { name: 'Increase A' }));
+    expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'yes');
+  });
 });

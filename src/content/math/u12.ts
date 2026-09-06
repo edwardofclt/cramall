@@ -177,7 +177,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'On a red, blue, and green spinner, “land on a cool color” may include blue and green if those categories were defined.' },
           { kind: 'tip', text: 'Decide exactly which listed outcomes satisfy the event before classifying it.' },
         ],
-        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, targetOutcomeId: 'red', eventQuestion: { eventLabel: 'red', classification: 'possible' }, taskPrompt: 'Predict, run eight trials, and classify landing on red.' } },
+        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, eventQuestion: { eventLabel: 'red', classification: 'possible' }, taskPrompt: 'Predict, run eight trials, and classify landing on red.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'The sample space is red, blue, and green; red has two equal sections, but one spin is still random.' },
