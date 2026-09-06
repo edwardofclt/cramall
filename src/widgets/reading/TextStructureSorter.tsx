@@ -11,6 +11,7 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
   const key=JSON.stringify(config);
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const [placements,setPlacements]=useState<Placements>({});
+  const [lastMissId,setLastMissId]=useState<string|null>(null);
   const {completeOnce}=useCompletionLatch(key);
   const structures=config.availableStructures ?? defaultStructures;
 
@@ -23,7 +24,9 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
     const previousCorrectCount=config.excerpts.filter((excerpt)=>placements[excerpt.id]===excerpt.structure).length;
     const nextCorrectCount=config.excerpts.filter((excerpt)=>ordered[excerpt.id]===excerpt.structure).length;
     const actedOn=selectedId===null?undefined:config.excerpts.find((excerpt)=>excerpt.id===selectedId);
+    const missId=action==='place-structure'&&actedOn&&ordered[actedOn.id]!==actedOn.structure?actedOn.id:null;
     setPlacements(ordered);
+    setLastMissId(action==='reset'?null:missId??lastMissId);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{placements:ordered}});
     if(action==='select-excerpt') onEvent({type:'coach',cue:'strategy'});
@@ -40,7 +43,8 @@ function TextStructureSorterBody({config,onEvent}:TextStructureSorterProps){
   const isCorrect=correct(placements);
   const placementCount=Object.keys(placements).length;
   const state=isCorrect?'complete':placementCount>0?'revision':'sorting';
-  const incorrect=config.excerpts.find((excerpt)=>placements[excerpt.id]!==undefined&&placements[excerpt.id]!==excerpt.structure);
+  const incorrect=config.excerpts.find((excerpt)=>excerpt.id===lastMissId&&placements[excerpt.id]!==undefined&&placements[excerpt.id]!==excerpt.structure)
+    ??config.excerpts.find((excerpt)=>placements[excerpt.id]!==undefined&&placements[excerpt.id]!==excerpt.structure);
   const status=isCorrect
     ?'Every text structure is correct.'
     :incorrect

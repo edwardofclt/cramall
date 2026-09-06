@@ -10,6 +10,7 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
   const key=JSON.stringify(config);
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const [matches,setMatches]=useState<Record<string,string>>({});
+  const [lastMissId,setLastMissId]=useState<string|null>(null);
   const {completeOnce}=useCompletionLatch(key);
   const kinds=config.availableKinds ?? defaultKinds;
   const orderedMatches=(values:Record<string,string>)=>Object.fromEntries(
@@ -24,7 +25,9 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     const previousCorrectCount=config.pairs.filter((pair)=>ownMatch(matches,pair.id)===pair.kind).length;
     const nextCorrectCount=config.pairs.filter((pair)=>ownMatch(ordered,pair.id)===pair.kind).length;
     const actedOn=selectedId===null?undefined:config.pairs.find((pair)=>pair.id===selectedId);
+    const missId=action==='match'&&actedOn&&ordered[actedOn.id]!==actedOn.kind?actedOn.id:null;
     setMatches(ordered);
+    setLastMissId(action==='reset'?null:missId??lastMissId);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{matches:ordered}});
     if(action==='select-phrase') onEvent({type:'coach',cue:'strategy'});
@@ -50,7 +53,8 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     return value!==undefined&&value!==pair.kind;
   });
   const state=currentComplete?'complete':Object.keys(matches).length?'revision':'matching';
-  const wrongPair=config.pairs.find((pair)=>ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind);
+  const wrongPair=config.pairs.find((pair)=>pair.id===lastMissId&&ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind)
+    ??config.pairs.find((pair)=>ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind);
   const status=currentComplete
     ?'Every figurative phrase is matched.'
     :selectedId!==null

@@ -136,6 +136,19 @@ test('uses only authored structures and gives relationship-specific retry coachi
   expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
 });
 
+test('keeps retry feedback on the most recently misclassified excerpt',async()=>{
+  const user=userEvent.setup();
+  render(<TextStructureSorter config={config} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Select Rain fell, so the field flooded.'}));
+  await user.click(screen.getByRole('button',{name:'Place selected excerpt in description'}));
+  await user.click(screen.getByRole('button',{name:'Select First mix, then bake.'}));
+  await user.click(screen.getByRole('button',{name:'Place selected excerpt in cause and effect'}));
+  const feedback=screen.getByText(/what relationship does it show/i);
+  expect(feedback).toHaveTextContent('First mix, then bake.');
+  expect(feedback).not.toHaveTextContent('Rain fell, so the field flooded.');
+  expect(feedback).not.toHaveTextContent(/sequence/i);
+});
+
 test('rejects digit-only IDs before Record property ordering can change authored order',()=>{
   // Allowing either numeric ID would let JavaScript reorder the placement payload as 2,10.
   const numericIds={excerpts:[

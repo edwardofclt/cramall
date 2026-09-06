@@ -149,6 +149,19 @@ test('uses only authored language kinds and names the acted-on phrase without le
   expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
 });
 
+test('keeps retry feedback on the most recently mismatched phrase',async()=>{
+  const user=userEvent.setup();
+  render(<FigurativeLanguageMatcher config={{pairs}} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Select phrase fast as lightning'}));
+  await user.click(screen.getByRole('button',{name:'Match idiom'}));
+  await user.click(screen.getByRole('button',{name:'Select phrase piece of cake'}));
+  await user.click(screen.getByRole('button',{name:'Match simile'}));
+  const feedback=screen.getByText(/what clue tells you how the phrase works/i);
+  expect(feedback).toHaveTextContent('piece of cake');
+  expect(feedback).not.toHaveTextContent('fast as lightning');
+  expect(feedback).not.toHaveTextContent(/idiom/i);
+});
+
 test('rejects prototype property IDs while continuing to accept ordinary normalized IDs',()=>{
   // Allowing an inherited Object.prototype key through the schema must fail these literals.
   for(const id of ['toString','constructor','__proto__']){
