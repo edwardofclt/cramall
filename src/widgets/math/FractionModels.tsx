@@ -50,6 +50,74 @@ function FractionModel({ kind, denominator, numerator, wholeCount = 1, label }: 
   return <div className="fraction-view" data-testid="fraction-view" data-kind={kind}>{wholes}</div>;
 }
 
+function FairShareModel({ denominator, numerator, target }: { denominator: number; numerator: number; target: number }) {
+  return (
+    <div
+      className="fair-share-model"
+      data-testid="fair-share-model"
+      data-equal={numerator === target ? 'yes' : 'no'}
+      role="group"
+      aria-label={`Fair sharing model: ${denominator} recipients each receive ${numerator} of ${denominator} equal parts`}
+    >
+      <div className="fair-share-recipients">
+        {Array.from({ length: denominator }, (_, recipientIndex) => (
+          <div
+            className="fair-share-recipient"
+            data-testid="fair-share-recipient"
+            data-recipient-index={recipientIndex}
+            aria-label={`Learner ${recipientIndex + 1} receives ${numerator} of ${denominator} equal parts`}
+            key={recipientIndex}
+          >
+            <strong>Learner {recipientIndex + 1}</strong>
+            <div className="fair-share-units">
+              {Array.from({ length: denominator }, (_, unitIndex) => (
+                <span
+                  className="fair-share-unit"
+                  data-testid="fair-share-unit"
+                  data-state={unitIndex < numerator ? 'distributed' : 'waiting'}
+                  aria-hidden="true"
+                  key={unitIndex}
+                />
+              ))}
+            </div>
+            <span className="fair-share-label">{numerator}/{denominator}</span>
+          </div>
+        ))}
+      </div>
+      <p data-testid="fair-share-state" role="status">
+        {numerator === target
+          ? `Every learner receives an equal ${numerator}/${denominator} share.`
+          : `Distribute the same number of parts to every learner: ${numerator} of ${denominator} so far.`}
+      </p>
+    </div>
+  );
+}
+
+function FractionGroupsModel({ denominator, numerator }: { denominator: number; numerator: number }) {
+  return (
+    <div
+      className="fraction-groups"
+      data-testid="fraction-groups"
+      role="img"
+      aria-label={`${numerator} repeated groups of one ${fractionText(1, denominator)}`}
+    >
+      <p className="fraction-groups-equation">{numerator} × {fractionText(1, denominator)} = {fractionText(numerator, denominator)}</p>
+      <div className="fraction-group-list">
+        {Array.from({ length: numerator }, (_, groupIndex) => (
+          <div className="fraction-group" data-testid="fraction-group" data-group-index={groupIndex} key={groupIndex}>
+            <strong>Group {groupIndex + 1}</strong>
+            <span className="fraction-group-boundary" aria-hidden="true">
+              <span className="fraction-group-unit" />
+            </span>
+            <span>{fractionText(1, denominator)}</span>
+          </div>
+        ))}
+      </div>
+      <p>Each boundary contains one equal unit-fraction group.</p>
+    </div>
+  );
+}
+
 export default function FractionModels({ config, onEvent }: WidgetProps<'fraction-models'>) {
   const key = JSON.stringify(config);
   const wholeCount = config.wholeCount ?? 1;
@@ -108,7 +176,7 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
   const change = target ? target.numerator - (config.numerator ?? 0) : 0;
   const changeText = change >= 0 ? `+${change}/${config.denominator}` : `${change}/${config.denominator}`;
   const mixedDescription = wholeCount > 1 ? `${wholeCount - 1} whole${wholeCount > 2 ? 's' : ''} and ${numerator}/${config.denominator}` : undefined;
-  const targetLabel = target ? fractionText(target.numerator, target.denominator) : fractionText(totalNumerator, config.denominator);
+  const targetLabel = target ? fractionText(totalTargetNumerator!, target.denominator) : fractionText(totalNumerator, config.denominator);
 
   return (
     <section className="card widget-experiment fraction-models" data-testid="widget-fraction-models" data-state={visiblyComplete ? 'complete' : 'choosing'} data-complete={visiblyComplete ? 'yes' : 'no'}>
@@ -133,6 +201,10 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
           <div><strong>{fractionText(comparisonTarget.numerator, comparisonTarget.denominator)}</strong><FractionModel kind={modelKinds[0]!} denominator={comparisonTarget.denominator} numerator={comparisonTarget.numerator} label="Comparison" /></div>
           <p>These models use a same-sized whole, so their shaded amounts can be compared fairly.</p>
         </div>
+      ) : config.task === 'share' ? (
+        <FairShareModel denominator={config.denominator} numerator={numerator} target={target?.numerator ?? numerator} />
+      ) : config.task === 'groups' ? (
+        <FractionGroupsModel denominator={config.denominator} numerator={numerator} />
       ) : <div className="fraction-models-views">{modelKinds.map((kind) => <FractionModel key={kind} kind={kind} denominator={config.denominator} numerator={numerator} wholeCount={wholeCount} label="Current" />)}</div>}
       <p className="fraction-total" data-testid="fraction-total" role="status">{fractionText(totalNumerator, config.denominator)}{mixedDescription ? ` (${mixedDescription})` : ''}{' '}{visiblyComplete ? usesEquivalentRepresentation ? 'Equivalent fraction complete.' : 'Fraction complete.' : 'Choose the shaded amount.'}</p>
     </section>

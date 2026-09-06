@@ -201,8 +201,50 @@ test('explains fair-sharing distribution and exposes add/remove controls', async
   );
 
   expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('6 equal shares');
+  expect(screen.getAllByTestId('fair-share-recipient')).toHaveLength(6);
+  expect(screen.getAllByTestId('fair-share-unit')).toHaveLength(36);
   await user.click(screen.getByRole('button', { name: 'Add one part' }));
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('1/6');
+  expect(screen.getAllByTestId('fair-share-unit').filter((unit) => unit.getAttribute('data-state') === 'distributed')).toHaveLength(6);
   await user.click(screen.getByRole('button', { name: 'Remove one part' }));
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('0/6');
+  await user.click(screen.getByRole('button', { name: 'Shade part 5 of 6' }));
+  expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('fraction-total')).toHaveTextContent('Fraction complete.');
+});
+
+test('renders repeated unit-fraction groups with boundaries and labels', async () => {
+  const user = userEvent.setup();
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 4,
+        numerator: 0,
+        target: { numerator: 3, denominator: 4 },
+        task: 'groups',
+        taskPrompt: 'Build three groups of one fourth.',
+      }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('fraction-groups')).toHaveTextContent('0 × 1/4');
+  await user.click(screen.getByRole('button', { name: 'Add one part' }));
+  expect(screen.getAllByTestId('fraction-group')).toHaveLength(1);
+  expect(screen.getByTestId('fraction-groups')).toHaveTextContent('1 × 1/4 = 1/4');
+  await user.click(screen.getByRole('button', { name: 'Shade part 3 of 4' }));
+  expect(screen.getAllByTestId('fraction-group')).toHaveLength(3);
+  expect(screen.getByTestId('fraction-groups')).toHaveTextContent('3 × 1/4 = 3/4');
+});
+
+test('uses the computed multi-whole target in the fallback goal', () => {
+  render(
+    <FractionModels
+      config={{ mode: 'bars', denominator: 4, numerator: 0, wholeCount: 2, target: { numerator: 1, denominator: 4 } }}
+      onEvent={() => {}}
+    />,
+  );
+
+  expect(screen.getByTestId('widget-task')).toHaveTextContent('Build 5/4');
 });
