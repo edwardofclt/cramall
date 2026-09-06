@@ -770,6 +770,13 @@ export const ProbabilitySpinnerWidgetConfigSchema = z.object({
   if (new Set(value.segments.map((segment) => segment.id)).size !== value.segments.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['segments'], message: 'segment ids must be unique' });
   }
+  if (value.segments.some((segment) => segment.id === 'all' || segment.id === 'none')) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['segments'],
+      message: 'segment ids cannot use reserved event labels all or none',
+    });
+  }
   const totalWeight = value.segments.reduce((sum, segment) => sum + (segment.weight ?? 1), 0);
   if (!Number.isFinite(totalWeight) || totalWeight <= 0) {
     context.addIssue({

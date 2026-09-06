@@ -465,3 +465,14 @@ test('Math manipulative contracts reject unreachable or contradictory authored t
     config: { kind: 'bar', prompt: 'Build it', categories: ['A'], target: { A: 3 }, sourceData: { A: 2 } },
   }).success).toBe(false);
 });
+
+test('ProbabilitySpinner reserves event sentinels so they cannot collide with segment ids', () => {
+  expect(ProbabilitySpinnerWidgetConfigSchema.safeParse({
+    segments: [{ id: 'all', label: 'All' }, { id: 'red', label: 'Red' }],
+    eventQuestion: { eventLabel: 'all', classification: 'certain' },
+  }).success).toBe(false);
+  expect(ProbabilitySpinnerWidgetConfigSchema.safeParse({
+    segments: [{ id: 'none', label: 'None' }, { id: 'blue', label: 'Blue' }],
+    eventQuestion: { eventLabel: 'none', classification: 'impossible' },
+  }).success).toBe(false);
+});
