@@ -1225,6 +1225,11 @@ export const ResourceSorterWidgetConfigSchema = z.object({
   if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length || new Set(value.bins).size !== value.bins.length || !value.items.every((item) => value.bins.includes(item.kind))) {
     context.addIssue({code: z.ZodIssueCode.custom, message: 'resource item ids and labels must be unique and every item kind needs a bin'});
   }
+  const hasRootEffectBranch = value.effectChoices !== undefined || value.effectAnswers !== undefined;
+  const hasItemEffectBranch = value.items.some((item) => item.effectChoices !== undefined || item.effectAnswerId !== undefined);
+  if (hasRootEffectBranch && hasItemEffectBranch) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['items'], message: 'resource effects must use one complete root branch or one complete item branch, not both' });
+  }
   if (value.effectChoices !== undefined) {
     const choiceIds = value.effectChoices.map((choice) => resourceVisualKey(choice.id));
     if (new Set(choiceIds).size !== choiceIds.length) {
@@ -1261,6 +1266,9 @@ export const ResourceSorterWidgetConfigSchema = z.object({
     } else if (item.effectAnswerId !== undefined) {
       context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectAnswerId'], message: 'item effect choices are required for an item effect answer' });
     }
+  }
+  if (!hasRootEffectBranch && hasItemEffectBranch && value.items.some((item) => item.effectChoices === undefined || item.effectAnswerId === undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['items'], message: 'item effect choices and answers must cover every item' });
   }
 });
 

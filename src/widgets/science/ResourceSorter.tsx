@@ -12,9 +12,13 @@ type ResourceKind = keyof typeof binLabels;
 type Placements = Record<string, ResourceKind>;
 type Effects = Record<string, string>;
 type CoachPhase = 'none' | 'strategy' | 'retry';
+const resourceVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
 
 const orderedPlacements = (items: WidgetProps<'resource-sorter'>['config']['items'], placements: Placements) => Object.fromEntries(
   items.flatMap((item) => placements[item.id] === undefined ? [] : [[item.id, placements[item.id]]]),
+);
+const orderedEffects = (items: WidgetProps<'resource-sorter'>['config']['items'], effects: Effects) => Object.fromEntries(
+  items.flatMap((item) => effects[item.id] === undefined ? [] : [[item.id, effects[item.id]]]),
 );
 
 function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
@@ -29,10 +33,15 @@ function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
   const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
   const {completed, completeOnce} = useCompletionLatch(key);
   const effectChoicesFor = (item: typeof config.items[number]) => item.effectChoices ?? config.effectChoices ?? [];
-  const effectAnswerFor = (item: typeof config.items[number]) => item.effectAnswerId ?? config.effectAnswers?.[item.id];
+  const effectAnswerFor = (item: typeof config.items[number]) => item.effectAnswerId
+    ?? Object.entries(config.effectAnswers ?? {}).find(([itemId]) => resourceVisualKey(itemId) === resourceVisualKey(item.id))?.[1];
   const requiresEffects = config.items.some((item) => effectChoicesFor(item).length > 0);
   const isCorrect = (nextPlacements: Placements, nextEffects: Effects = effects) => config.items.every((item) => nextPlacements[item.id] === item.kind)
-    && (!requiresEffects || config.items.every((item) => effectChoicesFor(item).length > 0 && nextEffects[item.id] === effectAnswerFor(item)));
+    && (!requiresEffects || config.items.every((item) => {
+      const answer = effectAnswerFor(item);
+      return effectChoicesFor(item).length > 0 && answer !== undefined && nextEffects[item.id] !== undefined
+        && resourceVisualKey(nextEffects[item.id]!) === resourceVisualKey(answer);
+    }));
   const visibleComplete = completed && isCorrect(placements, effects);
 
   useEffect(() => {
@@ -96,20 +105,24 @@ function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
     const item = config.items.find((candidate) => candidate.id === itemId)!;
     const nextEffects = {...effects, [itemId]: effectId};
     setEffects(nextEffects);
-    const effect = effectChoicesFor(item).find((choice) => choice.id === effectId)!;
+    const effect = effectChoicesFor(item).find((choice) => resourceVisualKey(choice.id) === resourceVisualKey(effectId));
+    if (!effect) return;
     const answer = effectAnswerFor(item);
-    if (effectId !== answer) {
+    const effectCorrect = answer !== undefined && resourceVisualKey(effectId) === resourceVisualKey(answer);
+    const ordered = orderedPlacements(config.items, placements);
+    const orderedEffectValues = orderedEffects(config.items, nextEffects);
+    onEvent({type: 'interaction', action: 'connect-effect'});
+    onEvent({type: 'change', value: {placements: ordered, effects: orderedEffectValues}});
+    if (!effectCorrect) {
       setStatus(`${item.label} is connected to “${effect.text}.” Revisit the lesson fact and revise the use/effect connection.`);
       coachWrong();
     } else if (isCorrect(placements, nextEffects)) {
       setStatus(`${item.label} is connected to “${effect.text}.” Every category and lesson effect is connected.`);
       onEvent({type: 'coach', cue: 'milestone'});
-      completeOnce(() => onEvent({type: 'complete', value: {placements}}));
+      completeOnce(() => onEvent({type: 'complete', value: {placements: ordered, effects: orderedEffectValues}}));
     } else {
       setStatus(`${item.label} is connected to “${effect.text}.” Keep connecting the remaining items.`);
     }
-    onEvent({type: 'interaction', action: 'place-item'});
-    onEvent({type: 'change', value: {placements: orderedPlacements(config.items, placements)}});
   };
 
   const reset = () => {

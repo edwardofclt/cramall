@@ -324,6 +324,53 @@ test('Science contracts accept the authored comparison and evidence shapes', () 
     sources: ['Sun'], transfers: ['light'], targets: ['paper'], requiredPath: ['Sun', 'light', 'paper'], distractors: ['sound'],
   }).distractors).toEqual(['sound']);
 });
+
+test('ResourceSorter rich effect branches are complete and unambiguous', () => {
+  const base = {
+    items: [
+      { id: 'sun', label: 'Sun', kind: 'renewable' as const },
+      { id: 'coal', label: 'Coal', kind: 'nonrenewable' as const },
+    ],
+    bins: ['renewable', 'nonrenewable'] as const,
+  };
+  const choices = [
+    { id: 'renewed', text: 'Replenished' },
+    { id: 'limited', text: 'Limited supply' },
+  ];
+
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    ...base,
+    items: [
+      {...base.items[0], effectChoices: choices, effectAnswerId: 'renewed'},
+      base.items[1],
+    ],
+  }).success).toBe(false);
+
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    ...base,
+    effectChoices: choices,
+    effectAnswers: {sun: 'renewed', coal: 'limited'},
+    items: [
+      {...base.items[0], effectChoices: choices, effectAnswerId: 'renewed'},
+      base.items[1],
+    ],
+  }).success).toBe(false);
+
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    ...base,
+    items: [
+      {...base.items[0], effectChoices: choices, effectAnswerId: 'renewed'},
+      {...base.items[1], effectChoices: choices, effectAnswerId: 'limited'},
+    ],
+  }).success).toBe(true);
+
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    ...base,
+    effectChoices: choices,
+    effectAnswers: {SUN: 'RENEWED', COAL: 'LIMITED'},
+  }).success).toBe(true);
+});
+
 test('keeps an optional worked source passage as distinct authored material', () => {
   const lesson = makeLesson();
   lesson.workedExample.passage = {

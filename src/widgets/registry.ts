@@ -115,9 +115,11 @@ export type WidgetEventMap = {
     | { type: 'change'; value: { selectedIds: string[] } }
     | { type: 'complete'; value: { selectedIds: string[] } };
   'resource-sorter':
-    | { type: 'interaction'; action: 'select-item' | 'place-item' | 'reset' }
+    | { type: 'interaction'; action: 'select-item' | 'place-item' | 'connect-effect' | 'reset' }
     | { type: 'change'; value: { placements: Record<string, string> } }
-    | { type: 'complete'; value: { placements: Record<string, string> } };
+    | { type: 'change'; value: { placements: Record<string, string>; effects: Record<string, string> } }
+    | { type: 'complete'; value: { placements: Record<string, string> } }
+    | { type: 'complete'; value: { placements: Record<string, string>; effects: Record<string, string> } };
   'word-root-builder':
     | { type: 'interaction'; action: 'select-prefix' | 'select-root' | 'select-suffix' | 'check' | 'reset' }
     | { type: 'change'; value: { parts: string[]; word: string } }

@@ -156,3 +156,74 @@ test('requires revisable lesson use/effect connections after category sorting', 
   expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
+
+test('completes case-normalized effect IDs and emits a semantic connection event', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  const caseVariantConfig = {
+    items: [
+      {id: 'Sun', label: 'Sunlight', kind: 'renewable' as const},
+      {id: 'Coal', label: 'Coal', kind: 'nonrenewable' as const},
+    ],
+    bins: ['renewable', 'nonrenewable'] as ('renewable' | 'nonrenewable')[],
+    effectChoices: [
+      {id: 'Replenished', text: 'Replenished naturally'},
+      {id: 'Limited', text: 'Limited supply'},
+    ],
+    effectAnswers: {sun: 'replenished', COAL: 'limited'},
+  };
+  render(<ResourceSorter config={caseVariantConfig} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+  await user.click(screen.getByRole('button', {name: 'Connect Sunlight to Replenished naturally'}));
+  await user.click(screen.getByRole('button', {name: 'Select Coal'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
+  await user.click(screen.getByRole('button', {name: 'Connect Coal to Limited supply'}));
+
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({type: 'interaction', action: 'connect-effect'});
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({
+    type: 'change',
+    value: {
+      placements: {Sun: 'renewable', Coal: 'nonrenewable'},
+      effects: {Sun: 'Replenished', Coal: 'Limited'},
+    },
+  });
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({
+    type: 'complete',
+    value: {
+      placements: {Sun: 'renewable', Coal: 'nonrenewable'},
+      effects: {Sun: 'Replenished', Coal: 'Limited'},
+    },
+  });
+});
+
+test('completes a fully item-scoped rich branch with each item’s own effect choices', async () => {
+  const user = userEvent.setup();
+  const itemScopedConfig = {
+    items: [
+      {
+        id: 'sun', label: 'Sunlight', kind: 'renewable' as const,
+        effectChoices: [{id: 'renewed', text: 'Replenished'}, {id: 'finite', text: 'Limited'}],
+        effectAnswerId: 'renewed',
+      },
+      {
+        id: 'coal', label: 'Coal', kind: 'nonrenewable' as const,
+        effectChoices: [{id: 'pollution', text: 'Air pollution'}, {id: 'finite', text: 'Limited'}],
+        effectAnswerId: 'finite',
+      },
+    ],
+    bins: ['renewable', 'nonrenewable'] as ('renewable' | 'nonrenewable')[],
+  };
+  render(<ResourceSorter config={itemScopedConfig} onEvent={vi.fn()} />);
+
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+  await user.click(screen.getByRole('button', {name: 'Connect Sunlight to Replenished'}));
+  await user.click(screen.getByRole('button', {name: 'Select Coal'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
+  await user.click(screen.getByRole('button', {name: 'Connect Coal to Limited'}));
+
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
+});
