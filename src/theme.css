@@ -2509,9 +2509,26 @@ body {
 .data-plot-dot { display: grid; width: 14px; height: 14px; place-items: center; border: 2px solid var(--c-ink); border-radius: 50%; background: var(--c-card); color: var(--c-ink); font-size: .5rem; line-height: 1; }
 .data-plot-values { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-variant-numeric: tabular-nums; font-weight: 800; }
 .data-plot-reset { justify-self: start; min-width: 44px; }
+.data-plot-setup { display: grid; gap: .65rem; }
+.data-plot-decision { display: grid; gap: .45rem; margin: 0; padding: .65rem; border: 2px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.data-plot-decision:disabled { opacity: .72; }
+.data-plot-decision legend { padding-inline: .2rem; font-weight: 800; }
+.data-plot-decision input { min-height: 44px; padding: .45rem .6rem; border: 2px solid var(--c-ink); border-radius: .4rem; background: var(--c-card); color: var(--c-ink); font: inherit; }
+.data-plot-choice-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.data-plot-choice-row button, .data-plot-decision > button { min-height: 44px; }
+.data-plot-choice-row button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--c-accent-action); }
+.data-plot-decision p, .data-plot-decisions { margin: 0; font-weight: 700; }
 .widget-experiment.spinner { display: grid; gap: .75rem; }
-.widget-experiment.spinner h3, .spinner-explanation, .spinner-progress, .spinner-target { margin: 0; }
+.widget-experiment.spinner h3, .spinner-task, .spinner-explanation, .spinner-progress, .spinner-target { margin: 0; }
 .spinner-explanation { color: var(--c-ink-soft); font-weight: 700; }
+.spinner-task { font-weight: 800; }
+.spinner-probability-setup { display: grid; gap: .65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.spinner-prediction, .spinner-sample-space, .spinner-classification { display: grid; gap: .45rem; padding: .65rem; border: 2px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
+.spinner-prediction h4, .spinner-sample-space h4, .spinner-classification h4, .spinner-prediction p, .spinner-sample-space p, .spinner-classification p { margin: 0; }
+.spinner-prediction-choices, .spinner-classification-choices { display: flex; flex-wrap: wrap; gap: .5rem; }
+.spinner-prediction-choices button, .spinner-classification-choices button { min-height: 44px; }
+.spinner-prediction-choices button[aria-pressed="true"], .spinner-classification-choices button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--c-accent-action); }
+.spinner-decision-summary { font-weight: 800; }
 .spinner-model { display: grid; grid-template-columns: minmax(12rem, 16rem) minmax(12rem, 1fr); gap: 1rem; align-items: center; }
 .spinner-wheel { display: block; width: min(100%, 16rem); margin-inline: auto; }
 .spinner-wheel[data-spinning="true"] .spinner-rotating-group { animation: probability-spinner-turn .65s ease-out; transform-origin: center; }
@@ -2534,6 +2551,7 @@ body {
 .widget-experiment.spinner[data-motion="off"] .spinner-rotating-group { animation: none; }
 @media (prefers-reduced-motion: reduce) { .spinner-rotating-group { animation: none !important; } }
 @media (max-width: 560px) { .spinner-model { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .spinner-probability-setup { grid-template-columns: 1fr; } }
 .widget-experiment.collision { display: grid; gap: .75rem; }
 .collision header h3, .collision header p, .collision-angle, .collision-quantities, .collision-predictions h4, .collision-predictions p { margin: 0; }
 .collision header p, .collision-angle, .collision-quantities { color: var(--c-ink-soft); font-weight: 700; }

@@ -125,4 +125,57 @@ describe('ProbabilitySpinner', () => {
     expect(screen.getByTestId('spinner-rotating-group')).toHaveStyle({ transform: 'rotate(135deg)' });
     expect(screen.getByRole('status')).toHaveTextContent('B');
   });
+
+  test('requires a prediction and then a sample-space classification after the trials', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    const onEvent = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <ProbabilitySpinner
+        config={{
+          segments: [{ id: 'a', label: 'A', weight: 1 }, { id: 'b', label: 'B', weight: 3 }],
+          trials: 2,
+          eventQuestion: { eventLabel: 'b', classification: 'possible' },
+          taskPrompt: 'Predict and classify the event.',
+        }}
+        onEvent={onEvent}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Spin' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Predict B' }));
+    expect(screen.getByRole('button', { name: 'Spin' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.getByRole('button', { name: 'Possible' })).toBeEnabled();
+    expect(screen.getByTestId('spinner-sample-space')).toHaveTextContent('A');
+    expect(screen.getByTestId('spinner-sample-space')).toHaveTextContent('B');
+    await user.click(screen.getByRole('button', { name: 'Certain' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Try classifying');
+    await user.click(screen.getByRole('button', { name: 'Possible' }));
+    expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+    expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'retry')).toHaveLength(1);
+  });
+
+  test('prediction does not need to match a random result', async () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.1);
+    const onEvent = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <ProbabilitySpinner
+        config={{
+          segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+          trials: 1,
+          eventQuestion: { eventLabel: 'b', classification: 'possible' },
+        }}
+        onEvent={onEvent}
+      />,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Predict B' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: 'Possible' }));
+    expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
+  });
 });

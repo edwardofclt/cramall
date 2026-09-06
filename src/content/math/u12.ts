@@ -30,7 +30,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A pet survey with dog, cat, and fish categories fits a bar graph.' },
           { kind: 'tip', text: 'Choose a display that preserves the question and all collected values.' },
         ],
-        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 }, sourceData: { dog: 8, cat: 6, fish: 4 }, taskPrompt: 'Build the class pet survey bar graph from the source table.' } },
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 }, sourceData: { dog: 8, cat: 6, fish: 4 }, displayChoices: ['bar', 'dot'], taskPrompt: 'Build the class pet survey bar graph from the source table.' } },
         widgetCoach: {
           intro: [
             { speaker: 'guide', pose: 'think', text: 'Use the source table to build a bar graph: dog 8, cat 6, and fish 4.' },
@@ -177,7 +177,19 @@ export const unit12Lessons = [
           { kind: 'example', text: 'On a red, blue, and green spinner, “land on a cool color” may include blue and green if those categories were defined.' },
           { kind: 'tip', text: 'Decide exactly which listed outcomes satisfy the event before classifying it.' },
         ],
-        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, targetOutcomeId: 'red' } },
+        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, targetOutcomeId: 'red', eventQuestion: { eventLabel: 'red', classification: 'possible' }, taskPrompt: 'Predict, run eight trials, and classify landing on red.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'The sample space is red, blue, and green; red has two equal sections, but one spin is still random.' },
+            { speaker: 'kid', text: 'I will make a prediction, run all eight trials, then classify landing on red from the sample space.' },
+          ],
+          reactions: {
+            strategy: { text: 'Make a prediction from the labeled sample space, then let each trial add evidence without treating one result as a guarantee.', pose: 'think' },
+            retry: { text: 'Reread the sample space: red is listed but not the only outcome, so landing on red is possible.', pose: 'oops' },
+            milestone: { text: 'Your first trial is recorded. Keep running the planned trials before classifying the event.', pose: 'cheer' },
+            complete: { text: 'You used the full sample space to classify landing on red as possible; the random results were evidence, not a guarantee.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u12-l03-c3',

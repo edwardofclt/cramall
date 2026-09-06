@@ -126,4 +126,44 @@ describe('DataPlotBuilder', () => {
     expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
     expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
   });
+
+  test('requires display, title, labels, and scale decisions before data entry', async () => {
+    const user = userEvent.setup();
+    render(
+      <DataPlotBuilder
+        config={{
+          kind: 'bar',
+          prompt: 'Build a pet graph',
+          categories: ['dog', 'cat'],
+          target: { dog: 2, cat: 1 },
+          sourceData: { dog: 2, cat: 1 },
+          displayChoices: ['bar', 'dot'],
+          taskPrompt: 'Build the graph from the source table.',
+        }}
+        onEvent={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('data-plot-source-data')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Increase dog' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Bar graph' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    const title = screen.getByRole('textbox', { name: 'Graph title' });
+    await user.type(title, 'Class pets');
+    await user.click(screen.getByRole('button', { name: 'Confirm title' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm category labels' }));
+    await user.click(screen.getByRole('button', { name: 'Scale 1' }));
+    await user.click(screen.getByRole('button', { name: 'Confirm scale' }));
+
+    expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('Bar graph');
+    expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('Class pets');
+    expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('dog, cat');
+    expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('Scale 1');
+    expect(screen.getByRole('button', { name: 'Increase dog' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Increase dog' }));
+    await user.click(screen.getByRole('button', { name: 'Increase dog' }));
+    await user.click(screen.getByRole('button', { name: 'Increase cat' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Plot matches the target.');
+  });
 });
