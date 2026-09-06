@@ -103,12 +103,7 @@ const scienceU01L04Core = {
           {
             "speaker": "guide",
             "pose": "talk",
-            "text": "Keep the coaster cars, track, ramp angle, and Cart B alike while you change only Cart A speed."
-          },
-          {
-            "speaker": "guide",
-            "pose": "think",
-            "text": "This screen models a prediction, not physical evidence from real carts."
+            "text": "Keep the coaster cars, track, ramp angle, and Cart B alike while you change only Cart A speed; this screen models a prediction, not physical evidence from real carts."
           },
           {
             "speaker": "kid",

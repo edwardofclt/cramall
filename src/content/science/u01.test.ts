@@ -334,8 +334,8 @@ describe('Science unit 1 energy and motion lessons', () => {
   test('pins L04 differentiation, exact routes, and immediate review targets', () => {
     const lesson = unit01Lessons[3]!;
     const collisionCard = lesson.learnCards[1]!;
-    expect(collisionCard.widgetCoach?.intro).toHaveLength(3);
-    expect(collisionCard.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'guide', 'kid']);
+    expect(collisionCard.widgetCoach?.intro).toHaveLength(2);
+    expect(collisionCard.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
     expect(collisionCard.widgetCoach?.intro.map(({ text }) => text).join(' ')).toMatch(/models a prediction.*not physical evidence/i);
     expect(collisionCard.widgetCoach?.reactions.strategy?.text).toMatch(/one condition at a time/i);
     expect(collisionCard.widgetCoach?.reactions.retry?.text).toMatch(/before-and-after motion/i);

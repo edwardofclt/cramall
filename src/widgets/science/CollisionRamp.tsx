@@ -105,7 +105,7 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
         setStatus(`Run ${pendingRun.id} observed: the model ${modelDirectionText[pendingRun.outcome]}. Compare the visible before-and-after motion and revise your prediction next time.`);
       } else if (pendingRun.id === 1) {
         onEvent({ type: 'coach', cue: 'milestone' });
-        setStatus('Run 1 observed. Change only Cart A speed, then predict and run Run 2.');
+        setStatus(`Run 1 observed. Change only ${controlledLabel}, then predict and run Run 2.`);
       } else {
         setStatus('Run 2 observed. Choose a comparison statement before you finish.');
       }
@@ -122,7 +122,7 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
       setStatus(`Run ${run.id} observed: the model ${modelDirectionText[run.outcome]}. Compare the visible before-and-after motion and revise your prediction next time.`);
     } else if (run.id === 1) {
       onEvent({ type: 'coach', cue: 'milestone' });
-      setStatus('Run 1 observed. Change only Cart A speed, then predict and run Run 2.');
+      setStatus(`Run 1 observed. Change only ${controlledLabel}, then predict and run Run 2.`);
     } else {
       setStatus('Run 2 observed. Choose a comparison statement before you finish.');
     }
@@ -208,7 +208,7 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
       </header>
       <p className="collision-task"><strong>Goal:</strong> {config.taskPrompt ?? `Change only ${controlledLabel} and compare two modeled runs.`}</p>
       <p className="collision-locked" aria-label={lockedNote}>{lockedNote}</p>
-      <div className="collision-model comparison-track" data-phase={phase} aria-label="Two-cart collision model track">
+      <div className="collision-model comparison-track" data-testid="collision-comparison-track" data-phase={phase} data-motion-direction={trackDirection} aria-label="Two-cart collision model track">
         <div className={`collision-cart collision-cart-a collision-position-${trackDirection}`} role="img" aria-label={`Cart A: mass ${config.massA}, speed ${inputs.speedA ?? 0}.`}><span>Cart A</span><strong>{config.massA} mass</strong><b>{inputs.speedA ?? 0} speed →</b></div>
         <div className="collision-point" aria-label="Collision point">×<span>latch point</span></div>
         <div className={`collision-cart collision-cart-b collision-position-${trackDirection}`} role="img" aria-label={`Cart B: mass ${config.massB}, speed ${inputs.speedB ?? 0}.`}><span>Cart B</span><strong>{config.massB} mass</strong><b>← {inputs.speedB ?? 0} speed</b></div>

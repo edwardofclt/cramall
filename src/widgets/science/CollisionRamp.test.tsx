@@ -9,6 +9,10 @@ vi.mock('../../app/useReducedMotionPref', () => ({
   useReducedMotionPref: () => motionPreference.reduced,
 }));
 
+const nodeProcess = (globalThis as typeof globalThis & {
+  process: { getBuiltinModule(name: 'fs'): { readFileSync(path: string, encoding: 'utf8'): string } };
+}).process;
+
 test('grades opposing next-state momenta rather than a hard-coded direction', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
@@ -138,6 +142,7 @@ test('runs two locked fair-test comparisons only after a prediction', async () =
   expect(screen.getByRole('button', { name: 'Run collision model' })).toBeEnabled();
   await user.click(screen.getByRole('button', { name: 'Run collision model' }));
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'running');
+  expect(screen.getByTestId('collision-comparison-track')).toHaveAttribute('data-motion-direction', 'left');
 
   await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
   expect(screen.getByTestId('collision-run-1')).toHaveTextContent(/Before:/i);
@@ -177,6 +182,7 @@ test('requires a correct comparison statement and reports strategy feedback with
   await user.click(screen.getByRole('button', { name: 'Stays the same' }));
   await user.click(screen.getByRole('button', { name: 'Run collision model' }));
   await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+  expect(screen.getByRole('status')).toHaveTextContent(/change only Cart B speed/i);
   await user.click(screen.getByRole('button', { name: 'Increase Cart B speed' }));
   await user.click(screen.getByRole('button', { name: 'Moves left' }));
   await user.click(screen.getByRole('button', { name: 'Run collision model' }));
@@ -207,6 +213,16 @@ test('reduced motion reaches the same observed final state immediately', async (
   await user.click(screen.getByRole('button', { name: 'Run collision model' }));
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-motion', 'off');
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed');
+  expect(screen.getByTestId('collision-comparison-track')).toHaveAttribute('data-motion-direction', 'right');
   expect(screen.getByTestId('collision-run-1-after')).toHaveAttribute('data-direction', 'right');
   motionPreference.reduced = false;
+});
+
+test('uses truthful outcome-specific collision motion keyframes', () => {
+  const themeCss = nodeProcess.getBuiltinModule('fs').readFileSync('src/theme.css', 'utf8');
+  expect(themeCss).toMatch(/data-motion-direction='left'\]\[data-phase='running'\][^}]*animation-name:\s*collision-cart-roll-left/);
+  expect(themeCss).toMatch(/data-motion-direction='right'\]\[data-phase='running'\][^}]*animation-name:\s*collision-cart-roll-right/);
+  expect(themeCss).toMatch(/data-motion-direction='same'\]\[data-phase='running'\][^}]*animation-name:\s*collision-cart-roll-same/);
+  expect(themeCss).toMatch(/@keyframes\s+collision-cart-roll-left[\s\S]*?translateX\(-8%\)/);
+  expect(themeCss).toMatch(/@keyframes\s+collision-cart-roll-right[\s\S]*?translateX\(8%\)/);
 });

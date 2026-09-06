@@ -2578,7 +2578,10 @@ body {
 .collision-comparison .collision-position-left { transform: translateX(-8%); }
 .collision-comparison .collision-position-right { transform: translateX(8%); }
 .collision-comparison .collision-position-same { transform: translateX(0); }
-.collision-comparison .comparison-track[data-phase='running'] .collision-cart { animation: collision-cart-roll .32s ease-in-out both; }
+.collision-comparison .comparison-track[data-phase='running'] .collision-cart { animation-duration: .32s; animation-timing-function: ease-in-out; animation-fill-mode: both; }
+.collision-comparison .comparison-track[data-motion-direction='left'][data-phase='running'] .collision-cart { animation-name: collision-cart-roll-left; }
+.collision-comparison .comparison-track[data-motion-direction='right'][data-phase='running'] .collision-cart { animation-name: collision-cart-roll-right; }
+.collision-comparison .comparison-track[data-motion-direction='same'][data-phase='running'] .collision-cart { animation-name: collision-cart-roll-same; }
 .collision-comparison .comparison-track[data-phase='running'] .collision-cart-b { animation-delay: .04s; }
 .collision-comparison-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
 .collision-comparison-controls button,
@@ -2596,7 +2599,9 @@ body {
 .collision-compare-choices button { text-align: left; }
 .collision-compare-choices button[aria-pressed='true'] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .collision-comparison-hint { grid-column: 1 / -1; color: var(--c-ink-soft); font-weight: 700; }
-@keyframes collision-cart-roll { from { transform: translateX(0) scale(.98); } to { transform: translateX(8%) scale(1); } }
+@keyframes collision-cart-roll-left { from { transform: translateX(0) scale(.98); } to { transform: translateX(-8%) scale(1); } }
+@keyframes collision-cart-roll-right { from { transform: translateX(0) scale(.98); } to { transform: translateX(8%) scale(1); } }
+@keyframes collision-cart-roll-same { from { transform: translateX(0) scale(.98); } to { transform: translateX(0) scale(1); } }
 @media (prefers-reduced-motion: reduce) { .collision-comparison .comparison-track[data-phase='running'] .collision-cart { animation: none; } }
 @media (max-width: 640px) { .collision-run-grid, .collision-compare-choices { grid-template-columns: 1fr; } }
 .widget-experiment.transfer { display: grid; gap: .75rem; }
