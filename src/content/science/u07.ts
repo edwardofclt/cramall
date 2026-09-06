@@ -509,17 +509,67 @@ const scienceU07L02Core = {
           ],
           "points": [
             {
-              "id": "coast",
-              "label": "Coast",
-              "elevation": 0
+              "id": "h1",
+              "label": "Hill 1",
+              "x": 20,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
             },
             {
-              "id": "hill",
-              "label": "Hill",
-              "elevation": 50
+              "id": "h2",
+              "label": "Hill 2",
+              "x": 50,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
+            },
+            {
+              "id": "h3",
+              "label": "Hill 3",
+              "x": 80,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
+            },
+            {
+              "id": "c1",
+              "label": "Coast 1",
+              "x": 20,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
+            },
+            {
+              "id": "c2",
+              "label": "Coast 2",
+              "x": 50,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
+            },
+            {
+              "id": "c3",
+              "label": "Coast 3",
+              "x": 80,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
             }
           ],
-          "targetPointId": "coast"
+          "targetPattern": "band"
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Select several plotted points, then compare their printed elevations and locations in the model." },
+          { "speaker": "kid", "text": "I will name the visible band or cluster without guessing why the points formed." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Use the point labels and coordinate placement to describe elevation and location separately; the model does not give a cause.", "pose": "think" },
+          "retry": { "text": "Look across several plotted points again. Revise the pattern description without turning it into a cause claim.", "pose": "oops" },
+          "milestone": { "text": "You have selected a useful map point. Compare the other points before naming the whole spatial pattern.", "pose": "talk" },
+          "complete": { "text": "You named the visible map pattern from several plotted points and kept the explanation within the model data.", "pose": "cheer" }
         }
       }
     },
@@ -931,7 +981,23 @@ const scienceU07L03Core = {
             "water"
           ],
           "vegetation": false,
-          "targetAgent": "water"
+          "targetAgent": "water",
+          "comparison": {
+            "variable": "vegetation",
+            "values": [false, true]
+          }
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Predict first, then run bare and covered vegetation with the same water setup; this screen models a comparison, not physical evidence." },
+          { "speaker": "kid", "text": "I will keep the conditions matched, compare both modeled runs, and limit my claim to this setup." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Change only vegetation cover and keep the water agent and authored terrain conditions the same.", "pose": "think" },
+          "retry": { "text": "The comparison needs both retained runs. Check the bare and covered cards before revising your prediction.", "pose": "oops" },
+          "milestone": { "text": "One matched run is retained; now run the other vegetation condition before comparing.", "pose": "talk" },
+          "complete": { "text": "You compared matched bare and covered model runs and explained the visible difference without calling it physical evidence.", "pose": "cheer" }
         }
       }
     },

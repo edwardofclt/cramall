@@ -6,6 +6,7 @@ import { useCompletionLatch } from '../useCompletionLatch';
 type Agent = 'water' | 'wind' | 'ice';
 type Inputs = { agent: Agent; vegetation: boolean };
 type Run = Inputs;
+type Prediction = 'bare' | 'covered';
 
 const labels: Record<Agent, string> = { water: 'Water', wind: 'Wind', ice: 'Ice' };
 
@@ -34,15 +35,25 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
   const initial: Inputs = { agent: config.agents[0]!, vegetation: supportsVegetation && (config.vegetation ?? false) };
   const [inputs, setInputs] = useState<Inputs>(initial);
   const [lastRun, setLastRun] = useState<Run | null>(null);
-  const [status, setStatus] = useState('Choose an erosion agent, then run the authored model.');
+  const [prediction, setPrediction] = useState<Prediction | null>(null);
+  const [comparisonRuns, setComparisonRuns] = useState<Partial<Record<Prediction, Run>>>({});
+  const [compared, setCompared] = useState(false);
+  const [status, setStatus] = useState(config.comparison ? 'Choose a prediction before running the authored model.' : 'Choose an erosion agent, then run the authored model.');
   const { completeOnce } = useCompletionLatch(key);
+  const hasComparison = config.comparison !== undefined;
   const stale = lastRun !== null && (lastRun.agent !== inputs.agent || lastRun.vegetation !== inputs.vegetation);
-  const visiblyComplete = lastRun !== null && !stale && config.targetAgent !== undefined && lastRun.agent === config.targetAgent;
+  const hasMatchedRuns = comparisonRuns.bare !== undefined && comparisonRuns.covered !== undefined;
+  const visiblyComplete = hasComparison
+    ? hasMatchedRuns && compared && prediction === 'bare' && config.targetAgent !== undefined && comparisonRuns.bare?.agent === config.targetAgent
+    : lastRun !== null && !stale && config.targetAgent !== undefined && lastRun.agent === config.targetAgent;
 
   useEffect(() => {
     setInputs(initial);
     setLastRun(null);
-    setStatus('Choose an erosion agent, then run the authored model.');
+    setPrediction(null);
+    setComparisonRuns({});
+    setCompared(false);
+    setStatus(config.comparison ? 'Choose a prediction before running the authored model.' : 'Choose an erosion agent, then run the authored model.');
   }, [key]);
 
   const emit = (next: Inputs, action: 'select-agent' | 'toggle-vegetation' | 'run' | 'reset') => {
@@ -52,6 +63,8 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
   };
   const changeInputs = (next: Inputs, action: 'select-agent' | 'toggle-vegetation') => {
     emit(next, action);
+    if (hasComparison && next.agent !== inputs.agent) setComparisonRuns({});
+    if (hasComparison) setCompared(false);
     const changed = next.agent !== inputs.agent || next.vegetation !== inputs.vegetation;
     const matchesLastRun = lastRun !== null && next.agent === lastRun.agent && next.vegetation === lastRun.vegetation;
     setStatus(lastRun
@@ -59,18 +72,59 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
       : changed ? 'Inputs changed; run the authored erosion model.' : 'Choose an erosion agent, then run the authored model.');
   };
   const run = () => {
+    if (hasComparison && prediction === null) {
+      setStatus('Choose a prediction before running the authored erosion model.');
+      return;
+    }
     emit(inputs, 'run');
     setLastRun(inputs);
+    let retainedBoth = false;
+    if (hasComparison) {
+      const nextRuns = { ...comparisonRuns, [inputs.vegetation ? 'covered' : 'bare']: inputs };
+      setComparisonRuns(nextRuns);
+      setCompared(false);
+      retainedBoth = nextRuns.bare !== undefined && nextRuns.covered !== undefined;
+      if (retainedBoth) setStatus('Both matched runs are retained. Compare bare and covered vegetation runs before making a claim.');
+      else onEvent({ type: 'coach', cue: 'milestone' });
+    }
     const outcome = outcomeFor(config.terrain, inputs);
-    setStatus(`The authored model shows ${labels[inputs.agent].toLowerCase()} erosion on ${config.terrain}: ${outcome.effect} Compare the labelled before and after terrain.`);
-    if (config.targetAgent !== undefined && inputs.agent === config.targetAgent) {
+    if (!hasComparison || !retainedBoth) {
+      setStatus(`The authored model shows ${labels[inputs.agent].toLowerCase()} erosion on ${config.terrain}: ${outcome.effect} Compare the labelled before and after terrain.`);
+    }
+    if (!hasComparison && config.targetAgent !== undefined && inputs.agent === config.targetAgent) {
       completeOnce(() => onEvent({ type: 'complete', value: inputs }));
+    }
+  };
+  const choosePrediction = (value: Prediction) => {
+    setPrediction(value);
+    setCompared(false);
+    onEvent({ type: 'interaction', action: 'toggle-vegetation' });
+    onEvent({ type: 'coach', cue: 'strategy' });
+    setStatus(`Prediction saved: the ${value} tray will show more movement than the other matched run.`);
+  };
+  const compare = () => {
+    if (!hasMatchedRuns) {
+      setStatus('Run both matched conditions—bare and covered vegetation—before comparing them.');
+      return;
+    }
+    setCompared(true);
+    if (prediction !== 'bare') {
+      onEvent({ type: 'coach', cue: 'retry' });
+      setStatus('The visible model comparison shows more movement in the bare tray. Revise the prediction and compare again; this is an authored model, not physical evidence.');
+      return;
+    }
+    setStatus('You compared matched bare and covered vegetation runs: the bare tray shows more modeled movement. This authored model is not physical evidence.');
+    if (config.targetAgent !== undefined && comparisonRuns.bare?.agent === config.targetAgent) {
+      completeOnce(() => onEvent({ type: 'complete', value: comparisonRuns.bare! }));
     }
   };
   const reset = () => {
     emit(initial, 'reset');
     setLastRun(null);
-    setStatus('Choose an erosion agent, then run the authored model.');
+    setPrediction(null);
+    setComparisonRuns({});
+    setCompared(false);
+    setStatus(config.comparison ? 'Choose a prediction before running the authored model.' : 'Choose an erosion agent, then run the authored model.');
   };
   const outcome = lastRun ? outcomeFor(config.terrain, lastRun) : null;
 
@@ -79,11 +133,33 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
       <h3>Before-and-after erosion model</h3>
       <p>This authored model predicts possible changes. It is not physical evidence and does not prove what happened in a real place.</p>
     </header>
+    {hasComparison && <div className="erosion-prediction" aria-label="Erosion prediction">
+      <p>Before either run, predict which matched tray will show more movement.</p>
+      <button aria-label="Predict bare movement" aria-pressed={prediction === 'bare'} onClick={() => choosePrediction('bare')}>Predict bare</button>
+      <button aria-label="Predict covered movement" aria-pressed={prediction === 'covered'} onClick={() => choosePrediction('covered')}>Predict covered</button>
+    </div>}
     <div className="erosion-controls" aria-label="Erosion model controls">
       {config.agents.map((agent) => <button key={agent} aria-label={`Use ${agent}`} aria-pressed={inputs.agent === agent} onClick={() => changeInputs({ ...inputs, agent }, 'select-agent')}>Use {labels[agent]}</button>)}
       {supportsVegetation && <button aria-label="Toggle vegetation" aria-pressed={inputs.vegetation} onClick={() => changeInputs({ ...inputs, vegetation: !inputs.vegetation }, 'toggle-vegetation')}>Vegetation {inputs.vegetation ? 'on' : 'off'}</button>}
-      <button aria-label="Run erosion" onClick={run}>Run erosion</button>
+      <button aria-label="Run erosion" disabled={hasComparison && prediction === null} onClick={run}>Run erosion</button>
+      {hasComparison && <button aria-label="Compare erosion runs" disabled={!hasMatchedRuns} onClick={compare}>Compare runs</button>}
     </div>
+    {hasComparison && <div className="erosion-retained-runs" aria-label="Retained vegetation comparison">
+      <h4>Matched runs</h4>
+      <div className="erosion-retained-grid">
+        {(['bare', 'covered'] as const).map((condition) => {
+          const retained = comparisonRuns[condition];
+          const retainedOutcome = retained ? outcomeFor(config.terrain, retained) : null;
+          return <figure className="erosion-terrain erosion-retained-run" data-testid={`erosion-run-${condition}`} key={condition} data-run={condition}>
+            <figcaption><strong>{condition === 'bare' ? 'Bare vegetation' : 'Covered vegetation'}:</strong> {retained ? `modeled ${retainedOutcome!.effect}` : 'Run this matched condition to retain its modeled result.'}</figcaption>
+            <div className="terrain-art" data-pattern={retainedOutcome?.pattern ?? 'not-run'} aria-label={retained ? `${condition} vegetation modeled outcome: ${retainedOutcome!.effect}` : `${condition} vegetation run not completed`}>
+              <span aria-hidden="true">{retained ? retained.agent === 'water' ? '≈↘≈' : retained.agent === 'wind' ? '≋→≋' : '▱⇢▱' : '…'}</span>
+            </div>
+          </figure>;
+        })}
+      </div>
+      <p>Compare the retained cards only after both runs use the same agent and authored settings. A difference is a model output, not physical evidence.</p>
+    </div>}
     <div className="erosion-comparison" aria-label="Authored before and after terrain comparison">
       <figure className="erosion-terrain erosion-before" data-testid="erosion-before" data-terrain={config.terrain}>
         <figcaption><strong>Before:</strong> {terrainDescription(config.terrain)}.</figcaption>

@@ -26,6 +26,30 @@ test('keeps every authored contour in a padded computed viewBox and maps a visib
   expect(screen.getByTestId('topographic-contour-key-C2')).toHaveTextContent('C2 — Contour 2: 500 m');
 });
 
+test('plots six authored points, exposes non-color symbols and a keyboard-linked point list, and checks a spatial band', async () => {
+  const user = userEvent.setup();
+  const points = [
+    { id: 'p1', label: 'Peak 1', x: 20, y: 20, elevation: 500, group: 'peaks' },
+    { id: 'p2', label: 'Peak 2', x: 40, y: 20, elevation: 500, group: 'peaks' },
+    { id: 'p3', label: 'Peak 3', x: 60, y: 20, elevation: 500, group: 'peaks' },
+    { id: 'v1', label: 'Valley 1', x: 20, y: 70, elevation: 100, group: 'valleys' },
+    { id: 'v2', label: 'Valley 2', x: 40, y: 70, elevation: 100, group: 'valleys' },
+    { id: 'v3', label: 'Valley 3', x: 60, y: 70, elevation: 100, group: 'valleys' },
+  ];
+  render(<TopographicMapExplorer config={{ contours, points, targetPattern: 'band' }} onEvent={vi.fn()} />);
+
+  expect(screen.getAllByTestId(/^topographic-point-/)).toHaveLength(6);
+  expect(screen.getByTestId('topographic-point-p1')).toHaveAttribute('aria-label', expect.stringMatching(/Peak 1.*500 m/));
+  expect(screen.getByTestId('topographic-point-p1')).toHaveAttribute('data-x', '20');
+  const listButton = screen.getByRole('button', { name: /Select Peak 1/ });
+  expect(listButton).toHaveAttribute('aria-controls', 'topographic-point-p1');
+  await user.click(listButton);
+  expect(screen.getByRole('status')).toHaveTextContent(/elevation.*500.*pattern/i);
+  await user.click(screen.getByRole('button', { name: /choose band/i }));
+  expect(screen.getByTestId('widget-topographic-map-explorer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/visible.*band.*not.*cause/i);
+});
+
 test('presents named elevations as map-data key entries without inventing locations', () => {
   render(<TopographicMapExplorer config={{ contours, points }} onEvent={vi.fn()} />);
 

@@ -219,3 +219,30 @@ test('keeps no-target runs incomplete and preserves final state through reset, c
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
   motion.reduced = false;
 });
+
+test('requires a prediction, retains matched vegetation runs, and completes only after comparison', async () => {
+  const user = userEvent.setup();
+  const onEvent = vi.fn();
+  render(<ErosionSimulator config={{ terrain: 'soil', agents: ['water'], vegetation: false, targetAgent: 'water', comparison: { variable: 'vegetation', values: [false, true] } }} onEvent={onEvent} />);
+
+  const run = screen.getByRole('button', { name: 'Run erosion' });
+  expect(run).toBeDisabled();
+  expect(screen.getByRole('status')).toHaveTextContent(/predict/i);
+
+  await user.click(screen.getByRole('button', { name: /predict.*bare/i }));
+  expect(run).toBeEnabled();
+  await user.click(run);
+  expect(screen.getByTestId('erosion-run-bare')).toHaveTextContent(/bare vegetation/i);
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'testing');
+
+  await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
+  await user.click(run);
+  expect(screen.getByTestId('erosion-run-covered')).toHaveTextContent(/covered vegetation/i);
+  expect(screen.getByRole('button', { name: /compare.*runs/i })).toBeEnabled();
+  expect(screen.getByRole('status')).toHaveTextContent(/compare.*bare.*covered/i);
+
+  await user.click(screen.getByRole('button', { name: /compare.*runs/i }));
+  expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/matched.*vegetation/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});

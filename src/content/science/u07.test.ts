@@ -139,18 +139,56 @@ const specs = [
               }
             ],
             "points": [
-              {
-                "id": "coast",
-                "label": "Coast",
-                "elevation": 0
-              },
-              {
-                "id": "hill",
-                "label": "Hill",
-                "elevation": 50
-              }
-            ],
-            "targetPointId": "coast"
+            {
+              "id": "h1",
+              "label": "Hill 1",
+              "x": 20,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
+            },
+            {
+              "id": "h2",
+              "label": "Hill 2",
+              "x": 50,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
+            },
+            {
+              "id": "h3",
+              "label": "Hill 3",
+              "x": 80,
+              "y": 20,
+              "elevation": 50,
+              "group": "hill-band"
+            },
+            {
+              "id": "c1",
+              "label": "Coast 1",
+              "x": 20,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
+            },
+            {
+              "id": "c2",
+              "label": "Coast 2",
+              "x": 50,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
+            },
+            {
+              "id": "c3",
+              "label": "Coast 3",
+              "x": 80,
+              "y": 80,
+              "elevation": 0,
+              "group": "coast-band"
+            }
+          ],
+          "targetPattern": "band"
           }
         }
       },
@@ -238,8 +276,12 @@ const specs = [
             "agents": [
               "water"
             ],
-            "vegetation": false,
-            "targetAgent": "water"
+          "vegetation": false,
+          "targetAgent": "water",
+          "comparison": {
+            "variable": "vegetation",
+            "values": [false, true]
+          }
           }
         }
       },
@@ -524,6 +566,23 @@ test('Unit 7 is the exact reviewed Science wave', () => {
   expect(prose).toMatch(/H1 B1 50 m.*H3 F1 50 m.*C1 B4 0 m.*C3 F4 0 m/i);
   expect(unit07Lessons[0]!.quiz.pool.filter((question) => /A1|A6|C2|C4|column A|rows 1–6/i.test(JSON.stringify(question))).length).toBeGreaterThanOrEqual(4);
   expect(unit07Lessons[1]!.quiz.pool.filter((question) => /B1|D1|F1|B4|D4|F4|row 1|row 4|column pairs/i.test(JSON.stringify(question))).length).toBeGreaterThanOrEqual(4);
+});
+
+test('Unit 7 map and erosion widgets connect Sandy coaching to fair comparisons and visible patterns', () => {
+  const mapCard = unit07Lessons[1]!.learnCards[1]!;
+  const erosionCard = unit07Lessons[2]!.learnCards[1]!;
+  expect(mapCard.widgetCoach?.intro).toHaveLength(2);
+  expect(mapCard.widgetCoach?.reactions.strategy?.text).toMatch(/elevation.*location|location.*elevation/i);
+  expect(mapCard.widgetCoach?.reactions.complete.text).toMatch(/visible map pattern/i);
+  expect(erosionCard.widgetCoach?.intro).toHaveLength(2);
+  expect(erosionCard.widgetCoach?.reactions.strategy?.text).toMatch(/vegetation.*same|same.*vegetation/i);
+  expect(erosionCard.widgetCoach?.reactions.milestone?.text).toMatch(/matched run/i);
+  expect(erosionCard.widgetCoach?.reactions.complete.text).toMatch(/matched bare and covered/i);
+  const mapConfig = (mapCard.widget as { config: { points: unknown[]; targetPattern?: string } }).config;
+  expect(mapConfig.points).toHaveLength(6);
+  expect(mapConfig.targetPattern).toBe('band');
+  const erosionConfig = (erosionCard.widget as { config: { comparison?: unknown } }).config;
+  expect(erosionConfig.comparison).toEqual({ variable: 'vegetation', values: [false, true] });
 });
 
 test('every card has an immediate exact missed-result review route', () => {
