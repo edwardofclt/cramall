@@ -512,6 +512,10 @@ export const unit02Lessons = [
             "text": "A definition clue directly tells a meaning; an example clue supplies members of a group; a restatement says the idea again in new words."
           },
           {
+            "kind": "text",
+            "text": "Source passage: Nocturnal animals, creatures that are active at night, include owls and moths."
+          },
+          {
             "kind": "example",
             "text": "“Nocturnal animals, creatures that are active at night, include owls and moths.” The phrase after the comma defines nocturnal; owls and moths are examples."
           },

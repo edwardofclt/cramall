@@ -97,30 +97,31 @@ export const unit04Lessons = [
               "Generosity strengthens a community",
               "Gardening takes careful planning"
             ],
+            "requiredEvidenceCount": 2,
+            "source": {
+              "title": "The Extra Row",
+              "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+            },
             "evidence": [
               {
                 "id": "shares",
                 "text": "Mateo gives his neighbor part of the extra row.",
-                "supports": [
-                  "Generosity strengthens a community"
-                ]
+                "supports": ["Generosity strengthens a community"],
+                "sourceQuote": "carried over a tray of pepper seedlings"
               },
               {
                 "id": "replants",
                 "text": "They replant the washed-out seedlings together.",
-                "supports": [
-                  "Generosity strengthens a community"
-                ]
+                "supports": ["Generosity strengthens a community"],
+                "sourceQuote": "Ana and Mateo rebuilt the row"
               },
               {
                 "id": "measures",
                 "text": "Mateo measures the garden rows before planting.",
-                "supports": [
-                  "Gardening takes careful planning"
-                ]
+                "supports": ["Gardening takes careful planning"],
+                "sourceQuote": "Mateo measured straight garden rows"
               }
-            ],
-            "requiredEvidenceCount": 2
+            ]
           }
         },
         "check": {

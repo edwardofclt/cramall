@@ -139,3 +139,21 @@ test('normalizes authoring text and rejects equivalent, dangling, duplicate, or 
   expect(ThemeEvidenceCollectorWidgetConfigSchema.safeParse({...base,evidence:[{id:'a',text:'one',supports:['Practice pays off',' practice pays off ']},base.evidence[1]]}).success).toBe(false);
   expect(ThemeEvidenceCollectorWidgetConfigSchema.safeParse({themeChoices:['A','B'],evidence:[{id:'a',text:'one',supports:['A']},{id:'b',text:'two',supports:['B']}],requiredEvidenceCount:2}).success).toBe(false);
 });
+
+test('keeps the complete source beside the claim board and exposes exact quote anchors',()=>{
+  const source={title:'The Extra Row',text:'The Extra Row\n\nMateo shares the extra row. Ana brings stakes later.'};
+  render(<ThemeEvidenceCollector config={{
+    themeChoices:['Generosity strengthens a community','Gardening takes careful planning'],
+    evidence:[
+      {id:'shares',text:'Mateo gives his neighbor part of the extra row.',supports:['Generosity strengthens a community'],sourceQuote:'Mateo shares the extra row.'},
+      {id:'stakes',text:'Ana brings stakes later.',supports:['Generosity strengthens a community'],sourceQuote:'Ana brings stakes later.'},
+    ],
+    requiredEvidenceCount:2,
+    source,
+  }} onEvent={vi.fn()}/>);
+
+  expect(screen.getByRole('heading',{name:'The Extra Row'})).toBeVisible();
+  expect(screen.getByTestId('theme-evidence-source')).toHaveTextContent(/Mateo shares the extra row\. Ana brings stakes later\./);
+  expect(screen.getByRole('button',{name:/Toggle evidence Mateo gives.*Mateo shares the extra row/i})).toBeVisible();
+  expect(screen.getByText('Source: “Mateo shares the extra row.”')).toBeVisible();
+});

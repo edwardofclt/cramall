@@ -15,24 +15,34 @@ function markedPassage(passage: string,targetWord: string) {
 function ContextClueDetectiveBody({config,onEvent}: ContextClueDetectiveProps) {
   const key=JSON.stringify(config);
   const [choice,setChoice]=useState<string|null>(null);
+  const [clueType,setClueType]=useState<string|null>(null);
   const [status,setStatus]=useState(`Find the clue for ${config.targetWord}.`);
   const {completeOnce}=useCompletionLatch(key);
-  const correct = choice === config.correctChoiceId;
-  const state = choice === null ? 'ready' : correct ? 'complete' : 'incorrect';
+  const selectedClue=config.clueChoices.find((clue)=>clue.id===choice);
+  const correct = choice === config.correctChoiceId && clueType === selectedClue?.type;
+  const state = choice === null ? 'ready' : correct ? 'complete' : clueType === null ? 'ready' : 'incorrect';
 
   const choose=(id:string)=>{
     setChoice(id);
+    setClueType(null);
     onEvent({type:'interaction',action:'choose-clue'});
     onEvent({type:'change',value:{choiceId:id}});
-    if(id===config.correctChoiceId){
-      setStatus('That clue explains the target word in this passage.');
-      completeOnce(()=>onEvent({type:'complete',value:{choiceId:id}}));
+    setStatus('Now name the kind of clue. Use the passage, not a guess.');
+  };
+  const chooseType=(type:string)=>{
+    setClueType(type);
+    onEvent({type:'interaction',action:'choose-clue'});
+    onEvent({type:'change',value:{choiceId:choice}});
+    if(choice===config.correctChoiceId && type===selectedClue?.type){
+      setStatus('That clue and clue kind fit the target word in this passage.');
+      completeOnce(()=>onEvent({type:'complete',value:{choiceId:choice}}));
     }else{
-      setStatus('That is not the best clue yet. Reread how the clue connects to the target word in the passage.');
+      setStatus('That kind does not match this clue. Reread the passage and try again.');
     }
   };
   const reset=()=>{
     setChoice(null);
+    setClueType(null);
     setStatus(`Find the clue for ${config.targetWord}.`);
     onEvent({type:'interaction',action:'reset'});
     onEvent({type:'change',value:{choiceId:null}});
@@ -46,12 +56,18 @@ function ContextClueDetectiveBody({config,onEvent}: ContextClueDetectiveProps) {
     <blockquote className="context-clue-passage" data-testid="context-clue-passage">{markedPassage(config.passage,config.targetWord)}</blockquote>
     <fieldset className="context-clue-choices">
       <legend>Which clue best explains <strong>{config.targetWord}</strong>?</legend>
-      {config.clueChoices.map((clue)=><button key={clue.id} aria-label={`Choose ${clue.type} clue: ${clue.text}`} aria-pressed={choice===clue.id} onClick={()=>choose(clue.id)}>
-        <strong>{clue.type[0].toUpperCase()+clue.type.slice(1)}</strong>
+      {config.clueChoices.map((clue)=><button key={clue.id} aria-label={`Choose clue text: ${clue.text}`} aria-pressed={choice===clue.id} onClick={()=>choose(clue.id)}>
         <span>{clue.text}</span>
         {choice===clue.id&&<span className="context-clue-selected">Selected</span>}
       </button>)}
     </fieldset>
+    {selectedClue&&<fieldset className="context-clue-types">
+      <legend>What kind of clue is <strong>“{selectedClue.text}”</strong>?</legend>
+      {[...new Set(config.clueChoices.map((clue)=>clue.type))].map((type)=><button key={type} type="button" aria-label={`Choose ${type} clue type`} aria-pressed={clueType===type} onClick={()=>chooseType(type)}>
+        <span>{type[0].toUpperCase()+type.slice(1)}</span>
+        {clueType===type&&<span className="context-clue-selected">Selected</span>}
+      </button>)}
+    </fieldset>}
     <button className="context-clue-reset" onClick={reset}>Start over</button>
     <p role="status">{status}</p>
   </section>;

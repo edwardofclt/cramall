@@ -49,6 +49,10 @@ function CentralIdeaOrganizerBody({config,onEvent}:CentralIdeaOrganizerProps){
       <h3>Organize the central idea</h3>
       <p>Choose the main idea, then select details from the source that support it.</p>
     </header>
+    {config.source&&<article className="central-idea-source" data-testid="central-idea-source">
+      <h4>{config.source.title}</h4>
+      <p>{config.source.text}</p>
+    </article>}
     <div className="central-idea-choices" aria-label="Main idea choices">
       {config.mainIdeaChoices.map((idea)=>{
         const selected=mainIdea===idea;
@@ -60,9 +64,13 @@ function CentralIdeaOrganizerBody({config,onEvent}:CentralIdeaOrganizerProps){
     <div className="central-idea-choices" aria-label="Supporting details">
       {config.details.map((detail)=>{
         const selected=detailIds.includes(detail.id);
-        return <button className="central-idea-choice" key={detail.id} aria-label={`Toggle detail ${detail.text}`} aria-pressed={selected} onClick={()=>emit(mainIdea,selected?detailIds.filter((id)=>id!==detail.id):[...detailIds,detail.id],'toggle-detail')}>
-          <span>{detail.text}</span><span className="central-idea-marker" aria-hidden="true">{selected?'✓ Selected':'○ Choose'}</span>
-        </button>;
+        return <div className="central-idea-card" key={detail.id} data-supports-idea={mainIdea&&detail.supports.includes(mainIdea)?'true':'false'}>
+          <button className="central-idea-choice" aria-label={`Toggle detail ${detail.text}${detail.sourceQuote?`; source quote ${detail.sourceQuote}`:''}`} aria-pressed={selected} onClick={()=>emit(mainIdea,selected?detailIds.filter((id)=>id!==detail.id):[...detailIds,detail.id],'toggle-detail')}>
+            <span>{detail.text}</span><span className="central-idea-marker" aria-hidden="true">{selected?'✓ Selected':'○ Choose'}</span>
+            {detail.sourceQuote&&<span className="central-idea-quote">Source: “{detail.sourceQuote}”</span>}
+          </button>
+          {selected&&<button className="central-idea-remove" aria-label={`Remove detail ${detail.text}`} onClick={()=>emit(mainIdea,detailIds.filter((id)=>id!==detail.id),'toggle-detail')}>Remove detail</button>}
+        </div>;
       })}
     </div>
     <div className="central-idea-controls"><button onClick={()=>emit(null,[],'reset')}>Start over</button></div>

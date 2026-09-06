@@ -49,6 +49,10 @@ function ThemeEvidenceCollectorBody({config,onEvent}:ThemeEvidenceCollectorProps
       <h3>Collect theme evidence</h3>
       <p>Choose a theme, then select details from the source that support it.</p>
     </header>
+    {config.source&&<article className="theme-evidence-source" data-testid="theme-evidence-source">
+      <h4>{config.source.title}</h4>
+      <p>{config.source.text}</p>
+    </article>}
     <div className="theme-evidence-choices" aria-label="Theme choices">
       {config.themeChoices.map((choice)=>{
         const selected=theme===choice;
@@ -60,9 +64,13 @@ function ThemeEvidenceCollectorBody({config,onEvent}:ThemeEvidenceCollectorProps
     <div className="theme-evidence-choices" aria-label="Evidence details">
       {config.evidence.map((detail)=>{
         const selected=evidenceIds.includes(detail.id);
-        return <button className="theme-evidence-choice" key={detail.id} aria-label={`Toggle evidence ${detail.text}`} aria-pressed={selected} onClick={()=>emit(theme,selected?evidenceIds.filter((id)=>id!==detail.id):[...evidenceIds,detail.id],'toggle-evidence')}>
-          <span>{detail.text}</span><span className="theme-evidence-marker" aria-hidden="true">{selected?'✓ Selected':'○ Choose'}</span>
-        </button>;
+        return <div className="theme-evidence-card" key={detail.id} data-supports-theme={theme&&detail.supports.includes(theme)?'true':'false'}>
+          <button className="theme-evidence-choice" aria-label={`Toggle evidence ${detail.text}${detail.sourceQuote?`; source quote ${detail.sourceQuote}`:''}`} aria-pressed={selected} onClick={()=>emit(theme,selected?evidenceIds.filter((id)=>id!==detail.id):[...evidenceIds,detail.id],'toggle-evidence')}>
+            <span>{detail.text}</span><span className="theme-evidence-marker" aria-hidden="true">{selected?'✓ Selected':'○ Choose'}</span>
+            {detail.sourceQuote&&<span className="theme-evidence-quote">Source: “{detail.sourceQuote}”</span>}
+          </button>
+          {selected&&<button className="theme-evidence-remove" aria-label={`Remove evidence ${detail.text}`} onClick={()=>emit(theme,evidenceIds.filter((id)=>id!==detail.id),'toggle-evidence')}>Remove evidence</button>}
+        </div>;
       })}
     </div>
     <div className="theme-evidence-controls"><button onClick={()=>emit(null,[],'reset')}>Start over</button></div>

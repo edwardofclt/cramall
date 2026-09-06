@@ -121,3 +121,21 @@ test('normalizes authoring text and rejects equivalent, dangling, duplicate, or 
   expect(CentralIdeaOrganizerWidgetConfigSchema.safeParse({...base,details:[{id:'a',text:'one',supports:['Plants need sunlight',' plants need sunlight ']},base.details[1]]}).success).toBe(false);
   expect(CentralIdeaOrganizerWidgetConfigSchema.safeParse({mainIdeaChoices:['A','B'],details:[{id:'a',text:'one',supports:['A']},{id:'b',text:'two',supports:['B']}],requiredDetailCount:2}).success).toBe(false);
 });
+
+test('keeps the complete source beside the idea board and exposes exact quote anchors',()=>{
+  const source={title:'Why Marshes Matter',text:'Why Marshes Matter\n\nYoung fish shelter among marsh grasses. Marsh plants slow waves.'};
+  render(<CentralIdeaOrganizer config={{
+    mainIdeaChoices:['Marshes support wildlife and shorelines','Every wet place is a marsh'],
+    details:[
+      {id:'nursery',text:'Young fish find shelter among marsh grasses.',supports:['Marshes support wildlife and shorelines'],sourceQuote:'Young fish shelter among marsh grasses.'},
+      {id:'buffer',text:'Marsh plants slow waves.',supports:['Marshes support wildlife and shorelines'],sourceQuote:'Marsh plants slow waves.'},
+    ],
+    requiredDetailCount:2,
+    source,
+  }} onEvent={vi.fn()}/>);
+
+  expect(screen.getByRole('heading',{name:'Why Marshes Matter'})).toBeVisible();
+  expect(screen.getByTestId('central-idea-source')).toHaveTextContent(/Young fish shelter among marsh grasses\. Marsh plants slow waves\./);
+  expect(screen.getByRole('button',{name:/Toggle detail Young fish.*Young fish shelter among marsh grasses/i})).toBeVisible();
+  expect(screen.getByText('Source: “Young fish shelter among marsh grasses.”')).toBeVisible();
+});

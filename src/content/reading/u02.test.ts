@@ -676,6 +676,14 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 2 literal content', () => {
+  test('keeps the complete context-clue source in the same lesson activity', () => {
+    const card = unit02Lessons[1]!.learnCards[0]!;
+    expect(card.blocks.some(block => block.text === 'Source passage: Nocturnal animals, creatures that are active at night, include owls and moths.')).toBe(true);
+    const widget = 'widget' in card ? card.widget : undefined;
+    if (!widget || widget.type !== 'context-clue-detective') throw new Error('context clue widget is missing');
+    expect(widget.config.passage).toBe('Nocturnal animals, creatures that are active at night, include owls and moths.');
+  });
+
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {
     expectUnitLessons(unit02Lessons, expectedManifest, 'reading');
     expect(unit02Lessons.map(lesson=>({id:lesson.id,cards:lesson.learnCards.map((card,index)=>({id:card.id,title:card.title,conceptTag:expectedCards.find(row=>row.id===lesson.id)!.cards[index]!.conceptTag}))}))).toEqual(expectedCards);

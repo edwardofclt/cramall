@@ -97,30 +97,31 @@ export const unit05Lessons = [
               "Salt marshes support wildlife and shorelines",
               "Every wet place is a salt marsh"
             ],
+            "requiredDetailCount": 2,
+            "source": {
+              "title": "Why Salt Marshes Matter",
+              "text": "Why Salt Marshes Matter\n\nSalt marshes support wildlife and shorelines. Twice each day, tides carry water through winding creeks among salt-tolerant grasses. Young fish and shrimp hide between the stems, where larger animals have trouble reaching them. Wading birds feed in the shallow water.\n\nMarsh plants also slow moving water. Their stems bend as waves pass, and their roots hold muddy soil. This buffering can reduce some wave force near the shoreline. The marsh does not stop every storm, but it can soften ordinary wave action.\n\nIn another marsh, researchers count young fish, map nesting areas, and measure changes along the bank. These separate details point to an idea the paragraph does not state in one sentence: a healthy marsh provides several connected benefits. It serves as nursery habitat, feeding space, and a living shoreline buffer. A puddle after rain is not automatically a salt marsh; tides, salty water, soils, and adapted plants work together in this ecosystem."
+            },
             "details": [
               {
                 "id": "nursery",
                 "text": "Young fish find shelter among marsh grasses.",
-                "supports": [
-                  "Salt marshes support wildlife and shorelines"
-                ]
+                "supports": ["Salt marshes support wildlife and shorelines"],
+                "sourceQuote": "Young fish and shrimp hide between the stems"
               },
               {
                 "id": "buffer",
                 "text": "Marsh plants slow waves near the shoreline.",
-                "supports": [
-                  "Salt marshes support wildlife and shorelines"
-                ]
+                "supports": ["Salt marshes support wildlife and shorelines"],
+                "sourceQuote": "Their stems bend as waves pass, and their roots hold muddy soil"
               },
               {
                 "id": "definition",
                 "text": "Any place with rainwater is a salt marsh.",
-                "supports": [
-                  "Every wet place is a salt marsh"
-                ]
+                "supports": ["Every wet place is a salt marsh"],
+                "sourceQuote": "A puddle after rain is not automatically a salt marsh"
               }
-            ],
-            "requiredDetailCount": 2
+            ]
           }
         },
         "check": {
