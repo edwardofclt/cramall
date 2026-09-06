@@ -124,6 +124,18 @@ export const unit04Lessons = [
             ]
           }
         },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Choose a message, then anchor each supporting detail to the story’s exact words."},
+            {"speaker":"kid","text":"I’ll test whether the details show the message across the whole story, not just one moment."}
+          ],
+          "reactions": {
+            "strategy": {"text":"Start with the source: look for choices and consequences that repeat or connect.","pose":"think"},
+            "retry": {"text":"That detail may belong to another idea. Recheck its source quote and the message it supports.","pose":"oops"},
+            "milestone": {"text":"One strong detail is anchored. Find another moment that supports the same message.","pose":"cheer"},
+            "complete": {"text":"You built a theme from two source-anchored details that work together.","pose":"cheer"}
+          }
+        },
         "check": {
           "prompt": "Which detail best supports generosity?",
           "choices": [

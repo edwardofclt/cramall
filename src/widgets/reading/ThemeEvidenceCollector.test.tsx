@@ -74,6 +74,7 @@ test('emits interaction before complete next state for choosing and resetting',a
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'choose-theme'},
     {type:'change',value:{theme:'Practice pays off',evidenceIds:[]}},
+    {type:'coach',cue:'strategy'},
   ]);
 
   onEvent.mockClear();
@@ -155,5 +156,6 @@ test('keeps the complete source beside the claim board and exposes exact quote a
   expect(screen.getByRole('heading',{name:'The Extra Row'})).toBeVisible();
   expect(screen.getByTestId('theme-evidence-source')).toHaveTextContent(/Mateo shares the extra row\. Ana brings stakes later\./);
   expect(screen.getByRole('button',{name:/Toggle evidence Mateo gives.*Mateo shares the extra row/i})).toBeVisible();
-  expect(screen.getByText('Source: “Mateo shares the extra row.”')).toBeVisible();
+  expect(screen.getByText('Source: “Mateo shares the extra row.”')).toHaveClass('theme-evidence-quote');
+  expect(screen.getByText('Source: “Mateo shares the extra row.”').parentElement).toHaveClass('theme-evidence-choice');
 });

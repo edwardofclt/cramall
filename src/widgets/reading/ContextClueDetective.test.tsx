@@ -36,8 +36,10 @@ test('keeps the passage visible, commits clue text before revealing clue kinds, 
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'choose-clue'},
     {type:'change',value:{choiceId:'definition'}},
+    {type:'coach',cue:'strategy'},
     {type:'interaction',action:'choose-clue'},
     {type:'change',value:{choiceId:'definition'}},
+    {type:'coach',cue:'milestone'},
     {type:'complete',value:{choiceId:'definition'}},
   ]);
   await user.click(screen.getByRole('button',{name:'Choose definition clue type'}));

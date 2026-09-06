@@ -682,6 +682,9 @@ describe('Reading unit 2 literal content', () => {
     const widget = 'widget' in card ? card.widget : undefined;
     if (!widget || widget.type !== 'context-clue-detective') throw new Error('context clue widget is missing');
     expect(widget.config.passage).toBe('Nocturnal animals, creatures that are active at night, include owls and moths.');
+    const coach = 'widgetCoach' in card ? card.widgetCoach : undefined;
+    expect(coach?.intro).toHaveLength(2);
+    expect(coach?.reactions.complete.text).toContain('complete sentence');
   });
 
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {

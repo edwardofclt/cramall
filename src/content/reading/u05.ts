@@ -124,6 +124,18 @@ export const unit05Lessons = [
             ]
           }
         },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Choose the central idea, then anchor each important detail to the source passage."},
+            {"speaker":"kid","text":"I’ll keep details that explain the whole passage and leave out a false local match."}
+          ],
+          "reactions": {
+            "strategy": {"text":"Ask whether this detail explains an important part of the complete passage.","pose":"think"},
+            "retry": {"text":"That detail does not support the idea you chose. Use its source quote to reconsider.","pose":"oops"},
+            "milestone": {"text":"One source-anchored detail fits. Find a second detail that explains another part.","pose":"cheer"},
+            "complete": {"text":"You connected the central idea to important details from the whole passage.","pose":"cheer"}
+          }
+        },
         "check": {
           "prompt": "Which detail supports shoreline protection?",
           "choices": [

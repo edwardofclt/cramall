@@ -548,6 +548,18 @@ export const unit02Lessons = [
             "correctChoiceId": "definition"
           }
         },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Read the whole sentence, then choose the exact words that unlock the target word."},
+            {"speaker":"kid","text":"I’ll commit the clue text first, then name its kind from the punctuation and meaning."}
+          ],
+          "reactions": {
+            "strategy": {"text":"Scan around the target word and point to the words that explain it.","pose":"think"},
+            "retry": {"text":"That clue kind does not fit the words you chose. Reread the sentence and try again.","pose":"oops"},
+            "milestone": {"text":"Nice! You matched a clue’s words to its kind.","pose":"cheer"},
+            "complete": {"text":"You used the complete sentence to confirm both the clue and its kind.","pose":"cheer"}
+          }
+        },
         "check": {
           "prompt": "Which words directly define nocturnal?",
           "choices": [

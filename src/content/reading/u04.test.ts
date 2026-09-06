@@ -273,6 +273,13 @@ describe('Reading unit 4 literal content', () => {
     expect(question?.explanation).toBe('Mateo never states the message; the final explanatory paragraph names the theme after the narrative events imply it.');
   });
 
+  test('coaches theme evidence with Winnie-sized strategy and retry copy', () => {
+    const card = unit04Lessons[0]!.learnCards[1]!;
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.reactions.strategy?.text).toContain('source');
+    expect(card.widgetCoach?.reactions.retry?.text).toContain('source quote');
+  });
+
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {
     expectUnitLessons(unit04Lessons, expectedManifest, 'reading');
     expect(unit04Lessons.map(lesson=>({id:lesson.id,cards:lesson.learnCards.map((card,index)=>({id:card.id,title:card.title,conceptTag:expectedCards.find(row=>row.id===lesson.id)!.cards[index]!.conceptTag}))}))).toEqual(expectedCards);

@@ -27,6 +27,7 @@ function ContextClueDetectiveBody({config,onEvent}: ContextClueDetectiveProps) {
     setClueType(null);
     onEvent({type:'interaction',action:'choose-clue'});
     onEvent({type:'change',value:{choiceId:id}});
+    onEvent({type:'coach',cue:'strategy'});
     setStatus('Now name the kind of clue. Use the passage, not a guess.');
   };
   const chooseType=(type:string)=>{
@@ -35,8 +36,10 @@ function ContextClueDetectiveBody({config,onEvent}: ContextClueDetectiveProps) {
     onEvent({type:'change',value:{choiceId:choice}});
     if(choice===config.correctChoiceId && type===selectedClue?.type){
       setStatus('That clue and clue kind fit the target word in this passage.');
+      onEvent({type:'coach',cue:'milestone'});
       completeOnce(()=>onEvent({type:'complete',value:{choiceId:choice}}));
     }else{
+      onEvent({type:'coach',cue:'retry'});
       setStatus('That kind does not match this clue. Reread the passage and try again.');
     }
   };

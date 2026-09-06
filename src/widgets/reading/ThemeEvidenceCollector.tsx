@@ -29,6 +29,9 @@ function ThemeEvidenceCollectorBody({config,onEvent}:ThemeEvidenceCollectorProps
     setEvidenceIds(authoredOrderIds);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{theme:nextTheme,evidenceIds:authoredOrderIds}});
+    if (action === 'choose-theme') onEvent({type:'coach',cue:'strategy'});
+    if (action === 'toggle-evidence' && nextTheme && !supportsTheme(nextTheme,authoredOrderIds)) onEvent({type:'coach',cue:'retry'});
+    if (action === 'toggle-evidence' && nextTheme && authoredOrderIds.length === 1 && supportsTheme(nextTheme,authoredOrderIds)) onEvent({type:'coach',cue:'milestone'});
     if(nextTheme&&authoredOrderIds.length>=required&&supportsTheme(nextTheme,authoredOrderIds)){
       completeOnce(()=>onEvent({type:'complete',value:{theme:nextTheme,evidenceIds:authoredOrderIds}}));
     }

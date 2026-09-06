@@ -29,6 +29,9 @@ function CentralIdeaOrganizerBody({config,onEvent}:CentralIdeaOrganizerProps){
     setDetailIds(authoredOrderIds);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{mainIdea:nextIdea,detailIds:authoredOrderIds}});
+    if (action === 'choose-main-idea') onEvent({type:'coach',cue:'strategy'});
+    if (action === 'toggle-detail' && nextIdea && !supportsMainIdea(nextIdea,authoredOrderIds)) onEvent({type:'coach',cue:'retry'});
+    if (action === 'toggle-detail' && nextIdea && authoredOrderIds.length === 1 && supportsMainIdea(nextIdea,authoredOrderIds)) onEvent({type:'coach',cue:'milestone'});
     if(nextIdea&&authoredOrderIds.length>=required&&supportsMainIdea(nextIdea,authoredOrderIds)){
       completeOnce(()=>onEvent({type:'complete',value:{mainIdea:nextIdea,detailIds:authoredOrderIds}}));
     }

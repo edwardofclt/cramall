@@ -72,6 +72,7 @@ test('emits interaction before each changed state and resets the organizer',asyn
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'choose-main-idea'},
     {type:'change',value:{mainIdea:'Plants need sunlight',detailIds:[]}},
+    {type:'coach',cue:'strategy'},
   ]);
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Start over'}));
@@ -137,5 +138,6 @@ test('keeps the complete source beside the idea board and exposes exact quote an
   expect(screen.getByRole('heading',{name:'Why Marshes Matter'})).toBeVisible();
   expect(screen.getByTestId('central-idea-source')).toHaveTextContent(/Young fish shelter among marsh grasses\. Marsh plants slow waves\./);
   expect(screen.getByRole('button',{name:/Toggle detail Young fish.*Young fish shelter among marsh grasses/i})).toBeVisible();
-  expect(screen.getByText('Source: “Young fish shelter among marsh grasses.”')).toBeVisible();
+  expect(screen.getByText('Source: “Young fish shelter among marsh grasses.”')).toHaveClass('central-idea-quote');
+  expect(screen.getByText('Source: “Young fish shelter among marsh grasses.”').parentElement).toHaveClass('central-idea-choice');
 });

@@ -2619,7 +2619,7 @@ body {
 .widget-experiment.theme-evidence { display: grid; gap: .75rem; }
 .widget-experiment.theme-evidence header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
 .theme-evidence-choices { display: grid; gap: .5rem; }
-.theme-evidence-choice { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
+.theme-evidence-choice { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
 .theme-evidence-card { display: grid; gap: .3rem; }.theme-evidence-card[data-supports-theme="false"] { opacity: .9; }.theme-evidence-quote { flex-basis: 100%; color: var(--c-ink-soft); font-size: .9rem; font-weight: 700; }.theme-evidence-source, .central-idea-source { padding: .75rem; border: 2px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }.theme-evidence-source h4, .central-idea-source h4 { margin: 0 0 .35rem; }.theme-evidence-source p, .central-idea-source p { margin: 0; white-space: pre-line; line-height: 1.55; }.theme-evidence-remove, .central-idea-remove { min-height: 44px; justify-self: start; }
 .theme-evidence-choice[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .theme-evidence-marker { font-weight: 900; white-space: nowrap; }
@@ -2627,7 +2627,7 @@ body {
 .widget-experiment.central { display: grid; gap: .75rem; }
 .widget-experiment.central header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
 .central-idea-choices { display: grid; gap: .5rem; }
-.central-idea-choice { min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
+.central-idea-choice { min-height: 44px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
 .central-idea-card { display: grid; gap: .3rem; }.central-idea-card[data-supports-idea="false"] { opacity: .9; }.central-idea-quote { flex-basis: 100%; color: var(--c-ink-soft); font-size: .9rem; font-weight: 700; }
 .central-idea-choice[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .central-idea-marker { font-weight: 900; white-space: nowrap; }
