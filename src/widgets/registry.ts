@@ -160,7 +160,9 @@ export type WidgetEventMap = {
     | {type:'complete';value:{ratings:Record<string,'credible'|'needs-checking'>}};
 };
 
-export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T];
+export type CoachCue = 'strategy' | 'retry' | 'milestone';
+export type WidgetCoachEvent = { type: 'coach'; cue: CoachCue };
+export type WidgetEvent<T extends WidgetType = WidgetType> = WidgetEventMap[T] | WidgetCoachEvent;
 export type WidgetEventHandler<T extends WidgetType = WidgetType> = (event: WidgetEvent<T>) => void;
 export type WidgetProps<T extends WidgetType = WidgetType> = {
   config: WidgetConfig<T>;

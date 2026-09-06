@@ -3,13 +3,34 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { WIDGET_TYPES } from '../content/schema';
 import { WidgetFrame, type WidgetFrameProps } from './WidgetFrame';
-import { widgetRegistry } from './registry';
+import { widgetRegistry, type WidgetEvent, type WidgetEventHandler } from './registry';
 
 afterEach(() => vi.restoreAllMocks());
 
 describe('widgetRegistry', () => {
   test('catalog and lazy registry are identical', () => {
     expect(Object.keys(widgetRegistry).sort()).toEqual([...WIDGET_TYPES].sort());
+  });
+
+  test('accepts semantic coaching events for every widget boundary', () => {
+    const firstEvent: WidgetEvent<'place-value-builder'> = { type: 'coach', cue: 'retry' };
+    const secondEvent: WidgetEvent<'source-credibility-checker'> = {
+      type: 'coach',
+      cue: 'milestone',
+    };
+    const firstHandler: WidgetEventHandler<'place-value-builder'> = () => {};
+    const secondHandler: WidgetEventHandler<'source-credibility-checker'> = () => {};
+
+    firstHandler(firstEvent);
+    secondHandler(secondEvent);
+    expect(firstEvent).toEqual({ type: 'coach', cue: 'retry' });
+    expect(secondEvent).toEqual({ type: 'coach', cue: 'milestone' });
+    expect(firstHandler).toBeTypeOf('function');
+    expect(secondHandler).toBeTypeOf('function');
+
+    // @ts-expect-error Coaching cues are intentionally limited to meaningful states.
+    const invalidEvent: WidgetEvent<'place-value-builder'> = { type: 'coach', cue: 'idle' };
+    expect(invalidEvent).toBeDefined();
   });
 });
 
