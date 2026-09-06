@@ -178,6 +178,16 @@ function alignsToStep(value: number, min: number, step: number): boolean {
 const alignsToDenominator = (value: number, denominator: number) =>
   Math.abs(value * denominator - Math.round(value * denominator)) < 1e-9;
 
+const WidgetTaskPromptSchema = z.string().trim().min(1).optional();
+const FractionValueSchema = z.object({
+  numerator: z.number().int().min(0).max(12),
+  denominator: z.number().int().min(2).max(12),
+}).strict().superRefine((fraction, context) => {
+  if (fraction.numerator > fraction.denominator) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['numerator'], message: 'too large' });
+  }
+});
+
 export const NumberLineWidgetConfigSchema = z.object({
   min: z.number().finite(),
   max: z.number().finite(),
@@ -246,23 +256,17 @@ export const FractionModelsWidgetConfigSchema = z.object({
   mode: z.enum(['bars', 'circles', 'both']),
   denominator: z.number().int().min(2).max(12),
   numerator: z.number().int().min(0).max(12).optional(),
-  target: z.object({
-    numerator: z.number().int().min(0).max(12),
-    denominator: z.number().int().min(2).max(12),
-  }).strict().optional(),
+  target: FractionValueSchema.optional(),
   allowEquivalent: z.boolean().optional(),
+  taskPrompt: WidgetTaskPromptSchema,
+  task: z.enum(['build', 'equivalent', 'change', 'groups', 'share']).optional(),
+  wholeCount: z.number().int().min(1).max(4).optional(),
+  comparisonTarget: FractionValueSchema.optional(),
 }).strict().superRefine((value, context) => {
   if ((value.numerator ?? 0) > value.denominator) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ['numerator'],
-      message: 'too large',
-    });
-  }
-  if (value.target && value.target.numerator > value.target.denominator) {
-    context.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['target', 'numerator'],
       message: 'too large',
     });
   }
@@ -280,6 +284,18 @@ export const FractionModelsWidgetConfigSchema = z.object({
       });
     }
   }
+  if (value.task === 'equivalent' && value.comparisonTarget) {
+    const reachable = Array.from({ length: value.denominator + 1 }, (_, numerator) => (
+      numerator * value.comparisonTarget!.denominator === value.comparisonTarget!.numerator * value.denominator
+    )).some(Boolean);
+    if (!reachable) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['comparisonTarget'],
+        message: 'comparison target is unreachable with this denominator',
+      });
+    }
+  }
 });
 
 export const FractionModelsWidgetRefSchema = z.object({
@@ -293,6 +309,7 @@ export const AreaModelMultiplierWidgetConfigSchema = z.object({
   splitA: z.array(z.number().int().positive()).min(1).optional(),
   splitB: z.array(z.number().int().positive()).min(1).optional(),
   targetProduct: z.number().int().min(1).max(9801).optional(),
+  revealMode: z.enum(['progressive', 'all']).optional(),
 }).strict().superRefine((value, context) => {
   if (value.splitA && value.splitA.reduce((sum, part) => sum + part, 0) !== value.a) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['splitA'], message: 'must sum to a' });
@@ -315,7 +332,20 @@ export const ArrayBuilderWidgetConfigSchema = z.object({
   columns: z.number().int().min(1).max(20),
   targetProduct: z.number().int().min(1).max(400).optional(),
   editable: z.boolean().optional(),
+  taskPrompt: WidgetTaskPromptSchema,
+  task: z.enum(['editable', 'factor-hunt', 'division']).optional(),
+  dividend: z.number().int().positive().max(9999).optional(),
+  divisor: z.number().int().positive().optional(),
 }).strict().superRefine((value, context) => {
+  if (value.task === 'division' && (value.dividend === undefined || value.divisor === undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['task'], message: 'division tasks require dividend and divisor' });
+  }
+  if (value.task !== 'division' && (value.dividend !== undefined || value.divisor !== undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['task'], message: 'dividend and divisor require a division task' });
+  }
+  if (value.dividend !== undefined && value.divisor !== undefined && value.dividend % value.divisor !== 0) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['dividend'], message: 'dividend must divide evenly by divisor' });
+  }
   if (value.targetProduct === undefined) return;
 
   const initial = value.rows * value.columns;
@@ -361,6 +391,7 @@ export const MoneyCounterWidgetConfigSchema = z.object({
     (values) => new Set(values).size === values.length,
     'duplicates',
   ).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
 }).strict().superRefine((value, context) => {
   if (value.targetCents === undefined) return;
   const denominations = value.denominations ?? [1, 5, 10, 25, 100];
@@ -393,6 +424,7 @@ const ElapsedTimeConfigSchema = z.object({
   startTime: TimeSchema,
   elapsedMinutes: z.number().int().min(0).max(1439),
   minuteStep: MinuteStepSchema.optional(),
+  jumpMinutes: z.array(z.union([z.literal(5), z.literal(10), z.literal(15)])).min(1).optional(),
 }).strict();
 
 export const ClockElapsedTimeWidgetConfigSchema = z.discriminatedUnion('mode', [
@@ -419,6 +451,7 @@ export const QuarterInchRulerWidgetConfigSchema = z.object({
   lengthInches: z.number().int().min(1).max(24).optional(),
   targetInches: z.number().min(0).max(24),
   startInches: z.number().min(0).max(24).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
 }).strict().superRefine((value, context) => {
   const length = value.lengthInches ?? 12;
   if (!isQuarterAligned(value.targetInches) || !isQuarterAligned(value.startInches ?? 0)) {
@@ -504,6 +537,7 @@ export const BalanceScaleWidgetConfigSchema = z.object({
   left: z.array(WeightSchema).min(1),
   right: z.array(WeightSchema).min(1),
   task: z.enum(['compare', 'make-equal']).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
 }).strict().superRefine((value, context) => {
   const ids = [...value.left, ...value.right].map((weight) => weight.id);
   if (new Set(ids).size !== ids.length) {
@@ -693,10 +727,23 @@ export const DataPlotBuilderWidgetConfigSchema = z.object({
     'categories must be unique',
   ),
   target: z.record(z.number().int().min(0).max(50)),
+  sourceData: z.record(z.number().int().min(0).max(50)).optional(),
+  displayChoices: z.array(z.enum(['bar', 'dot'])).min(1).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
 }).strict().refine((value) => (
   Object.keys(value.target).length === value.categories.length
-  && value.categories.every((category) => Object.prototype.hasOwnProperty.call(value.target, category))
-), 'target keys must equal categories');
+    && value.categories.every((category) => Object.prototype.hasOwnProperty.call(value.target, category))
+), 'target keys must equal categories').superRefine((value, context) => {
+  if (value.sourceData && (
+    Object.keys(value.sourceData).length !== Object.keys(value.target).length
+    || Object.entries(value.target).some(([category, amount]) => value.sourceData![category] !== amount)
+  )) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['sourceData'], message: 'sourceData keys and values must equal target' });
+  }
+  if (value.displayChoices && !value.displayChoices.includes(value.kind)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['displayChoices'], message: 'displayChoices must include configured kind' });
+  }
+});
 
 export const DataPlotBuilderWidgetRefSchema = z.object({
   type: z.literal('data-plot-builder'),
@@ -714,6 +761,11 @@ export const ProbabilitySpinnerWidgetConfigSchema = z.object({
   segments: z.array(SpinnerSegmentSchema).min(2),
   trials: z.number().int().min(1).max(100).optional(),
   targetOutcomeId: z.string().min(1).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
+  eventQuestion: z.object({
+    eventLabel: z.string().trim().min(1),
+    classification: z.enum(['certain', 'possible', 'impossible']),
+  }).strict().optional(),
 }).strict().superRefine((value, context) => {
   if (new Set(value.segments.map((segment) => segment.id)).size !== value.segments.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['segments'], message: 'segment ids must be unique' });
@@ -728,6 +780,20 @@ export const ProbabilitySpinnerWidgetConfigSchema = z.object({
   }
   if (value.targetOutcomeId && !value.segments.some((segment) => segment.id === value.targetOutcomeId)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetOutcomeId'], message: 'unknown outcome' });
+  }
+  if (value.eventQuestion) {
+    const { eventLabel, classification } = value.eventQuestion;
+    const eventIsCertain = eventLabel === 'all';
+    const eventIsImpossible = eventLabel === 'none';
+    const eventIsPossible = value.segments.some((segment) => segment.id === eventLabel);
+    if (!eventIsCertain && !eventIsImpossible && !eventIsPossible) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['eventQuestion', 'eventLabel'], message: 'event must be all, none, or a segment id' });
+    } else {
+      const expected = eventIsCertain ? 'certain' : eventIsImpossible ? 'impossible' : 'possible';
+      if (classification !== expected) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['eventQuestion', 'classification'], message: `classification must be ${expected} for this sample space` });
+      }
+    }
   }
 });
 

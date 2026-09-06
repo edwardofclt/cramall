@@ -1,8 +1,14 @@
 import { expect, test } from 'vitest';
 import {
   InlineCheckSchema,
+  ArrayBuilderWidgetConfigSchema,
+  AreaModelMultiplierWidgetConfigSchema,
+  ClockElapsedTimeWidgetConfigSchema,
+  DataPlotBuilderWidgetConfigSchema,
+  FractionModelsWidgetConfigSchema,
   LearnCardSchema,
   LessonSchema,
+  ProbabilitySpinnerWidgetConfigSchema,
   NumberLineWidgetConfigSchema,
   QuizReferenceSchema,
   WIDGET_TYPES,
@@ -409,4 +415,53 @@ test('widget configs reject unknown keys instead of silently accepting author ty
     type: 'place-value-builder',
     config: { periods: 3, start: 482 },
   })).toThrow();
+});
+
+test('Math manipulative configs accept lesson prompts and the new task contracts', () => {
+  expect(FractionModelsWidgetConfigSchema.parse({
+    mode: 'both', denominator: 4, task: 'equivalent', wholeCount: 2,
+    comparisonTarget: { numerator: 1, denominator: 2 }, taskPrompt: 'Build an equivalent fraction.',
+  })).toMatchObject({ task: 'equivalent', wholeCount: 2 });
+  expect(AreaModelMultiplierWidgetConfigSchema.parse({
+    a: 23, b: 4, revealMode: 'progressive',
+  }).revealMode).toBe('progressive');
+  expect(ArrayBuilderWidgetConfigSchema.parse({
+    rows: 2, columns: 3, task: 'division', dividend: 12, divisor: 2,
+    targetProduct: 6, taskPrompt: 'Make equal groups.',
+  })).toMatchObject({ task: 'division', dividend: 12, divisor: 2 });
+  expect(ClockElapsedTimeWidgetConfigSchema.parse({
+    mode: 'elapsed', startTime: '09:00', elapsedMinutes: 30, jumpMinutes: [5, 10, 15],
+  })).toMatchObject({ jumpMinutes: [5, 10, 15] });
+  expect(DataPlotBuilderWidgetConfigSchema.parse({
+    kind: 'bar', prompt: 'Build it', categories: ['A'], target: { A: 3 },
+    sourceData: { A: 3 }, displayChoices: ['bar', 'dot'], taskPrompt: 'Show the data.',
+  })).toMatchObject({ sourceData: { A: 3 }, displayChoices: ['bar', 'dot'] });
+  expect(ProbabilitySpinnerWidgetConfigSchema.parse({
+    segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+    eventQuestion: { eventLabel: 'a', classification: 'possible' },
+  }).eventQuestion?.classification).toBe('possible');
+});
+
+test('Math manipulative contracts reject unreachable or contradictory authored tasks', () => {
+  expect(FractionModelsWidgetConfigSchema.safeParse({
+    mode: 'both', denominator: 3, task: 'equivalent',
+    comparisonTarget: { numerator: 2, denominator: 5 },
+  }).success).toBe(false);
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({
+    rows: 2, columns: 3, task: 'division', dividend: 13, divisor: 2,
+  }).success).toBe(false);
+  expect(AreaModelMultiplierWidgetConfigSchema.safeParse({
+    a: 2, b: 3, revealMode: 'instant',
+  }).success).toBe(false);
+  expect(DataPlotBuilderWidgetConfigSchema.safeParse({
+    kind: 'bar', prompt: 'Build it', categories: ['A'], target: { A: 3 }, sourceData: { A: 2 },
+  }).success).toBe(false);
+  expect(ProbabilitySpinnerWidgetConfigSchema.safeParse({
+    segments: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+    eventQuestion: { eventLabel: 'missing', classification: 'possible' },
+  }).success).toBe(false);
+  expect(WidgetRefSchema.safeParse({
+    type: 'data-plot-builder',
+    config: { kind: 'bar', prompt: 'Build it', categories: ['A'], target: { A: 3 }, sourceData: { A: 2 } },
+  }).success).toBe(false);
 });
