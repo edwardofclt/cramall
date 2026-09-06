@@ -7,6 +7,7 @@ import {
   QuizReferenceSchema,
   WIDGET_TYPES,
   WidgetRefSchema,
+  WidgetCoachSchema,
   validateLesson,
   type Lesson,
   type Question,
@@ -102,6 +103,82 @@ test('a learn card preserves only the strict roller-coaster demo contract', () =
     ...base,
     demo: { type: 'collision-ramp', focus: 'collision' },
   })).toThrow();
+});
+test('a coached learn card preserves the strict intro and reaction contract', () => {
+  const widgetCoach = {
+    intro: [
+      { speaker: 'guide', text: 'Connect the lesson idea to this model.', pose: 'talk' },
+      { speaker: 'kid', text: 'I will change one thing and compare.' },
+    ],
+    reactions: {
+      strategy: { text: 'Change one condition at a time.', pose: 'think' },
+      retry: { text: 'Use the visible evidence and revise.', pose: 'oops' },
+      milestone: { text: 'That intermediate model is useful.', pose: 'talk' },
+      complete: { text: 'You used the model to explain the lesson idea.', pose: 'cheer' },
+    },
+  };
+
+  expect(LearnCardSchema.parse({
+    id: 'math-u01-l01-c1',
+    title: 'Card',
+    blocks: [{ kind: 'text', text: 'Learn.' }],
+    widget: { type: 'place-value-builder', config: { target: 42 } },
+    widgetCoach,
+  }).widgetCoach).toEqual(widgetCoach);
+  expect(WidgetCoachSchema.parse(widgetCoach)).toEqual(widgetCoach);
+});
+
+test('widget coaching requires two or three lines and guide-only poses', () => {
+  const base = {
+    intro: [{ speaker: 'guide', text: 'Try the model.' }, { speaker: 'kid', text: 'Okay!' }],
+    reactions: { complete: { text: 'Nice work!' } },
+  };
+
+  expect(() => WidgetCoachSchema.parse({ ...base, intro: [{ speaker: 'guide', text: 'Only one.' }] })).toThrow();
+  expect(() => WidgetCoachSchema.parse({
+    ...base,
+    intro: [
+      { speaker: 'guide', text: 'One.' },
+      { speaker: 'kid', text: 'Two.', pose: 'talk' },
+      { speaker: 'guide', text: 'Three.' },
+      { speaker: 'kid', text: 'Four.' },
+    ],
+  })).toThrow();
+  expect(() => WidgetCoachSchema.parse({
+    ...base,
+    intro: [{ speaker: 'kid', text: 'I have a pose.', pose: 'oops' }, { speaker: 'guide', text: 'Try it.' }],
+  })).toThrow();
+});
+
+test('widget coaching requires a widget and cannot duplicate card dialogue', () => {
+  const widgetCoach = {
+    intro: [
+      { speaker: 'guide', text: 'Connect the lesson idea to this model.', pose: 'talk' },
+      { speaker: 'kid', text: 'I will change one thing and compare.' },
+    ],
+    reactions: { complete: { text: 'You used the model.', pose: 'cheer' } },
+  };
+  const card = {
+    id: 'math-u01-l01-c1',
+    title: 'Card',
+    blocks: [{ kind: 'text', text: 'Learn.' }],
+    widgetCoach,
+  };
+
+  const withoutWidget = LearnCardSchema.safeParse(card);
+  expect(withoutWidget.success).toBe(false);
+  if (withoutWidget.success) throw new Error('expected widgetCoach without widget to fail');
+  expect(withoutWidget.error.issues.some((issue) => issue.path.join('.') === 'widgetCoach')).toBe(true);
+
+  const withBoth = LearnCardSchema.safeParse({
+    ...card,
+    widget: { type: 'place-value-builder', config: { target: 42 } },
+    dialogue: [{ speaker: 'nutty', text: 'A separate card dialogue.' }],
+  });
+  expect(withBoth.success).toBe(false);
+  if (withBoth.success) throw new Error('expected dialogue and widgetCoach to fail together');
+  expect(withBoth.error.issues.some((issue) => issue.path.join('.') === 'widgetCoach')).toBe(true);
+  expect(withBoth.error.issues.some((issue) => issue.path.join('.') === 'dialogue')).toBe(true);
 });
 test('an inline check rejects extra fields, invalid correct answers, and duplicate choices', () => {
   const check = {

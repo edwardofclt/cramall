@@ -78,6 +78,38 @@ export const DialogueLineSchema = z.object({
   pose: PoseSchema.optional(),
 });
 
+/** One short, lesson-connected line used immediately before a coached widget. */
+export const WidgetCoachLineSchema = z.object({
+  speaker: z.enum(['guide', 'kid']),
+  text: z.string().trim().min(1),
+  pose: PoseSchema.optional(),
+}).strict().superRefine((line, context) => {
+  if (line.speaker === 'kid' && line.pose !== undefined) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['pose'],
+      message: 'kid lines cannot carry a guide pose',
+    });
+  }
+});
+
+/** A single meaningful-action response from the subject guide. */
+export const WidgetCoachReactionSchema = z.object({
+  text: z.string().trim().min(1),
+  pose: PoseSchema.optional(),
+}).strict();
+
+/** Authored in-step introduction and optional meaningful-action reactions. */
+export const WidgetCoachSchema = z.object({
+  intro: z.array(WidgetCoachLineSchema).min(2).max(3),
+  reactions: z.object({
+    strategy: WidgetCoachReactionSchema.optional(),
+    retry: WidgetCoachReactionSchema.optional(),
+    milestone: WidgetCoachReactionSchema.optional(),
+    complete: WidgetCoachReactionSchema,
+  }).strict(),
+}).strict();
+
 export const RichBlockSchema = z.object({
   kind: z.enum(['text', 'example', 'tip']),
   text: z.string().min(1),
@@ -1439,6 +1471,27 @@ export const LearnCardSchema = z.object({
   widget: WidgetRefSchema.optional(),
   demo: InstructionalDemoSchema.optional(),
   check: InlineCheckSchema.optional(),
+  widgetCoach: WidgetCoachSchema.optional(),
+}).superRefine((card, context) => {
+  if (card.widgetCoach && !card.widget) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['widgetCoach'],
+      message: 'widgetCoach requires a widget on the same card',
+    });
+  }
+  if (card.widgetCoach && card.dialogue && card.dialogue.length > 0) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['widgetCoach'],
+      message: 'widgetCoach.intro replaces card dialogue for widget cards',
+    });
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['dialogue'],
+      message: 'widget cards cannot have both dialogue and widgetCoach.intro',
+    });
+  }
 });
 
 const questionBase = {
@@ -1517,6 +1570,9 @@ export type SubjectId = z.infer<typeof SubjectIdSchema>;
 export type GuideId = z.infer<typeof GuideIdSchema>;
 export type Pose = z.infer<typeof PoseSchema>;
 export type DialogueLine = z.infer<typeof DialogueLineSchema>;
+export type WidgetCoachLine = z.infer<typeof WidgetCoachLineSchema>;
+export type WidgetCoachReaction = z.infer<typeof WidgetCoachReactionSchema>;
+export type WidgetCoach = z.infer<typeof WidgetCoachSchema>;
 export type RichBlock = z.infer<typeof RichBlockSchema>;
 export type InlineCheck = z.infer<typeof InlineCheckSchema>;
 export type InstructionalDemo = z.infer<typeof InstructionalDemoSchema>;
