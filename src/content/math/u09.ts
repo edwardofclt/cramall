@@ -31,6 +31,7 @@ export const unit09Lessons = [
           { kind: 'example', text: '$6.35 is enough for a $6.20 item because $6.35 > $6.20.' },
           { kind: 'tip', text: 'Equal amounts are also enough; a smaller total is not enough.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'compare', left: [{ id: 'collection', label: 'Collection $6.35', value: 6.35 }], right: [{ id: 'price', label: 'Price tag $6.20', value: 6.2 }] } },
       },
       {
         id: 'math-u09-l01-c3',
@@ -40,6 +41,7 @@ export const unit09Lessons = [
           { kind: 'example', text: '$5.00 - $4.38 = $0.62, so a shopper has enough and will have 62 cents left.' },
           { kind: 'tip', text: 'Include the money unit and two decimal places for dollar amounts.' },
         ],
+        widget: { type: 'money-counter', config: { targetCents: 62, denominations: [1, 5, 10, 25] } },
       },
     ],
     workedExample: {
@@ -89,6 +91,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'From 9:45 to 10:05, move 15 minutes to 10:00 and 5 more minutes to 10:05.' },
           { kind: 'tip', text: 'Write times with a colon and include a.m. or p.m. when the context needs it.' },
         ],
+        widget: { type: 'clock-elapsed-time', config: { mode: 'set-time', targetTime: '09:45', minuteStep: 5 } },
       },
       {
         id: 'math-u09-l02-c2',
@@ -108,6 +111,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'A 35-minute lesson ending at 2:20 starts at 1:45.' },
           { kind: 'tip', text: 'Check by counting forward from the found start to the stated end.' },
         ],
+        widget: { type: 'clock-elapsed-time', config: { mode: 'set-time', targetTime: '13:45', minuteStep: 5 } },
       },
     ],
     workedExample: {
@@ -157,6 +161,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'After 2 inches, the next marks are 2 1/4, 2 1/2, and 2 3/4 inches.' },
           { kind: 'tip', text: 'Count spaces from zero, not just printed tick lines.' },
         ],
+        widget: { type: 'quarter-inch-ruler', config: { lengthInches: 3, targetInches: 2.25, startInches: 0 } },
       },
       {
         id: 'math-u09-l03-c2',
@@ -176,6 +181,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'A 3 1/4-inch strip is 1/2 inch longer than a 2 3/4-inch strip.' },
           { kind: 'tip', text: 'Measurement is approximate when an endpoint falls between marked values.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 2, max: 4, a: 3.25, b: 2.75, step: 0.25, display: 'fraction', denominator: 4 } },
       },
     ],
     workedExample: {
@@ -225,6 +231,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'A paper clip may weigh about 1 gram, while a backpack may weigh several kilograms.' },
           { kind: 'tip', text: 'Always include the unit because the same numeral can describe very different weights.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'marker', label: 'Marker (12 grams)', value: 12 }], right: [{ id: 'c1', label: '1 gram clip', value: 1 }, { id: 'c2', label: '1 gram clip', value: 1 }, { id: 'c3', label: '1 gram clip', value: 1 }, { id: 'c4', label: '1 gram clip', value: 1 }, { id: 'c5', label: '1 gram clip', value: 1 }, { id: 'c6', label: '1 gram clip', value: 1 }, { id: 'c7', label: '1 gram clip', value: 1 }, { id: 'c8', label: '1 gram clip', value: 1 }, { id: 'c9', label: '1 gram clip', value: 1 }, { id: 'c10', label: '1 gram clip', value: 1 }, { id: 'c11', label: '1 gram clip', value: 1 }, { id: 'c12', label: '1 gram clip', value: 1 }] } },
       },
       {
         id: 'math-u09-l04-c2',
@@ -234,6 +241,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'An apple is sensibly measured in ounces or grams; a large dog is sensibly measured in pounds or kilograms.' },
           { kind: 'tip', text: 'Choose from the allowed unit system before estimating the number.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Set each bar to about how many grams the object weighs.', categories: ['Paper clip', 'Pencil', 'Apple'], target: { 'Paper clip': 1, 'Pencil': 6, 'Apple': 30 } as Record<string, number> } },
       },
       {
         id: 'math-u09-l04-c3',
@@ -243,6 +251,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'A metric scale reading 2.6 kilograms rounds to 3 kilograms.' },
           { kind: 'tip', text: 'A reading below the halfway point rounds down; a reading at or above halfway rounds up.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 2, max: 4, a: 2.6, b: 3, step: 0.2, display: 'number' } },
       },
     ],
     workedExample: {
@@ -302,6 +311,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'Given 1 yard = 3 feet, 5 yards = 5 × 3 = 15 feet.' },
           { kind: 'tip', text: 'The numerical count grows because smaller units require more pieces to name the same measure.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 1, columns: 3, targetProduct: 15, editable: true } },
       },
       {
         id: 'math-u09-l05-c3',
@@ -311,6 +321,7 @@ export const unit09Lessons = [
           { kind: 'example', text: 'Given 1 gallon = 4 quarts, 3 gallons of water equals 12 quarts.' },
           { kind: 'tip', text: 'A correct answer preserves the amount even though the number and unit change.' },
         ],
+        widget: { type: 'area-model-multiplier', config: { a: 4, b: 16, splitA: [4], splitB: [10, 6], targetProduct: 64 } },
       },
     ],
     workedExample: {

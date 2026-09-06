@@ -379,11 +379,183 @@ const expectedChecks = [
 const expectedWidgets = [
   {
     "id": "reading-u08-l01",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u08-l01-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Text A asks the committee to act on shade trees",
+              "Text B explains how a canopy changes conditions near pavement"
+            ],
+            "details": [
+              {
+                "id": "believe",
+                "text": "\"I believe our school should plant two shade trees beside the blacktop.\"",
+                "supports": [
+                  "Text A asks the committee to act on shade trees"
+                ]
+              },
+              {
+                "id": "ask",
+                "text": "\"Please ask the school committee to study safe locations this fall.\"",
+                "supports": [
+                  "Text A asks the committee to act on shade trees"
+                ]
+              },
+              {
+                "id": "canopy",
+                "text": "\"A tree canopy is the layer formed by branches and leaves.\"",
+                "supports": [
+                  "Text B explains how a canopy changes conditions near pavement"
+                ]
+              },
+              {
+                "id": "vapor",
+                "text": "\"Leaves also release water vapor, a process that can cool nearby air.\"",
+                "supports": [
+                  "Text B explains how a canopy changes conditions near pavement"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u08-l01-c2",
+        "ref": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "The Text A writer supports planting the trees",
+              "The Text B writer stays neutral and qualified"
+            ],
+            "evidence": [
+              {
+                "id": "believe",
+                "text": "\"I believe our school should plant two shade trees\"",
+                "supports": [
+                  "The Text A writer supports planting the trees"
+                ]
+              },
+              {
+                "id": "serve",
+                "text": "\"a cooler gathering space would serve students for years\"",
+                "supports": [
+                  "The Text A writer supports planting the trees"
+                ]
+              },
+              {
+                "id": "varies",
+                "text": "\"The amount of cooling varies with tree size, weather, placement, and time of day.\"",
+                "supports": [
+                  "The Text B writer stays neutral and qualified"
+                ]
+              },
+              {
+                "id": "promise",
+                "text": "\"without promising the same result in every location\"",
+                "supports": [
+                  "The Text B writer stays neutral and qualified"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u08-l02",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u08-l02-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Our school should keep the water-bottle refill station beside the gym",
+              "The refill station stands beside the gym wall"
+            ],
+            "details": [
+              {
+                "id": "convenient",
+                "text": "\"it gives students a convenient place to refill reusable bottles after physical education\"",
+                "supports": [
+                  "Our school should keep the water-bottle refill station beside the gym"
+                ]
+              },
+              {
+                "id": "log",
+                "text": "\"A facilities log recorded 1,240 refills during the first eight weeks of school.\"",
+                "supports": [
+                  "Our school should keep the water-bottle refill station beside the gym"
+                ]
+              },
+              {
+                "id": "waste",
+                "text": "\"the green team counted 37 fewer disposable water bottles\"",
+                "supports": [
+                  "Our school should keep the water-bottle refill station beside the gym"
+                ]
+              },
+              {
+                "id": "location",
+                "text": "\"the water-bottle refill station beside the gym\"",
+                "supports": [
+                  "The refill station stands beside the gym wall"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
+      },
+      {
+        "cardId": "reading-u08-l02-c3",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "claim",
+                "text": "The school should keep and maintain the refill station.",
+                "role": "main"
+              },
+              {
+                "id": "use",
+                "text": "A facilities log recorded 1,240 refills in eight weeks, which shows frequent use.",
+                "role": "main"
+              },
+              {
+                "id": "waste",
+                "text": "A one-day check counted 37 fewer disposable bottles than before the station opened.",
+                "role": "main"
+              },
+              {
+                "id": "limit",
+                "text": "The counts do not prove every refill replaces a disposable bottle.",
+                "role": "detail"
+              },
+              {
+                "id": "sticker",
+                "text": "One student's bottle has a dolphin sticker.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "claim",
+              "use",
+              "waste"
+            ],
+            "maxSentences": 4
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

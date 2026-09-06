@@ -925,11 +925,177 @@ const expectedChecks = [
 const expectedWidgets = [
   {
     "id": "reading-u11-l01",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l01-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "What features help a small schoolyard patch serve pollinators?",
+              "Which pollinator species will visit the patch next year?"
+            ],
+            "details": [
+              {
+                "id": "timing",
+                "text": "Include several plant kinds so some flowers bloom in spring, summer, and early fall.",
+                "supports": [
+                  "What features help a small schoolyard patch serve pollinators?"
+                ]
+              },
+              {
+                "id": "native",
+                "text": "Native flowering plants are adapted to local conditions and can support local insects.",
+                "supports": [
+                  "What features help a small schoolyard patch serve pollinators?"
+                ]
+              },
+              {
+                "id": "shelter",
+                "text": "Leave a few hollow stems or small bare-soil areas where appropriate.",
+                "supports": [
+                  "What features help a small schoolyard patch serve pollinators?"
+                ]
+              },
+              {
+                "id": "no-counts",
+                "text": "This source does not count which pollinator species will arrive.",
+                "supports": [
+                  "Which pollinator species will visit the patch next year?"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
+      },
+      {
+        "cardId": "reading-u11-l01-c3",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "s-timing",
+                "text": "Staggered bloom times keep flowers available from spring through early fall.",
+                "role": "main"
+              },
+              {
+                "id": "s-native",
+                "text": "Native flowering plants suit local conditions and support local insects.",
+                "role": "main"
+              },
+              {
+                "id": "s-shelter",
+                "text": "A few hollow stems or bare-soil areas can offer shelter.",
+                "role": "detail"
+              },
+              {
+                "id": "s-limit",
+                "text": "The source does not promise that every feature works equally at every site.",
+                "role": "detail"
+              },
+              {
+                "id": "s-extra",
+                "text": "The planning notes are printed on one page with five headings.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "s-timing",
+              "s-native"
+            ],
+            "maxSentences": 4
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l02",
     "widgets": [
+      {
+        "cardId": "reading-u11-l02-c1",
+        "ref": {
+          "type": "source-credibility-checker",
+          "config": {
+            "criteria": [
+              "author"
+            ],
+            "sources": [
+              {
+                "id": "guide",
+                "title": "Source B — School Garden Planting Guide",
+                "author": "Ms. Alvarez, school garden teacher",
+                "date": "2026",
+                "publisher": "Harbor School District",
+                "claims": [
+                  "Plant native flowers in staggered bloom times."
+                ]
+              },
+              {
+                "id": "flyer",
+                "title": "Source A — Unsigned garden flyer",
+                "date": "2026",
+                "claims": [
+                  "Gardens are fun."
+                ]
+              },
+              {
+                "id": "forward",
+                "title": "Source C — Forwarded message with no details",
+                "claims": []
+              }
+            ],
+            "credibleIds": [
+              "guide"
+            ]
+          }
+        }
+      },
+      {
+        "cardId": "reading-u11-l02-c2",
+        "ref": {
+          "type": "source-credibility-checker",
+          "config": {
+            "criteria": [
+              "date",
+              "evidence",
+              "purpose"
+            ],
+            "sources": [
+              {
+                "id": "extension",
+                "title": "Source B — County Extension Mosquito Guide",
+                "author": "Dr. Lena Ortiz, entomology educator",
+                "date": "2026",
+                "publisher": "Sample County Extension",
+                "purpose": "explain mosquito prevention",
+                "claims": [
+                  "Empty small containers after rain."
+                ]
+              },
+              {
+                "id": "blog",
+                "title": "Source A — Mosquito Myths Blog",
+                "author": "Anonymous poster",
+                "date": "2026",
+                "publisher": "Personal blog",
+                "purpose": "entertain readers",
+                "claims": []
+              },
+              {
+                "id": "screenshot",
+                "title": "Source C — Mystery Screenshot",
+                "claims": []
+              }
+            ],
+            "credibleIds": [
+              "extension"
+            ]
+          }
+        }
+      },
       {
         "cardId": "reading-u11-l02-c3",
         "ref": {
@@ -978,15 +1144,286 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u11-l03",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l03-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Which school actions can reduce cafeteria food waste?",
+              "What are the school colors and traditions?"
+            ],
+            "details": [
+              {
+                "id": "n1",
+                "text": "Note 1: Letting students request a smaller first portion can reduce plate waste.",
+                "supports": [
+                  "Which school actions can reduce cafeteria food waste?"
+                ]
+              },
+              {
+                "id": "n2",
+                "text": "Note 2: A supervised share table may allow unopened approved items to be reused.",
+                "supports": [
+                  "Which school actions can reduce cafeteria food waste?"
+                ]
+              },
+              {
+                "id": "n3",
+                "text": "Note 3: Separating suitable scraps for a managed compost program can divert some waste.",
+                "supports": [
+                  "Which school actions can reduce cafeteria food waste?"
+                ]
+              },
+              {
+                "id": "n5",
+                "text": "Note 5: The school colors are green and gold.",
+                "supports": [
+                  "What are the school colors and traditions?"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
+      },
+      {
+        "cardId": "reading-u11-l03-c2",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "n1",
+                "text": "Note 1: Letting students request a smaller first portion can reduce plate waste.",
+                "role": "main"
+              },
+              {
+                "id": "n4",
+                "text": "Note 4: A one-week waste audit can identify which foods are discarded most.",
+                "role": "main"
+              },
+              {
+                "id": "n2",
+                "text": "Note 2: A supervised share table may allow unopened approved items to be reused.",
+                "role": "detail"
+              },
+              {
+                "id": "n8",
+                "text": "Note 8: Posters can remind students which bin accepts compostable scraps.",
+                "role": "detail"
+              },
+              {
+                "id": "n5",
+                "text": "Note 5: The school colors are green and gold.",
+                "role": "extra"
+              },
+              {
+                "id": "n6",
+                "text": "Note 6: Friday lunch music is chosen by the student council.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "n1",
+              "n4"
+            ],
+            "maxSentences": 4
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l04",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l04-c2",
+        "ref": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Visibility",
+              "Crossings",
+              "Travel habits"
+            ],
+            "evidence": [
+              {
+                "id": "v1",
+                "text": "V1: Reflective backpack tags make walkers easier to see at dusk.",
+                "supports": [
+                  "Visibility"
+                ]
+              },
+              {
+                "id": "v2",
+                "text": "V2: Repainted crosswalk lines are easier for drivers to see.",
+                "supports": [
+                  "Visibility"
+                ]
+              },
+              {
+                "id": "v3",
+                "text": "V3: A brighter sign marks the school zone entrance.",
+                "supports": [
+                  "Visibility"
+                ]
+              },
+              {
+                "id": "c1",
+                "text": "C1: A crossing guard directs traffic at the main corner.",
+                "supports": [
+                  "Crossings"
+                ]
+              },
+              {
+                "id": "c2",
+                "text": "C2: Repaint faded crossing markings near the side gate.",
+                "supports": [
+                  "Crossings"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 3
+          }
+        }
+      },
+      {
+        "cardId": "reading-u11-l04-c3",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "These findings make signs, people, and route markings easier to see",
+              "These findings prove that every driver will slow down"
+            ],
+            "details": [
+              {
+                "id": "v1",
+                "text": "V1: Reflective backpack tags make walkers easier to see at dusk.",
+                "supports": [
+                  "These findings make signs, people, and route markings easier to see"
+                ]
+              },
+              {
+                "id": "v2",
+                "text": "V2: Repainted crosswalk lines are easier for drivers to see.",
+                "supports": [
+                  "These findings make signs, people, and route markings easier to see"
+                ]
+              },
+              {
+                "id": "v3",
+                "text": "V3: A brighter sign marks the school zone entrance.",
+                "supports": [
+                  "These findings make signs, people, and route markings easier to see"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l05",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l05-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Faithful paraphrase with credit",
+              "Too close to the source"
+            ],
+            "details": [
+              {
+                "id": "para1",
+                "text": "Chen explains that small boxes can feed bees when suitable flowers bloom at varied times.",
+                "supports": [
+                  "Faithful paraphrase with credit"
+                ]
+              },
+              {
+                "id": "para2",
+                "text": "According to Nia Chen, a window box helps bees most when its flowers open at different points in the season.",
+                "supports": [
+                  "Faithful paraphrase with credit"
+                ]
+              },
+              {
+                "id": "patch1",
+                "text": "A shallow box can offer nectar when it has several suitable flowers.",
+                "supports": [
+                  "Too close to the source"
+                ]
+              },
+              {
+                "id": "patch2",
+                "text": "A small box can feed bees if it holds several suitable blooms.",
+                "supports": [
+                  "Too close to the source"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u11-l05-c3",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This use needs credit",
+              "This use does not need credit"
+            ],
+            "details": [
+              {
+                "id": "quote",
+                "text": "Quoting Chen's exact sentence about bloom timing.",
+                "supports": [
+                  "This use needs credit"
+                ]
+              },
+              {
+                "id": "restate",
+                "text": "Restating Chen's bloom-timing idea in your own words.",
+                "supports": [
+                  "This use needs credit"
+                ]
+              },
+              {
+                "id": "borrowed",
+                "text": "Using Chen's idea about matching sunlight to plant choice.",
+                "supports": [
+                  "This use needs credit"
+                ]
+              },
+              {
+                "id": "opinion",
+                "text": "Writing your own opinion that window boxes look cheerful.",
+                "supports": [
+                  "This use does not need credit"
+                ]
+              },
+              {
+                "id": "known",
+                "text": "Writing that bees can fly, which you knew before reading.",
+                "supports": [
+                  "This use does not need credit"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

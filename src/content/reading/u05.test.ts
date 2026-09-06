@@ -199,6 +199,40 @@ const expectedWidgets = [
     "id": "reading-u05-l01",
     "widgets": [
       {
+        "cardId": "reading-u05-l01-c1",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "idea",
+                "text": "Salt marshes support wildlife and shorelines.",
+                "role": "main"
+              },
+              {
+                "id": "tides",
+                "text": "Twice each day, tides carry water through winding creeks among salt-tolerant grasses.",
+                "role": "detail"
+              },
+              {
+                "id": "fish",
+                "text": "Young fish and shrimp hide between the stems.",
+                "role": "detail"
+              },
+              {
+                "id": "birds",
+                "text": "Wading birds feed in the shallow water.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "idea"
+            ],
+            "maxSentences": 1
+          }
+        }
+      },
+      {
         "cardId": "reading-u05-l01-c2",
         "ref": {
           "type": "central-idea-organizer",
@@ -227,6 +261,49 @@ const expectedWidgets = [
                 "text": "Any place with rainwater is a salt marsh.",
                 "supports": [
                   "Every wet place is a salt marsh"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u05-l01-c3",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Salt marshes give wildlife shelter and food",
+              "Salt marsh plants soften wave action at the shoreline"
+            ],
+            "details": [
+              {
+                "id": "nursery",
+                "text": "Young fish and shrimp hide between the grass stems.",
+                "supports": [
+                  "Salt marshes give wildlife shelter and food"
+                ]
+              },
+              {
+                "id": "birds",
+                "text": "Wading birds feed in the shallow marsh water.",
+                "supports": [
+                  "Salt marshes give wildlife shelter and food"
+                ]
+              },
+              {
+                "id": "stems",
+                "text": "Dense stems bend as waves pass through them.",
+                "supports": [
+                  "Salt marsh plants soften wave action at the shoreline"
+                ]
+              },
+              {
+                "id": "roots",
+                "text": "Marsh roots hold the muddy soil in place.",
+                "supports": [
+                  "Salt marsh plants soften wave action at the shoreline"
                 ]
               }
             ],

@@ -46,24 +46,6 @@ const scienceU02L01Core = {
           "kind": "tip",
           "text": "Support: Point to the source first, trace the route second, and name the receiver last."
         }
-      ]
-    },
-    {
-      "id": "science-u02-l01-c2",
-      "title": "Observe a change",
-      "blocks": [
-        {
-          "kind": "text",
-          "text": "A receiver becoming warmer, brighter, moving, or vibrating can be observed."
-        },
-        {
-          "kind": "example",
-          "text": "The sunlit square feels warmer than the shaded comparison square."
-        },
-        {
-          "kind": "tip",
-          "text": "Response frame: I observed ____. This change can support the inference that energy moved by ____."
-        }
       ],
       "widget": {
         "type": "energy-transfer-builder",
@@ -95,6 +77,52 @@ const scienceU02L01Core = {
       }
     },
     {
+      "id": "science-u02-l01-c2",
+      "title": "Observe a change",
+      "blocks": [
+        {
+          "kind": "text",
+          "text": "A receiver becoming warmer, brighter, moving, or vibrating can be observed."
+        },
+        {
+          "kind": "example",
+          "text": "The sunlit square feels warmer than the shaded comparison square."
+        },
+        {
+          "kind": "tip",
+          "text": "Response frame: I observed ____. This change can support the inference that energy moved by ____."
+        }
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "flashlight",
+            "tuning fork",
+            "battery",
+            "warm water"
+          ],
+          "transfers": [
+            "light",
+            "sound",
+            "electric current",
+            "heat"
+          ],
+          "targets": [
+            "lit card",
+            "paper bits",
+            "motor",
+            "metal spoon"
+          ],
+          "requiredPath": [
+            "flashlight",
+            "light",
+            "lit card"
+          ]
+        }
+      }
+    },
+    {
       "id": "science-u02-l01-c3",
       "title": "Use the change as evidence",
       "blocks": [
@@ -110,7 +138,40 @@ const scienceU02L01Core = {
           "kind": "tip",
           "text": "Stretch: Compare a changed receiver with an unchanged condition and explain why that comparison strengthens the claim."
         }
-      ]
+      ],
+      "widget": {
+        "type": "theme-evidence-collector",
+        "config": {
+          "themeChoices": [
+            "Energy moved by light from the Sun to the paper square",
+            "The paper square was always warmer than the shaded square"
+          ],
+          "evidence": [
+            {
+              "id": "warmer",
+              "text": "The sunlit square felt warmer than the matching shaded square.",
+              "supports": [
+                "Energy moved by light from the Sun to the paper square"
+              ]
+            },
+            {
+              "id": "shaded-same",
+              "text": "The shaded comparison square did not change.",
+              "supports": [
+                "Energy moved by light from the Sun to the paper square"
+              ]
+            },
+            {
+              "id": "always",
+              "text": "The squares were not compared before the Sun reached them.",
+              "supports": [
+                "The paper square was always warmer than the shaded square"
+              ]
+            }
+          ],
+          "requiredEvidenceCount": 2
+        }
+      }
     }
   ],
   "workedExample": {
@@ -534,7 +595,35 @@ const scienceU02L02Core = {
           "kind": "tip",
           "text": "Response frame: Light traveled from ____ to ____. I observed ____, so I infer ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
+          ],
+          "transfers": [
+            "light",
+            "sound",
+            "electric current",
+            "heat"
+          ],
+          "targets": [
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
+          ],
+          "requiredPath": [
+            "Sun",
+            "light",
+            "paper square"
+          ]
+        }
+      }
     },
     {
       "id": "science-u02-l02-c3",
@@ -552,7 +641,47 @@ const scienceU02L02Core = {
           "kind": "tip",
           "text": "Stretch: Compare both routes in one claim and name one observation for each without treating the tracing model as evidence."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Sound and light are different routes with different observable effects",
+            "Sound and light always cause the same effect"
+          ],
+          "details": [
+            {
+              "id": "trembling",
+              "text": "The sound route ends with paper bits trembling near the tuning fork.",
+              "supports": [
+                "Sound and light are different routes with different observable effects"
+              ]
+            },
+            {
+              "id": "brighter",
+              "text": "The light route ends with a brighter card facing the flashlight.",
+              "supports": [
+                "Sound and light are different routes with different observable effects"
+              ]
+            },
+            {
+              "id": "unlike",
+              "text": "A trembling effect and a brightness effect do not look alike.",
+              "supports": [
+                "Sound and light are different routes with different observable effects"
+              ]
+            },
+            {
+              "id": "same-claim",
+              "text": "Both routes make paper bits tremble.",
+              "supports": [
+                "Sound and light always cause the same effect"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -932,7 +1061,35 @@ const scienceU02L03Core = {
           "kind": "tip",
           "text": "Support: Compare matching objects and complete: The spoon in ____ became ____ than the comparison spoon."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
+          ],
+          "transfers": [
+            "light",
+            "sound",
+            "electric current",
+            "heat"
+          ],
+          "targets": [
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
+          ],
+          "requiredPath": [
+            "warm water",
+            "heat",
+            "metal spoon"
+          ]
+        }
+      }
     },
     {
       "id": "science-u02-l03-c2",
@@ -996,7 +1153,47 @@ const scienceU02L03Core = {
           "kind": "tip",
           "text": "Stretch: Write one observation-and-inference pair for heat and another for electric current, using a different observable effect in each."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Route and effect are separate parts of the description",
+            "\"The energy moved\" is enough on its own"
+          ],
+          "details": [
+            {
+              "id": "heat-route",
+              "text": "Heat is the route in the warm-water and spoon case.",
+              "supports": [
+                "Route and effect are separate parts of the description"
+              ]
+            },
+            {
+              "id": "warmer-effect",
+              "text": "A warmer spoon is the observed effect in that case.",
+              "supports": [
+                "Route and effect are separate parts of the description"
+              ]
+            },
+            {
+              "id": "current-route",
+              "text": "Electric current is the route in the battery and motor case.",
+              "supports": [
+                "Route and effect are separate parts of the description"
+              ]
+            },
+            {
+              "id": "vague",
+              "text": "Saying only \"the energy moved\" names no observable change.",
+              "supports": [
+                "\"The energy moved\" is enough on its own"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -1375,7 +1572,35 @@ const scienceU02L04Core = {
           "kind": "tip",
           "text": "Support: Read one row at a time and point to source → route → receiver → effect."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "Sun",
+            "tuning fork",
+            "battery",
+            "warm water"
+          ],
+          "transfers": [
+            "light",
+            "sound",
+            "electric current",
+            "heat"
+          ],
+          "targets": [
+            "paper square",
+            "paper bits",
+            "motor",
+            "metal spoon"
+          ],
+          "requiredPath": [
+            "battery",
+            "electric current",
+            "motor"
+          ]
+        }
+      }
     },
     {
       "id": "science-u02-l04-c2",
@@ -1393,7 +1618,47 @@ const scienceU02L04Core = {
           "kind": "tip",
           "text": "Response frame: The observation ____ is relevant because it describes a change in the ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "theme-evidence-collector",
+        "config": {
+          "themeChoices": [
+            "These observations describe a receiver change",
+            "These observations are not about a receiver change"
+          ],
+          "evidence": [
+            {
+              "id": "trembling",
+              "text": "Paper bits trembled near the struck tuning fork.",
+              "supports": [
+                "These observations describe a receiver change"
+              ]
+            },
+            {
+              "id": "brighter",
+              "text": "The card facing the flashlight looked brighter.",
+              "supports": [
+                "These observations describe a receiver change"
+              ]
+            },
+            {
+              "id": "warmer",
+              "text": "The spoon in warm water became warmer.",
+              "supports": [
+                "These observations describe a receiver change"
+              ]
+            },
+            {
+              "id": "pencil",
+              "text": "The pencil on the table is blue.",
+              "supports": [
+                "These observations are not about a receiver change"
+              ]
+            }
+          ],
+          "requiredEvidenceCount": 3
+        }
+      }
     },
     {
       "id": "science-u02-l04-c3",
@@ -1411,7 +1676,47 @@ const scienceU02L04Core = {
           "kind": "tip",
           "text": "Stretch: Use evidence from three routes, then state one limit: the observations support transfer qualitatively but do not give exact energy amounts."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Different routes are supported by different receiver effects",
+            "All four routes cause the same effect"
+          ],
+          "details": [
+            {
+              "id": "sound-case",
+              "text": "The sound route ended with trembling paper bits.",
+              "supports": [
+                "Different routes are supported by different receiver effects"
+              ]
+            },
+            {
+              "id": "light-case",
+              "text": "The light route ended with a brighter card.",
+              "supports": [
+                "Different routes are supported by different receiver effects"
+              ]
+            },
+            {
+              "id": "heat-case",
+              "text": "The heat route ended with a warmer spoon.",
+              "supports": [
+                "Different routes are supported by different receiver effects"
+              ]
+            },
+            {
+              "id": "identical",
+              "text": "Every route ended with the same observed effect.",
+              "supports": [
+                "All four routes cause the same effect"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {

@@ -15,7 +15,18 @@ const specs = [
       {
         "title": "Recognize a repeating wave",
         "tag": "repeating-wave-model",
-        "widget": null
+        "widget": {
+          "type": "wave-maker",
+          "config": {
+            "medium": "rope",
+            "amplitude": 1,
+            "frequency": 2,
+            "target": {
+              "amplitude": 4,
+              "frequency": 2
+            }
+          }
+        }
       },
       {
         "title": "Compare small and large amplitude",
@@ -35,7 +46,46 @@ const specs = [
       {
         "title": "Explain what the model represents",
         "tag": "wave-model-limits",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "The wave model represents a repeating pattern",
+              "The wave model measures a real rope"
+            ],
+            "details": [
+              {
+                "id": "authored",
+                "text": "The curve is an authored drawing of a repeating pattern.",
+                "supports": [
+                  "The wave model represents a repeating pattern"
+                ]
+              },
+              {
+                "id": "control",
+                "text": "The amplitude control changes displacement in the drawing.",
+                "supports": [
+                  "The wave model represents a repeating pattern"
+                ]
+              },
+              {
+                "id": "not-photo",
+                "text": "The drawing is not a photograph of every wave.",
+                "supports": [
+                  "The wave model represents a repeating pattern"
+                ]
+              },
+              {
+                "id": "measured",
+                "text": "The model collected measurements from a physical rope.",
+                "supports": [
+                  "The wave model measures a real rope"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -103,17 +153,78 @@ const specs = [
       {
         "title": "Find matching points on waves",
         "tag": "wavelength-reference-points",
-        "widget": null
+        "widget": {
+          "type": "wave-maker",
+          "config": {
+            "medium": "rope",
+            "amplitude": 3,
+            "frequency": 2,
+            "target": {
+              "amplitude": 3,
+              "frequency": 4
+            }
+          }
+        }
       },
       {
         "title": "Compare shorter and longer wavelengths",
         "tag": "wavelength-comparison",
-        "widget": null
+        "widget": {
+          "type": "wave-maker",
+          "config": {
+            "medium": "rope",
+            "amplitude": 3,
+            "frequency": 2,
+            "target": {
+              "amplitude": 3,
+              "frequency": 6
+            }
+          }
+        }
       },
       {
         "title": "Use a qualitative wave model",
         "tag": "wavelength-model-boundary",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This model supports a shorter-or-longer comparison",
+              "This model gives exact wavelength numbers"
+            ],
+            "details": [
+              {
+                "id": "closer",
+                "text": "Crests drawn closer together represent a shorter wavelength.",
+                "supports": [
+                  "This model supports a shorter-or-longer comparison"
+                ]
+              },
+              {
+                "id": "farther",
+                "text": "Crests drawn farther apart represent a longer wavelength.",
+                "supports": [
+                  "This model supports a shorter-or-longer comparison"
+                ]
+              },
+              {
+                "id": "qualitative",
+                "text": "Grade 4 comparisons use patterns rather than measured distances.",
+                "supports": [
+                  "This model supports a shorter-or-longer comparison"
+                ]
+              },
+              {
+                "id": "numbers",
+                "text": "The diagram prints a wavelength in centimeters.",
+                "supports": [
+                  "This model gives exact wavelength numbers"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -180,7 +291,28 @@ const specs = [
       {
         "title": "Observe an object at the surface",
         "tag": "wave-object-observation",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Tap at the tray edge",
+              "Still water surface"
+            ],
+            "transfers": [
+              "Repeating ripple",
+              "No ripple"
+            ],
+            "targets": [
+              "Floating cork bobs",
+              "Floating cork rests"
+            ],
+            "requiredPath": [
+              "Tap at the tray edge",
+              "Repeating ripple",
+              "Floating cork bobs"
+            ]
+          }
+        }
       },
       {
         "title": "Model motion caused by waves",
@@ -200,7 +332,46 @@ const specs = [
       {
         "title": "Connect patterns without overclaiming",
         "tag": "wave-motion-model-limits",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "The written tray observation is the evidence",
+              "The screen result is the evidence"
+            ],
+            "details": [
+              {
+                "id": "cork-note",
+                "text": "The recorded note says the cork bobbed near its mark as ripples passed.",
+                "supports": [
+                  "The written tray observation is the evidence"
+                ]
+              },
+              {
+                "id": "model-explains",
+                "text": "The diagram helps explain or predict the pattern.",
+                "supports": [
+                  "The written tray observation is the evidence"
+                ]
+              },
+              {
+                "id": "no-proof",
+                "text": "The app did not observe the cork and cannot prove the tray result.",
+                "supports": [
+                  "The written tray observation is the evidence"
+                ]
+              },
+              {
+                "id": "screen",
+                "text": "The taller curve on screen proves what the cork did.",
+                "supports": [
+                  "The screen result is the evidence"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -267,7 +438,28 @@ const specs = [
       {
         "title": "Trace light to an object",
         "tag": "light-to-object",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Lamp",
+              "Closed dark room"
+            ],
+            "transfers": [
+              "Book page",
+              "No reflecting surface"
+            ],
+            "targets": [
+              "Eye receiver",
+              "Nothing seen"
+            ],
+            "requiredPath": [
+              "Lamp",
+              "Book page",
+              "Eye receiver"
+            ]
+          }
+        }
       },
       {
         "title": "Trace reflected light to the eye",
@@ -284,7 +476,46 @@ const specs = [
       {
         "title": "Explain seeing with a model",
         "tag": "seeing-cause-effect-model",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "The ray diagram models a possible light path",
+              "The ray diagram shows that a person saw the book"
+            ],
+            "details": [
+              {
+                "id": "reflects",
+                "text": "The model shows light reflecting from the object and entering the eye.",
+                "supports": [
+                  "The ray diagram models a possible light path"
+                ]
+              },
+              {
+                "id": "angles",
+                "text": "The authored angles at the surface are equal in this model.",
+                "supports": [
+                  "The ray diagram models a possible light path"
+                ]
+              },
+              {
+                "id": "system",
+                "text": "The model stops at a system-level explanation of seeing.",
+                "supports": [
+                  "The ray diagram models a possible light path"
+                ]
+              },
+              {
+                "id": "observed",
+                "text": "The app observed a particular person seeing the book.",
+                "supports": [
+                  "The ray diagram shows that a person saw the book"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [

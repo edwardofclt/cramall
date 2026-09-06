@@ -39,6 +39,31 @@ export const unit01Lessons = [
           { kind: 'example', text: 'In “The tiny crab slipped under the striped shell,” changing crab to cap would change the picture, so an accurate reader checks the letters and rereads.' },
           { kind: 'tip', text: 'Use the sentence meaning and every letter in a word; do not guess from only the first sound.' },
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "The tiny crab slipped under the striped shell.",
+            "targetWord": "crab",
+            "clueChoices": [
+              {
+                "id": "slipped-under",
+                "text": "slipped under the striped shell",
+                "type": "definition"
+              },
+              {
+                "id": "striped",
+                "text": "the striped shell",
+                "type": "example"
+              },
+              {
+                "id": "tiny",
+                "text": "The tiny",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "slipped-under"
+          }
+        },
         check: {
           prompt: 'A reader changes “crab” to “cap” in the tiny crab sentence. Which move best protects the meaning?',
           choices: [
@@ -79,6 +104,39 @@ export const unit01Lessons = [
           { kind: 'tip', text: 'Use a three-line reflection labeled Accuracy, Pace, and Meaning/Evidence; this consistent format helps you create careful work.' },
           { kind: 'tip', text: 'Practice independently: read a short section, use the Read aloud button to compare a model pace, then write an Accuracy, Pace, and Meaning/Evidence self-reflection. The app does not listen to or score your voice.' },
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "A dog walked across the porch",
+              "The porch had just been washed"
+            ],
+            "details": [
+              {
+                "id": "paw-prints",
+                "text": "Muddy paw prints crossed the porch boards.",
+                "supports": [
+                  "A dog walked across the porch"
+                ]
+              },
+              {
+                "id": "empty-bed",
+                "text": "The dog bed by the door was empty.",
+                "supports": [
+                  "A dog walked across the porch"
+                ]
+              },
+              {
+                "id": "clean-rail",
+                "text": "Someone hosed the porch rail yesterday.",
+                "supports": [
+                  "The porch had just been washed"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         check: {
           prompt: 'Which note checks meaning with evidence from the muddy-paw sentence?',
           choices: [
@@ -315,6 +373,31 @@ export const unit01Lessons = [
           { kind: 'example', text: 'In “At last, the lantern glowed,” emphasizing at last can show relief after a long wait.' },
           { kind: 'tip', text: 'Infer a speaker’s feeling from details, then cite the words that guided your voice choice.' },
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "At last, the lantern glowed after the long, dark wait.",
+            "targetWord": "At last",
+            "clueChoices": [
+              {
+                "id": "long-wait",
+                "text": "after the long, dark wait",
+                "type": "definition"
+              },
+              {
+                "id": "lantern",
+                "text": "the lantern glowed",
+                "type": "example"
+              },
+              {
+                "id": "dark",
+                "text": "dark",
+                "type": "contrast"
+              }
+            ],
+            "correctChoiceId": "long-wait"
+          }
+        },
         check: {
           prompt: 'What expression best fits emphasizing “at last” in the lantern sentence?',
           choices: [
@@ -355,6 +438,39 @@ export const unit01Lessons = [
           { kind: 'tip', text: 'Use the accepted reflection format Text clue → Voice choice → Meaning connection so your reasoning is clear and complete.' },
           { kind: 'tip', text: 'Practice independently with the app: read the passage, use Read aloud to hear a model, and write a Text clue → Voice choice → Meaning connection self-reflection. The app does not listen to or score your voice.' },
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Read the line brightly to show relief",
+              "Read the line flatly to show boredom"
+            ],
+            "details": [
+              {
+                "id": "at-last",
+                "text": "The words \"At last\" show that a long wait has ended.",
+                "supports": [
+                  "Read the line brightly to show relief"
+                ]
+              },
+              {
+                "id": "glowed",
+                "text": "The lantern finally glowed after the dark.",
+                "supports": [
+                  "Read the line brightly to show relief"
+                ]
+              },
+              {
+                "id": "word-count",
+                "text": "The sentence has five words.",
+                "supports": [
+                  "Read the line flatly to show boredom"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         check: {
           prompt: 'Which reflection connects a text clue, a voice choice, and meaning?',
           choices: [

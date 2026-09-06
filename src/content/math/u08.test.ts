@@ -63,8 +63,15 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u08-l01-c3': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.1, b: 0.35, step: 0.01, display: 'fraction', denominator: 100 } },
-  'math-u08-l02-c1': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.48, b: 0.52, step: 0.01, display: 'number' } },
+  'math-u08-l01-c1': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 10, "numerator": 0, "target": {"numerator": 7, "denominator": 10}, "allowEquivalent": false}},
+  'math-u08-l01-c2': {"type": "money-counter", "config": {"targetCents": 35, "denominations": [1, 10]}},
+  'math-u08-l01-c3': {"type": "number-line-compare", "config": {"min": 0, "max": 1, "a": 0.1, "b": 0.35, "step": 0.01, "display": "fraction", "denominator": 100}},
+  'math-u08-l02-c1': {"type": "number-line-compare", "config": {"min": 0, "max": 1, "a": 0.48, "b": 0.52, "step": 0.01, "display": "number"}},
+  'math-u08-l02-c2': {"type": "money-counter", "config": {"targetCents": 64, "denominations": [1, 10, 100]}},
+  'math-u08-l02-c3': {"type": "balance-scale", "config": {"task": "compare", "left": [{"id": "written-zero", "label": "0.70", "value": 0.7}], "right": [{"id": "no-zero", "label": "0.7", "value": 0.7}]}},
+  'math-u08-l03-c1': {"type": "money-counter", "config": {"targetCents": 40, "denominations": [1, 10]}},
+  'math-u08-l03-c2': {"type": "money-counter", "config": {"targetCents": 62, "denominations": [1, 10]}},
+  'math-u08-l03-c3': {"type": "number-line-compare", "config": {"min": 0, "max": 2, "a": 1.3, "b": 2, "step": 0.1, "display": "number"}},
 } as const;
 
 test('u08 is the exact validated 3-lesson unit', () => {

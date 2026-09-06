@@ -97,10 +97,21 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u09-l01-c1': { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100] } },
-  'math-u09-l02-c2': { type: 'clock-elapsed-time', config: { mode: 'set-time', targetTime: '10:05', minuteStep: 5 } },
-  'math-u09-l03-c2': { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0 } },
-  'math-u09-l05-c1': { type: 'balance-scale', config: { left: [{ id: 'three-feet', label: '3 feet', value: 36 }], right: [{ id: 'thirty-six-inches', label: '36 inches', value: 36 }], task: 'compare' } },
+  'math-u09-l01-c1': {"type": "money-counter", "config": {"targetCents": 635, "denominations": [1, 5, 10, 25, 100]}},
+  'math-u09-l01-c2': {"type": "balance-scale", "config": {"task": "compare", "left": [{"id": "collection", "label": "Collection $6.35", "value": 6.35}], "right": [{"id": "price", "label": "Price tag $6.20", "value": 6.2}]}},
+  'math-u09-l01-c3': {"type": "money-counter", "config": {"targetCents": 62, "denominations": [1, 5, 10, 25]}},
+  'math-u09-l02-c1': {"type": "clock-elapsed-time", "config": {"mode": "set-time", "targetTime": "09:45", "minuteStep": 5}},
+  'math-u09-l02-c2': {"type": "clock-elapsed-time", "config": {"mode": "set-time", "targetTime": "10:05", "minuteStep": 5}},
+  'math-u09-l02-c3': {"type": "clock-elapsed-time", "config": {"mode": "set-time", "targetTime": "13:45", "minuteStep": 5}},
+  'math-u09-l03-c1': {"type": "quarter-inch-ruler", "config": {"lengthInches": 3, "targetInches": 2.25, "startInches": 0}},
+  'math-u09-l03-c2': {"type": "quarter-inch-ruler", "config": {"lengthInches": 5, "targetInches": 4.75, "startInches": 0}},
+  'math-u09-l03-c3': {"type": "number-line-compare", "config": {"min": 2, "max": 4, "a": 3.25, "b": 2.75, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u09-l04-c1': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "marker", "label": "Marker (12 grams)", "value": 12}], "right": [{"id": "c1", "label": "1 gram clip", "value": 1}, {"id": "c2", "label": "1 gram clip", "value": 1}, {"id": "c3", "label": "1 gram clip", "value": 1}, {"id": "c4", "label": "1 gram clip", "value": 1}, {"id": "c5", "label": "1 gram clip", "value": 1}, {"id": "c6", "label": "1 gram clip", "value": 1}, {"id": "c7", "label": "1 gram clip", "value": 1}, {"id": "c8", "label": "1 gram clip", "value": 1}, {"id": "c9", "label": "1 gram clip", "value": 1}, {"id": "c10", "label": "1 gram clip", "value": 1}, {"id": "c11", "label": "1 gram clip", "value": 1}, {"id": "c12", "label": "1 gram clip", "value": 1}]}},
+  'math-u09-l04-c2': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Set each bar to about how many grams the object weighs.", "categories": ["Paper clip", "Pencil", "Apple"], "target": {"Paper clip": 1, "Pencil": 6, "Apple": 30}}},
+  'math-u09-l04-c3': {"type": "number-line-compare", "config": {"min": 2, "max": 4, "a": 2.6, "b": 3, "step": 0.2, "display": "number"}},
+  'math-u09-l05-c1': {"type": "balance-scale", "config": {"left": [{"id": "three-feet", "label": "3 feet", "value": 36}], "right": [{"id": "thirty-six-inches", "label": "36 inches", "value": 36}], "task": "compare"}},
+  'math-u09-l05-c2': {"type": "array-builder", "config": {"rows": 1, "columns": 3, "targetProduct": 15, "editable": true}},
+  'math-u09-l05-c3': {"type": "area-model-multiplier", "config": {"a": 4, "b": 16, "splitA": [4], "splitB": [10, 6], "targetProduct": 64}},
 } as const;
 
 test('u09 is the exact validated 5-lesson unit', () => {

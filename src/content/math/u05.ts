@@ -33,6 +33,7 @@ export const unit05Lessons = [
           { kind: 'example', text: '53 ÷ 4 = 13 remainder 1 because 4 × 13 + 1 = 53.' },
           { kind: 'tip', text: 'A context may ask you to keep the remainder, discard it, or make one more group.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 4, columns: 1, targetProduct: 52, editable: true } },
       },
       {
         id: 'math-u05-l01-c3',
@@ -42,6 +43,7 @@ export const unit05Lessons = [
           { kind: 'example', text: '875 ÷ 4 = 218 remainder 3 checks because 4 × 218 + 3 = 875.' },
           { kind: 'tip', text: 'The remainder must be less than the divisor or another full group can be made.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'dividend', label: 'Dividend 875', value: 875 }], right: [{ id: 'q1', label: 'Group of 218', value: 218 }, { id: 'q2', label: 'Group of 218', value: 218 }, { id: 'q3', label: 'Group of 218', value: 218 }, { id: 'q4', label: 'Group of 218', value: 218 }, { id: 'rem', label: 'Left over 3', value: 3 }, { id: 'decoy', label: 'Extra 10', value: 10 }] } },
       },
     ],
     workedExample: {
@@ -91,6 +93,7 @@ export const unit05Lessons = [
           { kind: 'example', text: 'If 3 boxes hold 24 markers each and 17 are used, first multiply 3 × 24, then subtract 17.' },
           { kind: 'tip', text: 'Operations follow the situation; keywords alone do not choose the plan.' },
         ],
+        widget: { type: 'area-model-multiplier', config: { a: 3, b: 24, splitA: [3], splitB: [20, 4], targetProduct: 72 } },
       },
       {
         id: 'math-u05-l02-c2',
@@ -109,6 +112,7 @@ export const unit05Lessons = [
           { kind: 'example', text: '(3 × 24) - 17 = 72 - 17 = 55 markers.' },
           { kind: 'tip', text: 'Substitute the answer into the equation and confirm it matches the story.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'first-step', label: '3 boxes of 24 = 72', value: 72 }], right: [{ id: 'used', label: '17 used', value: 17 }, { id: 'left', label: '55 left', value: 55 }, { id: 'decoy', label: 'Extra 5', value: 5 }] } },
       },
     ],
     workedExample: {

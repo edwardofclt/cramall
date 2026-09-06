@@ -21,6 +21,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'Plant heights in centimeters are numerical, while favorite fruit choices are categorical.' },
           { kind: 'tip', text: 'State what each observation represents before collecting data.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'dot', prompt: 'Plot the five seedling heights in centimeters.', categories: ['4', '5', '6', '8'], target: { '4': 1, '5': 2, '6': 1, '8': 1 } as Record<string, number> } },
       },
       {
         id: 'math-u12-l01-c2',
@@ -30,7 +31,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A pet survey with dog, cat, and fish categories fits a bar graph.' },
           { kind: 'tip', text: 'Choose a display that preserves the question and all collected values.' },
         ],
-        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 } } },
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 } as Record<string, number> } },
       },
       {
         id: 'math-u12-l01-c3',
@@ -40,6 +41,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A bar graph scale counting 0, 2, 4, 6, 8 uses increments of 2.' },
           { kind: 'tip', text: 'Half- and fourth-unit scales must mark equal intervals so fractional values are not distorted.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the reading-minutes graph with an evenly spaced scale.', categories: ['Monday', 'Tuesday', 'Wednesday'], target: { Monday: 20, Tuesday: 15, Wednesday: 10 } as Record<string, number> } },
       },
     ],
     workedExample: {
@@ -89,6 +91,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'If one picture represents 4 books, 3 pictures represent 12 books.' },
           { kind: 'tip', text: 'Check for half-picture symbols or scaled axes before counting marks.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Rebuild the vote graph from the scale: blue 16 votes, green 10 votes.', categories: ['Blue', 'Green'], target: { Blue: 16, Green: 10 } as Record<string, number> } },
       },
       {
         id: 'math-u12-l02-c2',
@@ -98,6 +101,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'If two bars show 18 and 11 votes, the difference is 18 - 11 = 7 votes.' },
           { kind: 'tip', text: 'Answer only the question asked; do not perform extra operations.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 20, a: 16, b: 10, step: 2 } },
       },
       {
         id: 'math-u12-l02-c3',
@@ -107,6 +111,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A dot plot with 1/4, 2/4, and 3/4 mile has a total of 6/4 = 1 2/4 miles.' },
           { kind: 'tip', text: 'Keep the display’s measurement unit in the final answer.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 1, target: { numerator: 3, denominator: 4 }, allowEquivalent: false } },
       },
     ],
     workedExample: {
@@ -156,6 +161,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A spinner with red, blue, and green sections has outcomes red, blue, and green.' },
           { kind: 'tip', text: 'List each distinct outcome once, even if an outcome has more than one equal section.' },
         ],
+        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red' }, { id: 'blue', label: 'Blue' }, { id: 'green', label: 'Green' }], trials: 6 } },
       },
       {
         id: 'math-u12-l03-c2',
@@ -175,6 +181,7 @@ export const unit12Lessons = [
           { kind: 'example', text: 'Rolling 1–6 makes “roll less than 7” certain, “roll 4” possible, and “roll 8” impossible.' },
           { kind: 'tip', text: 'Unequal spinner sections change how likely outcomes are, but any listed outcome is still possible.' },
         ],
+        widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 3 }, { id: 'blue', label: 'Blue' }], trials: 8, targetOutcomeId: 'blue' } },
       },
     ],
     workedExample: {

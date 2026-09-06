@@ -46,7 +46,47 @@ const scienceU04L01Core = {
           "kind": "tip",
           "text": "Support: Name the two allowed values and cross out any third value before encoding."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "This is a two-value code",
+            "This is not a two-value code"
+          ],
+          "details": [
+            {
+              "id": "zero-one",
+              "text": "A code that uses only 0 and 1.",
+              "supports": [
+                "This is a two-value code"
+              ]
+            },
+            {
+              "id": "off-on",
+              "text": "A code that uses only off and on.",
+              "supports": [
+                "This is a two-value code"
+              ]
+            },
+            {
+              "id": "dot-dash",
+              "text": "A code that uses only dot and dash.",
+              "supports": [
+                "This is a two-value code"
+              ]
+            },
+            {
+              "id": "three",
+              "text": "A code that uses low, medium, and high.",
+              "supports": [
+                "This is not a two-value code"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     },
     {
       "id": "science-u04-l01-c2",
@@ -89,7 +129,14 @@ const scienceU04L01Core = {
           "kind": "tip",
           "text": "Stretch: Explain why shared value meanings and shared order are both necessary for accurate decoding."
         }
-      ]
+      ],
+      "widget": {
+        "type": "message-sender",
+        "config": {
+          "encoding": "binary",
+          "message": "HI"
+        }
+      }
     }
   ],
   "workedExample": {
@@ -494,7 +541,14 @@ const scienceU04L02Core = {
           "kind": "tip",
           "text": "Response frame: Low means ____, high means ____, and the pattern for A is ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "message-sender",
+        "config": {
+          "encoding": "morse",
+          "message": "SOS"
+        }
+      }
     },
     {
       "id": "science-u04-l02-c3",
@@ -512,7 +566,47 @@ const scienceU04L02Core = {
           "kind": "tip",
           "text": "Stretch: Choose one code for a named condition and justify it with accuracy and clarity evidence plus one limitation."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "A clear code keeps its two values easy to tell apart",
+            "A clear code can reuse one value for two meanings"
+          ],
+          "details": [
+            {
+              "id": "distinct",
+              "text": "Dot and dash look different on a printed card.",
+              "supports": [
+                "A clear code keeps its two values easy to tell apart"
+              ]
+            },
+            {
+              "id": "order",
+              "text": "The receiver reads the values in the agreed order.",
+              "supports": [
+                "A clear code keeps its two values easy to tell apart"
+              ]
+            },
+            {
+              "id": "boundary",
+              "text": "A separator marks where one character ends and the next begins.",
+              "supports": [
+                "A clear code keeps its two values easy to tell apart"
+              ]
+            },
+            {
+              "id": "reuse",
+              "text": "One value stands for both A and B depending on mood.",
+              "supports": [
+                "A clear code can reuse one value for two meanings"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -875,7 +969,14 @@ const scienceU04L03Core = {
           "kind": "tip",
           "text": "Support: Cover all but one square and name only black or white before moving on."
         }
-      ]
+      ],
+      "widget": {
+        "type": "message-sender",
+        "config": {
+          "encoding": "binary",
+          "message": "A"
+        }
+      }
     },
     {
       "id": "science-u04-l03-c2",
@@ -893,7 +994,47 @@ const scienceU04L03Core = {
           "kind": "tip",
           "text": "Response frame: Start at ____, move ____, then move to ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Reading order changes the picture",
+            "Reading order does not matter"
+          ],
+          "details": [
+            {
+              "id": "top-left",
+              "text": "The agreed order begins at the top-left square.",
+              "supports": [
+                "Reading order changes the picture"
+              ]
+            },
+            {
+              "id": "left-right",
+              "text": "Each row is read left to right before the next row begins.",
+              "supports": [
+                "Reading order changes the picture"
+              ]
+            },
+            {
+              "id": "different",
+              "text": "Reading the same four values down the columns produces a different picture.",
+              "supports": [
+                "Reading order changes the picture"
+              ]
+            },
+            {
+              "id": "any-order",
+              "text": "Any order of the same values gives the same picture.",
+              "supports": [
+                "Reading order does not matter"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     },
     {
       "id": "science-u04-l03-c3",
@@ -911,7 +1052,14 @@ const scienceU04L03Core = {
           "kind": "tip",
           "text": "Stretch: Explain how one value error changes the decoded picture and how a position-by-position check locates it."
         }
-      ]
+      ],
+      "widget": {
+        "type": "message-sender",
+        "config": {
+          "encoding": "binary",
+          "message": "B"
+        }
+      }
     }
   ],
   "workedExample": {
@@ -1290,7 +1438,55 @@ const scienceU04L04Core = {
           "kind": "tip",
           "text": "Support: Make three columns labeled accuracy, clarity, and efficiency before reading results."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Accuracy",
+            "Clarity",
+            "Efficiency"
+          ],
+          "details": [
+            {
+              "id": "decoded",
+              "text": "Morse decoded 4 of 4 characters correctly.",
+              "supports": [
+                "Accuracy"
+              ]
+            },
+            {
+              "id": "errors",
+              "text": "The drum code decoded 3 of 4 characters in the noisy condition.",
+              "supports": [
+                "Accuracy"
+              ]
+            },
+            {
+              "id": "distinguish",
+              "text": "Dot and dash stay easy to tell apart on paper.",
+              "supports": [
+                "Clarity"
+              ]
+            },
+            {
+              "id": "values",
+              "text": "The grid strip used 16 values to send the message.",
+              "supports": [
+                "Efficiency"
+              ]
+            },
+            {
+              "id": "count",
+              "text": "Morse used 12 values to send the same message.",
+              "supports": [
+                "Efficiency"
+              ]
+            }
+          ],
+          "requiredDetailCount": 2
+        }
+      }
     },
     {
       "id": "science-u04-l04-c2",
@@ -1308,7 +1504,24 @@ const scienceU04L04Core = {
           "kind": "tip",
           "text": "Response frame: ____ was more/less ____ because the result shows ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "data-plot-builder",
+        "config": {
+          "kind": "bar",
+          "prompt": "Build the results bar graph from the supplied record: values used by each solution.",
+          "categories": [
+            "Morse",
+            "Drums",
+            "Grid strip"
+          ],
+          "target": {
+            "Morse": 12,
+            "Drums": 10,
+            "Grid strip": 16
+          } as Record<string, number>
+        }
+      }
     },
     {
       "id": "science-u04-l04-c3",
@@ -1326,7 +1539,45 @@ const scienceU04L04Core = {
           "kind": "tip",
           "text": "Stretch: Defend a different solution for a different condition and explain why the chosen criteria changed."
         }
-      ]
+      ],
+      "widget": {
+        "type": "summary-builder",
+        "config": {
+          "sourceSentences": [
+            {
+              "id": "choice",
+              "text": "For an accurate printed card, the Morse solution fits best.",
+              "role": "main"
+            },
+            {
+              "id": "accuracy",
+              "text": "Morse decoded 4 of 4 characters in the supplied record.",
+              "role": "main"
+            },
+            {
+              "id": "efficiency",
+              "text": "Morse used 12 values, fewer than the grid strip's 16.",
+              "role": "main"
+            },
+            {
+              "id": "limit",
+              "text": "The record does not show how Morse performs in a noisy room.",
+              "role": "detail"
+            },
+            {
+              "id": "favorite",
+              "text": "The drum code sounds the most fun.",
+              "role": "extra"
+            }
+          ],
+          "requiredMainIds": [
+            "choice",
+            "accuracy",
+            "efficiency"
+          ],
+          "maxSentences": 4
+        }
+      }
     }
   ],
   "workedExample": {

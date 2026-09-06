@@ -563,6 +563,32 @@ const expectedWidgets = [
     "id": "reading-u02-l01",
     "widgets": [
       {
+        "cardId": "reading-u02-l01-c1",
+        "ref": {
+          "type": "word-root-builder",
+          "config": {
+            "root": "build",
+            "prefixes": [
+              "re",
+              "pre"
+            ],
+            "suffixes": [
+              "er"
+            ],
+            "targets": [
+              {
+                "word": "rebuild",
+                "meaning": "build again"
+              },
+              {
+                "word": "builder",
+                "meaning": "a person who builds"
+              }
+            ]
+          }
+        }
+      },
+      {
         "cardId": "reading-u02-l01-c2",
         "ref": {
           "type": "word-root-builder",
@@ -584,6 +610,34 @@ const expectedWidgets = [
                 "meaning": "able to be carried"
               }
             ]
+          }
+        }
+      },
+      {
+        "cardId": "reading-u02-l01-c3",
+        "ref": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "The volunteers rebuilt the garden beds after the storm.",
+            "targetWord": "rebuilt",
+            "clueChoices": [
+              {
+                "id": "after-storm",
+                "text": "after the storm",
+                "type": "definition"
+              },
+              {
+                "id": "garden-beds",
+                "text": "the garden beds",
+                "type": "example"
+              },
+              {
+                "id": "volunteers",
+                "text": "The volunteers",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "after-storm"
           }
         }
       }
@@ -614,12 +668,145 @@ const expectedWidgets = [
             "correctChoiceId": "definition"
           }
         }
+      },
+      {
+        "cardId": "reading-u02-l02-c2",
+        "ref": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "At dusk, several insects emerge; in other words, they come out from hiding. A luna moth rests during much of the day but becomes active when evening arrives.",
+            "targetWord": "emerge",
+            "clueChoices": [
+              {
+                "id": "restatement",
+                "text": "they come out from hiding",
+                "type": "synonym"
+              },
+              {
+                "id": "luna-rest",
+                "text": "A luna moth rests during much of the day",
+                "type": "contrast"
+              },
+              {
+                "id": "at-dusk",
+                "text": "At dusk",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "restatement"
+          }
+        }
+      },
+      {
+        "cardId": "reading-u02-l02-c3",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Nocturnal means active at night",
+              "Nocturnal means able to fly"
+            ],
+            "details": [
+              {
+                "id": "definition-phrase",
+                "text": "creatures that are active at night",
+                "supports": [
+                  "Nocturnal means active at night"
+                ]
+              },
+              {
+                "id": "owls-hunt",
+                "text": "Owls may hunt after sunset.",
+                "supports": [
+                  "Nocturnal means active at night"
+                ]
+              },
+              {
+                "id": "moths-fly",
+                "text": "Moths often visit pale flowers in the dark.",
+                "supports": [
+                  "Nocturnal means able to fly"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
       }
     ]
   },
   {
     "id": "reading-u02-l03",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u02-l03-c1",
+        "ref": {
+          "type": "source-credibility-checker",
+          "config": {
+            "criteria": [
+              "author",
+              "evidence"
+            ],
+            "sources": [
+              {
+                "id": "harbor-dictionary",
+                "title": "Harbor Student Dictionary",
+                "author": "Dictionary editorial board",
+                "date": "2024",
+                "publisher": "Harbor Press",
+                "claims": [
+                  "brackish: slightly salty because fresh water and seawater mix"
+                ]
+              },
+              {
+                "id": "unsigned-comment",
+                "title": "Unsigned website comment about brackish water",
+                "claims": [
+                  "brackish water tastes like soda"
+                ]
+              },
+              {
+                "id": "tour-ad",
+                "title": "Advertisement for harbor boat tours",
+                "author": "Harbor Tours Company",
+                "claims": []
+              }
+            ],
+            "credibleIds": [
+              "harbor-dictionary"
+            ]
+          }
+        }
+      },
+      {
+        "cardId": "reading-u02-l03-c3",
+        "ref": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "The young fish rested near the grassy bank while a gentle current moved through the creek.",
+            "targetWord": "bank",
+            "clueChoices": [
+              {
+                "id": "creek-current",
+                "text": "a gentle current moved through the creek",
+                "type": "definition"
+              },
+              {
+                "id": "young-fish",
+                "text": "The young fish rested",
+                "type": "example"
+              },
+              {
+                "id": "teller-line",
+                "text": "a long line of customers waiting for a teller",
+                "type": "contrast"
+              }
+            ],
+            "correctChoiceId": "creek-current"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

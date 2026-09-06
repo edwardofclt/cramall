@@ -49,6 +49,25 @@ export const unit09Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "pov-switcher",
+          "config": {
+            "passage": "I carried my painted marker toward the trail.",
+            "from": "first",
+            "target": "third",
+            "pronounOptions": [
+              "Lila",
+              "Lila's",
+              "I",
+              "my",
+              "she"
+            ],
+            "requiredPronouns": [
+              "Lila",
+              "Lila's"
+            ]
+          }
+        },
         "check": {
           "prompt": "Which pronoun signals first person?",
           "choices": [
@@ -90,6 +109,46 @@ export const unit09Lessons = [
             "text": "Response frame: The source says ____. This supports ____ because ____."
           }
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "First-person narration",
+              "Third-person narration"
+            ],
+            "details": [
+              {
+                "id": "brush-i",
+                "text": "\"I brushed it clean and wondered whether it belonged to the trail's original route.\"",
+                "supports": [
+                  "First-person narration"
+                ]
+              },
+              {
+                "id": "proud-i",
+                "text": "\"I felt proud when I recognized the faded owl symbol.\"",
+                "supports": [
+                  "First-person narration"
+                ]
+              },
+              {
+                "id": "brush-she",
+                "text": "\"She brushed it clean and remembered the faded owl symbol from a library map.\"",
+                "supports": [
+                  "Third-person narration"
+                ]
+              },
+              {
+                "id": "carlos",
+                "text": "\"Farther ahead, Carlos found a matching symbol, but Lila had not seen him yet.\"",
+                "supports": [
+                  "Third-person narration"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         "check": {
           "prompt": "Which phrase is third person?",
           "choices": [
@@ -549,6 +608,46 @@ export const unit09Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Jalen sees the gym move as losing his practiced event",
+              "Mei sees the gym move as safer and full of new options"
+            ],
+            "evidence": [
+              {
+                "id": "groan",
+                "text": "Jalen groaned when the principal moved every event into the gym.",
+                "supports": [
+                  "Jalen sees the gym move as losing his practiced event"
+                ]
+              },
+              {
+                "id": "jump",
+                "text": "He had practiced the long jump for weeks.",
+                "supports": [
+                  "Jalen sees the gym move as losing his practiced event"
+                ]
+              },
+              {
+                "id": "grin",
+                "text": "Mei grinned at the news.",
+                "supports": [
+                  "Mei sees the gym move as safer and full of new options"
+                ]
+              },
+              {
+                "id": "wet",
+                "text": "She disliked running on wet grass.",
+                "supports": [
+                  "Mei sees the gym move as safer and full of new options"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        },
         "check": {
           "prompt": "How does Jalen view the gym move?",
           "choices": [
@@ -631,6 +730,44 @@ export const unit09Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "misread",
+                "text": "Jalen hears Mei's excitement as proof that she does not care about the canceled jump.",
+                "role": "main"
+              },
+              {
+                "id": "tension",
+                "text": "That misreading makes his reply sharp and creates tension.",
+                "role": "main"
+              },
+              {
+                "id": "restate",
+                "text": "Once each of them accurately restates the other's view, the conflict softens.",
+                "role": "main"
+              },
+              {
+                "id": "plan",
+                "text": "Their combined ideas produce a standing-jump challenge and a cone relay.",
+                "role": "detail"
+              },
+              {
+                "id": "rain",
+                "text": "The rain stopped by lunchtime.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "misread",
+              "tension",
+              "restate"
+            ],
+            "maxSentences": 4
+          }
+        },
         "check": {
           "prompt": "What resolves the perspective conflict?",
           "choices": [

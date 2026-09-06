@@ -15,7 +15,46 @@ const specs = [
       {
         "title": "Define two signal values",
         "tag": "two-value-code",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This is a two-value code",
+              "This is not a two-value code"
+            ],
+            "details": [
+              {
+                "id": "zero-one",
+                "text": "A code that uses only 0 and 1.",
+                "supports": [
+                  "This is a two-value code"
+                ]
+              },
+              {
+                "id": "off-on",
+                "text": "A code that uses only off and on.",
+                "supports": [
+                  "This is a two-value code"
+                ]
+              },
+              {
+                "id": "dot-dash",
+                "text": "A code that uses only dot and dash.",
+                "supports": [
+                  "This is a two-value code"
+                ]
+              },
+              {
+                "id": "three",
+                "text": "A code that uses low, medium, and high.",
+                "supports": [
+                  "This is not a two-value code"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       },
       {
         "title": "Encode a short message",
@@ -31,7 +70,13 @@ const specs = [
       {
         "title": "Check whether a receiver can decode",
         "tag": "decode-pattern",
-        "widget": null
+        "widget": {
+          "type": "message-sender",
+          "config": {
+            "encoding": "binary",
+            "message": "HI"
+          }
+        }
       }
     ],
     "routes": [
@@ -110,12 +155,57 @@ const specs = [
       {
         "title": "Use two drum sounds",
         "tag": "drum-pattern",
-        "widget": null
+        "widget": {
+          "type": "message-sender",
+          "config": {
+            "encoding": "morse",
+            "message": "SOS"
+          }
+        }
       },
       {
         "title": "Compare code clarity",
         "tag": "code-clarity-comparison",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "A clear code keeps its two values easy to tell apart",
+              "A clear code can reuse one value for two meanings"
+            ],
+            "details": [
+              {
+                "id": "distinct",
+                "text": "Dot and dash look different on a printed card.",
+                "supports": [
+                  "A clear code keeps its two values easy to tell apart"
+                ]
+              },
+              {
+                "id": "order",
+                "text": "The receiver reads the values in the agreed order.",
+                "supports": [
+                  "A clear code keeps its two values easy to tell apart"
+                ]
+              },
+              {
+                "id": "boundary",
+                "text": "A separator marks where one character ends and the next begins.",
+                "supports": [
+                  "A clear code keeps its two values easy to tell apart"
+                ]
+              },
+              {
+                "id": "reuse",
+                "text": "One value stands for both A and B depending on mood.",
+                "supports": [
+                  "A clear code can reuse one value for two meanings"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -182,17 +272,68 @@ const specs = [
       {
         "title": "Assign black and white values",
         "tag": "binary-grid-values",
-        "widget": null
+        "widget": {
+          "type": "message-sender",
+          "config": {
+            "encoding": "binary",
+            "message": "A"
+          }
+        }
       },
       {
         "title": "Read rows in a shared order",
         "tag": "binary-grid-order",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Reading order changes the picture",
+              "Reading order does not matter"
+            ],
+            "details": [
+              {
+                "id": "top-left",
+                "text": "The agreed order begins at the top-left square.",
+                "supports": [
+                  "Reading order changes the picture"
+                ]
+              },
+              {
+                "id": "left-right",
+                "text": "Each row is read left to right before the next row begins.",
+                "supports": [
+                  "Reading order changes the picture"
+                ]
+              },
+              {
+                "id": "different",
+                "text": "Reading the same four values down the columns produces a different picture.",
+                "supports": [
+                  "Reading order changes the picture"
+                ]
+              },
+              {
+                "id": "any-order",
+                "text": "Any order of the same values gives the same picture.",
+                "supports": [
+                  "Reading order does not matter"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       },
       {
         "title": "Find and repair a mismatch",
         "tag": "binary-grid-debugging",
-        "widget": null
+        "widget": {
+          "type": "message-sender",
+          "config": {
+            "encoding": "binary",
+            "message": "B"
+          }
+        }
       }
     ],
     "routes": [
@@ -259,17 +400,117 @@ const specs = [
       {
         "title": "Name comparison criteria",
         "tag": "message-criteria",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Accuracy",
+              "Clarity",
+              "Efficiency"
+            ],
+            "details": [
+              {
+                "id": "decoded",
+                "text": "Morse decoded 4 of 4 characters correctly.",
+                "supports": [
+                  "Accuracy"
+                ]
+              },
+              {
+                "id": "errors",
+                "text": "The drum code decoded 3 of 4 characters in the noisy condition.",
+                "supports": [
+                  "Accuracy"
+                ]
+              },
+              {
+                "id": "distinguish",
+                "text": "Dot and dash stay easy to tell apart on paper.",
+                "supports": [
+                  "Clarity"
+                ]
+              },
+              {
+                "id": "values",
+                "text": "The grid strip used 16 values to send the message.",
+                "supports": [
+                  "Efficiency"
+                ]
+              },
+              {
+                "id": "count",
+                "text": "Morse used 12 values to send the same message.",
+                "supports": [
+                  "Efficiency"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
       },
       {
         "title": "Test accuracy and efficiency",
         "tag": "message-solution-evidence",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Build the results bar graph from the supplied record: values used by each solution.",
+            "categories": [
+              "Morse",
+              "Drums",
+              "Grid strip"
+            ],
+            "target": {
+              "Morse": 12,
+              "Drums": 10,
+              "Grid strip": 16
+            }
+          }
+        }
       },
       {
         "title": "Choose and justify a solution",
         "tag": "message-solution-choice",
-        "widget": null
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "choice",
+                "text": "For an accurate printed card, the Morse solution fits best.",
+                "role": "main"
+              },
+              {
+                "id": "accuracy",
+                "text": "Morse decoded 4 of 4 characters in the supplied record.",
+                "role": "main"
+              },
+              {
+                "id": "efficiency",
+                "text": "Morse used 12 values, fewer than the grid strip's 16.",
+                "role": "main"
+              },
+              {
+                "id": "limit",
+                "text": "The record does not show how Morse performs in a noisy room.",
+                "role": "detail"
+              },
+              {
+                "id": "favorite",
+                "text": "The drum code sounds the most fun.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "choice",
+              "accuracy",
+              "efficiency"
+            ],
+            "maxSentences": 4
+          }
+        }
       }
     ],
     "routes": [

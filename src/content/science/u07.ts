@@ -102,7 +102,28 @@ const scienceU07L01Core = {
           "kind": "tip",
           "text": "Response frame: The ____ features form a ____ pattern because locations ____ are arranged ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "data-plot-builder",
+        "config": {
+          "kind": "bar",
+          "prompt": "Build a bar for how many mapped peaks sit in each column A-E.",
+          "categories": [
+            "A",
+            "B",
+            "C",
+            "D",
+            "E"
+          ],
+          "target": {
+            "A": 6,
+            "B": 0,
+            "C": 0,
+            "D": 0,
+            "E": 0
+          } as Record<string, number>
+        }
+      }
     },
     {
       "id": "science-u07-l01-c3",
@@ -120,7 +141,47 @@ const scienceU07L01Core = {
           "kind": "tip",
           "text": "Stretch: Cite three named locations and state one conclusion the map cannot support, such as why the features formed."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Six mapped peaks form a north-south band in western column A",
+            "The mapped peaks are scattered with no arrangement"
+          ],
+          "details": [
+            {
+              "id": "p1",
+              "text": "P1 is at A1.",
+              "supports": [
+                "Six mapped peaks form a north-south band in western column A"
+              ]
+            },
+            {
+              "id": "p3",
+              "text": "P3 is at A3.",
+              "supports": [
+                "Six mapped peaks form a north-south band in western column A"
+              ]
+            },
+            {
+              "id": "p6",
+              "text": "P6 is at A6.",
+              "supports": [
+                "Six mapped peaks form a north-south band in western column A"
+              ]
+            },
+            {
+              "id": "spread",
+              "text": "The peaks appear in five different columns.",
+              "supports": [
+                "The mapped peaks are scattered with no arrangement"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -485,7 +546,17 @@ const scienceU07L02Core = {
           "kind": "tip",
           "text": "Support: Make two columns: elevation values and location descriptions. Put each fact in only one column."
         }
-      ]
+      ],
+      "widget": {
+        "type": "number-line-compare",
+        "config": {
+          "min": 0,
+          "max": 50,
+          "a": 0,
+          "b": 50,
+          "step": 10
+        }
+      }
     },
     {
       "id": "science-u07-l02-c2",
@@ -569,7 +640,54 @@ const scienceU07L02Core = {
           "kind": "tip",
           "text": "Stretch: Cite all six data points, then add “in this packet” and name one cause question the data do not answer."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m",
+            "Land always gets higher as you go north"
+          ],
+          "details": [
+            {
+              "id": "h1",
+              "text": "H1 at B1 is 50 m.",
+              "supports": [
+                "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+              ]
+            },
+            {
+              "id": "h3",
+              "text": "H3 at F1 is 50 m.",
+              "supports": [
+                "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+              ]
+            },
+            {
+              "id": "c1",
+              "text": "C1 at B4 is 0 m.",
+              "supports": [
+                "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+              ]
+            },
+            {
+              "id": "c3",
+              "text": "C3 at F4 is 0 m.",
+              "supports": [
+                "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+              ]
+            },
+            {
+              "id": "everywhere",
+              "text": "Every place on Earth rises toward the north.",
+              "supports": [
+                "Land always gets higher as you go north"
+              ]
+            }
+          ],
+          "requiredDetailCount": 4
+        }
+      }
     }
   ],
   "workedExample": {
@@ -934,7 +1052,20 @@ const scienceU07L03Core = {
           "kind": "tip",
           "text": "Support: Circle water erosion as the process and vegetation as the one variable; cross out every second change."
         }
-      ]
+      ],
+      "widget": {
+        "type": "erosion-simulator",
+        "config": {
+          "terrain": "soil",
+          "agents": [
+            "water",
+            "wind",
+            "ice"
+          ],
+          "vegetation": false,
+          "targetAgent": "water"
+        }
+      }
     },
     {
       "id": "science-u07-l03-c2",
@@ -983,7 +1114,22 @@ const scienceU07L03Core = {
           "kind": "tip",
           "text": "Stretch: Cite both channel descriptions and both spoon counts, then limit the claim to water erosion in this setup."
         }
-      ]
+      ],
+      "widget": {
+        "type": "data-plot-builder",
+        "config": {
+          "kind": "bar",
+          "prompt": "Plot the supplied tray counts: spoonfuls of soil that reached the catch pan.",
+          "categories": [
+            "Bare tray",
+            "Covered tray"
+          ],
+          "target": {
+            "Bare tray": 14,
+            "Covered tray": 5
+          } as Record<string, number>
+        }
+      }
     }
   ],
   "workedExample": {
@@ -1353,7 +1499,38 @@ const scienceU07L04Core = {
           "kind": "tip",
           "text": "Support: Write older beside the larger relative-age rank and younger beside the smaller rank."
         }
-      ]
+      ],
+      "widget": {
+        "type": "rock-layer-explorer",
+        "config": {
+          "layers": [
+            {
+              "id": "top-sand",
+              "label": "Top sandy layer",
+              "age": 1
+            },
+            {
+              "id": "upper-shells",
+              "label": "Upper shell layer",
+              "age": 2,
+              "artifact": "marine shell fossils"
+            },
+            {
+              "id": "lower-plants",
+              "label": "Lower plant layer",
+              "age": 3,
+              "artifact": "plant fossils without shells"
+            },
+            {
+              "id": "base-gravel",
+              "label": "Base gravel layer",
+              "age": 4
+            }
+          ],
+          "prompt": "Which layer is relatively oldest in this authored stack?",
+          "targetLayerId": "base-gravel"
+        }
+      }
     },
     {
       "id": "science-u07-l04-c2",
@@ -1420,7 +1597,47 @@ const scienceU07L04Core = {
           "kind": "tip",
           "text": "Stretch: Build claim-evidence-reasoning from layer order and both fossil groups, then state the relative-time limit."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "This place changed from a land setting with plants to a water setting with marine life",
+            "The layers tell how many years passed"
+          ],
+          "details": [
+            {
+              "id": "order",
+              "text": "The plant layer sits below the shell layer.",
+              "supports": [
+                "This place changed from a land setting with plants to a water setting with marine life"
+              ]
+            },
+            {
+              "id": "plants",
+              "text": "The lower layer holds plant fossils and no shells.",
+              "supports": [
+                "This place changed from a land setting with plants to a water setting with marine life"
+              ]
+            },
+            {
+              "id": "shells",
+              "text": "The upper layer holds marine shell fossils.",
+              "supports": [
+                "This place changed from a land setting with plants to a water setting with marine life"
+              ]
+            },
+            {
+              "id": "ranks",
+              "text": "The layers are labelled with rank numbers, not years.",
+              "supports": [
+                "The layers tell how many years passed"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {

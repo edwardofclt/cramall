@@ -46,7 +46,44 @@ const scienceU06L01Core = {
           "kind": "tip",
           "text": "Support: Label the five structures on a whole-plant sketch before adding any function arrows."
         }
-      ]
+      ],
+      "widget": {
+        "type": "animal-structure-matcher",
+        "config": {
+          "pairs": [
+            {
+              "id": "roots",
+              "animal": "blackberry plant",
+              "structure": "roots",
+              "function": "anchor the plant and take in water"
+            },
+            {
+              "id": "stems",
+              "animal": "blackberry plant",
+              "structure": "stems",
+              "function": "support the plant and move materials"
+            },
+            {
+              "id": "leaves",
+              "animal": "blackberry plant",
+              "structure": "leaves",
+              "function": "capture sunlight"
+            },
+            {
+              "id": "flowers",
+              "animal": "blackberry plant",
+              "structure": "flowers",
+              "function": "support reproduction"
+            },
+            {
+              "id": "thorns",
+              "animal": "blackberry plant",
+              "structure": "thorns",
+              "function": "discourage some animals from feeding"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "science-u06-l01-c2",
@@ -82,7 +119,47 @@ const scienceU06L01Core = {
           "kind": "tip",
           "text": "Stretch: Make a claim about the plant system, cite three structure-function pairs, and explain how their jobs connect."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The plant's structures work together as one system",
+            "One structure does every job for the plant"
+          ],
+          "details": [
+            {
+              "id": "roots-water",
+              "text": "Roots take in water from the soil.",
+              "supports": [
+                "The plant's structures work together as one system"
+              ]
+            },
+            {
+              "id": "stems-support",
+              "text": "Stems support the leaves and move materials.",
+              "supports": [
+                "The plant's structures work together as one system"
+              ]
+            },
+            {
+              "id": "leaves-light",
+              "text": "Leaves capture sunlight.",
+              "supports": [
+                "The plant's structures work together as one system"
+              ]
+            },
+            {
+              "id": "only-roots",
+              "text": "Roots capture sunlight and support reproduction by themselves.",
+              "supports": [
+                "One structure does every job for the plant"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -445,7 +522,54 @@ const scienceU06L02Core = {
           "kind": "tip",
           "text": "Support: Sort each named structure into outside or inside before naming its function."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "Outside the body",
+            "Inside the body"
+          ],
+          "details": [
+            {
+              "id": "beak",
+              "text": "Beak",
+              "supports": [
+                "Outside the body"
+              ]
+            },
+            {
+              "id": "wings",
+              "text": "Wings",
+              "supports": [
+                "Outside the body"
+              ]
+            },
+            {
+              "id": "feathers",
+              "text": "Feathers",
+              "supports": [
+                "Outside the body"
+              ]
+            },
+            {
+              "id": "heart",
+              "text": "Heart",
+              "supports": [
+                "Inside the body"
+              ]
+            },
+            {
+              "id": "lungs",
+              "text": "Lungs",
+              "supports": [
+                "Inside the body"
+              ]
+            }
+          ],
+          "requiredDetailCount": 2
+        }
+      }
     },
     {
       "id": "science-u06-l02-c2",
@@ -518,7 +642,47 @@ const scienceU06L02Core = {
           "kind": "tip",
           "text": "Stretch: Explain one external and two internal structures in a connected system argument."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The wren's external and internal structures cooperate",
+            "Each of the wren's structures works on its own"
+          ],
+          "details": [
+            {
+              "id": "beak-food",
+              "text": "The beak gathers food.",
+              "supports": [
+                "The wren's external and internal structures cooperate"
+              ]
+            },
+            {
+              "id": "lungs-air",
+              "text": "The lungs take in air.",
+              "supports": [
+                "The wren's external and internal structures cooperate"
+              ]
+            },
+            {
+              "id": "heart-blood",
+              "text": "The heart moves blood.",
+              "supports": [
+                "The wren's external and internal structures cooperate"
+              ]
+            },
+            {
+              "id": "alone",
+              "text": "The beak breathes, pumps blood, and flies without the other structures.",
+              "supports": [
+                "Each of the wren's structures works on its own"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -882,7 +1046,47 @@ const scienceU06L03Core = {
           "kind": "tip",
           "text": "Support: Begin with The ____ structures function together to support ____ ."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "This is a focused structure-system claim",
+            "This is not a focused claim"
+          ],
+          "details": [
+            {
+              "id": "plant-claim",
+              "text": "The blackberry plant's roots, stems, and leaves work together to support survival during the dry week.",
+              "supports": [
+                "This is a focused structure-system claim"
+              ]
+            },
+            {
+              "id": "wren-claim",
+              "text": "The wren's beak and wings support feeding and movement.",
+              "supports": [
+                "This is a focused structure-system claim"
+              ]
+            },
+            {
+              "id": "healthy",
+              "text": "The plant is healthy.",
+              "supports": [
+                "This is not a focused claim"
+              ]
+            },
+            {
+              "id": "like",
+              "text": "Blackberries taste good.",
+              "supports": [
+                "This is not a focused claim"
+              ]
+            }
+          ],
+          "requiredDetailCount": 2
+        }
+      }
     },
     {
       "id": "science-u06-l03-c2",
@@ -900,7 +1104,47 @@ const scienceU06L03Core = {
           "kind": "tip",
           "text": "Response frame: The observation ____ is relevant because it shows the ____ performing ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "theme-evidence-collector",
+        "config": {
+          "themeChoices": [
+            "The plant's structures supported survival during the dry week",
+            "The plant survived because the observer liked its color"
+          ],
+          "evidence": [
+            {
+              "id": "roots-damp",
+              "text": "Deep roots reached damp soil.",
+              "supports": [
+                "The plant's structures supported survival during the dry week"
+              ]
+            },
+            {
+              "id": "stem-upright",
+              "text": "The upright stem held leaves in sunlight.",
+              "supports": [
+                "The plant's structures supported survival during the dry week"
+              ]
+            },
+            {
+              "id": "leaves-spread",
+              "text": "The leaves remained spread.",
+              "supports": [
+                "The plant's structures supported survival during the dry week"
+              ]
+            },
+            {
+              "id": "green-card",
+              "text": "The observation card was printed on green paper.",
+              "supports": [
+                "The plant survived because the observer liked its color"
+              ]
+            }
+          ],
+          "requiredEvidenceCount": 3
+        }
+      }
     },
     {
       "id": "science-u06-l03-c3",
@@ -918,7 +1162,45 @@ const scienceU06L03Core = {
           "kind": "tip",
           "text": "Stretch: Write claim-evidence-reasoning with two structures and explain how the functions cooperate, then name one evidence limit."
         }
-      ]
+      ],
+      "widget": {
+        "type": "summary-builder",
+        "config": {
+          "sourceSentences": [
+            {
+              "id": "claim",
+              "text": "Claim: the plant's roots, stems, and leaves worked together to support survival during the dry week.",
+              "role": "main"
+            },
+            {
+              "id": "evidence",
+              "text": "Evidence: deep roots reached damp soil and the upright stem held leaves in sunlight.",
+              "role": "main"
+            },
+            {
+              "id": "reasoning",
+              "text": "Reasoning: water reaching the plant and leaves held in light together support continued growth.",
+              "role": "main"
+            },
+            {
+              "id": "limit",
+              "text": "The cards do not show what happened after the dry week ended.",
+              "role": "detail"
+            },
+            {
+              "id": "paper",
+              "text": "The observation card was printed on green paper.",
+              "role": "extra"
+            }
+          ],
+          "requiredMainIds": [
+            "claim",
+            "evidence",
+            "reasoning"
+          ],
+          "maxSentences": 4
+        }
+      }
     }
   ],
   "workedExample": {
@@ -1281,7 +1563,44 @@ const scienceU06L04Core = {
           "kind": "tip",
           "text": "Support: Name the event, then choose the sense that can receive its information."
         }
-      ]
+      ],
+      "widget": {
+        "type": "animal-structure-matcher",
+        "config": {
+          "pairs": [
+            {
+              "id": "ears",
+              "animal": "wren",
+              "structure": "ears",
+              "function": "receives sound information"
+            },
+            {
+              "id": "eyes",
+              "animal": "wren",
+              "structure": "eyes",
+              "function": "receives light information"
+            },
+            {
+              "id": "nose",
+              "animal": "wren",
+              "structure": "nose",
+              "function": "receives odor information"
+            },
+            {
+              "id": "tongue",
+              "animal": "wren",
+              "structure": "tongue",
+              "function": "receives flavor information"
+            },
+            {
+              "id": "skin",
+              "animal": "wren",
+              "structure": "skin",
+              "function": "receives contact information"
+            }
+          ]
+        }
+      }
     },
     {
       "id": "science-u06-l04-c2",
@@ -1299,7 +1618,32 @@ const scienceU06L04Core = {
           "kind": "tip",
           "text": "Response frame: The ____ sense receives ____. The information goes to the brain, which ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "branch snap",
+            "moving shadow",
+            "ripe berry scent"
+          ],
+          "transfers": [
+            "hearing",
+            "sight",
+            "smell"
+          ],
+          "targets": [
+            "brain processes the sound",
+            "brain processes the shape",
+            "brain processes the odor"
+          ],
+          "requiredPath": [
+            "branch snap",
+            "hearing",
+            "brain processes the sound"
+          ]
+        }
+      }
     },
     {
       "id": "science-u06-l04-c3",
@@ -1317,7 +1661,47 @@ const scienceU06L04Core = {
           "kind": "tip",
           "text": "Stretch: Model two different valid responses to the same sense input and explain why the system does not require one automatic outcome."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The same information can lead to more than one response",
+            "The same information always forces one response"
+          ],
+          "details": [
+            {
+              "id": "turn",
+              "text": "After a branch snap, the model bird may turn toward the sound.",
+              "supports": [
+                "The same information can lead to more than one response"
+              ]
+            },
+            {
+              "id": "pause",
+              "text": "After the same snap, it may pause and stay still.",
+              "supports": [
+                "The same information can lead to more than one response"
+              ]
+            },
+            {
+              "id": "away",
+              "text": "After the same snap, it may move away from the sound.",
+              "supports": [
+                "The same information can lead to more than one response"
+              ]
+            },
+            {
+              "id": "forced",
+              "text": "Every branch snap always makes the bird fly away.",
+              "supports": [
+                "The same information always forces one response"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {

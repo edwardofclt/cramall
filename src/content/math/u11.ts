@@ -21,6 +21,7 @@ export const unit11Lessons = [
           { kind: 'example', text: 'Side lengths 5, 5, and 7 make an isosceles triangle.' },
           { kind: 'tip', text: 'Use side lengths or matching tick marks, not the drawing’s appearance alone.' },
         ],
+        widget: { type: 'shape-classifier', config: { mode: 'classifications', shapes: [{ id: 'equilateral', label: 'Equilateral triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'equilateral-triangle', classifications: ['triangle', 'equilateral-triangle', 'acute-triangle', 'equiangular-triangle'] }, { id: 'isosceles', label: 'Isosceles triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'isosceles-acute-triangle', classifications: ['triangle', 'isosceles-triangle', 'acute-triangle'] }, { id: 'scalene', label: 'Scalene triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'scalene-acute-triangle', classifications: ['triangle', 'scalene-triangle', 'acute-triangle'] }], bins: [{ id: 'triangle', label: 'Triangle', classification: 'triangle' }, { id: 'equilateral-triangle', label: 'Equilateral', classification: 'equilateral-triangle', parentIds: ['triangle'] }, { id: 'equiangular-triangle', label: 'Equiangular', classification: 'equiangular-triangle', parentIds: ['equilateral-triangle'] }, { id: 'isosceles-triangle', label: 'Isosceles', classification: 'isosceles-triangle', parentIds: ['triangle'] }, { id: 'scalene-triangle', label: 'Scalene', classification: 'scalene-triangle', parentIds: ['triangle'] }, { id: 'acute-triangle', label: 'Acute', classification: 'acute-triangle', parentIds: ['triangle'] }] } },
       },
       {
         id: 'math-u11-l01-c2',
@@ -30,6 +31,7 @@ export const unit11Lessons = [
           { kind: 'example', text: 'Angles 45°, 45°, and 90° make a right triangle; three 60° angles make an equiangular and acute triangle.' },
           { kind: 'tip', text: 'Triangle angle measures total 180°, so there cannot be two right or two obtuse angles.' },
         ],
+        widget: { type: 'shape-classifier', config: { mode: 'classifications', shapes: [{ id: 'iso-acute', label: 'Isosceles acute triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'isosceles-acute-triangle', classifications: ['triangle', 'isosceles-triangle', 'acute-triangle'] }, { id: 'iso-right', label: 'Isosceles right triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'isosceles-right-triangle', classifications: ['triangle', 'isosceles-triangle', 'right-triangle'] }, { id: 'iso-obtuse', label: 'Isosceles obtuse triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'isosceles-obtuse-triangle', classifications: ['triangle', 'isosceles-triangle', 'obtuse-triangle'] }], bins: [{ id: 'triangle', label: 'Triangle', classification: 'triangle' }, { id: 'isosceles-triangle', label: 'Isosceles', classification: 'isosceles-triangle', parentIds: ['triangle'] }, { id: 'acute-triangle', label: 'Acute', classification: 'acute-triangle', parentIds: ['triangle'] }, { id: 'right-triangle', label: 'Right', classification: 'right-triangle', parentIds: ['triangle'] }, { id: 'obtuse-triangle', label: 'Obtuse', classification: 'obtuse-triangle', parentIds: ['triangle'] }] } },
       },
       {
         id: 'math-u11-l01-c3',
@@ -39,6 +41,7 @@ export const unit11Lessons = [
           { kind: 'example', text: 'Sides 5, 5, and about 7.1 with angles 45°, 45°, and 90° describe an isosceles right triangle.' },
           { kind: 'tip', text: 'A complete classification cites the measurements or marks that support each name.' },
         ],
+        widget: { type: 'shape-classifier', config: { mode: 'classifications', shapes: [{ id: 'equilateral', label: 'Equilateral triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'equilateral-triangle', classifications: ['triangle', 'equilateral-triangle', 'acute-triangle', 'equiangular-triangle'] }, { id: 'scalene-obtuse', label: 'Scalene obtuse triangle', sides: 3, angles: 3, parallelPairs: 0, diagram: 'scalene-obtuse-triangle', classifications: ['triangle', 'scalene-triangle', 'obtuse-triangle'] }], bins: [{ id: 'triangle', label: 'Triangle', classification: 'triangle' }, { id: 'equilateral-triangle', label: 'Equilateral', classification: 'equilateral-triangle', parentIds: ['triangle'] }, { id: 'equiangular-triangle', label: 'Equiangular', classification: 'equiangular-triangle', parentIds: ['equilateral-triangle'] }, { id: 'scalene-triangle', label: 'Scalene', classification: 'scalene-triangle', parentIds: ['triangle'] }, { id: 'acute-triangle', label: 'Acute', classification: 'acute-triangle', parentIds: ['triangle'] }, { id: 'obtuse-triangle', label: 'Obtuse', classification: 'obtuse-triangle', parentIds: ['triangle'] }] } },
       },
     ],
     workedExample: {
@@ -98,6 +101,7 @@ export const unit11Lessons = [
           { kind: 'example', text: 'Every rectangle is a parallelogram and quadrilateral; every rhombus is also a parallelogram and quadrilateral.' },
           { kind: 'tip', text: 'A square belongs to both the rectangle and rhombus branches because it has four right angles and four equal sides.' },
         ],
+        widget: { type: 'shape-classifier', config: { mode: 'classifications', shapes: [{ id: 'parallelogram', label: 'Parallelogram', sides: 4, angles: 4, parallelPairs: 2, diagram: 'parallelogram', classifications: ['quadrilateral', 'parallelogram'] }, { id: 'rectangle', label: 'Rectangle', sides: 4, angles: 4, parallelPairs: 2, diagram: 'rectangle', classifications: ['quadrilateral', 'parallelogram', 'rectangle'] }, { id: 'rhombus', label: 'Rhombus', sides: 4, angles: 4, parallelPairs: 2, diagram: 'rhombus', classifications: ['quadrilateral', 'parallelogram', 'rhombus'] }], bins: [{ id: 'quadrilateral', label: 'Quadrilateral', classification: 'quadrilateral' }, { id: 'parallelogram', label: 'Parallelogram', classification: 'parallelogram', parentIds: ['quadrilateral'] }, { id: 'rectangle', label: 'Rectangle', classification: 'rectangle', parentIds: ['parallelogram'] }, { id: 'rhombus', label: 'Rhombus', classification: 'rhombus', parentIds: ['parallelogram'] }] } },
       },
       {
         id: 'math-u11-l02-c3',
@@ -107,6 +111,7 @@ export const unit11Lessons = [
           { kind: 'example', text: 'A square is a square, rectangle, rhombus, parallelogram, and quadrilateral.' },
           { kind: 'tip', text: 'The reverse is not always true: a parallelogram need not have right angles or four equal sides.' },
         ],
+        widget: { type: 'shape-classifier', config: { mode: 'classifications', shapes: [{ id: 'square', label: 'Square', sides: 4, angles: 4, parallelPairs: 2, diagram: 'square', classifications: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'] }], bins: [{ id: 'quadrilateral', label: 'Quadrilateral', classification: 'quadrilateral' }, { id: 'parallelogram', label: 'Parallelogram', classification: 'parallelogram', parentIds: ['quadrilateral'] }, { id: 'rectangle', label: 'Rectangle', classification: 'rectangle', parentIds: ['parallelogram'] }, { id: 'rhombus', label: 'Rhombus', classification: 'rhombus', parentIds: ['parallelogram'] }, { id: 'square', label: 'Square', classification: 'square', parentIds: ['rectangle', 'rhombus'] }] } },
       },
     ],
     workedExample: {

@@ -22,6 +22,7 @@ export const unit06Lessons = [
           { kind: 'example', text: 'One half covers the same amount as two fourths when the same whole is used.' },
           { kind: 'tip', text: 'Equivalent fractions must refer to equal-sized wholes.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true } },
       },
       {
         id: 'math-u06-l01-c2',
@@ -41,6 +42,7 @@ export const unit06Lessons = [
           { kind: 'example', text: 'Six fourths and three halves both equal one whole and one half.' },
           { kind: 'tip', text: 'For fractions greater than 1, group complete wholes before comparing the leftover parts.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 2, a: 0, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
       },
     ],
     workedExample: {
@@ -90,6 +92,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '2/8 + 3/8 = 5/8 because five eighth-size parts are selected.' },
           { kind: 'tip', text: 'Add the numerators to count parts and keep the common denominator.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 2, target: { numerator: 5, denominator: 8 }, allowEquivalent: false } },
       },
       {
         id: 'math-u06-l02-c2',
@@ -99,6 +102,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '7/10 can be 5/10 + 2/10 or 1/10 + 3/10 + 3/10.' },
           { kind: 'tip', text: 'Check that the numerators of the parts total the original numerator.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 10, numerator: 7, target: { numerator: 5, denominator: 10 }, allowEquivalent: false } },
       },
       {
         id: 'math-u06-l02-c3',
@@ -108,6 +112,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '1 3/4 = 4/4 + 3/4 = 7/4.' },
           { kind: 'tip', text: 'Use a denominator-sized numerator, such as 4/4, for each complete whole.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 2, a: 0, b: 1.75, step: 0.25, display: 'fraction', denominator: 4 } },
       },
     ],
     workedExample: {
@@ -157,6 +162,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '9/4 contains two groups of 4 fourths with 1 fourth left.' },
           { kind: 'tip', text: 'Count denominator-sized groups to locate the fraction between whole numbers.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 2.5, a: 0, b: 2.25, step: 0.25, display: 'fraction', denominator: 4 } },
       },
       {
         id: 'math-u06-l03-c2',
@@ -166,6 +172,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '17/5 gives quotient 3 remainder 2, so 17/5 = 3 2/5.' },
           { kind: 'tip', text: 'Keep the original denominator because the part size does not change.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 5, columns: 1, targetProduct: 15, editable: true } },
       },
       {
         id: 'math-u06-l03-c3',
@@ -175,6 +182,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '2 3/8 = (2 × 8 + 3)/8 = 19/8.' },
           { kind: 'tip', text: 'Check by decomposing the fraction back into whole fractions and the leftover part.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'wholes', label: '2 wholes = 16 eighths', value: 16 }, { id: 'part', label: '3 eighths', value: 3 }], right: [{ id: 'improper', label: '19 eighths', value: 19 }, { id: 'decoy', label: 'Extra eighth', value: 1 }] } },
       },
     ],
     workedExample: {
@@ -234,6 +242,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '3/4 = 9/12, so 3/4 > 8/12.' },
           { kind: 'tip', text: 'Compare only quantities that refer to the same whole.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 12, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: true } },
       },
       {
         id: 'math-u06-l04-c3',
@@ -243,6 +252,7 @@ export const unit06Lessons = [
           { kind: 'example', text: '1 2/5 < 1 1/2 because both have 1 whole and 2/5 is below 1/2.' },
           { kind: 'tip', text: 'Compare whole-number parts first when mixed numbers are involved.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 1, max: 2, a: 1.375, b: 1.5, step: 0.125, display: 'fraction', denominator: 8 } },
       },
     ],
     workedExample: {

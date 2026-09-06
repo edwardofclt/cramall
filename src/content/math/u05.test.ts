@@ -47,7 +47,11 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u05-l01-c1': { type: 'array-builder', config: { rows: 1, columns: 18, targetProduct: 72, editable: true } },
+  'math-u05-l01-c1': {"type": "array-builder", "config": {"rows": 1, "columns": 18, "targetProduct": 72, "editable": true}},
+  'math-u05-l01-c2': {"type": "array-builder", "config": {"rows": 4, "columns": 1, "targetProduct": 52, "editable": true}},
+  'math-u05-l01-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "dividend", "label": "Dividend 875", "value": 875}], "right": [{"id": "q1", "label": "Group of 218", "value": 218}, {"id": "q2", "label": "Group of 218", "value": 218}, {"id": "q3", "label": "Group of 218", "value": 218}, {"id": "q4", "label": "Group of 218", "value": 218}, {"id": "rem", "label": "Left over 3", "value": 3}, {"id": "decoy", "label": "Extra 10", "value": 10}]}},
+  'math-u05-l02-c1': {"type": "area-model-multiplier", "config": {"a": 3, "b": 24, "splitA": [3], "splitB": [20, 4], "targetProduct": 72}},
+  'math-u05-l02-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "first-step", "label": "3 boxes of 24 = 72", "value": 72}], "right": [{"id": "used", "label": "17 used", "value": 17}, {"id": "left", "label": "55 left", "value": 55}, {"id": "decoy", "label": "Extra 5", "value": 5}]}},
 } as const;
 
 test('u05 is the exact validated 2-lesson unit', () => {

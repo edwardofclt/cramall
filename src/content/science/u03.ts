@@ -46,7 +46,19 @@ const scienceU03L01Core = {
           "kind": "tip",
           "text": "Support: Trace one complete pattern with your finger: crest → baseline → trough → baseline."
         }
-      ]
+      ],
+      "widget": {
+        "type": "wave-maker",
+        "config": {
+          "medium": "rope",
+          "amplitude": 1,
+          "frequency": 2,
+          "target": {
+            "amplitude": 4,
+            "frequency": 2
+          }
+        }
+      }
     },
     {
       "id": "science-u03-l01-c2",
@@ -93,7 +105,47 @@ const scienceU03L01Core = {
           "kind": "tip",
           "text": "Stretch: State one pattern the model represents and one limitation, using “represents” and “does not measure.”"
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The wave model represents a repeating pattern",
+            "The wave model measures a real rope"
+          ],
+          "details": [
+            {
+              "id": "authored",
+              "text": "The curve is an authored drawing of a repeating pattern.",
+              "supports": [
+                "The wave model represents a repeating pattern"
+              ]
+            },
+            {
+              "id": "control",
+              "text": "The amplitude control changes displacement in the drawing.",
+              "supports": [
+                "The wave model represents a repeating pattern"
+              ]
+            },
+            {
+              "id": "not-photo",
+              "text": "The drawing is not a photograph of every wave.",
+              "supports": [
+                "The wave model represents a repeating pattern"
+              ]
+            },
+            {
+              "id": "measured",
+              "text": "The model collected measurements from a physical rope.",
+              "supports": [
+                "The wave model measures a real rope"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -472,7 +524,19 @@ const scienceU03L02Core = {
           "kind": "tip",
           "text": "Support: Circle two neighboring crests, then draw one horizontal arrow between them."
         }
-      ]
+      ],
+      "widget": {
+        "type": "wave-maker",
+        "config": {
+          "medium": "rope",
+          "amplitude": 3,
+          "frequency": 2,
+          "target": {
+            "amplitude": 3,
+            "frequency": 4
+          }
+        }
+      }
     },
     {
       "id": "science-u03-l02-c2",
@@ -490,7 +554,19 @@ const scienceU03L02Core = {
           "kind": "tip",
           "text": "Response frame: Wave ____ has a ____ wavelength because its matching ____ are closer/farther apart."
         }
-      ]
+      ],
+      "widget": {
+        "type": "wave-maker",
+        "config": {
+          "medium": "rope",
+          "amplitude": 3,
+          "frequency": 2,
+          "target": {
+            "amplitude": 3,
+            "frequency": 6
+          }
+        }
+      }
     },
     {
       "id": "science-u03-l02-c3",
@@ -508,7 +584,47 @@ const scienceU03L02Core = {
           "kind": "tip",
           "text": "Stretch: Compare two drawings by matching points, then name why the comparison is qualitative rather than numerical."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "This model supports a shorter-or-longer comparison",
+            "This model gives exact wavelength numbers"
+          ],
+          "details": [
+            {
+              "id": "closer",
+              "text": "Crests drawn closer together represent a shorter wavelength.",
+              "supports": [
+                "This model supports a shorter-or-longer comparison"
+              ]
+            },
+            {
+              "id": "farther",
+              "text": "Crests drawn farther apart represent a longer wavelength.",
+              "supports": [
+                "This model supports a shorter-or-longer comparison"
+              ]
+            },
+            {
+              "id": "qualitative",
+              "text": "Grade 4 comparisons use patterns rather than measured distances.",
+              "supports": [
+                "This model supports a shorter-or-longer comparison"
+              ]
+            },
+            {
+              "id": "numbers",
+              "text": "The diagram prints a wavelength in centimeters.",
+              "supports": [
+                "This model gives exact wavelength numbers"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -888,7 +1004,29 @@ const scienceU03L03Core = {
           "kind": "tip",
           "text": "Support: Use the frame Before waves, ____. During waves, ____."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "Tap at the tray edge",
+            "Still water surface"
+          ],
+          "transfers": [
+            "Repeating ripple",
+            "No ripple"
+          ],
+          "targets": [
+            "Floating cork bobs",
+            "Floating cork rests"
+          ],
+          "requiredPath": [
+            "Tap at the tray edge",
+            "Repeating ripple",
+            "Floating cork bobs"
+          ]
+        }
+      }
     },
     {
       "id": "science-u03-l03-c2",
@@ -935,7 +1073,47 @@ const scienceU03L03Core = {
           "kind": "tip",
           "text": "Stretch: State a claim, cite the before-and-during cork observation, and name one model limitation."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The written tray observation is the evidence",
+            "The screen result is the evidence"
+          ],
+          "details": [
+            {
+              "id": "cork-note",
+              "text": "The recorded note says the cork bobbed near its mark as ripples passed.",
+              "supports": [
+                "The written tray observation is the evidence"
+              ]
+            },
+            {
+              "id": "model-explains",
+              "text": "The diagram helps explain or predict the pattern.",
+              "supports": [
+                "The written tray observation is the evidence"
+              ]
+            },
+            {
+              "id": "no-proof",
+              "text": "The app did not observe the cork and cannot prove the tray result.",
+              "supports": [
+                "The written tray observation is the evidence"
+              ]
+            },
+            {
+              "id": "screen",
+              "text": "The taller curve on screen proves what the cork did.",
+              "supports": [
+                "The screen result is the evidence"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {
@@ -1314,7 +1492,29 @@ const scienceU03L04Core = {
           "kind": "tip",
           "text": "Support: Point first to the light source and then to the object it illuminates."
         }
-      ]
+      ],
+      "widget": {
+        "type": "energy-transfer-builder",
+        "config": {
+          "sources": [
+            "Lamp",
+            "Closed dark room"
+          ],
+          "transfers": [
+            "Book page",
+            "No reflecting surface"
+          ],
+          "targets": [
+            "Eye receiver",
+            "Nothing seen"
+          ],
+          "requiredPath": [
+            "Lamp",
+            "Book page",
+            "Eye receiver"
+          ]
+        }
+      }
     },
     {
       "id": "science-u03-l04-c2",
@@ -1358,7 +1558,47 @@ const scienceU03L04Core = {
           "kind": "tip",
           "text": "Stretch: Explain the complete cause-and-effect chain and stop the model when reflected light enters the eye."
         }
-      ]
+      ],
+      "widget": {
+        "type": "central-idea-organizer",
+        "config": {
+          "mainIdeaChoices": [
+            "The ray diagram models a possible light path",
+            "The ray diagram shows that a person saw the book"
+          ],
+          "details": [
+            {
+              "id": "reflects",
+              "text": "The model shows light reflecting from the object and entering the eye.",
+              "supports": [
+                "The ray diagram models a possible light path"
+              ]
+            },
+            {
+              "id": "angles",
+              "text": "The authored angles at the surface are equal in this model.",
+              "supports": [
+                "The ray diagram models a possible light path"
+              ]
+            },
+            {
+              "id": "system",
+              "text": "The model stops at a system-level explanation of seeing.",
+              "supports": [
+                "The ray diagram models a possible light path"
+              ]
+            },
+            {
+              "id": "observed",
+              "text": "The app observed a particular person seeing the book.",
+              "supports": [
+                "The ray diagram shows that a person saw the book"
+              ]
+            }
+          ],
+          "requiredDetailCount": 3
+        }
+      }
     }
   ],
   "workedExample": {

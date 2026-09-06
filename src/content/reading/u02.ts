@@ -49,6 +49,29 @@ export const unit02Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "word-root-builder",
+          "config": {
+            "root": "build",
+            "prefixes": [
+              "re",
+              "pre"
+            ],
+            "suffixes": [
+              "er"
+            ],
+            "targets": [
+              {
+                "word": "rebuild",
+                "meaning": "build again"
+              },
+              {
+                "word": "builder",
+                "meaning": "a person who builds"
+              }
+            ]
+          }
+        },
         "check": {
           "prompt": "In rebuild, which part means again?",
           "choices": [
@@ -153,6 +176,31 @@ export const unit02Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "The volunteers rebuilt the garden beds after the storm.",
+            "targetWord": "rebuilt",
+            "clueChoices": [
+              {
+                "id": "after-storm",
+                "text": "after the storm",
+                "type": "definition"
+              },
+              {
+                "id": "garden-beds",
+                "text": "the garden beds",
+                "type": "example"
+              },
+              {
+                "id": "volunteers",
+                "text": "The volunteers",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "after-storm"
+          }
+        },
         "check": {
           "prompt": "Why should you reread after combining word-part meanings?",
           "choices": [
@@ -585,6 +633,31 @@ export const unit02Lessons = [
             "text": "Response frame: The source says ____. This supports ____ because ____."
           }
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "At dusk, several insects emerge; in other words, they come out from hiding. A luna moth rests during much of the day but becomes active when evening arrives.",
+            "targetWord": "emerge",
+            "clueChoices": [
+              {
+                "id": "restatement",
+                "text": "they come out from hiding",
+                "type": "synonym"
+              },
+              {
+                "id": "luna-rest",
+                "text": "A luna moth rests during much of the day",
+                "type": "contrast"
+              },
+              {
+                "id": "at-dusk",
+                "text": "At dusk",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "restatement"
+          }
+        },
         "check": {
           "prompt": "What does emerge mean in the visible sentence?",
           "choices": [
@@ -626,6 +699,39 @@ export const unit02Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Nocturnal means active at night",
+              "Nocturnal means able to fly"
+            ],
+            "details": [
+              {
+                "id": "definition-phrase",
+                "text": "creatures that are active at night",
+                "supports": [
+                  "Nocturnal means active at night"
+                ]
+              },
+              {
+                "id": "owls-hunt",
+                "text": "Owls may hunt after sunset.",
+                "supports": [
+                  "Nocturnal means active at night"
+                ]
+              },
+              {
+                "id": "moths-fly",
+                "text": "Moths often visit pale flowers in the dark.",
+                "supports": [
+                  "Nocturnal means able to fly"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         "check": {
           "prompt": "Which substitution confirms nocturnal?",
           "choices": [
@@ -1011,6 +1117,43 @@ export const unit02Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "source-credibility-checker",
+          "config": {
+            "criteria": [
+              "author",
+              "evidence"
+            ],
+            "sources": [
+              {
+                "id": "harbor-dictionary",
+                "title": "Harbor Student Dictionary",
+                "author": "Dictionary editorial board",
+                "date": "2024",
+                "publisher": "Harbor Press",
+                "claims": [
+                  "brackish: slightly salty because fresh water and seawater mix"
+                ]
+              },
+              {
+                "id": "unsigned-comment",
+                "title": "Unsigned website comment about brackish water",
+                "claims": [
+                  "brackish water tastes like soda"
+                ]
+              },
+              {
+                "id": "tour-ad",
+                "title": "Advertisement for harbor boat tours",
+                "author": "Harbor Tours Company",
+                "claims": []
+              }
+            ],
+            "credibleIds": [
+              "harbor-dictionary"
+            ]
+          }
+        },
         "check": {
           "prompt": "Which reference best gives the wetland meaning of brackish?",
           "choices": [
@@ -1093,6 +1236,31 @@ export const unit02Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "The young fish rested near the grassy bank while a gentle current moved through the creek.",
+            "targetWord": "bank",
+            "clueChoices": [
+              {
+                "id": "creek-current",
+                "text": "a gentle current moved through the creek",
+                "type": "definition"
+              },
+              {
+                "id": "young-fish",
+                "text": "The young fish rested",
+                "type": "example"
+              },
+              {
+                "id": "teller-line",
+                "text": "a long line of customers waiting for a teller",
+                "type": "contrast"
+              }
+            ],
+            "correctChoiceId": "creek-current"
+          }
+        },
         "check": {
           "prompt": "Which bank meaning fits the field note?",
           "choices": [
