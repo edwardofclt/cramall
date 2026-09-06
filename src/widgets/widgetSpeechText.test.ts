@@ -103,4 +103,30 @@ describe('widgetSpeechText', () => {
     expect(text).not.toContain('credible-for-question');
     expect(text).not.toContain('supports');
   });
+
+  test('does not read a hidden Base-ten completion target', () => {
+    const ref = parse({
+      type: 'base-ten-blocks',
+      config: { target: 482, initial: { ones: 0, tens: 0, hundreds: 0, thousands: 0 } },
+    });
+
+    expect(widgetSpeechText(ref).join(' ')).not.toContain('482');
+  });
+
+  test('speaks a Probability event label instead of its internal segment id', () => {
+    const ref = parse({
+      type: 'probability-spinner',
+      config: {
+        segments: [
+          { id: 'red-segment', label: 'Red', weight: 1 },
+          { id: 'blue-segment', label: 'Blue', weight: 1 },
+        ],
+        eventQuestion: { eventLabel: 'red-segment', classification: 'possible' },
+      },
+    });
+
+    const text = widgetSpeechText(ref).join(' ');
+    expect(text).toContain('Event to classify: Red.');
+    expect(text).not.toContain('red-segment');
+  });
 });

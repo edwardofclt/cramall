@@ -16,7 +16,7 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'number-line-compare':
       return add(`Number line from ${ref.config.min} to ${ref.config.max}.`, `Marker A starts at ${ref.config.a}.`, `Marker B starts at ${ref.config.b}.`);
     case 'base-ten-blocks':
-      return add(ref.config.target === undefined ? undefined : `Build ${ref.config.target}.`, ref.config.allowRegroup ? 'Regrouping is available.' : undefined);
+      return add(ref.config.allowRegroup ? 'Regrouping is available.' : undefined);
     case 'fraction-models':
       return add(ref.config.taskPrompt, `The model has ${ref.config.denominator} equal parts.`, ref.config.task === 'share' ? 'Share every equal part fairly.' : undefined);
     case 'area-model-multiplier':
@@ -39,8 +39,17 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
         : add('Classify the shapes.', `Classify by ${ref.config.rule}.`, ...ref.config.shapes.map((shape) => shape.label), ...ref.config.bins.map((bin) => bin.label));
     case 'data-plot-builder':
       return add(ref.config.prompt, ref.config.taskPrompt, `Categories: ${ref.config.categories.join(', ')}.`);
-    case 'probability-spinner':
-      return add(ref.config.taskPrompt, ...ref.config.segments.map((segment) => segment.label), ref.config.eventQuestion ? `Event to classify: ${ref.config.eventQuestion.eventLabel}.` : undefined);
+    case 'probability-spinner': {
+      const event = ref.config.eventQuestion;
+      const eventLabel = event === undefined
+        ? undefined
+        : event.eventLabel === 'all'
+          ? 'any listed outcome'
+          : event.eventLabel === 'none'
+            ? 'an outcome not in the sample space'
+            : ref.config.segments.find((segment) => segment.id === event.eventLabel)?.label;
+      return add(ref.config.taskPrompt, ...ref.config.segments.map((segment) => segment.label), eventLabel ? `Event to classify: ${eventLabel}.` : undefined);
+    }
     case 'collision-ramp':
       return add(ref.config.taskPrompt, `Cart A has mass ${ref.config.massA}.`, `Cart B has mass ${ref.config.massB}.`);
     case 'energy-transfer-builder':
