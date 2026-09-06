@@ -411,7 +411,13 @@ const expectedWidgets = [
               "plot",
               "theme"
             ],
-            "maxSentences": 3
+            "maxSentences": 3,
+            "requiredDetailIds": [
+              "detail"
+            ],
+            "compositionPrompt": "Use your plan to explain the plot and theme in your own words.",
+            "minCompositionWords": 8,
+            "maxCompositionWords": 28
           }
         }
       }
@@ -450,7 +456,14 @@ const expectedWidgets = [
             "requiredMainIds": [
               "central"
             ],
-            "maxSentences": 3
+            "maxSentences": 3,
+            "requiredDetailIds": [
+              "space",
+              "care"
+            ],
+            "compositionPrompt": "Use the central idea and both details to explain the article in your own words.",
+            "minCompositionWords": 10,
+            "maxCompositionWords": 30
           }
         }
       }
@@ -517,6 +530,24 @@ describe('Reading unit 6 literal content', () => {
         expect(card.blocks.some(block=>block.text.startsWith('Support:')||block.text.startsWith('Response frame:')||block.text.startsWith('Stretch:'))).toBe(true);
         if ('widget' in card) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
       }
+    }
+  });
+
+  test('coaches summary planning before composition with Winnie-sized reactions', () => {
+    for (const lesson of unit06Lessons) {
+      const card = lesson.learnCards.find((candidate) => 'widget' in candidate && candidate.widget?.type === 'summary-builder');
+      expect(card && 'widgetCoach' in card ? card.widgetCoach : undefined).toEqual(expect.objectContaining({
+        intro: expect.arrayContaining([
+          expect.objectContaining({speaker: 'guide'}),
+          expect.objectContaining({speaker: 'kid'}),
+        ]),
+        reactions: expect.objectContaining({
+          strategy: expect.any(Object),
+          retry: expect.any(Object),
+          milestone: expect.any(Object),
+          complete: expect.any(Object),
+        }),
+      }));
     }
   });
 

@@ -14,6 +14,21 @@ const config={
   maxSentences:2,
 };
 
+const compositionConfig={
+  sourceSentences:[
+    {id:'main',text:'Bees help plants.',role:'main' as const},
+    {id:'detail',text:'They carry pollen.',role:'detail' as const},
+    {id:'second-detail',text:'Flowers receive the pollen.',role:'detail' as const},
+    {id:'extra',text:'Blue is a color.',role:'extra' as const},
+  ],
+  requiredMainIds:['main'],
+  requiredDetailIds:['detail'],
+  maxSentences:2,
+  compositionPrompt:'Now explain the main idea and useful detail in your own words.',
+  minCompositionWords:5,
+  maxCompositionWords:14,
+};
+
 test('accepts the required main, keeps a detail concise, then explains an extra',async()=>{
   // Dropping a selected detail, rejecting a concise detail, or completing more than once must fail this test.
   const onEvent=vi.fn(),user=userEvent.setup();
@@ -143,4 +158,48 @@ test('normalizes authoring text and rejects equivalent, dangling, duplicate, or 
     {...config,requiredMainIds:['main','second'],maxSentences:1,sourceSentences:[...config.sourceSentences,{id:'second',text:'Flowers make seeds.',role:'main' as const}]},
   ];
   for(const value of invalid)expect(SummaryBuilderWidgetConfigSchema.safeParse(value).success).toBe(false);
+});
+
+test('requires exact supporting evidence before revealing an honest composition step',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
+
+  await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/supporting detail/i);
+  expect(screen.queryByRole('textbox',{name:/summary/i})).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/not required/i);
+  expect(screen.queryByRole('textbox',{name:/summary/i})).not.toBeInTheDocument();
+
+  await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  expect(screen.getByRole('textbox',{name:/summary/i})).toBeVisible();
+  expect(screen.getByText(compositionConfig.compositionPrompt)).toBeVisible();
+  expect(screen.getByText(/not meaning or originality/i)).toBeVisible();
+  expect(screen.getByRole('button',{name:/Remove "Bees help plants/})).toBeVisible();
+
+  await user.type(screen.getByRole('textbox',{name:/summary/i}),'Bees help plants by carrying pollen.');
+  await user.click(screen.getByRole('button',{name:'Finish summary'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/ready/i);
+  const completeEvents=onEvent.mock.calls.map(([event])=>event).filter((event)=>event.type==='complete');
+  expect(completeEvents).toEqual([{
+    type:'complete',
+    value:{selectedIds:['main','detail'],composition:'Bees help plants by carrying pollen.'},
+  }]);
+});
+
+test('keeps source visible and preserves a revision while word bounds are unmet',async()=>{
+  const user=userEvent.setup();
+  render(<SummaryBuilder config={compositionConfig} onEvent={vi.fn()}/>);
+  await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  const textbox=screen.getByRole('textbox',{name:/summary/i});
+  await user.type(textbox,'Too short');
+  expect(screen.getByRole('status')).toHaveTextContent(/at least 5 words/i);
+  expect(textbox).toHaveValue('Too short');
+  expect(screen.getAllByText('Bees help plants.').length).toBeGreaterThanOrEqual(1);
+  expect(screen.getAllByText('They carry pollen.').length).toBeGreaterThanOrEqual(1);
+  await user.type(textbox,' that helps flowers grow');
+  expect(screen.getByRole('status')).toHaveTextContent(/ready/i);
 });

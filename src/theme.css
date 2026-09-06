@@ -2639,14 +2639,23 @@ body {
 .text-structure-placement { display: block; min-block-size: 1.5em; padding: .2rem .4rem; border-inline-start: 5px solid var(--c-ink); font-weight: 800; }
 .widget-experiment.summary { display: grid; gap: .75rem; }
 .widget-experiment.summary header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }
-.summary-source-sentences { display: grid; gap: .5rem; }
+.summary-source-sentences { display: grid; gap: .5rem; margin: 0; padding: .75rem; border: 3px solid var(--c-ink); border-radius: .65rem; }
+.summary-source-sentences legend { padding-inline: .35rem; font-weight: 900; }
 .summary-source-sentences button { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: .75rem; text-align: left; }
 .summary-source-sentences button[aria-pressed="true"] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }
 .summary-selection-marker { font-weight: 900; white-space: nowrap; }
 .summary-current { display: grid; gap: .35rem; padding: .65rem; border: 3px solid var(--c-ink); border-radius: .65rem; }
 .summary-current h4, .summary-current p, .summary-current ol { margin: 0; }
 .summary-current ol { display: grid; gap: .25rem; padding-inline-start: 1.5rem; }
+.summary-current li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.summary-remove { min-width: 44px; min-height: 44px; border: 2px solid var(--c-ink); border-radius: .35rem; background: var(--c-card); }
+.summary-remove::before { content: '×'; font-size: 1.25rem; font-weight: 900; }
 .summary-valid-marker { justify-self: start; padding: .15rem .4rem; border: 2px solid var(--c-ink); border-radius: .35rem; }
+.summary-composition { display: grid; gap: .4rem; padding: .75rem; border: 3px solid var(--c-accent-action); border-radius: .65rem; }
+.summary-composition h4, .summary-composition p, .summary-composition label { margin: 0; }
+.summary-composition textarea { width: 100%; min-height: 7rem; padding: .65rem; border: 3px solid var(--c-ink); border-radius: .45rem; font: inherit; line-height: 1.5; resize: vertical; }
+.summary-composition > button { min-height: 44px; justify-self: start; }
+.summary-composition-note { color: var(--c-ink-soft); font-size: .95rem; font-weight: 700; }
 .summary-controls button { min-height: 44px; }
 .widget-experiment.pov { display: grid; gap: .75rem; }
 .widget-experiment.pov header p { margin: 0; color: var(--c-ink-soft); font-weight: 700; }

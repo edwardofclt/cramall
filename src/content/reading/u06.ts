@@ -160,7 +160,25 @@ export const unit06Lessons = [
               "plot",
               "theme"
             ],
-            "maxSentences": 3
+            "maxSentences": 3,
+            "requiredDetailIds": [
+              "detail"
+            ],
+            "compositionPrompt": "Use your plan to explain the plot and theme in your own words.",
+            "minCompositionWords": 8,
+            "maxCompositionWords": 28
+          }
+        },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"First, build a plan from the plot, theme, and one useful detail."},
+            {"speaker":"kid","text":"Then I’ll say what those choices mean in my own words."}
+          ],
+          "reactions": {
+            "strategy":{"text":"Read the source, then keep the plot and theme with the detail that proves them.","pose":"think"},
+            "retry":{"text":"That sentence is not needed. Check which choice helps explain the plot or theme.","pose":"oops"},
+            "milestone":{"text":"Nice plan! You connected the plot, theme, and evidence.","pose":"cheer"},
+            "complete":{"text":"You planned with evidence and explained the story in your own words.","pose":"cheer"}
           }
         },
         "check": {
@@ -695,7 +713,26 @@ export const unit06Lessons = [
             "requiredMainIds": [
               "central"
             ],
-            "maxSentences": 3
+            "maxSentences": 3,
+            "requiredDetailIds": [
+              "space",
+              "care"
+            ],
+            "compositionPrompt": "Use the central idea and both details to explain the article in your own words.",
+            "minCompositionWords": 10,
+            "maxCompositionWords": 30
+          }
+        },
+        "widgetCoach": {
+          "intro": [
+            {"speaker":"guide","pose":"think","text":"Choose the central idea and the two details that show how martin houses help birds."},
+            {"speaker":"kid","text":"I’ll make the plan first, then explain it without copying the source."}
+          ],
+          "reactions": {
+            "strategy":{"text":"Look back at the article: keep details that explain placement and regular care.","pose":"think"},
+            "retry":{"text":"That choice is a side detail. Find the evidence that supports the central idea.","pose":"oops"},
+            "milestone":{"text":"Great! Your plan has the idea and both useful supports.","pose":"cheer"},
+            "complete":{"text":"You connected central idea, evidence, and your own words in a concise summary.","pose":"cheer"}
           }
         },
         "check": {
