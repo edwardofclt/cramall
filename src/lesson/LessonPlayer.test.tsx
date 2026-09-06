@@ -1,9 +1,21 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { lazy, useState } from 'react';
 import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { Lesson, Subject, Unit } from '../content/schema';
 import { LessonPlayer } from './LessonPlayer';
+import { widgetRegistry, type WidgetProps } from '../widgets/registry';
+
+function CrashOnDemandWidget(_props: WidgetProps<'probability-spinner'>) {
+  const [crashed, setCrashed] = useState(false);
+  if (crashed) throw new Error('widget exploded after Try it');
+  return (
+    <button type="button" onClick={() => setCrashed(true)}>
+      Force widget crash
+    </button>
+  );
+}
 
 const { FIXTURE, READING_FIXTURE, COACHED_FIXTURE } = vi.hoisted(() => {
   const lesson: Lesson = {
@@ -264,6 +276,10 @@ describe('LessonPlayer', () => {
       cardId: 'math-u12-l03-c2',
       guide: 'nutty',
       source: /Predict, run eight trials, and classify landing on red/i,
+      retryText: 'Reread the sample space: red is listed but not the only outcome, so landing on red is possible.',
+      retryPose: 'oops',
+      completeText: 'You used the full sample space to classify landing on red as possible; the random results were evidence, not a guarantee.',
+      completePose: 'cheer',
     },
     {
       name: 'Winnie word roots',
@@ -271,6 +287,10 @@ describe('LessonPlayer', () => {
       cardId: 'reading-u02-l01-c2',
       guide: 'winnie',
       source: /root port means carry/i,
+      retryText: 'That combination needs another look. Recheck the prefix, root, suffix, and the whole-word meaning.',
+      retryPose: 'oops',
+      completeText: 'You connected the word parts and checked the whole-word meaning.',
+      completePose: 'cheer',
     },
     {
       name: 'Sandy collision',
@@ -278,8 +298,12 @@ describe('LessonPlayer', () => {
       cardId: 'science-u01-l04-c2',
       guide: 'sandy',
       source: /changes one condition/i,
+      retryText: 'Read the visible before-and-after motion and revise your prediction for the next run.',
+      retryPose: 'oops',
+      completeText: 'You compared two modeled collision runs and connected the motion changes to a fair test.',
+      completePose: 'cheer',
     },
-  ])('$name uses a real repaired card with an in-step coached activity', async ({ lessonId, cardId, guide, source }) => {
+  ])('$name uses a real repaired card with an in-step coached activity', async ({ lessonId, cardId, guide, source, retryText, retryPose, completeText, completePose }) => {
     const user = userEvent.setup();
     const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
     renderPlayer(`/lesson/${lessonId}?step=card:${cardId}&peek=1&focus=flow`);
@@ -305,6 +329,8 @@ describe('LessonPlayer', () => {
       for (let index = 0; index < 8; index += 1) await user.click(screen.getByRole('button', { name: 'Spin' }));
       await user.click(screen.getByRole('button', { name: 'Certain' }));
       expect(within(screen.getByTestId('widget-probability-spinner')).getByRole('status')).toHaveTextContent(/classif/i);
+      expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(retryText);
+      expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === retryPose)).toBe(true);
       await user.click(screen.getByRole('button', { name: 'Possible' }));
       expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
     } else if (cardId === 'reading-u02-l01-c2') {
@@ -312,6 +338,8 @@ describe('LessonPlayer', () => {
       await user.click(screen.getByRole('button', { name: 'Select suffix able' }));
       await user.click(screen.getByRole('button', { name: 'Check word' }));
       expect(screen.getByText(/another look|recheck/i)).toBeInTheDocument();
+      expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(retryText);
+      expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === retryPose)).toBe(true);
       await user.click(screen.getByRole('button', { name: 'Remove suffix able' }));
       await user.click(screen.getByRole('button', { name: 'Check word' }));
       await user.click(screen.getByRole('button', { name: 'Choose whole-word meaning: carry from one place to another' }));
@@ -328,13 +356,16 @@ describe('LessonPlayer', () => {
       await user.click(screen.getByRole('button', { name: 'Run 1 had more Cart A speed' }));
       await user.click(screen.getByRole('button', { name: 'Compare runs' }));
       expect(within(screen.getByTestId('widget-collision-ramp')).getByRole('status')).toHaveTextContent(/does not match|revise/i);
+      expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(retryText);
+      expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === retryPose)).toBe(true);
       await user.click(screen.getByRole('button', { name: 'Run 2 had more Cart A speed' }));
       await user.click(screen.getByRole('button', { name: 'Compare runs' }));
       expect(screen.getByText(/compared two modeled collision runs/i)).toBeInTheDocument();
     }
 
     expect(storageSpy).not.toHaveBeenCalled();
-    expect(screen.getByTestId('widget-coach-reaction')).toBeInTheDocument();
+    expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(completeText);
+    expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === completePose)).toBe(true);
     expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
 
     const nextCardId = cardId.replace(/c2$/, 'c3');
@@ -362,6 +393,34 @@ describe('LessonPlayer', () => {
     await user.click(nav().getByRole('button', { name: /back/i }));
     expect(await screen.findByTestId('dialogue-scene')).toBeInTheDocument();
     expect(currentSearchParams().get('focus')).toBe('flow');
+  });
+
+  test('keeps a real coached lesson navigable when its widget crashes after Try it', async () => {
+    const user = userEvent.setup();
+    const original = widgetRegistry['probability-spinner'];
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    widgetRegistry['probability-spinner'] = lazy(async () => ({ default: CrashOnDemandWidget })) as typeof original;
+
+    try {
+      const view = renderPlayer('/lesson/math-u12-l03?step=card:math-u12-l03-c2&focus=flow');
+      expect(await screen.findByRole('heading', { name: 'Connect an Event to Its Outcomes' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Next' }));
+      await user.click(screen.getByRole('button', { name: 'Try it' }));
+      await user.click(screen.getByRole('button', { name: 'Force widget crash' }));
+
+      expect(await screen.findByTestId('widget-napping')).toHaveTextContent(/keep going/i);
+      expect(nav().getByRole('button', { name: /next step/i })).toBeEnabled();
+      expect(currentSearchParams().get('focus')).toBe('flow');
+      await user.click(nav().getByRole('button', { name: /next step/i }));
+      await waitFor(() => expect(currentSearchParams().get('step')).toBe('card:math-u12-l03-c3'));
+      expect(currentSearchParams().get('focus')).toBe('flow');
+      view.unmount();
+    } finally {
+      widgetRegistry['probability-spinner'] = original;
+      errorSpy.mockRestore();
+    }
   });
 
   test('keeps coached teaching visible, owns Next during the mini-conversation, and preserves events', async () => {

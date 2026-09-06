@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { lazy } from 'react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
+import type { WidgetCoach } from '../content/schema';
 import { WIDGET_TYPES } from '../content/schema';
+import { WidgetCoachFrame } from '../lesson/WidgetCoachFrame';
 import { WidgetFrame, type WidgetFrameProps } from './WidgetFrame';
 import { widgetRegistry, type WidgetEvent, type WidgetEventHandler } from './registry';
 
@@ -63,11 +64,20 @@ describe('WidgetFrame', () => {
     expect(screen.getByTestId('widget-napping')).toHaveTextContent(/experiment is napping/i);
   });
 
-  test('keeps the activity usable when a coaching cue has no presentation listener', async () => {
+  test('keeps a coached activity usable when a cue has no authored reaction', async () => {
     const user = userEvent.setup();
     const onEvent = vi.fn();
+    const coach: WidgetCoach = {
+      intro: [
+        { speaker: 'guide', text: 'Try the model first.', pose: 'talk' },
+        { speaker: 'kid', text: 'I will check the outcome and revise if needed.' },
+      ],
+      reactions: {
+        complete: { text: 'You made a careful classification.', pose: 'cheer' },
+      },
+    };
     render(
-      <WidgetFrame
+      <WidgetCoachFrame
         type="probability-spinner"
         config={{
           segments: [
@@ -78,9 +88,16 @@ describe('WidgetFrame', () => {
           eventQuestion: { eventLabel: 'red', classification: 'possible' },
           taskPrompt: 'Try one modeled trial, then classify the event.',
         }}
+        coach={coach}
+        guide="nutty"
+        visitKey="missing-reaction"
         onEvent={onEvent}
+        onIntroActiveChange={() => {}}
       />,
     );
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    await user.click(screen.getByRole('button', { name: 'Try it' }));
     const widget = await screen.findByTestId('widget-probability-spinner');
 
     await user.click(screen.getByRole('button', { name: 'Predict Red' }));
@@ -89,10 +106,13 @@ describe('WidgetFrame', () => {
 
     expect(onEvent).toHaveBeenCalledWith({ type: 'coach', cue: 'retry' });
     expect(widget).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).not.toHaveAttribute('inert');
+    expect(screen.queryByTestId('widget-coach-reaction')).toBeNull();
     expect(screen.getByRole('button', { name: 'Possible' })).toBeEnabled();
 
     await user.click(screen.getByRole('button', { name: 'Possible' }));
     expect(widget).toHaveAttribute('data-complete', 'yes');
+    expect(screen.getByTestId('widget-coach-reaction')).toHaveTextContent(coach.reactions.complete.text);
   });
 
   test('keeps the lesson Next control available beside the fallback card', async () => {
@@ -112,35 +132,6 @@ describe('WidgetFrame', () => {
     expect(screen.getByTestId('widget-napping')).toHaveTextContent(/keep going/i);
     await userEvent.setup().click(screen.getByRole('button', { name: 'Next lesson step' }));
     expect(onNext).toHaveBeenCalledTimes(1);
-  });
-
-  test('keeps lesson Next available when a widget crashes after the intro', async () => {
-    const user = userEvent.setup();
-    const original = widgetRegistry['place-value-builder'];
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    widgetRegistry['place-value-builder'] = lazy(async () => ({
-      default: () => {
-        throw new Error('widget exploded after intro');
-      },
-    })) as typeof original;
-
-    try {
-      const onNext = vi.fn();
-      render(
-        <>
-          <p>Coach intro complete.</p>
-          <WidgetFrame type="place-value-builder" config={{}} onEvent={() => {}} />
-          <button type="button" onClick={onNext}>Next lesson step</button>
-        </>,
-      );
-
-      expect(await screen.findByTestId('widget-napping')).toHaveTextContent(/keep going/i);
-      await user.click(screen.getByRole('button', { name: 'Next lesson step' }));
-      expect(onNext).toHaveBeenCalledTimes(1);
-    } finally {
-      widgetRegistry['place-value-builder'] = original;
-      errorSpy.mockRestore();
-    }
   });
 
   test('forwards events to the lesson boundary', async () => {
