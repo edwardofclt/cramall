@@ -1174,6 +1174,9 @@ export const HazardSolutionDesignerWidgetConfigSchema = z.object({
   }
   const hasReasoning = value.solutions.some((solution) => solution.strengths !== undefined || solution.impacts !== undefined || solution.limits !== undefined);
   if (hasReasoning) {
+    if (value.requiredImpactIds === undefined) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredImpactIds'], message: 'reasoned solutions require required impact ids' });
+    }
     value.solutions.forEach((solution, index) => {
       if (solution.strengths === undefined || solution.impacts === undefined || solution.limits === undefined) {
         context.addIssue({ code: z.ZodIssueCode.custom, path: ['solutions', index], message: 'reasoned solutions require strengths, impacts, and limits' });
@@ -1222,19 +1225,35 @@ export const ResourceSorterWidgetConfigSchema = z.object({
       context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectChoices'], message: 'effect choice ids must be unique' });
     }
     const choices = new Set(choiceIds);
-    const answers = value.effectAnswers ?? {};
-    for (const [itemId, answerId] of Object.entries(answers)) {
-      if (!value.items.some((item) => resourceVisualKey(item.id) === resourceVisualKey(itemId)) || !choices.has(resourceVisualKey(answerId))) {
-        context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers', itemId], message: 'effect answer must name an available item and choice' });
+    const answers = value.effectAnswers;
+    if (answers === undefined) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers'], message: 'effect choices require one answer for every item' });
+    } else {
+      const answerKeys = Object.keys(answers).map(resourceVisualKey);
+      const itemKeys = value.items.map((item) => resourceVisualKey(item.id));
+      if (answerKeys.length !== itemKeys.length || itemKeys.some((id) => !answerKeys.includes(id))) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers'], message: 'effect answers must cover every item exactly once' });
+      }
+      for (const [itemId, answerId] of Object.entries(answers)) {
+        if (!value.items.some((item) => resourceVisualKey(item.id) === resourceVisualKey(itemId)) || !choices.has(resourceVisualKey(answerId))) {
+          context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers', itemId], message: 'effect answer must name an available item and choice' });
+        }
       }
     }
   } else if (value.effectAnswers !== undefined) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers'], message: 'effect choices are required for effect answers' });
   }
-  const itemChoiceIds = new Set(value.items.flatMap((item) => (item.effectChoices ?? []).map((choice) => resourceVisualKey(choice.id))));
   for (const [index, item] of value.items.entries()) {
-    if (item.effectAnswerId !== undefined && (item.effectChoices === undefined || !itemChoiceIds.has(resourceVisualKey(item.effectAnswerId)))) {
-      context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectAnswerId'], message: 'effect answer must name an item effect choice' });
+    if (item.effectChoices !== undefined) {
+      const itemChoiceIds = item.effectChoices.map((choice) => resourceVisualKey(choice.id));
+      if (new Set(itemChoiceIds).size !== itemChoiceIds.length) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectChoices'], message: 'item effect choice ids must be unique' });
+      }
+      if (item.effectAnswerId === undefined || !itemChoiceIds.includes(resourceVisualKey(item.effectAnswerId))) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectAnswerId'], message: 'effect answer must name this item’s effect choice' });
+      }
+    } else if (item.effectAnswerId !== undefined) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectAnswerId'], message: 'item effect choices are required for an item effect answer' });
     }
   }
 });

@@ -262,11 +262,32 @@ test('Science comparison and design contracts reject semantically invalid refere
     solutions: [{ id: 'wall', label: 'Wall', effectiveness: 'good', impacts: ['homes'] }],
     requiredIds: ['wall'], requiredImpactIds: ['roads'],
   }).success).toBe(false);
+  expect(HazardSolutionDesignerWidgetConfigSchema.safeParse({
+    hazard: 'Flood',
+    solutions: [
+      { id: 'wall', label: 'Wall', effectiveness: 'good', strengths: ['slows water'], impacts: ['homes'], limits: ['can be overtopped'] },
+      { id: 'leave', label: 'Evacuate', effectiveness: 'good', strengths: ['moves people'], impacts: ['people'], limits: ['needs warning time'] },
+    ],
+    requiredIds: ['wall'],
+  }).success).toBe(false);
   expect(ResourceSorterWidgetConfigSchema.safeParse({
     items: [{ id: 'sun', label: 'Sun', kind: 'renewable' }], bins: ['renewable', 'nonrenewable'],
     lessonCategory: 'resource use',
     effectChoices: [{ id: 'clean', text: 'Clean energy' }],
     effectAnswers: { sun: 'missing' },
+  }).success).toBe(false);
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    items: [
+      { id: 'sun', label: 'Sun', kind: 'renewable', effectChoices: [{ id: 'sun-clean', text: 'Clean' }, { id: 'sun-limited', text: 'Limited' }], effectAnswerId: 'sun-clean' },
+      { id: 'coal', label: 'Coal', kind: 'nonrenewable', effectChoices: [{ id: 'coal-pollution', text: 'Pollution' }, { id: 'coal-limited', text: 'Limited' }], effectAnswerId: 'sun-clean' },
+    ],
+    bins: ['renewable', 'nonrenewable'],
+  }).success).toBe(false);
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    items: [{ id: 'sun', label: 'Sun', kind: 'renewable' }, { id: 'coal', label: 'Coal', kind: 'nonrenewable' }],
+    bins: ['renewable', 'nonrenewable'], lessonCategory: 'resource use',
+    effectChoices: [{ id: 'clean', text: 'Cleaner effect' }, { id: 'limited', text: 'Limited effect' }],
+    effectAnswers: { sun: 'clean' },
   }).success).toBe(false);
   expect(AnimalStructureMatcherWidgetConfigSchema.safeParse({
     pairs: [
