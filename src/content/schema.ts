@@ -817,7 +817,14 @@ export const CollisionRampWidgetConfigSchema = z.object({
   speedA: z.number().finite().min(0).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`).optional(),
   speedB: z.number().finite().min(0).max(100).refine((value) => exactDecimalFromNumber(value) !== null, `at most ${MAX_BALANCE_DECIMAL_PLACES} decimal places`).optional(),
   target: z.enum(['predict-direction', 'compare-motion']).optional(),
-}).strict();
+  controlledVariable: z.enum(['speed-a', 'speed-b']).optional(),
+  comparisonRuns: z.literal(2).optional(),
+  taskPrompt: WidgetTaskPromptSchema,
+}).strict().superRefine((value, context) => {
+  if ((value.controlledVariable === undefined) !== (value.comparisonRuns === undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, message: 'controlledVariable and comparisonRuns must be authored together' });
+  }
+});
 
 export const CollisionRampWidgetRefSchema = z.object({
   type: z.literal('collision-ramp'),
@@ -827,8 +834,9 @@ export const CollisionRampWidgetRefSchema = z.object({
 const EnergyTransferTokenSchema = z.string().trim().min(1);
 export const EnergyTransferBuilderWidgetConfigSchema = z.object({
   sources: z.array(EnergyTransferTokenSchema).min(1), transfers: z.array(EnergyTransferTokenSchema).min(1), targets: z.array(EnergyTransferTokenSchema).min(1), requiredPath: z.array(EnergyTransferTokenSchema).min(3),
+  distractors: z.array(EnergyTransferTokenSchema).min(1).optional(),
 }).strict().superRefine((value, context) => {
-  const all = [...value.sources, ...value.transfers, ...value.targets];
+  const all = [...value.sources, ...value.transfers, ...value.targets, ...(value.distractors ?? [])];
   if (new Set(all).size !== all.length) context.addIssue({ code: z.ZodIssueCode.custom, message: 'source, transfer, and target tokens must be unique and disjoint' });
   if (!value.sources.includes(value.requiredPath[0]!) || !value.targets.includes(value.requiredPath[value.requiredPath.length - 1]!) || !value.requiredPath.slice(1, -1).every((token) => value.transfers.includes(token))) context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredPath'], message: 'invalid source-transfer-target path' });
 });
@@ -841,15 +849,31 @@ export const WaveMakerWidgetConfigSchema = z.object({
   frequency: WaveLevel.optional(),
   target: z.object({ amplitude: WaveLevel.optional(), frequency: WaveLevel.optional() }).strict()
     .refine((target) => target.amplitude !== undefined || target.frequency !== undefined, 'target needs value').optional(),
+  taskPrompt: WidgetTaskPromptSchema,
 }).strict();
 
 export const WaveMakerWidgetRefSchema = z.object({ type: z.literal('wave-maker'), config: WaveMakerWidgetConfigSchema }).strict();
 
+const LightPathLabelsSchema = z.object({
+  source: z.string().trim().min(1),
+  object: z.string().trim().min(1),
+  eye: z.string().trim().min(1),
+}).strict();
 export const LightReflectionEyeWidgetConfigSchema = z.object({
   incidentAngle: z.number().int().min(0).max(90),
   targetAngle: z.number().int().min(0).max(90).optional(),
   showEye: z.boolean().optional(),
-}).strict();
+  task: z.enum(['trace-path', 'match-angle']).optional(),
+  pathLabels: LightPathLabelsSchema.optional(),
+  taskPrompt: WidgetTaskPromptSchema,
+}).strict().superRefine((value, context) => {
+  if (value.task === 'trace-path' && value.pathLabels === undefined) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['pathLabels'], message: 'trace-path requires source, object, and eye labels' });
+  }
+  if (value.task !== 'trace-path' && value.pathLabels !== undefined) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['pathLabels'], message: 'path labels are only valid for trace-path tasks' });
+  }
+});
 
 export const LightReflectionEyeWidgetRefSchema = z.object({ type: z.literal('light-reflection-eye'), config: LightReflectionEyeWidgetConfigSchema }).strict();
 
@@ -891,11 +915,17 @@ export const MessageSenderWidgetConfigSchema = z.object({
 export const MessageSenderWidgetRefSchema = z.object({ type: z.literal('message-sender'), config: MessageSenderWidgetConfigSchema }).strict();
 
 const EnergyTermSchema = z.string().trim().min(1);
+const EnergyConstraintSchema = z.object({
+  id: EnergyTermSchema,
+  label: EnergyTermSchema,
+  kind: z.enum(['material', 'cost', 'time', 'safety']),
+}).strict();
 const EnergyComponentSchema = z.object({
   id: EnergyTermSchema,
   label: EnergyTermSchema,
   energyIn: EnergyTermSchema,
   energyOut: EnergyTermSchema,
+  satisfiesConstraintIds: z.array(EnergyTermSchema).optional(),
 }).strict();
 
 function hasCompatibleEnergyPath(components: Array<{ id: string; energyIn: string; energyOut: string }>, start: string, end: string) {
@@ -920,6 +950,7 @@ export const EnergyConversionDesignerWidgetConfigSchema = z.object({
   components: z.array(EnergyComponentSchema).min(2),
   requiredStart: EnergyTermSchema,
   requiredEnd: EnergyTermSchema,
+  constraints: z.array(EnergyConstraintSchema).min(1).optional(),
 }).strict().superRefine((value, context) => {
   const ids = value.components.map((component) => component.id);
   const labels = value.components.map((component) => component.label);
@@ -931,6 +962,24 @@ export const EnergyConversionDesignerWidgetConfigSchema = z.object({
   if (!hasCompatibleEnergyPath(value.components, value.requiredStart, value.requiredEnd)) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'no compatible path connects required endpoints' });
   }
+  const constraints = value.constraints ?? [];
+  const constraintIds = constraints.map((constraint) => constraint.id);
+  const constraintLabels = constraints.map((constraint) => constraint.label);
+  if (new Set(constraintIds).size !== constraintIds.length || new Set(constraintLabels).size !== constraintLabels.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['constraints'], message: 'constraint ids and labels must be unique' });
+  }
+  const knownConstraintIds = new Set(constraintIds);
+  for (const [index, component] of value.components.entries()) {
+    if (component.satisfiesConstraintIds !== undefined && value.constraints === undefined) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['components', index, 'satisfiesConstraintIds'], message: 'constraints are required when a component names them' });
+    }
+    if (component.satisfiesConstraintIds?.some((id) => !knownConstraintIds.has(id))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['components', index, 'satisfiesConstraintIds'], message: 'unknown constraint id' });
+    }
+    if (value.constraints !== undefined && component.satisfiesConstraintIds === undefined) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['components', index, 'satisfiesConstraintIds'], message: 'each component must list its satisfied constraints' });
+    }
+  }
 });
 
 export const EnergyConversionDesignerWidgetRefSchema = z.object({ type: z.literal('energy-conversion-designer'), config: EnergyConversionDesignerWidgetConfigSchema }).strict();
@@ -941,12 +990,13 @@ const AnimalStructurePairSchema = z.object({
   animal: AnimalStructureTermSchema,
   structure: AnimalStructureTermSchema,
   function: AnimalStructureTermSchema,
+  kind: z.enum(['internal', 'external']).optional(),
 }).strict();
 
 export const AnimalStructureMatcherWidgetConfigSchema = z.object({
   pairs: z.array(AnimalStructurePairSchema).min(2),
 }).strict().superRefine((value, context) => {
-  const ids = value.pairs.map((pair) => pair.id);
+  const ids = value.pairs.map((pair) => pair.id.normalize('NFKC').toLocaleLowerCase());
   const functions = value.pairs.map((pair) => pair.function);
   const labels = value.pairs.map((pair) => `${pair.animal} ${pair.structure}`);
   if (new Set(ids).size !== ids.length || new Set(functions).size !== functions.length || new Set(labels).size !== labels.length) {
@@ -962,9 +1012,14 @@ export const ErosionSimulatorWidgetConfigSchema = z.object({
   agents: z.array(ErosionAgentSchema).min(1).refine((agents) => new Set(agents).size === agents.length, 'duplicates'),
   vegetation: z.boolean().optional(),
   targetAgent: ErosionAgentSchema.optional(),
+  comparison: z.object({
+    variable: z.literal('vegetation'),
+    values: z.tuple([z.literal(false), z.literal(true)]),
+  }).strict().optional(),
 }).strict().superRefine((value, context) => {
   if (value.targetAgent && !value.agents.includes(value.targetAgent)) context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetAgent'], message: 'target agent unavailable' });
   if (value.terrain === 'rock' && value.vegetation !== undefined) context.addIssue({ code: z.ZodIssueCode.custom, path: ['vegetation'], message: 'vegetation cover is not modeled on rock' });
+  if (value.terrain === 'rock' && value.comparison !== undefined) context.addIssue({ code: z.ZodIssueCode.custom, path: ['comparison'], message: 'vegetation comparison is not modeled on rock' });
 });
 export const ErosionSimulatorWidgetRefSchema = z.object({ type: z.literal('erosion-simulator'), config: ErosionSimulatorWidgetConfigSchema }).strict();
 
@@ -975,11 +1030,18 @@ const RockLayerSchema = z.object({
   age: z.number().int().nonnegative(),
   artifact: RockLayerTextSchema.optional(),
 }).strict();
+const RockEvidenceChoiceSchema = z.object({
+  id: RockLayerTextSchema,
+  text: RockLayerTextSchema,
+}).strict();
 const rockLayerVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
 export const RockLayerExplorerWidgetConfigSchema = z.object({
   layers: z.array(RockLayerSchema).min(2),
   prompt: RockLayerTextSchema.optional(),
   targetLayerId: RockLayerTextSchema.optional(),
+  evidencePrompt: RockLayerTextSchema.optional(),
+  evidenceChoices: z.array(RockEvidenceChoiceSchema).min(2).optional(),
+  requiredEvidenceId: RockLayerTextSchema.optional(),
 }).strict().superRefine((value, context) => {
   const ids = value.layers.map((layer) => rockLayerVisualKey(layer.id));
   const labels = value.layers.map((layer) => rockLayerVisualKey(layer.label));
@@ -989,6 +1051,17 @@ export const RockLayerExplorerWidgetConfigSchema = z.object({
   }
   if (value.targetLayerId && !value.layers.some((layer) => layer.id === value.targetLayerId)) {
     context.addIssue({code: z.ZodIssueCode.custom, path: ['targetLayerId'], message: 'target layer must exist'});
+  }
+  const evidenceIds = value.evidenceChoices?.map((choice) => rockLayerVisualKey(choice.id)) ?? [];
+  if (new Set(evidenceIds).size !== evidenceIds.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['evidenceChoices'], message: 'evidence choice ids must be unique' });
+  }
+  const hasEvidencePrompt = value.evidencePrompt !== undefined || value.evidenceChoices !== undefined || value.requiredEvidenceId !== undefined;
+  if (hasEvidencePrompt && (value.evidencePrompt === undefined || value.evidenceChoices === undefined || value.requiredEvidenceId === undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['evidenceChoices'], message: 'an evidence prompt requires evidence choices and a required evidence id' });
+  }
+  if (value.requiredEvidenceId !== undefined && !evidenceIds.includes(rockLayerVisualKey(value.requiredEvidenceId))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredEvidenceId'], message: 'required evidence must name a choice' });
   }
 });
 export const RockLayerExplorerWidgetRefSchema = z.object({type: z.literal('rock-layer-explorer'), config: RockLayerExplorerWidgetConfigSchema}).strict();
@@ -1028,16 +1101,26 @@ const ContourSchema = z.object({
     context.addIssue({code: z.ZodIssueCode.custom, path: ['points'], message: 'coordinates must produce usable SVG bounds'});
   }
 });
-const TopographicPointSchema = z.object({
+const LegacyTopographicPointSchema = z.object({
   id: TopographicTextSchema,
   label: TopographicTextSchema,
   elevation: z.number().finite(),
 }).strict();
+const AuthoredTopographicPointSchema = z.object({
+  id: TopographicTextSchema,
+  label: TopographicTextSchema,
+  x: z.number().finite().min(0).max(100),
+  y: z.number().finite().min(0).max(100),
+  elevation: z.number().finite(),
+  group: TopographicTextSchema,
+}).strict();
+const TopographicPointSchema = z.union([AuthoredTopographicPointSchema, LegacyTopographicPointSchema]);
 const topographicVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
 export const TopographicMapExplorerWidgetConfigSchema = z.object({
   contours: z.array(ContourSchema).min(1),
   points: z.array(TopographicPointSchema).min(2),
   targetPointId: TopographicTextSchema.optional(),
+  targetPattern: z.enum(['band', 'cluster']).optional(),
 }).strict().superRefine((value, context) => {
   const coordinates = value.contours.flatMap((contour) => parseCoordinates(contour.points));
   if (!hasUsableTopographicBounds(coordinates)) {
@@ -1047,6 +1130,13 @@ export const TopographicMapExplorerWidgetConfigSchema = z.object({
   const labels = value.points.map((point) => topographicVisualKey(point.label));
   if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length) {
     context.addIssue({code: z.ZodIssueCode.custom, message: 'point ids and labels must be unique'});
+  }
+  const richPoints = value.points.filter((point): point is z.infer<typeof AuthoredTopographicPointSchema> => 'x' in point && 'y' in point && 'group' in point);
+  if (richPoints.length !== 0 && richPoints.length !== value.points.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['points'], message: 'all map points must use the same coordinate record shape' });
+  }
+  if (value.targetPattern !== undefined && richPoints.length !== value.points.length) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetPattern'], message: 'target patterns require authored point coordinates and groups' });
   }
   if (value.targetPointId && !value.points.some((point) => point.id === value.targetPointId)) {
     context.addIssue({code: z.ZodIssueCode.custom, path: ['targetPointId'], message: 'target point must exist'});
@@ -1062,12 +1152,16 @@ const HazardSolutionSchema = z.object({
   id: HazardTextSchema,
   label: HazardTextSchema,
   effectiveness: z.enum(['good', 'partial', 'poor']),
+  strengths: z.array(HazardTextSchema).min(1).optional(),
+  impacts: z.array(HazardTextSchema).min(1).optional(),
+  limits: z.array(HazardTextSchema).min(1).optional(),
 }).strict();
 const hazardVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
 export const HazardSolutionDesignerWidgetConfigSchema = z.object({
   hazard: HazardTextSchema,
   solutions: z.array(HazardSolutionSchema).min(2),
   requiredIds: z.array(HazardTextSchema).min(1),
+  requiredImpactIds: z.array(HazardTextSchema).min(1).optional(),
 }).strict().superRefine((value, context) => {
   const ids = value.solutions.map((solution) => hazardVisualKey(solution.id));
   const labels = value.solutions.map((solution) => hazardVisualKey(solution.label));
@@ -1077,6 +1171,19 @@ export const HazardSolutionDesignerWidgetConfigSchema = z.object({
   }
   if (new Set(requiredIds).size !== requiredIds.length || !value.requiredIds.every((id) => value.solutions.some((solution) => solution.id === id)) || value.requiredIds.some((id) => value.solutions.find((solution) => solution.id === id)!.effectiveness === 'poor')) {
     context.addIssue({code: z.ZodIssueCode.custom, message: 'required solution ids must exist, be unique, and not be poor'});
+  }
+  const hasReasoning = value.solutions.some((solution) => solution.strengths !== undefined || solution.impacts !== undefined || solution.limits !== undefined);
+  if (hasReasoning) {
+    value.solutions.forEach((solution, index) => {
+      if (solution.strengths === undefined || solution.impacts === undefined || solution.limits === undefined) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['solutions', index], message: 'reasoned solutions require strengths, impacts, and limits' });
+      }
+    });
+  }
+  const allImpacts = value.solutions.flatMap((solution) => solution.impacts ?? []).map(hazardVisualKey);
+  const requiredImpactIds = value.requiredImpactIds?.map(hazardVisualKey) ?? [];
+  if (new Set(requiredImpactIds).size !== requiredImpactIds.length || requiredImpactIds.some((id) => !allImpacts.includes(id))) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['requiredImpactIds'], message: 'required impact ids must name visible solution impacts' });
   }
 });
 export const HazardSolutionDesignerWidgetRefSchema = z.object({
@@ -1090,17 +1197,45 @@ const ResourceItemSchema = z.object({
   id: ResourceTextSchema,
   label: ResourceTextSchema,
   kind: ResourceKindSchema,
+  lessonCategory: ResourceTextSchema.optional(),
+  effectChoices: z.array(z.object({ id: ResourceTextSchema, text: ResourceTextSchema }).strict()).min(2).optional(),
+  effectAnswerId: ResourceTextSchema.optional(),
 }).strict();
 const resourceVisualKey = (value: string) => value.normalize('NFKC').toLocaleLowerCase();
+const ResourceEffectChoiceSchema = z.object({ id: ResourceTextSchema, text: ResourceTextSchema }).strict();
 
 export const ResourceSorterWidgetConfigSchema = z.object({
   items: z.array(ResourceItemSchema).min(2),
   bins: z.array(ResourceKindSchema).min(2),
+  lessonCategory: ResourceTextSchema.optional(),
+  effectChoices: z.array(ResourceEffectChoiceSchema).min(2).optional(),
+  effectAnswers: z.record(ResourceTextSchema).optional(),
 }).strict().superRefine((value, context) => {
   const ids = value.items.map((item) => resourceVisualKey(item.id));
   const labels = value.items.map((item) => resourceVisualKey(item.label));
   if (new Set(ids).size !== ids.length || new Set(labels).size !== labels.length || new Set(value.bins).size !== value.bins.length || !value.items.every((item) => value.bins.includes(item.kind))) {
     context.addIssue({code: z.ZodIssueCode.custom, message: 'resource item ids and labels must be unique and every item kind needs a bin'});
+  }
+  if (value.effectChoices !== undefined) {
+    const choiceIds = value.effectChoices.map((choice) => resourceVisualKey(choice.id));
+    if (new Set(choiceIds).size !== choiceIds.length) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectChoices'], message: 'effect choice ids must be unique' });
+    }
+    const choices = new Set(choiceIds);
+    const answers = value.effectAnswers ?? {};
+    for (const [itemId, answerId] of Object.entries(answers)) {
+      if (!value.items.some((item) => resourceVisualKey(item.id) === resourceVisualKey(itemId)) || !choices.has(resourceVisualKey(answerId))) {
+        context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers', itemId], message: 'effect answer must name an available item and choice' });
+      }
+    }
+  } else if (value.effectAnswers !== undefined) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['effectAnswers'], message: 'effect choices are required for effect answers' });
+  }
+  const itemChoiceIds = new Set(value.items.flatMap((item) => (item.effectChoices ?? []).map((choice) => resourceVisualKey(choice.id))));
+  for (const [index, item] of value.items.entries()) {
+    if (item.effectAnswerId !== undefined && (item.effectChoices === undefined || !itemChoiceIds.has(resourceVisualKey(item.effectAnswerId)))) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['items', index, 'effectAnswerId'], message: 'effect answer must name an item effect choice' });
+    }
   }
 });
 

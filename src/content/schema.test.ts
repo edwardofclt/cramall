@@ -21,6 +21,17 @@ import {
   TextStructureSorterWidgetConfigSchema,
   FigurativeLanguageMatcherWidgetConfigSchema,
   SourceCredibilityCheckerWidgetConfigSchema,
+  CollisionRampWidgetConfigSchema,
+  EnergyTransferBuilderWidgetConfigSchema,
+  WaveMakerWidgetConfigSchema,
+  LightReflectionEyeWidgetConfigSchema,
+  EnergyConversionDesignerWidgetConfigSchema,
+  AnimalStructureMatcherWidgetConfigSchema,
+  ErosionSimulatorWidgetConfigSchema,
+  RockLayerExplorerWidgetConfigSchema,
+  TopographicMapExplorerWidgetConfigSchema,
+  HazardSolutionDesignerWidgetConfigSchema,
+  ResourceSorterWidgetConfigSchema,
   validateLesson,
   type Lesson,
   type Question,
@@ -224,6 +235,62 @@ test('a quiz reference is optional, requires visible text, and rejects authoring
     title: 'Read this passage', text: 'A complete reference passage.', extra: true,
   })).toThrow();
   expect(() => QuizReferenceSchema.parse({ title: 'Read this passage', text: '' })).toThrow();
+});
+
+test('Science comparison and design contracts reject semantically invalid references', () => {
+  expect(CollisionRampWidgetConfigSchema.safeParse({
+    massA: 1, massB: 1, controlledVariable: 'speed-c', comparisonRuns: 2, taskPrompt: 'Compare speeds',
+  }).success).toBe(false);
+  expect(ErosionSimulatorWidgetConfigSchema.safeParse({
+    terrain: 'soil', agents: ['water'], comparison: { variable: 'vegetation', values: [false, false] },
+  }).success).toBe(false);
+  expect(TopographicMapExplorerWidgetConfigSchema.safeParse({
+    contours: [{ elevation: 100, points: '0,0 1,1' }],
+    points: [{ id: 'p', label: 'P', x: 120, y: 20, elevation: 5, group: 'coast' }],
+    targetPattern: 'band',
+  }).success).toBe(false);
+  expect(EnergyConversionDesignerWidgetConfigSchema.safeParse({
+    components: [
+      { id: 'source', label: 'Source', energyIn: 'stored', energyOut: 'electric', satisfiesConstraintIds: ['missing'] },
+      { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light', satisfiesConstraintIds: [] },
+    ],
+    requiredStart: 'source', requiredEnd: 'lamp',
+    constraints: [{ id: 'safe', label: 'Safe', kind: 'safety' }],
+  }).success).toBe(false);
+  expect(HazardSolutionDesignerWidgetConfigSchema.safeParse({
+    hazard: 'Flood',
+    solutions: [{ id: 'wall', label: 'Wall', effectiveness: 'good', impacts: ['homes'] }],
+    requiredIds: ['wall'], requiredImpactIds: ['roads'],
+  }).success).toBe(false);
+  expect(ResourceSorterWidgetConfigSchema.safeParse({
+    items: [{ id: 'sun', label: 'Sun', kind: 'renewable' }], bins: ['renewable', 'nonrenewable'],
+    lessonCategory: 'resource use',
+    effectChoices: [{ id: 'clean', text: 'Clean energy' }],
+    effectAnswers: { sun: 'missing' },
+  }).success).toBe(false);
+  expect(AnimalStructureMatcherWidgetConfigSchema.safeParse({
+    pairs: [
+      { id: 'beak', animal: 'Bird', structure: 'beak', function: 'eats', kind: 'external' },
+      { id: 'BEAK', animal: 'Fish', structure: 'fin', function: 'swims', kind: 'internal' },
+    ],
+  }).success).toBe(false);
+  expect(RockLayerExplorerWidgetConfigSchema.safeParse({
+    layers: [{ id: 'top', label: 'Top', age: 1 }, { id: 'bottom', label: 'Bottom', age: 2 }],
+    evidencePrompt: 'Which evidence supports the older layer?', targetLayerId: 'bottom',
+  }).success).toBe(false);
+});
+
+test('Science contracts accept the authored comparison and evidence shapes', () => {
+  expect(CollisionRampWidgetConfigSchema.parse({
+    massA: 1, massB: 2, controlledVariable: 'speed-a', comparisonRuns: 2, taskPrompt: 'Compare one speed.',
+  }).controlledVariable).toBe('speed-a');
+  expect(WaveMakerWidgetConfigSchema.parse({ medium: 'rope', target: { amplitude: 3 }, taskPrompt: 'Match amplitude.' }).taskPrompt).toBe('Match amplitude.');
+  expect(LightReflectionEyeWidgetConfigSchema.parse({
+    incidentAngle: 25, task: 'trace-path', taskPrompt: 'Trace the light.', pathLabels: { source: 'Lamp', object: 'Book', eye: 'Eye' },
+  }).pathLabels?.object).toBe('Book');
+  expect(EnergyTransferBuilderWidgetConfigSchema.parse({
+    sources: ['Sun'], transfers: ['light'], targets: ['paper'], requiredPath: ['Sun', 'light', 'paper'], distractors: ['sound'],
+  }).distractors).toEqual(['sound']);
 });
 test('keeps an optional worked source passage as distinct authored material', () => {
   const lesson = makeLesson();
