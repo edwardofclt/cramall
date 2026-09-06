@@ -77,11 +77,28 @@ const scienceU02L01Core = {
           "targets": [
             "paper square"
           ],
+          "distractors": [
+            "Moon",
+            "sound",
+            "desk"
+          ],
           "requiredPath": [
             "Sun",
             "light",
             "paper square"
           ]
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Trace the Sun to light to paper square, then look for a change you could actually observe at the receiver." },
+          { "speaker": "kid", "text": "I will separate the path from the warmer paper observation." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Start with the source, snap in the light route, and finish at the paper square before choosing its observable effect.", "pose": "think" },
+          "retry": { "text": "That choice is not the next path step or receiver effect. Recheck source, route, receiver, then what became warmer.", "pose": "oops" },
+          "milestone": { "text": "The source-to-receiver path is connected. Now your observation can support the transfer inference.", "pose": "talk" },
+          "complete": { "text": "You traced the path and named the warmer paper as an observable effect, so the energy idea stays an inference.", "pose": "cheer" }
         }
       }
     },
@@ -492,11 +509,28 @@ const scienceU02L02Core = {
           "targets": [
             "paper bits"
           ],
+          "distractors": [
+            "flashlight",
+            "light",
+            "wall"
+          ],
           "requiredPath": [
             "tuning fork",
             "sound",
             "paper bits"
           ]
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Build tuning fork to sound to paper bits, then identify the receiver effect that your written observation could show." },
+          { "speaker": "kid", "text": "I will use the trembling paper bits as the observable effect, not as visible energy." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Ignore distractors and snap the vibrating source, sound route, and paper-bit receiver in order.", "pose": "think" },
+          "retry": { "text": "Try the next path slot again, then choose vibrating because the paper bits visibly tremble.", "pose": "oops" },
+          "milestone": { "text": "You connected the sound path. The receiver effect is the evidence to name next.", "pose": "talk" },
+          "complete": { "text": "You traced the sound transfer and used trembling paper bits as an observable effect, while keeping energy inferred.", "pose": "cheer" }
         }
       }
     },
@@ -945,11 +979,28 @@ const scienceU02L03Core = {
           "targets": [
             "motor"
           ],
+          "distractors": [
+            "Sun",
+            "heat",
+            "clock"
+          ],
           "requiredPath": [
             "battery",
             "electric current",
             "motor"
           ]
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Trace battery to electric current to motor, then connect the turning shaft to an observable receiver effect." },
+          { "speaker": "kid", "text": "I will name the motor moving before I infer that energy transferred." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Choose the battery source, the electric-current route, and the motor receiver; leave the distractors aside.", "pose": "think" },
+          "retry": { "text": "Check the next path slot and choose moving as the receiver effect because the shaft can turn visibly.", "pose": "oops" },
+          "milestone": { "text": "The current path reaches the motor. Now identify the effect you can observe.", "pose": "talk" },
+          "complete": { "text": "You linked the motor’s turning to the traced path and kept energy as an inference from an observable effect.", "pose": "cheer" }
         }
       }
     },

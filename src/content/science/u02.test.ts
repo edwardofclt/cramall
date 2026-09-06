@@ -32,6 +32,11 @@ const specs = [
             "targets": [
               "paper square"
             ],
+            "distractors": [
+              "Moon",
+              "sound",
+              "desk"
+            ],
             "requiredPath": [
               "Sun",
               "light",
@@ -122,6 +127,11 @@ const specs = [
             ],
             "targets": [
               "paper bits"
+            ],
+            "distractors": [
+              "flashlight",
+              "light",
+              "wall"
             ],
             "requiredPath": [
               "tuning fork",
@@ -223,6 +233,11 @@ const specs = [
             ],
             "targets": [
               "motor"
+            ],
+            "distractors": [
+              "Sun",
+              "heat",
+              "clock"
             ],
             "requiredPath": [
               "battery",
@@ -459,4 +474,15 @@ test('keeps sampled L01 transfer questions self-contained', () => {
   expect(questions[2]!.prompt).toBe(
     'Two matching paper squares begin in the same room. One is placed in sunlight and later feels warmer than the shaded square. Which transfer path matches this phenomenon?',
   );
+});
+
+test('energy transfer cards expose observable-effect coaching', () => {
+  const widgetCards = unit02Lessons.flatMap((lesson) => lesson.learnCards.filter((card) => card.widget?.type === 'energy-transfer-builder'));
+  expect(widgetCards).toHaveLength(3);
+  for (const card of widgetCards) {
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/source|route|receiver/i);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/effect|path/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/observable effect|inference/i);
+  }
 });

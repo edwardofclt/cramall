@@ -25,6 +25,20 @@ const replacementConfig = {
   requiredEnd: 'lamp',
 };
 
+const constrainedConfig = {
+  components: [
+    { id: 'battery', label: 'Battery', energyIn: 'stored', energyOut: 'electric', satisfiesConstraintIds: ['material', 'cost'] },
+    { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light', satisfiesConstraintIds: ['time', 'safety'] },
+  ],
+  requiredStart: 'battery', requiredEnd: 'lamp',
+  constraints: [
+    { id: 'material', label: 'Available materials', kind: 'material' as const },
+    { id: 'cost', label: 'At most 8 tokens', kind: 'cost' as const },
+    { id: 'time', label: 'Within 10 minutes', kind: 'time' as const },
+    { id: 'safety', label: 'Adult safety check', kind: 'safety' as const },
+  ],
+};
+
 test('rejects incompatible adjacency without corrupting the valid chain', async () => {
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
@@ -35,6 +49,7 @@ test('rejects incompatible adjacency without corrupting the valid chain', async 
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'append-chain' },
     { type: 'change', value: { chain: ['sun'] } },
+    { type: 'coach', cue: 'strategy' },
   ]);
   expect(screen.getByTestId('conversion-chain')).toHaveTextContent('sun');
   await user.click(screen.getByRole('button', { name: 'Add Panel' }));
@@ -102,6 +117,8 @@ test('keeps exact correction feedback live after an incompatible append to a com
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'append-chain' },
     { type: 'change', value: { chain: ['sun', 'panel', 'lamp'] } },
+    { type: 'coach', cue: 'milestone' },
+    { type: 'coach', cue: 'strategy' },
   ]);
 });
 
@@ -141,4 +158,29 @@ test('recovers from an interior-component config replacement inside WidgetFrame 
 
   for (const label of ['Sun', 'Battery', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+});
+
+test('snaps and removes chain tokens, then requires every visible constraint stamp', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  render(<EnergyConversionDesigner config={constrainedConfig} onEvent={onEvent} />);
+  expect(screen.getByTestId('conversion-constraints')).toHaveTextContent(/Available materials.*unmet/i);
+  expect(screen.getAllByTestId(/constraint-stamp-/)).toHaveLength(4);
+  await user.click(screen.getByRole('button', { name: 'Add Battery' }));
+  await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
+  expect(screen.getByTestId('conversion-chain-slot-1')).toHaveTextContent('Lamp');
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('conversion-constraints')).toHaveTextContent(/all constraints met/i);
+  await user.click(screen.getByRole('button', { name: 'Remove Lamp from chain' }));
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
+  expect(screen.getByTestId('conversion-constraints')).toHaveTextContent(/unmet/i);
+});
+
+test('coaches an incompatible chain without claiming a universally best device', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  render(<EnergyConversionDesigner config={constrainedConfig} onEvent={onEvent} />);
+  expect(screen.getByText(/no single device is universally best/i)).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Add Battery' }));
+  await user.click(screen.getByRole('button', { name: 'Add Battery' }));
+  expect(screen.getByRole('status')).toHaveTextContent(/does not connect/i);
+  expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'strategy')).toBe(true);
 });

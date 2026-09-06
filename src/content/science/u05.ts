@@ -85,6 +85,18 @@ const scienceU05L01Core = {
           "requiredStart": "crank",
           "requiredEnd": "buzzer"
         }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Snap the hand-crank generator to the buzzer only when motion and electric labels connect." },
+          { "speaker": "kid", "text": "I will match each output to the next input and describe the sound as the observable result." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Start with the hand-crank generator, then choose the component whose input matches electric energy.", "pose": "think" },
+          "retry": { "text": "That link does not match. Check the previous output and the next input before adding another component.", "pose": "oops" },
+          "milestone": { "text": "The chain is connected from motion to electric to sound; now keep the model separate from a physical test.", "pose": "talk" },
+          "complete": { "text": "You built a connected conversion chain and identified the buzzer’s sound as an observable effect, not visible energy.", "pose": "cheer" }
+        }
       }
     },
     {
@@ -509,17 +521,43 @@ const scienceU05L02Core = {
               "id": "battery",
               "label": "Battery",
               "energyIn": "stored",
-              "energyOut": "electric"
+              "energyOut": "electric",
+              "satisfiesConstraintIds": [
+                "materials",
+                "cost"
+              ]
             },
             {
               "id": "lamp",
               "label": "Lamp",
               "energyIn": "electric",
-              "energyOut": "light"
+              "energyOut": "light",
+              "satisfiesConstraintIds": [
+                "time",
+                "safety"
+              ]
             }
           ],
           "requiredStart": "battery",
-          "requiredEnd": "lamp"
+          "requiredEnd": "lamp",
+          "constraints": [
+            { "id": "materials", "label": "Available materials", "kind": "material" },
+            { "id": "cost", "label": "At most 8 tokens", "kind": "cost" },
+            { "id": "time", "label": "Within 10 minutes", "kind": "time" },
+            { "id": "safety", "label": "Adult safety check", "kind": "safety" }
+          ]
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Build a battery-to-lamp chain, then inspect each material, cost, time, and safety stamp before calling the plan ready." },
+          { "speaker": "kid", "text": "I will check every constraint instead of saying one device is always best." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Snap the battery to the lamp, then read the constraint board for every required limit.", "pose": "think" },
+          "retry": { "text": "The conversion may connect, but an unmet stamp remains. Find the missing material, cost, time, or safety requirement.", "pose": "oops" },
+          "milestone": { "text": "Your chain connects and its stamps cover the required constraints. Compare this plan’s trade-offs with other possible designs.", "pose": "talk" },
+          "complete": { "text": "You made a valid chain that meets every visible constraint without claiming one device is universally best.", "pose": "cheer" }
         }
       }
     },

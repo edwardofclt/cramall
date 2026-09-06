@@ -122,21 +122,35 @@ const specs = [
           "type": "energy-conversion-designer",
           "config": {
             "components": [
-              {
-                "id": "battery",
-                "label": "Battery",
-                "energyIn": "stored",
-                "energyOut": "electric"
-              },
-              {
-                "id": "lamp",
-                "label": "Lamp",
-                "energyIn": "electric",
-                "energyOut": "light"
-              }
-            ],
-            "requiredStart": "battery",
-            "requiredEnd": "lamp"
+            {
+              "id": "battery",
+              "label": "Battery",
+              "energyIn": "stored",
+              "energyOut": "electric",
+              "satisfiesConstraintIds": [
+                "materials",
+                "cost"
+              ]
+            },
+            {
+              "id": "lamp",
+              "label": "Lamp",
+              "energyIn": "electric",
+              "energyOut": "light",
+              "satisfiesConstraintIds": [
+                "time",
+                "safety"
+              ]
+            }
+          ],
+          "requiredStart": "battery",
+          "requiredEnd": "lamp",
+          "constraints": [
+            { "id": "materials", "label": "Available materials", "kind": "material" },
+            { "id": "cost", "label": "At most 8 tokens", "kind": "cost" },
+            { "id": "time", "label": "Within 10 minutes", "kind": "time" },
+            { "id": "safety", "label": "Adult safety check", "kind": "safety" }
+          ]
           }
         }
       },
@@ -463,4 +477,16 @@ test('sampled device questions include the complete goal and test records they r
     expect(prompt, `${questionId} should exist`).toBeDefined();
     for (const source of requiredSources) expect(prompt, `${questionId} should include ${source}`).toContain(source);
   }
+});
+
+test('energy conversion cards expose constraint and trade-off coaching', () => {
+  const widgetCards = unit05Lessons.flatMap((lesson) => lesson.learnCards.filter((card) => card.widget?.type === 'energy-conversion-designer'));
+  expect(widgetCards).toHaveLength(2);
+  for (const card of widgetCards) {
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/chain|input|constraint/i);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/link|constraint|stamp/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/observable|constraint|universally best/i);
+  }
+  expect(JSON.stringify(unit05Lessons)).toMatch(/universally best|always best/i);
 });
