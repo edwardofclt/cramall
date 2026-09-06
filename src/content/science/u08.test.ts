@@ -502,13 +502,42 @@ test('Unit 8 is the exact reviewed Science wave', () => {
     }
     expect(new Set(lesson.quiz.pool.map(({ conceptTag }) => conceptTag))).toEqual(new Set(spec.cards.map(({ tag }) => tag)));
     const expectedWidgets = spec.cards.flatMap((card, index) => card.widget === null ? [] : [{ card: index + 1, value: card.widget }]);
-    expect(lesson.learnCards.flatMap((card, index) => card.widget === undefined ? [] : [{ card: index + 1, value: card.widget }])).toEqual(expectedWidgets);
-    for (const widget of expectedWidgets) expect(WidgetRefSchema.safeParse(widget.value).success).toBe(true);
+    const actualWidgets = lesson.learnCards.flatMap((card, index) => card.widget === undefined ? [] : [{ card: index + 1, value: card.widget }]);
+    expect(actualWidgets.map(({ card, value }) => ({ card, type: value.type }))).toEqual(expectedWidgets.map(({ card, value }) => ({ card, type: value.type })));
+    for (const widget of actualWidgets) expect(WidgetRefSchema.safeParse(widget.value).success).toBe(true);
     const keys = lesson.quiz.pool.flatMap((question) => question.type === 'multiple-choice' ? [question.correctChoiceId] : []);
     const counts = ['a', 'b', 'c', 'd'].map((key) => keys.filter((value) => value === key).length);
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
   }
   expect(JSON.stringify(unit08Lessons)).not.toMatch(/volcanic eruption|tsunami|wildfire|\b(?:will|does|can) guarantee safety|removes? every effect/i);
+});
+
+test('Unit 8 coached hazard and resource widgets expose lesson-grounded reasoning', () => {
+  const widgetCards = unit08Lessons.flatMap((lesson) => lesson.learnCards.filter((card) => card.widget !== undefined));
+  expect(widgetCards).toHaveLength(4);
+  for (const card of widgetCards) {
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/lesson|impact|category|resource/i);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/lesson|impact|fact|card/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/risk|effect|resource|impact/i);
+  }
+  for (const card of widgetCards) {
+    if (card.widget?.type !== 'hazard-solution-designer') continue;
+    const config = card.widget.config;
+    expect(config.requiredImpactIds?.length).toBeGreaterThan(0);
+    for (const solution of config.solutions) {
+      expect(solution.strengths?.length).toBeGreaterThan(0);
+      expect(solution.impacts?.length).toBeGreaterThan(0);
+      expect(solution.limits?.length).toBeGreaterThan(0);
+    }
+  }
+  for (const card of widgetCards) {
+    if (card.widget?.type !== 'resource-sorter') continue;
+    const config = card.widget.config;
+    expect(config.lessonCategory).toBeTruthy();
+    expect(config.effectChoices?.length).toBeGreaterThan(1);
+    expect(Object.keys(config.effectAnswers ?? {})).toEqual(config.items.map(({ id }) => id));
+  }
 });
 
 test('every card has an immediate exact missed-result review route', () => {

@@ -72,20 +72,40 @@ const scienceU08L01Core = {
             {
               "id": "sun",
               "label": "Sunlight",
-              "kind": "renewable"
+              "kind": "renewable",
+              "lessonCategory": "replenished on human time scales"
             },
             {
               "id": "coal",
               "label": "Coal",
-              "kind": "nonrenewable"
+              "kind": "nonrenewable",
+              "lessonCategory": "limited Earth material"
             }
           ],
           "bins": [
             "renewable",
             "nonrenewable"
-          ]
+          ],
+          "lessonCategory": "resource origin and replenishment",
+          "effectChoices": [
+            { "id": "replenished", "text": "Replenished through ongoing natural processes" },
+            { "id": "limited", "text": "Limited supply that can run out" }
+          ],
+          "effectAnswers": { "sun": "replenished", "coal": "limited" }
         }
-      }
+      },
+      "widgetCoach": {
+          "intro": [
+            { "speaker": "guide", "pose": "talk", "text": "Sort each resource by its lesson category, then connect it to how its supply behaves." },
+            { "speaker": "kid", "text": "I’ll place each one, then explain whether it is replenished or limited." }
+          ],
+          "reactions": {
+            "strategy": { "pose": "think", "text": "Start with the category, then use the lesson fact about replenished or limited supply." },
+            "retry": { "pose": "oops", "text": "Check the lesson source note again: renewable resources replenish; fossil fuels have limited supplies." },
+            "milestone": { "pose": "talk", "text": "Your categories fit. Now connect each resource to the effect the lesson describes." },
+            "complete": { "pose": "cheer", "text": "You connected resource categories to lesson-based supply effects." }
+          }
+        }
     },
     {
       "id": "science-u08-l01-c3",
@@ -475,26 +495,48 @@ const scienceU08L02Core = {
             {
               "id": "wind",
               "label": "Wind",
-              "kind": "renewable"
+              "kind": "renewable",
+              "lessonCategory": "renewable source"
             },
             {
               "id": "oil",
               "label": "Oil",
-              "kind": "nonrenewable"
+              "kind": "nonrenewable",
+              "lessonCategory": "fossil fuel"
             },
             {
               "id": "save",
               "label": "Use less electricity",
-              "kind": "conserve"
+              "kind": "conserve",
+              "lessonCategory": "conservation action"
             }
           ],
           "bins": [
             "renewable",
             "nonrenewable",
             "conserve"
-          ]
+          ],
+          "lessonCategory": "resource use and environmental effect",
+          "effectChoices": [
+            { "id": "wildlife", "text": "Can affect flying wildlife" },
+            { "id": "air-pollution", "text": "Can release air pollution when burned" },
+            { "id": "demand", "text": "Lowers electricity demand for the same need" }
+          ],
+          "effectAnswers": { "wind": "wildlife", "oil": "air-pollution", "save": "demand" }
         }
-      }
+      },
+      "widgetCoach": {
+          "intro": [
+            { "speaker": "guide", "pose": "talk", "text": "Sort each resource or action, then connect it to the environmental effect in the lesson packet." },
+            { "speaker": "kid", "text": "I’ll revise my category or effect connection when the packet gives me a better reason." }
+          ],
+          "reactions": {
+            "strategy": { "pose": "think", "text": "Name the resource or action first, then connect one visible packet effect to it." },
+            "retry": { "pose": "oops", "text": "Use the packet facts: wind may affect wildlife, oil burning can pollute air, and conservation lowers demand." },
+            "milestone": { "pose": "talk", "text": "The categories are set. Connect each choice to the effect the lesson actually names." },
+            "complete": { "pose": "cheer", "text": "You connected resource use to a specific environmental effect without claiming zero impact." }
+          }
+        }
     },
     {
       "id": "science-u08-l02-c2",
@@ -941,25 +983,47 @@ const scienceU08L03Core = {
             {
               "id": "shutters",
               "label": "Storm shutters",
-              "effectiveness": "good"
+              "effectiveness": "good",
+              "strengths": ["Reduce window damage from hurricane winds"],
+              "impacts": ["window damage"],
+              "limits": ["Cannot stop all wind or protect every part of a building"]
             },
             {
               "id": "warnings",
               "label": "Early warnings",
-              "effectiveness": "good"
+              "effectiveness": "good",
+              "strengths": ["Give people time to follow official plans"],
+              "impacts": ["limited preparation time"],
+              "limits": ["Do not physically stop wind or remove all risk"]
             },
             {
               "id": "ignore",
               "label": "Ignore forecasts",
-              "effectiveness": "poor"
+              "effectiveness": "poor",
+              "strengths": ["Adds no protection"],
+              "impacts": ["no impact reduced"],
+              "limits": ["Leaves people and buildings exposed"]
             }
           ],
           "requiredIds": [
             "shutters",
             "warnings"
-          ]
+          ],
+          "requiredImpactIds": ["window damage", "limited preparation time"]
         }
-      }
+      },
+      "widgetCoach": {
+          "intro": [
+            { "speaker": "guide", "pose": "talk", "text": "Choose a protection for each hurricane impact, then inspect its strength and limit." },
+            { "speaker": "kid", "text": "I’ll connect the plan to impacts instead of hunting for a secret answer set." }
+          ],
+          "reactions": {
+            "strategy": { "pose": "think", "text": "Name the impact first: window damage and preparation time need different kinds of protection." },
+            "retry": { "pose": "oops", "text": "Use each card’s visible limit and connect a selected protection to every required impact." },
+            "milestone": { "pose": "talk", "text": "You covered the required impacts. Check the plan and remember that risk is reduced, not eliminated." },
+            "complete": { "pose": "cheer", "text": "You justified protections by their impacts, strengths, and limits; the plan reduces risk but cannot eliminate it." }
+          }
+        }
     }
   ],
   "workedExample": {
@@ -1350,25 +1414,47 @@ const scienceU08L04Core = {
             {
               "id": "waterway",
               "label": "Floodwater channel",
-              "effectiveness": "good"
+              "effectiveness": "good",
+              "strengths": ["Redirects some water away from built areas"],
+              "impacts": ["water near roads and homes"],
+              "limits": ["Needs land and maintenance"]
             },
             {
               "id": "warning",
               "label": "Flood warning",
-              "effectiveness": "good"
+              "effectiveness": "good",
+              "strengths": ["Provides preparation time"],
+              "impacts": ["limited preparation time"],
+              "limits": ["Does not physically stop water"]
             },
             {
               "id": "block",
               "label": "Block every drain",
-              "effectiveness": "poor"
+              "effectiveness": "poor",
+              "strengths": ["Adds no useful flood protection"],
+              "impacts": ["no impact reduced"],
+              "limits": ["Can trap water and worsen flooding"]
             }
           ],
           "requiredIds": [
             "waterway",
             "warning"
-          ]
+          ],
+          "requiredImpactIds": ["water near roads and homes", "limited preparation time"]
         }
-      }
+      },
+      "widgetCoach": {
+          "intro": [
+            { "speaker": "guide", "pose": "talk", "text": "Compare each flood option by the impact it addresses, its strength, and its limit." },
+            { "speaker": "kid", "text": "I’ll build a plan that covers the impacts without pretending any choice removes all risk." }
+          ],
+          "reactions": {
+            "strategy": { "pose": "think", "text": "Start with the impact: water near homes needs a physical channel, while preparation time needs a warning." },
+            "retry": { "pose": "oops", "text": "Read the limits on the cards and connect selected protections to both required impacts." },
+            "milestone": { "pose": "talk", "text": "Both impacts are connected. Check the strengths and limits before you finish the plan." },
+            "complete": { "pose": "cheer", "text": "You justified a combined flood plan with visible strengths and limits; it reduces risk, not eliminates it." }
+          }
+        }
     },
     {
       "id": "science-u08-l04-c3",

@@ -5,21 +5,42 @@ import {useCompletionLatch} from '../useCompletionLatch';
 const orderedIds = (ids: string[], solutionIds: string[]) => solutionIds.filter((id) => ids.includes(id));
 const sameSet = (first: string[], second: string[]) => first.length === second.length && first.every((id) => second.includes(id));
 
+type CoachPhase = 'none' | 'strategy' | 'retry';
+
 export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'hazard-solution-designer'>) {
   const key = JSON.stringify(config);
-  const prompt = `Choose protections for ${config.hazard}.`;
+  const hasReasoning = config.requiredImpactIds !== undefined && config.solutions.every((solution) => solution.strengths && solution.impacts && solution.limits);
+  const prompt = hasReasoning
+    ? `Design a plan for ${config.hazard}. Choose protections, then choose the impacts they address.`
+    : `Choose protections for ${config.hazard}.`;
   const [selected, setSelected] = useState<string[]>([]);
-  const [checkedExact, setCheckedExact] = useState(false);
+  const [selectedImpacts, setSelectedImpacts] = useState<Record<string, string[]>>({});
+  const [checked, setChecked] = useState(false);
   const [status, setStatus] = useState(prompt);
+  const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
   const {completed, completeOnce} = useCompletionLatch(key);
   const selectedInConfigOrder = orderedIds(selected, config.solutions.map((solution) => solution.id));
-  const visibleComplete = completed && checkedExact && sameSet(selectedInConfigOrder, config.requiredIds);
+  const selectedImpactIds = config.solutions.flatMap((solution) => selectedImpacts[solution.id] ?? []);
+  const requiredImpactIds = config.requiredImpactIds ?? [];
+  const reasonedPlanComplete = hasReasoning
+    && selectedInConfigOrder.length > 0
+    && selectedInConfigOrder.every((id) => config.solutions.find((solution) => solution.id === id)?.effectiveness !== 'poor')
+    && requiredImpactIds.every((impactId) => selectedImpactIds.includes(impactId));
+  const visibleComplete = completed && checked && (hasReasoning ? reasonedPlanComplete : sameSet(selectedInConfigOrder, config.requiredIds));
 
   useEffect(() => {
     setSelected([]);
-    setCheckedExact(false);
+    setSelectedImpacts({});
+    setChecked(false);
     setStatus(prompt);
+    setCoachPhase('none');
   }, [key, prompt]);
+
+  const coachWrong = () => {
+    const cue = coachPhase === 'none' ? 'strategy' : 'retry';
+    setCoachPhase(cue);
+    onEvent({type: 'coach', cue});
+  };
 
   const emit = (next: string[], action: 'toggle-solution' | 'check' | 'reset') => {
     const ordered = orderedIds(next, config.solutions.map((solution) => solution.id));
@@ -30,56 +51,117 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
 
   const toggle = (id: string) => {
     const next = selected.includes(id) ? selected.filter((selectedId) => selectedId !== id) : [...selected, id];
-    setSelected(orderedIds(next, config.solutions.map((solution) => solution.id)));
-    setCheckedExact(false);
-    setStatus('Selection changed; check the revised hazard plan.');
+    const ordered = orderedIds(next, config.solutions.map((solution) => solution.id));
+    setSelected(ordered);
+    setSelectedImpacts((current) => {
+      if (ordered.includes(id)) return current;
+      const nextImpacts = {...current};
+      delete nextImpacts[id];
+      return nextImpacts;
+    });
+    setChecked(false);
+    setStatus(ordered.includes(id)
+      ? (hasReasoning ? `${config.solutions.find((solution) => solution.id === id)?.label} chosen. Now choose an impact it addresses.` : 'Selection changed; check the revised hazard plan.')
+      : 'Protection removed. Revise the hazard plan.');
     emit(next, 'toggle-solution');
+  };
+
+  const toggleImpact = (solutionId: string, impactId: string) => {
+    if (!selected.includes(solutionId)) return;
+    const current = selectedImpacts[solutionId] ?? [];
+    const nextForSolution = current.includes(impactId) ? current.filter((id) => id !== impactId) : [...current, impactId];
+    const nextImpacts = {...selectedImpacts, [solutionId]: nextForSolution};
+    setSelectedImpacts(nextImpacts);
+    setChecked(false);
+    setStatus(`${impactId} ${nextForSolution.includes(impactId) ? 'connected to' : 'removed from'} ${config.solutions.find((solution) => solution.id === solutionId)?.label}. Check the revised plan.`);
+    emit(selected, 'toggle-solution');
+    const nextImpactIds = config.solutions.flatMap((solution) => nextImpacts[solution.id] ?? []);
+    if (hasReasoning && requiredImpactIds.length > 0 && requiredImpactIds.every((id) => nextImpactIds.includes(id))) onEvent({type: 'coach', cue: 'milestone'});
   };
 
   const check = () => {
     const ordered = emit(selected, 'check');
-    const isExact = sameSet(ordered, config.requiredIds);
-    setCheckedExact(isExact);
-    if (isExact) {
-      setStatus('Hazard plan complete. This simplified authored model does not promise safety.');
-      completeOnce(() => onEvent({type: 'complete', value: {selectedIds: ordered}}));
+    setChecked(true);
+    if (!hasReasoning) {
+      const isExact = sameSet(ordered, config.requiredIds);
+      if (isExact) {
+        setStatus('Hazard plan complete. This simplified authored model reduces risk; it does not promise safety.');
+        completeOnce(() => onEvent({type: 'complete', value: {selectedIds: ordered}}));
+        return;
+      }
+      const poor = config.solutions.filter((solution) => ordered.includes(solution.id) && solution.effectiveness === 'poor');
+      const missing = config.requiredIds.filter((id) => !ordered.includes(id)).map((id) => config.solutions.find((solution) => solution.id === id)!.label);
+      const unnecessaryExtras = config.solutions.filter((solution) => ordered.includes(solution.id) && !config.requiredIds.includes(solution.id) && solution.effectiveness !== 'poor');
+      const feedback = [
+        poor.length ? `${poor.map((solution) => solution.label).join(', ')} ${poor.length === 1 ? 'is' : 'are'} poor choices; remove ${poor.length === 1 ? 'it' : 'them'}.` : '',
+        missing.length ? `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} missing; add ${missing.length === 1 ? 'it' : 'them'}.` : '',
+        unnecessaryExtras.length ? unnecessaryExtras.map((solution) => solution.effectiveness === 'partial'
+          ? `${solution.label} is partial and is not needed in this authored plan; remove it.`
+          : `${solution.label} is not needed in this authored plan; remove it.`).join(' ') : '',
+      ].filter(Boolean).join(' ');
+      setStatus(`Revise the plan. ${feedback}`);
+      coachWrong();
       return;
     }
     const poor = config.solutions.filter((solution) => ordered.includes(solution.id) && solution.effectiveness === 'poor');
-    const missing = config.requiredIds.filter((id) => !ordered.includes(id)).map((id) => config.solutions.find((solution) => solution.id === id)!.label);
-    const unnecessaryExtras = config.solutions.filter((solution) => ordered.includes(solution.id) && !config.requiredIds.includes(solution.id) && solution.effectiveness !== 'poor');
-    const feedback = [
-      poor.length ? `${poor.map((solution) => solution.label).join(', ')} ${poor.length === 1 ? 'is' : 'are'} poor choices; remove ${poor.length === 1 ? 'it' : 'them'}.` : '',
-      missing.length ? `${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} missing; add ${missing.length === 1 ? 'it' : 'them'}.` : '',
-      unnecessaryExtras.length ? unnecessaryExtras.map((solution) => solution.effectiveness === 'partial'
-        ? `${solution.label} is partial and is not needed in this authored plan; remove it.`
-        : `${solution.label} is not needed in this authored plan; remove it.`).join(' ') : '',
+    const missing = requiredImpactIds.filter((id) => !selectedImpactIds.includes(id));
+    if (reasonedPlanComplete) {
+      setStatus('Plan complete. You connected protections to required impacts. Risk is reduced, not eliminated.');
+      completeOnce(() => onEvent({type: 'complete', value: {selectedIds: ordered}}));
+      return;
+    }
+    const details = [
+      !ordered.length ? 'Choose at least one protection.' : '',
+      poor.length ? `${poor.map((solution) => solution.label).join(', ')} does not reduce the named impact; revise that choice.` : '',
+      missing.length ? `Connect a selected protection to: ${missing.join(', ')}.` : '',
     ].filter(Boolean).join(' ');
-    setStatus(`Revise the plan. ${feedback}`);
+    setStatus(`Revise the plan. ${details} Risk can be reduced, not eliminated.`);
+    coachWrong();
   };
 
   const reset = () => {
     setSelected([]);
-    setCheckedExact(false);
+    setSelectedImpacts({});
+    setChecked(false);
     setStatus(prompt);
+    setCoachPhase('none');
     emit([], 'reset');
   };
+
+  const detailsFor = (solution: typeof config.solutions[number]) => ({
+    strengths: solution.strengths ?? [solution.effectiveness === 'good' ? 'Addresses part of the named hazard.' : 'Has a limited effect in this model.'],
+    impacts: solution.impacts ?? ['The named hazard impact'],
+    limits: solution.limits ?? ['This simplified plan has limits and cannot promise safety.'],
+  });
 
   return <section className="card widget-experiment hazard" data-testid="widget-hazard-solution-designer" data-state={visibleComplete ? 'complete' : 'designing'} aria-describedby="hazard-model-note">
     <header>
       <h3>Hazard-solution designer</h3>
-      <p id="hazard-model-note">This is a simplified authored mitigation-planning model, not emergency advice. It does not promise safety, prevent all damage, or eliminate risk.</p>
+      <p id="hazard-model-note">This is a simplified authored mitigation-planning model, not emergency advice. A plan can reduce risk and impacts, but it does not promise safety and cannot eliminate risk.</p>
     </header>
     <section className="hazard-context" data-testid="hazard-context" aria-label="Current hazard">
       <h4>Hazard: {config.hazard}</h4>
-      <p>Design a set of protections for this hazard.</p>
+      <p>Choose protections, then explain which impacts each protection addresses.</p>
     </section>
     <section className="hazard-design-cards" aria-label={`Solutions for ${config.hazard}`}>
-      {config.solutions.map((solution) => <article className="hazard-solution-card" key={solution.id} data-selected={selected.includes(solution.id) ? 'yes' : 'no'}>
-        <strong>{solution.label}</strong>
-        {selected.includes(solution.id) && <span className="hazard-selected-marker">Selected</span>}
-        <button aria-label={`Toggle ${solution.label}`} aria-pressed={selected.includes(solution.id)} onClick={() => toggle(solution.id)}>Choose {solution.label}</button>
-      </article>)}
+      {config.solutions.map((solution) => {
+        const details = detailsFor(solution);
+        const chosenImpacts = selectedImpacts[solution.id] ?? [];
+        return <article className="hazard-solution-card" key={solution.id} data-selected={selected.includes(solution.id) ? 'yes' : 'no'}>
+          <strong>{solution.label}</strong>
+          {selected.includes(solution.id) && <span className="hazard-selected-marker">Selected</span>}
+          <dl className="hazard-solution-details">
+            <div><dt>Strengths</dt><dd>{details.strengths.join(' ')}</dd></div>
+            <div><dt>Impacts addressed</dt><dd>{details.impacts.join(' ')}</dd></div>
+            <div><dt>Limits</dt><dd>{details.limits.join(' ')}</dd></div>
+          </dl>
+          <button aria-label={`Toggle ${solution.label}`} aria-pressed={selected.includes(solution.id)} onClick={() => toggle(solution.id)}>Choose {solution.label}</button>
+          {selected.includes(solution.id) && <fieldset className="hazard-impact-choices">
+            <legend>Connect impacts for {solution.label}</legend>
+            {details.impacts.map((impact) => <button type="button" key={impact} aria-label={`Connect ${impact} to ${solution.label}`} aria-pressed={chosenImpacts.includes(impact)} onClick={() => toggleImpact(solution.id, impact)}>{chosenImpacts.includes(impact) ? 'Connected: ' : 'Connect: '}{impact}</button>)}
+          </fieldset>}
+        </article>;
+      })}
     </section>
     <div className="hazard-controls">
       <button aria-label="Check solution" onClick={check}>Check solution</button>

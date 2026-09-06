@@ -13,6 +13,20 @@ const config = {
   bins: ['renewable', 'nonrenewable', 'conserve'] as ('renewable' | 'nonrenewable' | 'conserve')[],
 };
 
+const reasonedConfig = {
+  items: [
+    {id: 'sun', label: 'Sunlight', kind: 'renewable' as const, lessonCategory: 'replenished resource'},
+    {id: 'coal', label: 'Coal', kind: 'nonrenewable' as const, lessonCategory: 'limited fuel'},
+  ],
+  bins: ['renewable', 'nonrenewable'] as ('renewable' | 'nonrenewable')[],
+  lessonCategory: 'resource origin and replenishment',
+  effectChoices: [
+    {id: 'replenished', text: 'Replenished through natural processes'},
+    {id: 'limited', text: 'Limited supply can run out'},
+  ],
+  effectAnswers: {sun: 'replenished', coal: 'limited'},
+};
+
 test('rejects blank and visually ambiguous resource IDs or labels while requiring every authored bin', () => {
   const invalids = [
     {...config, items: [{...config.items[0], id: '  '}, ...config.items.slice(1)]},
@@ -122,4 +136,23 @@ test('clears the selected item and old placements when the configuration changes
   expect(screen.getByTestId('resource-placement-wind')).toHaveTextContent('Not sorted yet');
   expect(screen.getByRole('button', {name: 'Place selected item in Renewable resource'})).toBeDisabled();
   expect(screen.queryByTestId('resource-placement-sun')).not.toBeInTheDocument();
+});
+
+test('requires revisable lesson use/effect connections after category sorting', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<ResourceSorter config={reasonedConfig} onEvent={onEvent} />);
+
+  expect(screen.getByText(/resource origin and replenishment/i)).toBeInTheDocument();
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Renewable resource'}));
+  expect(screen.getByRole('button', {name: 'Connect Sunlight to Replenished through natural processes'})).toBeEnabled();
+  await user.click(screen.getByRole('button', {name: 'Connect Sunlight to Limited supply can run out'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/revisit the lesson fact/i);
+  await user.click(screen.getByRole('button', {name: 'Connect Sunlight to Replenished through natural processes'}));
+  await user.click(screen.getByRole('button', {name: 'Select Coal'}));
+  await user.click(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'}));
+  await user.click(screen.getByRole('button', {name: 'Connect Coal to Limited supply can run out'}));
+  expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });

@@ -15,6 +15,17 @@ const config = {
   requiredIds: ['wall', 'leave'],
 };
 
+const reasonedConfig = {
+  hazard: 'Flood',
+  solutions: [
+    {id: 'channel', label: 'Floodwater channel', effectiveness: 'good' as const, strengths: ['redirects some water'], impacts: ['water near homes'], limits: ['needs land and maintenance']},
+    {id: 'warning', label: 'Flood warning', effectiveness: 'good' as const, strengths: ['provides preparation time'], impacts: ['limited preparation time'], limits: ['does not stop water']},
+    {id: 'block', label: 'Block every drain', effectiveness: 'poor' as const, strengths: ['adds no useful protection'], impacts: ['no impact reduced'], limits: ['can trap water']},
+  ],
+  requiredIds: ['channel', 'warning'],
+  requiredImpactIds: ['water near homes', 'limited preparation time'],
+};
+
 test('rejects whitespace, ambiguous labels, duplicate solution IDs, and poor required solutions', () => {
   const invalids = [
     {...config, hazard: '   '},
@@ -108,4 +119,36 @@ test('resets selections and check feedback when the authored configuration chang
   rerender(<HazardSolutionDesigner config={{...config, hazard: 'Wildfire'}} onEvent={vi.fn()} />);
   expect(screen.getByRole('status')).toHaveTextContent('Choose protections for Wildfire.');
   expect(screen.getByRole('button', {name: 'Toggle Seawall'})).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('shows every hazard tradeoff and completes a reasoned impact plan without exact-set grading', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<HazardSolutionDesigner config={reasonedConfig} onEvent={onEvent} />);
+
+  expect(screen.getByText('redirects some water')).toBeInTheDocument();
+  expect(screen.getByText('water near homes')).toBeInTheDocument();
+  expect(screen.getByText('needs land and maintenance')).toBeInTheDocument();
+  expect(screen.getByText('can trap water')).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', {name: 'Toggle Floodwater channel'}));
+  await user.click(screen.getByRole('button', {name: 'Connect water near homes to Floodwater channel'}));
+  await user.click(screen.getByRole('button', {name: 'Toggle Flood warning'}));
+  await user.click(screen.getByRole('button', {name: 'Connect limited preparation time to Flood warning'}));
+  await user.click(screen.getByRole('button', {name: 'Check solution'}));
+
+  expect(screen.getByRole('status')).toHaveTextContent(/risk is reduced, not eliminated/i);
+  expect(screen.getByTestId('widget-hazard-solution-designer')).toHaveAttribute('data-state', 'complete');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('keeps a poor hazard choice from completing even when its visible impact is selected', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<HazardSolutionDesigner config={reasonedConfig} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', {name: 'Toggle Block every drain'}));
+  await user.click(screen.getByRole('button', {name: 'Connect no impact reduced to Block every drain'}));
+  await user.click(screen.getByRole('button', {name: 'Check solution'}));
+  expect(screen.getByRole('status')).toHaveTextContent(/does not reduce.*risk can be reduced/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
 });
