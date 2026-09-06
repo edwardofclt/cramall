@@ -38,9 +38,12 @@ function ContextClueDetectiveBody({config,onEvent}: ContextClueDetectiveProps) {
       setStatus('That clue and clue kind fit the target word in this passage.');
       onEvent({type:'coach',cue:'milestone'});
       completeOnce(()=>onEvent({type:'complete',value:{choiceId:choice}}));
+    }else if(choice!==config.correctChoiceId && type===selectedClue?.type){
+      onEvent({type:'coach',cue:'retry'});
+      setStatus('That clue type fits those words, but the clue does not explain the target word. Reread the passage and try again.');
     }else{
       onEvent({type:'coach',cue:'retry'});
-      setStatus('That kind does not match this clue. Reread the passage and try again.');
+      setStatus('That clue kind does not match those words. Reread the passage and try again.');
     }
   };
   const reset=()=>{

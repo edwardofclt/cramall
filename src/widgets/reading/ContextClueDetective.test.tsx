@@ -94,6 +94,19 @@ test('shows bounded coaching and current attempt state when a learner revises af
   expect(screen.getByRole('button',{name:'Choose clue text: near a new group'})).toHaveAttribute('aria-pressed','false');
 });
 
+test('distinguishes an incorrect clue text from an incorrect clue kind without revealing the answer',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<ContextClueDetective config={firstConfig} onEvent={onEvent}/>);
+
+  await user.click(screen.getByRole('button',{name:'Choose clue text: near a new group'}));
+  await user.click(screen.getByRole('button',{name:'Choose example clue type'}));
+
+  expect(screen.getByRole('status')).toHaveTextContent(/clue does not explain the target word/i);
+  expect(screen.getByRole('status')).not.toHaveTextContent(/definition|is shy/i);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
+  expect(onEvent.mock.calls.map(([event])=>event)).not.toContainEqual({type:'complete',value:{choiceId:'examples'}});
+});
+
 test('does not expose clue-kind labels before the learner commits a clue text',()=>{
   render(<ContextClueDetective config={firstConfig} onEvent={vi.fn()}/>);
   expect(screen.getByTestId('context-clue-passage')).toHaveTextContent(firstConfig.passage);

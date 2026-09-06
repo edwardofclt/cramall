@@ -685,6 +685,7 @@ describe('Reading unit 2 literal content', () => {
     const coach = 'widgetCoach' in card ? card.widgetCoach : undefined;
     expect(coach?.intro).toHaveLength(2);
     expect(coach?.reactions.complete.text).toContain('complete sentence');
+    expect(coach?.reactions.retry?.text).toContain('both the clue words and their kind');
   });
 
   test('matches the exact manifest, OE metadata, cards, and question routes', () => {

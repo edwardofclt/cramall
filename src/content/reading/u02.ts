@@ -555,7 +555,7 @@ export const unit02Lessons = [
           ],
           "reactions": {
             "strategy": {"text":"Scan around the target word and point to the words that explain it.","pose":"think"},
-            "retry": {"text":"That clue kind does not fit the words you chose. Reread the sentence and try again.","pose":"oops"},
+            "retry": {"text":"That attempt needs another look. Reread the sentence and check both the clue words and their kind.","pose":"oops"},
             "milestone": {"text":"Nice! You matched a clue’s words to its kind.","pose":"cheer"},
             "complete": {"text":"You used the complete sentence to confirm both the clue and its kind.","pose":"cheer"}
           }
