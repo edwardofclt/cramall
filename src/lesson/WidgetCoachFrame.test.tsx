@@ -57,6 +57,8 @@ describe('WidgetCoachFrame', () => {
     expect(screen.getByText(coach.intro[0]!.text)).toBeVisible();
     expect(screen.getByRole('button', { name: 'Next' })).toBeVisible();
     expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByTestId('widget-coach-activity').querySelector('button')).toBeInTheDocument();
     expect(screen.getByTestId('character-nutty')).toBeInTheDocument();
     const introLive = screen.getByTestId('widget-coach-intro-live');
     expect(introLive).toHaveAttribute('aria-live', 'polite');
@@ -101,6 +103,8 @@ describe('WidgetCoachFrame', () => {
     await user.click(screen.getByRole('button', { name: 'Emit complete' }));
     expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
     expect(screen.getByText(coach.reactions.complete.text)).toBeVisible();
+    expect(screen.getByRole('status')).toHaveTextContent(coach.reactions.complete.text);
+    expect(screen.getByRole('button', { name: 'Dismiss' })).toBeEnabled();
     await user.click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(screen.queryByText(coach.reactions.complete.text)).not.toBeInTheDocument();
   });
