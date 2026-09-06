@@ -37,6 +37,7 @@ import {
   type Question,
 } from './schema';
 import { validWidgetRefByType } from '../test/widgetFixtures';
+import { SUBJECTS } from './subjects';
 
 function q(id: string, over: Partial<Question> = {}): Question {
   return {
@@ -83,6 +84,26 @@ test.each(WIDGET_TYPES)('%s accepts its fixture and rejects unknown config keys'
     ...valid,
     config: { ...valid.config, unexpected: true },
   }).success).toBe(false);
+});
+
+test('every authored production widget reference remains strict-schema data', () => {
+  const failures: string[] = [];
+
+  for (const subject of SUBJECTS) {
+    for (const unit of subject.units) {
+      for (const lesson of unit.lessons) {
+        for (const card of lesson.learnCards) {
+          if (!card.widget) continue;
+          const result = WidgetRefSchema.safeParse(card.widget);
+          if (!result.success) {
+            failures.push(`${subject.id}/${unit.id}/${lesson.id}/${card.id}: ${result.error.message}`);
+          }
+        }
+      }
+    }
+  }
+
+  expect(failures).toEqual([]);
 });
 test('a learn card can include a self-check with a valid correct choice', () => {
   const card = LearnCardSchema.parse({

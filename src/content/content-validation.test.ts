@@ -13,6 +13,7 @@ import {
   type Lesson,
   type Subject,
   type SubjectId,
+  type WidgetRef,
 } from './schema';
 import { validWidgetCoach, validWidgetRefByType } from '../test/widgetFixtures';
 
@@ -112,6 +113,26 @@ function expectConsistentReviewCards(lessons: ReviewLinkLesson[]) {
   }
 }
 
+type ProductionWidgetCard = {
+  subjectId: SubjectId;
+  unitId: string;
+  lessonId: string;
+  card: LearnCard;
+  widget: WidgetRef;
+};
+
+function productionWidgetCards(): ProductionWidgetCard[] {
+  return SUBJECTS.flatMap((subject) => subject.units.flatMap((unit) => unit.lessons.flatMap((lesson) =>
+    lesson.learnCards.flatMap((card) => card.widget
+      ? [{ subjectId: subject.id, unitId: unit.id, lessonId: lesson.id, card, widget: card.widget }]
+      : []),
+  )));
+}
+
+function productionWidgetContext({ subjectId, unitId, lessonId, card, widget }: ProductionWidgetCard): string {
+  return `${subjectId}/${unitId}/${lessonId}/${card.id} (${widget.type})`;
+}
+
 test('math unit 1 has its two pilot lessons', () => {
   expect(getSubject('math').units.find((unit) => unit.id === 'math-u01')?.lessons.map((lesson) => lesson.id))
     .toEqual(['math-u01-l01', 'math-u01-l02']);
@@ -161,6 +182,166 @@ test('widgetCoachingErrors reports malformed coach triggers with full author con
   expect(errors[0]).toMatch(
     /^math\/math-u01\/math-u01-l01\/math-u01-l01-c1: widget place-value-builder has invalid widgetCoach\.reactions: /,
   );
+});
+
+test('every production widget card has one in-step coaching introduction', () => {
+  expect(widgetCoachingErrors(SUBJECTS)).toEqual([]);
+
+  for (const entry of productionWidgetCards()) {
+    const context = productionWidgetContext(entry);
+    expect(entry.card.widgetCoach, context).toBeDefined();
+    expect(entry.card.dialogue ?? [], context).toHaveLength(0);
+  }
+});
+
+test('production Reading widgets use visible source material instead of legacy answer strings', () => {
+  for (const entry of productionWidgetCards().filter(({ subjectId }) => subjectId === 'reading')) {
+    const context = productionWidgetContext(entry);
+
+    if (entry.widget.type === 'story-elements-mapper') {
+      expect(Object.keys(entry.widget.config.answers ?? {}), context).toHaveLength(0);
+      expect(entry.widget.config.source, context).toBeDefined();
+      expect(entry.widget.config.choices, context).toBeDefined();
+      expect(entry.widget.config.answerChoiceIds, context).toBeDefined();
+    }
+
+    if (entry.widget.type === 'context-clue-detective') {
+      expect(entry.widget.config.passage, context).toBeTruthy();
+      expect(entry.widget.config.clueChoices, context).toHaveLength(2);
+      expect(entry.widget.config.correctChoiceId, context).toBeTruthy();
+    }
+
+    if (entry.widget.type === 'theme-evidence-collector' || entry.widget.type === 'central-idea-organizer') {
+      expect(entry.widget.config.source, context).toBeDefined();
+    }
+
+    if (entry.widget.type === 'summary-builder') {
+      expect(entry.widget.config.sourceSentences.length, context).toBeGreaterThan(0);
+      expect(entry.widget.config.compositionPrompt, context).toBeTruthy();
+    }
+  }
+});
+
+test('production credibility widgets use question-specific criterion judgments', () => {
+  const entries = productionWidgetCards().filter(({ widget }) => widget.type === 'source-credibility-checker');
+
+  expect(entries.length).toBeGreaterThan(0);
+  for (const entry of entries) {
+    if (entry.widget.type !== 'source-credibility-checker') continue;
+    const context = productionWidgetContext(entry);
+
+    expect(entry.widget.config.question, context).toBeTruthy();
+    expect(entry.widget.config.answers, context).toBeDefined();
+    expect(entry.widget.config.requiredReasonCount, context).toBeGreaterThan(0);
+    expect(entry.widget.config.criteria, context).toBeUndefined();
+    expect(entry.widget.config.credibleIds, context).toBeUndefined();
+    for (const source of entry.widget.config.sources) {
+      expect(source.judgments?.length, `${context} source ${source.id}`).toBeGreaterThan(0);
+      expect(new Set(source.judgments?.map(({ criterion }) => criterion)).size, `${context} source ${source.id}`).toBe(
+        source.judgments?.length,
+      );
+    }
+  }
+});
+
+test('production target-driven widgets expose learner goals and source data', () => {
+  for (const entry of productionWidgetCards()) {
+    const context = productionWidgetContext(entry);
+
+    switch (entry.widget.type) {
+      case 'fraction-models':
+        expect(entry.widget.config.target, context).toBeDefined();
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'array-builder':
+        expect(entry.widget.config.targetProduct, context).toBeGreaterThan(0);
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'area-model-multiplier':
+        expect(entry.widget.config.targetProduct, context).toBeGreaterThan(0);
+        break;
+      case 'money-counter':
+        expect(entry.widget.config.targetCents, context).toBeGreaterThanOrEqual(0);
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'quarter-inch-ruler':
+        expect(entry.widget.config.targetInches, context).toBeGreaterThanOrEqual(0);
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'data-plot-builder':
+        expect(entry.widget.config.sourceData, context).toEqual(entry.widget.config.target);
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'probability-spinner':
+        expect(entry.widget.config.eventQuestion, context).toBeDefined();
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'energy-transfer-builder':
+        expect(entry.widget.config.requiredPath.length, context).toBeGreaterThan(0);
+        break;
+      case 'wave-maker':
+      case 'light-reflection-eye':
+        expect(entry.widget.config.taskPrompt, context).toBeTruthy();
+        break;
+      case 'story-elements-mapper':
+        expect(entry.widget.config.source, context).toBeDefined();
+        break;
+      case 'theme-evidence-collector':
+      case 'central-idea-organizer':
+        expect(entry.widget.config.source, context).toBeDefined();
+        break;
+      case 'summary-builder':
+        expect(entry.widget.config.sourceSentences.length, context).toBeGreaterThan(0);
+        break;
+      default:
+        break;
+    }
+  }
+});
+
+test('production elapsed and Science comparison widgets use learner-controlled rich modes', () => {
+  const entries = productionWidgetCards();
+  const elapsed = entries.filter(({ widget }) => widget.type === 'clock-elapsed-time');
+  const collisions = entries.filter(({ widget }) => widget.type === 'collision-ramp');
+  const erosion = entries.filter(({ widget }) => widget.type === 'erosion-simulator');
+  const topo = entries.filter(({ widget }) => widget.type === 'topographic-map-explorer');
+
+  expect(elapsed.length).toBeGreaterThan(0);
+  for (const entry of elapsed) {
+    const widget = entry.widget;
+    if (widget.type !== 'clock-elapsed-time') continue;
+    expect(widget.config.mode, productionWidgetContext(entry)).toBe('elapsed');
+    if (widget.config.mode !== 'elapsed') continue;
+    expect(widget.config.jumpMinutes, productionWidgetContext(entry)).toBeDefined();
+    expect(widget.config.jumpMinutes, productionWidgetContext(entry)).toEqual([5, 10, 15]);
+  }
+
+  expect(collisions.length).toBeGreaterThan(0);
+  for (const entry of collisions) {
+    if (entry.widget.type !== 'collision-ramp') continue;
+    expect(entry.widget.config.target, productionWidgetContext(entry)).toBe('compare-motion');
+    expect(entry.widget.config.controlledVariable, productionWidgetContext(entry)).toMatch(/^speed-[ab]$/);
+    expect(entry.widget.config.comparisonRuns, productionWidgetContext(entry)).toBe(2);
+    expect(entry.widget.config.taskPrompt, productionWidgetContext(entry)).toBeTruthy();
+  }
+
+  expect(erosion.length).toBeGreaterThan(0);
+  for (const entry of erosion) {
+    if (entry.widget.type !== 'erosion-simulator') continue;
+    expect(entry.widget.config.targetAgent, productionWidgetContext(entry)).toBeDefined();
+    expect(entry.widget.config.comparison, productionWidgetContext(entry)).toEqual({
+      variable: 'vegetation', values: [false, true],
+    });
+  }
+
+  expect(topo.length).toBeGreaterThan(0);
+  for (const entry of topo) {
+    if (entry.widget.type !== 'topographic-map-explorer') continue;
+    const context = productionWidgetContext(entry);
+    expect(entry.widget.config.targetPattern, context).toBeDefined();
+    expect(entry.widget.config.targetPattern, context).toMatch(/^(band|cluster)$/);
+    expect(entry.widget.config.points.every((point) => 'x' in point && 'y' in point && 'group' in point), context).toBe(true);
+  }
 });
 
 test('the permanent catalog identity and registration gates accept current authored content', () => {
