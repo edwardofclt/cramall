@@ -1,4 +1,4 @@
-import type { WidgetRef, WidgetType } from '../content/schema';
+import type { WidgetCoach, WidgetRef, WidgetType } from '../content/schema';
 
 type RefFor<T extends WidgetType> = Extract<WidgetRef, { type: T }>;
 
@@ -39,3 +39,16 @@ export const validWidgetRefByType = {
   'figurative-language-matcher': { type: 'figurative-language-matcher', config: { pairs: [{ id: 'simile', phrase: 'fast as lightning', kind: 'simile', meaning: 'very fast' }, { id: 'idiom', phrase: 'piece of cake', kind: 'idiom', meaning: 'easy' }] } },
   'source-credibility-checker': { type: 'source-credibility-checker', config: { sources: [{ id: 'named', title: 'Museum guide', author: 'City Museum', claims: ['catalog evidence'] }, { id: 'anon', title: 'Amazing facts', claims: [] }], criteria: ['author', 'evidence'], credibleIds: ['named'] } },
 } satisfies { [T in WidgetType]: RefFor<T> };
+
+export const validWidgetCoach = {
+  intro: [
+    { speaker: 'guide', text: 'Connect the lesson idea to this model.', pose: 'talk' },
+    { speaker: 'kid', text: 'I will change one thing and compare.' },
+  ],
+  reactions: {
+    strategy: { text: 'Change one condition at a time.', pose: 'think' },
+    retry: { text: 'Use the visible evidence and revise.', pose: 'oops' },
+    milestone: { text: 'That intermediate model is useful.', pose: 'talk' },
+    complete: { text: 'You used the model to explain the lesson idea.', pose: 'cheer' },
+  },
+} satisfies WidgetCoach;

@@ -4,12 +4,84 @@ import { lessonsByUnit as scienceLessons } from './science';
 import { PLANNED_LESSONS, READING_OE_CODES } from './curriculum';
 import { allLessons, SUBJECTS, getSubject, standards } from './subjects';
 import * as contentSchema from './schema';
-import { validateLesson, type Lesson, type Subject, type SubjectId } from './schema';
+import {
+  LearnCardSchema,
+  WIDGET_TYPES,
+  WidgetCoachSchema,
+  validateLesson,
+  type LearnCard,
+  type Lesson,
+  type Subject,
+  type SubjectId,
+} from './schema';
+import { validWidgetCoach, validWidgetRefByType } from '../test/widgetFixtures';
 
 const REGISTRIES: Record<SubjectId, Record<string, Lesson[]>> = {
   math: mathLessons,
   reading: readingLessons,
   science: scienceLessons,
+};
+
+/**
+ * Finds coached-widget authoring gaps without making the production catalog
+ * gate depend on the migration order. Subject waves can call this helper on
+ * their own fixtures or scoped catalog while Integration I1 owns the
+ * production-wide zero-error assertion.
+ */
+export function widgetCoachingErrors(subjects: Subject[]): string[] {
+  const errors: string[] = [];
+
+  for (const subject of subjects) {
+    for (const unit of subject.units) {
+      for (const lesson of unit.lessons) {
+        for (const card of lesson.learnCards) {
+          if (!card.widget) continue;
+
+          const widgetType = (card.widget as { type?: unknown }).type;
+          const context = `${subject.id}/${unit.id}/${lesson.id}/${card.id}`;
+          if (typeof widgetType !== 'string' || !(WIDGET_TYPES as readonly string[]).includes(widgetType)) {
+            errors.push(`${context}: widget ${String(widgetType)} is not a registered widget type`);
+            continue;
+          }
+
+          if (!card.widgetCoach) {
+            errors.push(`${lesson.id}/${card.id}: widget ${widgetType} is missing widgetCoach`);
+            continue;
+          }
+
+          const parsed = WidgetCoachSchema.safeParse(card.widgetCoach);
+          if (!parsed.success) {
+            for (const issue of parsed.error.issues) {
+              errors.push(`${context}: widget ${widgetType} has invalid widgetCoach.${issue.path.join('.') || 'root'}: ${issue.message}`);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return errors;
+}
+
+function subjectWithCards(cards: LearnCard[]): Subject {
+  const subject = getSubject('math');
+  const unit = subject.units[0]!;
+  const lesson = unit.lessons[0]!;
+  return {
+    ...subject,
+    units: [{
+      ...unit,
+      lessons: [{ ...lesson, learnCards: cards }],
+    }],
+  };
+}
+
+const coachedWidgetCard: LearnCard = {
+  id: 'math-u01-l01-c1',
+  title: 'Coached model',
+  blocks: [{ kind: 'text', text: 'Use the model to connect the idea.' }],
+  widget: validWidgetRefByType['place-value-builder'],
+  widgetCoach: validWidgetCoach,
 };
 
 function catalogErrors(
@@ -48,6 +120,47 @@ test('math unit 1 has its two pilot lessons', () => {
 test('every authored lesson passes cross-reference validation', () => {
   const errors = allLessons().flatMap(validateLesson);
   expect(errors).toEqual([]);
+});
+
+test.each(WIDGET_TYPES)('%s fixture can be paired with authored widget coaching', (type) => {
+  const card = {
+    ...coachedWidgetCard,
+    widget: validWidgetRefByType[type],
+  } satisfies LearnCard;
+
+  expect(LearnCardSchema.safeParse(card).success).toBe(true);
+});
+
+test('widgetCoachingErrors reports a missing coach with stable lesson/card context', () => {
+  const card = { ...coachedWidgetCard, widgetCoach: undefined };
+
+  expect(widgetCoachingErrors([subjectWithCards([card])])).toEqual([
+    'math-u01-l01/math-u01-l01-c1: widget place-value-builder is missing widgetCoach',
+  ]);
+});
+
+test('widgetCoachingErrors ignores non-widget cards', () => {
+  const card: LearnCard = {
+    id: 'math-u01-l01-c1',
+    title: 'Reading card',
+    blocks: [{ kind: 'text', text: 'Read this first.' }],
+  };
+
+  expect(widgetCoachingErrors([subjectWithCards([card])])).toEqual([]);
+});
+
+test('widgetCoachingErrors reports malformed coach triggers with full author context', () => {
+  const card = structuredClone(coachedWidgetCard) as LearnCard & {
+    widgetCoach: { reactions: Record<string, unknown> };
+  };
+  card.widgetCoach.reactions.idle = { text: 'Wait for a while.' };
+
+  const errors = widgetCoachingErrors([subjectWithCards([card])]);
+
+  expect(errors).toHaveLength(1);
+  expect(errors[0]).toMatch(
+    /^math\/math-u01\/math-u01-l01\/math-u01-l01-c1: widget place-value-builder has invalid widgetCoach\.reactions: /,
+  );
 });
 
 test('the permanent catalog identity and registration gates accept current authored content', () => {
