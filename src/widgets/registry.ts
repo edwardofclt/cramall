@@ -99,17 +99,17 @@ export type WidgetEventMap = {
     | { type: 'change'; value: { matches: Record<string, string> } }
     | { type: 'complete'; value: { matches: Record<string, string> } };
   'erosion-simulator':
-    | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'run' | 'reset' }
-    | { type: 'change'; value: { agent: string; vegetation: boolean } }
-    | { type: 'complete'; value: { agent: string; vegetation: boolean } };
+    | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'choose-prediction' | 'run' | 'reset' }
+    | { type: 'change'; value: { agent: string; vegetation: boolean; prediction?: 'bare' | 'covered' } }
+    | { type: 'complete'; value: { agent: string; vegetation: boolean } | { agent: string; vegetation: boolean; prediction: 'bare' | 'covered' } };
   'rock-layer-explorer':
     | { type: 'interaction'; action: 'select-layer' | 'check' | 'reset' }
     | { type: 'change'; value: { selectedLayerId: string | null } }
     | { type: 'complete'; value: { selectedLayerId: string } };
   'topographic-map-explorer':
-    | { type: 'interaction'; action: 'select-point' | 'check' | 'reset' }
-    | { type: 'change'; value: { selectedPointId: string | null } }
-    | { type: 'complete'; value: { selectedPointId: string } };
+    | { type: 'interaction'; action: 'select-point' | 'select-pattern' | 'check' | 'reset' }
+    | { type: 'change'; value: { selectedPointId: string | null; selectedPattern?: 'band' | 'cluster'; selectedPointIds?: string[] } }
+    | { type: 'complete'; value: { selectedPointId: string } | { selectedPattern: 'band' | 'cluster'; selectedPointIds: string[] } };
   'hazard-solution-designer':
     | { type: 'interaction'; action: 'toggle-solution' | 'check' | 'reset' }
     | { type: 'change'; value: { selectedIds: string[] } }
