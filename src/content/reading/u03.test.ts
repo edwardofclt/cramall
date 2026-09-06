@@ -211,12 +211,24 @@ const expectedWidgets = [
               "events",
               "solution"
             ],
-            "answers": {
-              "character": "Priya",
-              "setting": "A windy kite festival",
-              "problem": "Strong gusts threaten the team kite",
-              "events": "Priya listens, shortens the tail, and changes the launch plan",
-              "solution": "The team launches the kite safely"
+            "answers": {},
+            "source": {
+              "title": "The Windy Kite Festival",
+              "text": "The Windy Kite Festival\n\nPriya’s team carried a bright diamond kite onto the open field beside the harbor. Flags snapped above the booths, and sudden gusts pushed hats across the grass. Priya wanted to launch at once because the judging line was growing.\n\nWhen the first strong gust twisted the long kite tail around a fence post, teammate Ben suggested waiting. Priya frowned and pulled harder. The paper frame bent, and she realized that rushing could ruin everyone’s work. She listened while Ben explained that a shorter tail would drag less near the fence.\n\nThe team moved to the field’s clear center, shortened the tail, and watched two gusts before trying again. Priya counted down only when the wind steadied. Ben held the kite while she released the line gradually. The kite climbed without striking the fence.\n\nAfter the flight, Priya thanked Ben for speaking up. The windy harbor setting created the danger, but Priya’s decision to listen and adjust changed the events. Their safer plan solved the conflict and let the whole team finish the festival flight."
+            },
+            "choices": [
+              {"id":"character-priya","text":"Priya","field":"character"},
+              {"id":"setting-harbor","text":"The open field beside the windy harbor","field":"setting"},
+              {"id":"problem-gust","text":"A gust twists the kite tail around a fence post","field":"problem"},
+              {"id":"events-adjust","text":"Priya listens, shortens the tail, and changes the launch plan","field":"events"},
+              {"id":"solution-safe","text":"The kite climbs safely and the team finishes the flight","field":"solution"}
+            ],
+            "answerChoiceIds": {
+              "character":"character-priya",
+              "setting":"setting-harbor",
+              "problem":"problem-gust",
+              "events":"events-adjust",
+              "solution":"solution-safe"
             }
           }
         }

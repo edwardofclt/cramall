@@ -10,6 +10,26 @@ const firstConfig = {
   answers: {character:'Ava',setting:'Park',problem:'The gate is locked'},
 };
 
+const productionConfig = {
+  textTitle: 'The Windy Kite Festival',
+  fields: ['character','setting','problem','events','solution'] as ('character'|'setting'|'problem'|'events'|'solution')[],
+  answers: {},
+  source: {
+    title: 'The Windy Kite Festival',
+    text: 'Priya carried a kite to the windy harbor field. A gust twisted the tail, so she listened, shortened it, and waited. The kite climbed safely.',
+  },
+  choices: [
+    {id:'character-priya',text:'Priya',field:'character' as const},
+    {id:'setting-harbor',text:'The windy harbor field',field:'setting' as const},
+    {id:'problem-gust',text:'A gust twisted the kite tail',field:'problem' as const},
+    {id:'events-adjust',text:'She listened, shortened the tail, and waited',field:'events' as const},
+    {id:'solution-safe',text:'The kite climbed safely',field:'solution' as const},
+  ],
+  answerChoiceIds: {
+    character:'character-priya',setting:'setting-harbor',problem:'problem-gust',events:'events-adjust',solution:'solution-safe',
+  },
+};
+
 test('retains authored-order labelled entries and completes only after Check',async()=>{
   const onEvent=vi.fn(),user=userEvent.setup();
   render(<StoryElementsMapper config={firstConfig} onEvent={onEvent}/>);
@@ -103,4 +123,44 @@ test('resets fields and status on the first render of a new config',async()=>{
   expect(screen.getByRole('textbox',{name:'Events'})).toHaveValue('');
   expect(screen.getByRole('textbox',{name:'Solution'})).toHaveValue('');
   expect(screen.getByRole('status')).toHaveTextContent('Fill in the story map.');
+});
+
+test('keeps the complete source visible and uses evidence choices instead of production textboxes',async()=>{
+  render(<StoryElementsMapper config={productionConfig} onEvent={vi.fn()}/>);
+
+  expect(screen.getByTestId('story-map-source')).toHaveTextContent(productionConfig.source.text);
+  expect(screen.queryAllByRole('textbox')).toHaveLength(0);
+  expect(screen.getByRole('group',{name:'Character'})).toBeInTheDocument();
+  expect(screen.getByRole('button',{name:/Place “Priya” in Character/})).toBeInTheDocument();
+});
+
+test('supports keyboard placement, named undo/move controls, bounded retry, and one completion',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<StoryElementsMapper config={productionConfig} onEvent={onEvent}/>);
+
+  const placeCharacter=screen.getByRole('button',{name:/Place “Priya” in Character/});
+  placeCharacter.focus();
+  await user.keyboard('{Enter}');
+  expect(screen.getByTestId('story-map-placed-character')).toHaveTextContent('Priya');
+  expect(screen.getByRole('button',{name:'Undo Character'})).toBeInTheDocument();
+  expect(screen.getByRole('button',{name:'Move Character later'})).toBeInTheDocument();
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'milestone'});
+
+  await user.click(screen.getByRole('button',{name:'Check story map'}));
+  expect(screen.getByRole('status')).toHaveTextContent('Setting');
+  expect(screen.getByRole('status')).not.toHaveTextContent(/windy harbor field/i);
+  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
+
+  const place=(text:string,field:string)=>user.click(screen.getByRole('button',{name:new RegExp(`Place “${text}” in ${field}`)}));
+  await place('The windy harbor field','Setting');
+  await place('A gust twisted the kite tail','Problem');
+  await place('She listened, shortened the tail, and waited','Events');
+  await place('The kite climbed safely','Solution');
+  await user.click(screen.getByRole('button',{name:'Check story map'}));
+
+  expect(screen.getByTestId('widget-story-elements-mapper')).toHaveAttribute('data-state','complete');
+  expect(screen.getByRole('status')).toHaveTextContent(/setting.*problem.*choices.*solution/i);
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
+  await user.click(screen.getByRole('button',{name:'Check story map'}));
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
