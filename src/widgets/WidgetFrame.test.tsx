@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { lazy } from 'react';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { WIDGET_TYPES } from '../content/schema';
 import { WidgetFrame, type WidgetFrameProps } from './WidgetFrame';
@@ -60,6 +61,86 @@ describe('WidgetFrame', () => {
     render(<WidgetFrame {...invalid} />);
 
     expect(screen.getByTestId('widget-napping')).toHaveTextContent(/experiment is napping/i);
+  });
+
+  test('keeps the activity usable when a coaching cue has no presentation listener', async () => {
+    const user = userEvent.setup();
+    const onEvent = vi.fn();
+    render(
+      <WidgetFrame
+        type="probability-spinner"
+        config={{
+          segments: [
+            { id: 'red', label: 'Red', weight: 1, color: '#ef4444' },
+            { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' },
+          ],
+          trials: 1,
+          eventQuestion: { eventLabel: 'red', classification: 'possible' },
+          taskPrompt: 'Try one modeled trial, then classify the event.',
+        }}
+        onEvent={onEvent}
+      />,
+    );
+    const widget = await screen.findByTestId('widget-probability-spinner');
+
+    await user.click(screen.getByRole('button', { name: 'Predict Red' }));
+    await user.click(screen.getByRole('button', { name: 'Spin' }));
+    await user.click(screen.getByRole('button', { name: 'Certain' }));
+
+    expect(onEvent).toHaveBeenCalledWith({ type: 'coach', cue: 'retry' });
+    expect(widget).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Possible' })).toBeEnabled();
+
+    await user.click(screen.getByRole('button', { name: 'Possible' }));
+    expect(widget).toHaveAttribute('data-complete', 'yes');
+  });
+
+  test('keeps the lesson Next control available beside the fallback card', async () => {
+    const onNext = vi.fn();
+    const invalid = {
+      type: 'not-a-widget',
+      config: {},
+      onEvent: () => {},
+    } as unknown as WidgetFrameProps;
+    render(
+      <>
+        <WidgetFrame {...invalid} />
+        <button type="button" onClick={onNext}>Next lesson step</button>
+      </>,
+    );
+
+    expect(screen.getByTestId('widget-napping')).toHaveTextContent(/keep going/i);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Next lesson step' }));
+    expect(onNext).toHaveBeenCalledTimes(1);
+  });
+
+  test('keeps lesson Next available when a widget crashes after the intro', async () => {
+    const user = userEvent.setup();
+    const original = widgetRegistry['place-value-builder'];
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    widgetRegistry['place-value-builder'] = lazy(async () => ({
+      default: () => {
+        throw new Error('widget exploded after intro');
+      },
+    })) as typeof original;
+
+    try {
+      const onNext = vi.fn();
+      render(
+        <>
+          <p>Coach intro complete.</p>
+          <WidgetFrame type="place-value-builder" config={{}} onEvent={() => {}} />
+          <button type="button" onClick={onNext}>Next lesson step</button>
+        </>,
+      );
+
+      expect(await screen.findByTestId('widget-napping')).toHaveTextContent(/keep going/i);
+      await user.click(screen.getByRole('button', { name: 'Next lesson step' }));
+      expect(onNext).toHaveBeenCalledTimes(1);
+    } finally {
+      widgetRegistry['place-value-builder'] = original;
+      errorSpy.mockRestore();
+    }
   });
 
   test('forwards events to the lesson boundary', async () => {

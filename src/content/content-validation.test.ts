@@ -194,6 +194,32 @@ test('every production widget card has one in-step coaching introduction', () =>
   }
 });
 
+test('representative repaired cards keep source material and meaningful coaching states', () => {
+  const repairedCards = [
+    { subjectId: 'math' as const, lessonId: 'math-u12-l03', cardId: 'math-u12-l03-c2', source: /sample space/i, widgetType: 'probability-spinner' },
+    { subjectId: 'reading' as const, lessonId: 'reading-u02-l01', cardId: 'reading-u02-l01-c2', source: /root port means carry/i, widgetType: 'word-root-builder' },
+    { subjectId: 'science' as const, lessonId: 'science-u01-l04', cardId: 'science-u01-l04-c2', source: /changes one condition/i, widgetType: 'collision-ramp' },
+  ];
+
+  for (const entry of repairedCards) {
+    const context = `${entry.subjectId}/${entry.lessonId}/${entry.cardId}`;
+    const lesson = getSubject(entry.subjectId).units
+      .flatMap((unit) => unit.lessons)
+      .find((candidate) => candidate.id === entry.lessonId);
+    const card = lesson?.learnCards.find((candidate) => candidate.id === entry.cardId);
+
+    expect(card, context).toBeDefined();
+    expect(card?.widget?.type, context).toBe(entry.widgetType);
+    expect(card?.blocks.some((block) => 'text' in block && entry.source.test(block.text)), context).toBe(true);
+    expect(card?.widgetCoach?.intro, context).toHaveLength(2);
+    expect(card?.widgetCoach?.intro[0]?.speaker, context).toBe('guide');
+    expect(card?.widgetCoach?.intro[1]?.speaker, context).toBe('kid');
+    expect(Object.keys(card?.widgetCoach?.reactions ?? {}), context).toEqual(
+      expect.arrayContaining(['retry', 'complete']),
+    );
+  }
+});
+
 test('production Reading widgets use visible source material instead of legacy answer strings', () => {
   for (const entry of productionWidgetCards().filter(({ subjectId }) => subjectId === 'reading')) {
     const context = productionWidgetContext(entry);

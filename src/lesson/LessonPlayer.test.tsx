@@ -147,14 +147,18 @@ const { FIXTURE, READING_FIXTURE, COACHED_FIXTURE } = vi.hoisted(() => {
   };
 });
 
-vi.mock('../content/subjects', () => ({
-  findLesson: (id: string) => {
-    if (id === FIXTURE.lesson.id) return FIXTURE;
-    if (id === READING_FIXTURE.lesson.id) return READING_FIXTURE;
-    if (id === COACHED_FIXTURE.lesson.id) return COACHED_FIXTURE;
-    return null;
-  },
-}));
+vi.mock('../content/subjects', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../content/subjects')>();
+  return {
+    ...actual,
+    findLesson: (id: string) => {
+      if (id === FIXTURE.lesson.id) return FIXTURE;
+      if (id === READING_FIXTURE.lesson.id) return READING_FIXTURE;
+      if (id === COACHED_FIXTURE.lesson.id) return COACHED_FIXTURE;
+      return actual.findLesson(id);
+    },
+  };
+});
 
 const LESSON_ID = 'math-u01-l1';
 const READING_LESSON_ID = 'reading-u01-l01';
@@ -253,6 +257,113 @@ afterEach(() => {
 });
 
 describe('LessonPlayer', () => {
+  test.each([
+    {
+      name: 'Nutty probability',
+      lessonId: 'math-u12-l03',
+      cardId: 'math-u12-l03-c2',
+      guide: 'nutty',
+      source: /Predict, run eight trials, and classify landing on red/i,
+    },
+    {
+      name: 'Winnie word roots',
+      lessonId: 'reading-u02-l01',
+      cardId: 'reading-u02-l01-c2',
+      guide: 'winnie',
+      source: /root port means carry/i,
+    },
+    {
+      name: 'Sandy collision',
+      lessonId: 'science-u01-l04',
+      cardId: 'science-u01-l04-c2',
+      guide: 'sandy',
+      source: /changes one condition/i,
+    },
+  ])('$name uses a real repaired card with an in-step coached activity', async ({ lessonId, cardId, guide, source }) => {
+    const user = userEvent.setup();
+    const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
+    renderPlayer(`/lesson/${lessonId}?step=card:${cardId}&peek=1&focus=flow`);
+
+    expect(await screen.findByRole('heading', { level: 2 })).toBeInTheDocument();
+    expect(await screen.findAllByText(source)).not.toHaveLength(0);
+    expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+    expect(screen.getByTestId('router-location')).toHaveTextContent(`focus=flow`);
+    expect(screen.getByTestId('widget-coach-intro').querySelector('[data-speaker="guide"]')).not.toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.getByRole('button', { name: 'Try it' })).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-intro').querySelector('[data-speaker="kid"]')).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Try it' }));
+    expect(screen.getByTestId('widget-coach-activity')).not.toHaveAttribute('inert');
+    expect(storageSpy).not.toHaveBeenCalled();
+    storageSpy.mockClear();
+
+    if (cardId === 'math-u12-l03-c2') {
+      await user.click(screen.getByRole('button', { name: 'Predict Red' }));
+      for (let index = 0; index < 8; index += 1) await user.click(screen.getByRole('button', { name: 'Spin' }));
+      await user.click(screen.getByRole('button', { name: 'Certain' }));
+      expect(within(screen.getByTestId('widget-probability-spinner')).getByRole('status')).toHaveTextContent(/classif/i);
+      await user.click(screen.getByRole('button', { name: 'Possible' }));
+      expect(screen.getByTestId('widget-probability-spinner')).toHaveAttribute('data-complete', 'yes');
+    } else if (cardId === 'reading-u02-l01-c2') {
+      await user.click(screen.getByRole('button', { name: 'Select prefix trans' }));
+      await user.click(screen.getByRole('button', { name: 'Select suffix able' }));
+      await user.click(screen.getByRole('button', { name: 'Check word' }));
+      expect(screen.getByText(/another look|recheck/i)).toBeInTheDocument();
+      await user.click(screen.getByRole('button', { name: 'Remove suffix able' }));
+      await user.click(screen.getByRole('button', { name: 'Check word' }));
+      await user.click(screen.getByRole('button', { name: 'Choose whole-word meaning: carry from one place to another' }));
+      await user.click(screen.getByRole('button', { name: 'Check whole-word meaning' }));
+      expect(screen.getByText(/connected the word parts/i)).toBeInTheDocument();
+    } else {
+      await user.click(screen.getByRole('button', { name: 'Moves right' }));
+      await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+      await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+      await user.click(screen.getByRole('button', { name: 'Increase Cart A speed' }));
+      await user.click(screen.getByRole('button', { name: 'Moves left' }));
+      await user.click(screen.getByRole('button', { name: 'Run collision model' }));
+      await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
+      await user.click(screen.getByRole('button', { name: 'Run 1 had more Cart A speed' }));
+      await user.click(screen.getByRole('button', { name: 'Compare runs' }));
+      expect(within(screen.getByTestId('widget-collision-ramp')).getByRole('status')).toHaveTextContent(/does not match|revise/i);
+      await user.click(screen.getByRole('button', { name: 'Run 2 had more Cart A speed' }));
+      await user.click(screen.getByRole('button', { name: 'Compare runs' }));
+      expect(screen.getByText(/compared two modeled collision runs/i)).toBeInTheDocument();
+    }
+
+    expect(storageSpy).not.toHaveBeenCalled();
+    expect(screen.getByTestId('widget-coach-reaction')).toBeInTheDocument();
+    expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
+
+    const nextCardId = cardId.replace(/c2$/, 'c3');
+    const firstCardId = cardId.replace(/c2$/, 'c1');
+    await user.click(nav().getByRole('button', { name: /next step/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
+    await user.click(nav().getByRole('button', { name: /next step/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('worked'));
+    await user.click(screen.getByRole('button', { name: /browser back/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
+    await user.click(screen.getByRole('button', { name: /browser back/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${cardId}`));
+    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    await user.click(screen.getByRole('button', { name: /browser forward/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
+    await user.click(screen.getByRole('button', { name: /browser forward/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe('worked'));
+    await user.click(nav().getByRole('button', { name: /back/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
+    await user.click(nav().getByRole('button', { name: /back/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${cardId}`));
+    await user.click(nav().getByRole('button', { name: /back/i }));
+    await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${firstCardId}`));
+    await user.click(nav().getByRole('button', { name: /back/i }));
+    expect(await screen.findByTestId('dialogue-scene')).toBeInTheDocument();
+    expect(currentSearchParams().get('focus')).toBe('flow');
+  });
+
   test('keeps coached teaching visible, owns Next during the mini-conversation, and preserves events', async () => {
     const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
     const user = userEvent.setup();
