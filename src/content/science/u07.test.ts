@@ -38,6 +38,16 @@ const specs = [
                 "id": "valley",
                 "label": "Valley",
                 "elevation": 100
+              },
+              {
+                "id": "bench",
+                "label": "Bench",
+                "elevation": 150
+              },
+              {
+                "id": "marsh",
+                "label": "Marsh",
+                "elevation": 60
               }
             ],
             "targetPointId": "ridge"
@@ -47,12 +57,71 @@ const specs = [
       {
         "title": "Recognize clustered and linear patterns",
         "tag": "earth-feature-patterns",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Build a bar for how many mapped peaks sit in each column A-E.",
+            "categories": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E"
+            ],
+            "target": {
+              "A": 6,
+              "B": 0,
+              "C": 0,
+              "D": 0,
+              "E": 0
+            }
+          }
+        }
       },
       {
         "title": "Describe a pattern from data",
         "tag": "map-pattern-claim",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Six mapped peaks form a north-south band in western column A",
+              "The mapped peaks are scattered with no arrangement"
+            ],
+            "details": [
+              {
+                "id": "p1",
+                "text": "P1 is at A1.",
+                "supports": [
+                  "Six mapped peaks form a north-south band in western column A"
+                ]
+              },
+              {
+                "id": "p3",
+                "text": "P3 is at A3.",
+                "supports": [
+                  "Six mapped peaks form a north-south band in western column A"
+                ]
+              },
+              {
+                "id": "p6",
+                "text": "P6 is at A6.",
+                "supports": [
+                  "Six mapped peaks form a north-south band in western column A"
+                ]
+              },
+              {
+                "id": "spread",
+                "text": "The peaks appear in five different columns.",
+                "supports": [
+                  "The mapped peaks are scattered with no arrangement"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -120,7 +189,16 @@ const specs = [
       {
         "title": "Compare elevations and locations",
         "tag": "map-data-comparison",
-        "widget": null
+        "widget": {
+          "type": "number-line-compare",
+          "config": {
+            "min": 0,
+            "max": 50,
+            "a": 0,
+            "b": 50,
+            "step": 10
+          }
+        }
       },
       {
         "title": "Connect several data points",
@@ -140,24 +218,90 @@ const specs = [
             ],
             "points": [
               {
-                "id": "coast",
-                "label": "Coast",
+                "id": "h1",
+                "label": "H1 hill (B1)",
+                "elevation": 50
+              },
+              {
+                "id": "h2",
+                "label": "H2 hill (D1)",
+                "elevation": 50
+              },
+              {
+                "id": "h3",
+                "label": "H3 hill (F1)",
+                "elevation": 50
+              },
+              {
+                "id": "c1",
+                "label": "C1 coast (B4)",
                 "elevation": 0
               },
               {
-                "id": "hill",
-                "label": "Hill",
-                "elevation": 50
+                "id": "c2",
+                "label": "C2 coast (D4)",
+                "elevation": 0
+              },
+              {
+                "id": "c3",
+                "label": "C3 coast (F4)",
+                "elevation": 0
               }
             ],
-            "targetPointId": "coast"
+            "targetPointId": "c2"
           }
         }
       },
       {
         "title": "Support an interpretation",
         "tag": "map-interpretation-evidence",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m",
+              "Land always gets higher as you go north"
+            ],
+            "details": [
+              {
+                "id": "h1",
+                "text": "H1 at B1 is 50 m.",
+                "supports": [
+                  "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+                ]
+              },
+              {
+                "id": "h3",
+                "text": "H3 at F1 is 50 m.",
+                "supports": [
+                  "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+                ]
+              },
+              {
+                "id": "c1",
+                "text": "C1 at B4 is 0 m.",
+                "supports": [
+                  "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+                ]
+              },
+              {
+                "id": "c3",
+                "text": "C3 at F4 is 0 m.",
+                "supports": [
+                  "In this packet, northern row-1 hills are 50 m and southern row-4 coast points are 0 m"
+                ]
+              },
+              {
+                "id": "everywhere",
+                "text": "Every place on Earth rises toward the north.",
+                "supports": [
+                  "Land always gets higher as you go north"
+                ]
+              }
+            ],
+            "requiredDetailCount": 4
+          }
+        }
       }
     ],
     "routes": [
@@ -226,7 +370,19 @@ const specs = [
       {
         "title": "Choose one process and variable",
         "tag": "single-process-variable",
-        "widget": null
+        "widget": {
+          "type": "erosion-simulator",
+          "config": {
+            "terrain": "soil",
+            "agents": [
+              "water",
+              "wind",
+              "ice"
+            ],
+            "vegetation": false,
+            "targetAgent": "water"
+          }
+        }
       },
       {
         "title": "Plan a fair comparison",
@@ -236,7 +392,9 @@ const specs = [
           "config": {
             "terrain": "soil",
             "agents": [
-              "water"
+              "water",
+              "wind",
+              "ice"
             ],
             "vegetation": false,
             "targetAgent": "water"
@@ -246,7 +404,21 @@ const specs = [
       {
         "title": "Use observations as evidence",
         "tag": "erosion-observation-evidence",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Plot the supplied tray counts: spoonfuls of soil that reached the catch pan.",
+            "categories": [
+              "Bare tray",
+              "Covered tray"
+            ],
+            "target": {
+              "Bare tray": 14,
+              "Covered tray": 5
+            }
+          }
+        }
       }
     ],
     "routes": [
@@ -315,7 +487,37 @@ const specs = [
       {
         "title": "Read relative layer order",
         "tag": "relative-layer-order",
-        "widget": null
+        "widget": {
+          "type": "rock-layer-explorer",
+          "config": {
+            "layers": [
+              {
+                "id": "top-sand",
+                "label": "Top sandy layer",
+                "age": 1
+              },
+              {
+                "id": "upper-shells",
+                "label": "Upper shell layer",
+                "age": 2,
+                "artifact": "marine shell fossils"
+              },
+              {
+                "id": "lower-plants",
+                "label": "Lower plant layer",
+                "age": 3,
+                "artifact": "plant fossils without shells"
+              },
+              {
+                "id": "base-gravel",
+                "label": "Base gravel layer",
+                "age": 4
+              }
+            ],
+            "prompt": "Which layer is relatively oldest in this authored stack?",
+            "targetLayerId": "base-gravel"
+          }
+        }
       },
       {
         "title": "Find patterns in fossils and layers",
@@ -325,27 +527,76 @@ const specs = [
           "config": {
             "layers": [
               {
+                "id": "top-sand",
+                "label": "Top sandy layer",
+                "age": 1
+              },
+              {
                 "id": "upper-shells",
                 "label": "Upper shell layer",
-                "age": 1,
+                "age": 2,
                 "artifact": "marine shell fossils"
               },
               {
                 "id": "lower-plants",
                 "label": "Lower plant layer",
-                "age": 2,
+                "age": 3,
                 "artifact": "plant fossils without shells"
+              },
+              {
+                "id": "base-gravel",
+                "label": "Base gravel layer",
+                "age": 4
               }
             ],
-            "prompt": "Which layer is relatively older?",
-            "targetLayerId": "lower-plants"
+            "prompt": "Which layer holds marine shell fossils?",
+            "targetLayerId": "upper-shells"
           }
         }
       },
       {
         "title": "Explain landscape change over time",
         "tag": "landscape-change-explanation",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This place changed from a land setting with plants to a water setting with marine life",
+              "The layers tell how many years passed"
+            ],
+            "details": [
+              {
+                "id": "order",
+                "text": "The plant layer sits below the shell layer.",
+                "supports": [
+                  "This place changed from a land setting with plants to a water setting with marine life"
+                ]
+              },
+              {
+                "id": "plants",
+                "text": "The lower layer holds plant fossils and no shells.",
+                "supports": [
+                  "This place changed from a land setting with plants to a water setting with marine life"
+                ]
+              },
+              {
+                "id": "shells",
+                "text": "The upper layer holds marine shell fossils.",
+                "supports": [
+                  "This place changed from a land setting with plants to a water setting with marine life"
+                ]
+              },
+              {
+                "id": "ranks",
+                "text": "The layers are labelled with rank numbers, not years.",
+                "supports": [
+                  "The layers tell how many years passed"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [

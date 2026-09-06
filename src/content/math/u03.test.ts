@@ -46,7 +46,12 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u03-l01-c1': { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+  'math-u03-l01-c1': {"type": "array-builder", "config": {"rows": 3, "columns": 5, "targetProduct": 24, "editable": true}},
+  'math-u03-l01-c2': {"type": "array-builder", "config": {"rows": 3, "columns": 5, "targetProduct": 17, "editable": true}},
+  'math-u03-l01-c3': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Build a bar for how many factors each number has.", "categories": ["12", "13", "16", "17"], "target": {"12": 6, "13": 2, "16": 5, "17": 2}}},
+  'math-u03-l02-c1': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Rule: multiply by 4. Set each bar to the output.", "categories": ["Input 2", "Input 3", "Input 5"], "target": {"Input 2": 8, "Input 3": 12, "Input 5": 20}}},
+  'math-u03-l02-c2': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Rule: add 7. Set each bar to the output.", "categories": ["Input 9", "Input 13", "Input 25"], "target": {"Input 9": 16, "Input 13": 20, "Input 25": 32}}},
+  'math-u03-l02-c3': {"type": "array-builder", "config": {"rows": 1, "columns": 6, "targetProduct": 24, "editable": true}},
 } as const;
 
 test('u03 is the exact validated 2-lesson unit', () => {

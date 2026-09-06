@@ -31,6 +31,7 @@ export const unit07Lessons = [
           { kind: 'example', text: '3/8 + 2/8 = 5/8 because three eighths and two eighths make five eighths.' },
           { kind: 'tip', text: 'The denominator names the part size; adding pieces does not change that size.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 8, numerator: 5, target: { numerator: 2, denominator: 8 }, allowEquivalent: false } },
       },
       {
         id: 'math-u07-l01-c3',
@@ -40,6 +41,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'A jug with 8/10 liter loses 3/10 liter, so 5/10 liter remains.' },
           { kind: 'tip', text: 'A positive addend should not make a sum smaller, and subtracting a positive amount should not make a difference larger.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 10, numerator: 8, target: { numerator: 5, denominator: 10 }, allowEquivalent: false } },
       },
     ],
     workedExample: {
@@ -99,6 +101,7 @@ export const unit07Lessons = [
           { kind: 'example', text: '7 × 1/5 = 7/5 = 1 2/5.' },
           { kind: 'tip', text: 'When the numerator reaches the denominator, regroup complete wholes.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 2.5, a: 0, b: 2.25, step: 0.25, display: 'fraction', denominator: 4 } },
       },
       {
         id: 'math-u07-l02-c3',
@@ -108,6 +111,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'Six trail sections are each 1/8 mile, so the distance is 6 × 1/8 = 6/8 mile.' },
           { kind: 'tip', text: 'Label the result with the whole being measured, such as mile, cup, or meter.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 0, target: { numerator: 6, denominator: 8 }, allowEquivalent: false } },
       },
     ],
     workedExample: {
@@ -167,6 +171,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'In 5/6, five is the number of whole units divided among the shares.' },
           { kind: 'tip', text: 'Changing the numerator changes the total quantity being shared.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 1, columns: 3, targetProduct: 12, editable: true } },
       },
       {
         id: 'math-u07-l03-c3',
@@ -176,6 +181,7 @@ export const unit07Lessons = [
           { kind: 'example', text: 'For 5 ÷ 6, each of 6 shares receives 5/6 of one unit.' },
           { kind: 'tip', text: 'More equal shares from the same quantity make each share smaller.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.5, b: 0.25, step: 0.25, display: 'fraction', denominator: 4 } },
       },
     ],
     workedExample: {

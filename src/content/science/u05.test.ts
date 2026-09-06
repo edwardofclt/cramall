@@ -15,7 +15,29 @@ const specs = [
       {
         "title": "Name input and output forms",
         "tag": "conversion-input-output",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "motion into the crank"
+            ],
+            "transfers": [
+              "hand-crank generator",
+              "buzzer",
+              "lamp"
+            ],
+            "targets": [
+              "sound from the buzzer",
+              "light from a lamp"
+            ],
+            "requiredPath": [
+              "motion into the crank",
+              "hand-crank generator",
+              "buzzer",
+              "sound from the buzzer"
+            ]
+          }
+        }
       },
       {
         "title": "Trace a connected conversion chain",
@@ -35,6 +57,24 @@ const specs = [
                 "label": "Buzzer",
                 "energyIn": "electric",
                 "energyOut": "sound"
+              },
+              {
+                "id": "lamp",
+                "label": "Lamp",
+                "energyIn": "electric",
+                "energyOut": "light"
+              },
+              {
+                "id": "heater",
+                "label": "Heater",
+                "energyIn": "electric",
+                "energyOut": "heat"
+              },
+              {
+                "id": "spring",
+                "label": "Wind-up spring",
+                "energyIn": "stored",
+                "energyOut": "motion"
               }
             ],
             "requiredStart": "crank",
@@ -45,7 +85,45 @@ const specs = [
       {
         "title": "Stay within device limits",
         "tag": "conversion-device-boundary",
-        "widget": null
+        "widget": {
+          "type": "energy-conversion-designer",
+          "config": {
+            "components": [
+              {
+                "id": "battery",
+                "label": "Battery",
+                "energyIn": "stored",
+                "energyOut": "electric"
+              },
+              {
+                "id": "motor",
+                "label": "Motor",
+                "energyIn": "electric",
+                "energyOut": "motion"
+              },
+              {
+                "id": "lamp",
+                "label": "Lamp",
+                "energyIn": "electric",
+                "energyOut": "light"
+              },
+              {
+                "id": "heater",
+                "label": "Heater",
+                "energyIn": "electric",
+                "energyOut": "heat"
+              },
+              {
+                "id": "turbine",
+                "label": "Steam turbine",
+                "energyIn": "heat",
+                "energyOut": "spin"
+              }
+            ],
+            "requiredStart": "battery",
+            "requiredEnd": "motor"
+          }
+        }
       }
     ],
     "routes": [
@@ -113,7 +191,29 @@ const specs = [
       {
         "title": "Define the device goal",
         "tag": "device-goal",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "stored energy in the battery"
+            ],
+            "transfers": [
+              "battery holder and switch",
+              "lamp",
+              "buzzer"
+            ],
+            "targets": [
+              "light you can see for ten seconds",
+              "sound you can hear"
+            ],
+            "requiredPath": [
+              "stored energy in the battery",
+              "battery holder and switch",
+              "lamp",
+              "light you can see for ten seconds"
+            ]
+          }
+        }
       },
       {
         "title": "Choose materials under constraints",
@@ -133,6 +233,24 @@ const specs = [
                 "label": "Lamp",
                 "energyIn": "electric",
                 "energyOut": "light"
+              },
+              {
+                "id": "buzzer",
+                "label": "Buzzer",
+                "energyIn": "electric",
+                "energyOut": "sound"
+              },
+              {
+                "id": "motor",
+                "label": "Motor",
+                "energyIn": "electric",
+                "energyOut": "motion"
+              },
+              {
+                "id": "windup",
+                "label": "Wind-up spring",
+                "energyIn": "stored",
+                "energyOut": "motion"
               }
             ],
             "requiredStart": "battery",
@@ -143,7 +261,44 @@ const specs = [
       {
         "title": "Draw a testable plan",
         "tag": "device-test-plan",
-        "widget": null
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "adult",
+                "text": "An adult checks the covered setup before the switch is closed.",
+                "role": "main"
+              },
+              {
+                "id": "close",
+                "text": "Close the switch to start the trial.",
+                "role": "main"
+              },
+              {
+                "id": "watch",
+                "text": "Watch the lamp for the full ten-second interval.",
+                "role": "main"
+              },
+              {
+                "id": "record",
+                "text": "Record how long the lamp stayed visibly lit.",
+                "role": "detail"
+              },
+              {
+                "id": "color",
+                "text": "The lamp housing is red.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "adult",
+              "close",
+              "watch"
+            ],
+            "maxSentences": 4
+          }
+        }
       }
     ],
     "routes": [
@@ -211,17 +366,114 @@ const specs = [
       {
         "title": "Write a fair test procedure",
         "tag": "device-test-procedure",
-        "widget": null
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "check",
+                "text": "An adult checks the covered setup.",
+                "role": "main"
+              },
+              {
+                "id": "switch",
+                "text": "Close the switch.",
+                "role": "main"
+              },
+              {
+                "id": "observe",
+                "text": "Observe the lamp for ten seconds.",
+                "role": "main"
+              },
+              {
+                "id": "record",
+                "text": "Record the lamp result for the trial.",
+                "role": "detail"
+              },
+              {
+                "id": "same",
+                "text": "The same battery, lamp, and switch are used for every trial.",
+                "role": "detail"
+              },
+              {
+                "id": "snack",
+                "text": "The tester ate a snack first.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "check",
+              "switch",
+              "observe"
+            ],
+            "maxSentences": 5
+          }
+        }
       },
       {
         "title": "Record observable results",
         "tag": "device-test-observations",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Build the bar plot from the supplied test record: seconds the lamp stayed lit in each trial.",
+            "categories": [
+              "Trial 1",
+              "Trial 2",
+              "Trial 3"
+            ],
+            "target": {
+              "Trial 1": 6,
+              "Trial 2": 7,
+              "Trial 3": 6
+            }
+          }
+        }
       },
       {
         "title": "Judge the device against its goal",
         "tag": "device-test-judgment",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This trial missed the ten-second goal",
+              "This trial met the ten-second goal"
+            ],
+            "details": [
+              {
+                "id": "t1",
+                "text": "Trial 1 stayed lit 6 seconds, then flickered off.",
+                "supports": [
+                  "This trial missed the ten-second goal"
+                ]
+              },
+              {
+                "id": "t2",
+                "text": "Trial 2 stayed lit 7 seconds, then flickered off.",
+                "supports": [
+                  "This trial missed the ten-second goal"
+                ]
+              },
+              {
+                "id": "t3",
+                "text": "Trial 3 stayed lit 6 seconds, then flickered off.",
+                "supports": [
+                  "This trial missed the ten-second goal"
+                ]
+              },
+              {
+                "id": "met",
+                "text": "A trial stayed lit the full 10 seconds with no flicker.",
+                "supports": [
+                  "This trial met the ten-second goal"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -289,17 +541,96 @@ const specs = [
       {
         "title": "Find a result that misses the goal",
         "tag": "refinement-need",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Build the goal bar and the three first-test bars from the supplied record, then look at the gap.",
+            "categories": [
+              "Goal",
+              "Trial 1",
+              "Trial 2",
+              "Trial 3"
+            ],
+            "target": {
+              "Goal": 10,
+              "Trial 1": 6,
+              "Trial 2": 7,
+              "Trial 3": 6
+            }
+          }
+        }
       },
       {
         "title": "Change one design feature",
         "tag": "single-design-change",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This retest changes exactly one feature",
+              "This retest changes more than one feature"
+            ],
+            "details": [
+              {
+                "id": "clip",
+                "text": "One loose clip is replaced before the retest.",
+                "supports": [
+                  "This retest changes exactly one feature"
+                ]
+              },
+              {
+                "id": "same-battery",
+                "text": "The same battery and lamp are kept for the retest.",
+                "supports": [
+                  "This retest changes exactly one feature"
+                ]
+              },
+              {
+                "id": "same-interval",
+                "text": "The same ten-second interval and viewing condition are kept.",
+                "supports": [
+                  "This retest changes exactly one feature"
+                ]
+              },
+              {
+                "id": "two",
+                "text": "A new battery and a new lamp are both fitted before the retest.",
+                "supports": [
+                  "This retest changes more than one feature"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       },
       {
         "title": "Compare the retest with the first test",
         "tag": "refinement-evidence",
-        "widget": null
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "Build both supplied records side by side: the first test and the retest.",
+            "categories": [
+              "First 1",
+              "First 2",
+              "First 3",
+              "Retest 1",
+              "Retest 2",
+              "Retest 3"
+            ],
+            "target": {
+              "First 1": 6,
+              "First 2": 7,
+              "First 3": 6,
+              "Retest 1": 10,
+              "Retest 2": 10,
+              "Retest 3": 10
+            }
+          }
+        }
       }
     ],
     "routes": [

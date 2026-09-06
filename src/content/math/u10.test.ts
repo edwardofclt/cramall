@@ -46,7 +46,12 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u10-l02-c2': { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40 } },
+  'math-u10-l01-c1': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "perimeter", "label": "Perimeter 26 m", "value": 26}], "right": [{"id": "l1", "label": "length 8 m", "value": 8}, {"id": "l2", "label": "length 8 m", "value": 8}, {"id": "w1", "label": "width 5 m", "value": 5}, {"id": "w2", "label": "width 5 m", "value": 5}, {"id": "decoy", "label": "extra 3 m", "value": 3}]}},
+  'math-u10-l01-c2': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "perimeter", "label": "Perimeter 30 in", "value": 30}], "right": [{"id": "l1", "label": "length 9 in", "value": 9}, {"id": "l2", "label": "length 9 in", "value": 9}, {"id": "w6a", "label": "width 6 in", "value": 6}, {"id": "w6b", "label": "width 6 in", "value": 6}, {"id": "w4a", "label": "width 4 in", "value": 4}, {"id": "w4b", "label": "width 4 in", "value": 4}]}},
+  'math-u10-l01-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "fence", "label": "Fence 38 yd", "value": 38}], "right": [{"id": "l1", "label": "length 12 yd", "value": 12}, {"id": "l2", "label": "length 12 yd", "value": 12}, {"id": "w1", "label": "width 7 yd", "value": 7}, {"id": "w2", "label": "width 7 yd", "value": 7}, {"id": "decoy", "label": "extra 5 yd", "value": 5}]}},
+  'math-u10-l02-c1': {"type": "area-model-multiplier", "config": {"a": 8, "b": 5, "splitA": [4, 4], "splitB": [5], "targetProduct": 40}},
+  'math-u10-l02-c2': {"type": "array-builder", "config": {"rows": 1, "columns": 5, "targetProduct": 40, "editable": true}},
+  'math-u10-l02-c3': {"type": "area-model-multiplier", "config": {"a": 14, "b": 9, "splitA": [10, 4], "splitB": [9], "targetProduct": 126}},
 } as const;
 
 test('u10 is the exact validated 2-lesson unit', () => {

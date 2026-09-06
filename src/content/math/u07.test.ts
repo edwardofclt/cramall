@@ -63,9 +63,15 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false } },
-  'math-u07-l02-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false } },
-  'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false } },
+  'math-u07-l01-c1': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 8, "numerator": 3, "target": {"numerator": 5, "denominator": 8}, "allowEquivalent": false}},
+  'math-u07-l01-c2': {"type": "fraction-models", "config": {"mode": "circles", "denominator": 8, "numerator": 5, "target": {"numerator": 2, "denominator": 8}, "allowEquivalent": false}},
+  'math-u07-l01-c3': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 10, "numerator": 8, "target": {"numerator": 5, "denominator": 10}, "allowEquivalent": false}},
+  'math-u07-l02-c1': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 4, "numerator": 0, "target": {"numerator": 3, "denominator": 4}, "allowEquivalent": false}},
+  'math-u07-l02-c2': {"type": "number-line-compare", "config": {"min": 0, "max": 2.5, "a": 0, "b": 2.25, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u07-l02-c3': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 8, "numerator": 0, "target": {"numerator": 6, "denominator": 8}, "allowEquivalent": false}},
+  'math-u07-l03-c1': {"type": "fraction-models", "config": {"mode": "circles", "denominator": 6, "numerator": 0, "target": {"numerator": 5, "denominator": 6}, "allowEquivalent": false}},
+  'math-u07-l03-c2': {"type": "array-builder", "config": {"rows": 1, "columns": 3, "targetProduct": 12, "editable": true}},
+  'math-u07-l03-c3': {"type": "number-line-compare", "config": {"min": 0, "max": 1, "a": 0.5, "b": 0.25, "step": 0.25, "display": "fraction", "denominator": 4}},
 } as const;
 
 test('u07 is the exact validated 3-lesson unit', () => {

@@ -199,6 +199,85 @@ const expectedWidgets = [
     "id": "reading-u03-l01",
     "widgets": [
       {
+        "cardId": "reading-u03-l01-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "The gusty harbor setting creates the kite problem",
+              "The growing judging line creates the kite problem"
+            ],
+            "details": [
+              {
+                "id": "gusts-hats",
+                "text": "Sudden gusts pushed hats across the grass.",
+                "supports": [
+                  "The gusty harbor setting creates the kite problem"
+                ]
+              },
+              {
+                "id": "tail-twist",
+                "text": "The first strong gust twisted the long kite tail around a fence post.",
+                "supports": [
+                  "The gusty harbor setting creates the kite problem"
+                ]
+              },
+              {
+                "id": "judging-line",
+                "text": "Priya wanted to launch at once because the judging line was growing.",
+                "supports": [
+                  "The growing judging line creates the kite problem"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u03-l01-c2",
+        "ref": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Priya changes from rushing to listening",
+              "Priya stays impatient the whole time"
+            ],
+            "evidence": [
+              {
+                "id": "pulled-harder",
+                "text": "Priya frowned and pulled harder.",
+                "supports": [
+                  "Priya stays impatient the whole time"
+                ]
+              },
+              {
+                "id": "listened",
+                "text": "She listened while Ben explained that a shorter tail would drag less near the fence.",
+                "supports": [
+                  "Priya changes from rushing to listening"
+                ]
+              },
+              {
+                "id": "counted-down",
+                "text": "Priya counted down only when the wind steadied.",
+                "supports": [
+                  "Priya changes from rushing to listening"
+                ]
+              },
+              {
+                "id": "thanked-ben",
+                "text": "After the flight, Priya thanked Ben for speaking up.",
+                "supports": [
+                  "Priya changes from rushing to listening"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 3
+          }
+        }
+      },
+      {
         "cardId": "reading-u03-l01-c3",
         "ref": {
           "type": "story-elements-mapper",

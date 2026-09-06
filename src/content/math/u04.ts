@@ -21,7 +21,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'Because 6 × 7 = 42, 6 × 70 = 420 and 6 × 700 = 4,200.' },
           { kind: 'tip', text: 'Name the unit: 42 tens equals 420, while 42 hundreds equals 4,200.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 30, b: 4, splitA: [30], splitB: [4], targetProduct: 120 } },
+        widget: { type: 'area-model-multiplier', config: { a: 6, b: 70, splitA: [6], splitB: [10, 10, 10, 10, 10, 10, 10], targetProduct: 420 } },
       },
       {
         id: 'math-u04-l01-c2',
@@ -31,6 +31,7 @@ export const unit04Lessons = [
           { kind: 'example', text: '8 × 60 = 8 × (6 × 10) = (8 × 6) × 10 = 480.' },
           { kind: 'tip', text: 'Keep each factor’s value unchanged while regrouping or decomposing it.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 1, columns: 8, targetProduct: 48, editable: true } },
       },
       {
         id: 'math-u04-l01-c3',
@@ -40,6 +41,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'Seven boxes with 300 beads each contain 7 × 300 = 2,100 beads.' },
           { kind: 'tip', text: 'Estimate the size first so 2,100 is not mistaken for 210 or 21,000.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 2, columns: 3, targetProduct: 21, editable: true } },
       },
     ],
     workedExample: {
@@ -89,6 +91,7 @@ export const unit04Lessons = [
           { kind: 'example', text: '3,214 × 3 = 3,000 × 3 + 200 × 3 + 10 × 3 + 4 × 3.' },
           { kind: 'tip', text: 'Include zero-value places in your thinking even when they do not create a written partial product.' },
         ],
+        widget: { type: 'area-model-multiplier', config: { a: 4, b: 27, splitA: [4], splitB: [20, 7], targetProduct: 108 } },
       },
       {
         id: 'math-u04-l02-c2',
@@ -108,6 +111,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'For 23 × 14, 200 + 80 + 30 + 12 = 322.' },
           { kind: 'tip', text: 'Estimate with nearby tens to catch a missing or duplicated partial product.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'product', label: '23 × 14', value: 322 }], right: [{ id: 'p1', label: '20 × 10 = 200', value: 200 }, { id: 'p2', label: '20 × 4 = 80', value: 80 }, { id: 'p3', label: '3 × 10 = 30', value: 30 }, { id: 'p4', label: '3 × 4 = 12', value: 12 }, { id: 'decoy', label: 'Extra 20', value: 20 }] } },
       },
     ],
     workedExample: {
@@ -157,7 +161,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'If one basket has 6 acorns and another has 4 times as many, the larger basket has 4 × 6 = 24.' },
           { kind: 'tip', text: 'Do not confuse “4 times as many” with “4 more than.”' },
         ],
-        widget: { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 6, targetProduct: 24, editable: true } },
       },
       {
         id: 'math-u04-l03-c2',
@@ -167,6 +171,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'If Mia has 5 stickers and Leo has 3 times as many, 3 × 5 = s represents Leo’s stickers.' },
           { kind: 'tip', text: 'For an unknown smaller amount, an equation such as 4 × n = 28 keeps the comparison direction clear.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 1, columns: 5, targetProduct: 15, editable: true } },
       },
       {
         id: 'math-u04-l03-c3',
@@ -176,6 +181,7 @@ export const unit04Lessons = [
           { kind: 'example', text: 'If 6 × n = 42, then n = 7 because 6 × 7 = 42.' },
           { kind: 'tip', text: 'Check by replacing the variable and rereading the comparison sentence.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'total', label: '36 shells', value: 36 }], right: [{ id: 'g1', label: 'Group of 9', value: 9 }, { id: 'g2', label: 'Group of 9', value: 9 }, { id: 'g3', label: 'Group of 9', value: 9 }, { id: 'g4', label: 'Group of 9', value: 9 }, { id: 'decoy', label: 'Extra 7', value: 7 }] } },
       },
     ],
     workedExample: {

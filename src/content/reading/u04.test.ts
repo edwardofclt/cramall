@@ -199,6 +199,42 @@ const expectedWidgets = [
     "id": "reading-u04-l01",
     "widgets": [
       {
+        "cardId": "reading-u04-l01-c1",
+        "ref": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Generosity strengthens a community",
+              "Mateo plants peppers in the extra row"
+            ],
+            "evidence": [
+              {
+                "id": "shares-row",
+                "text": "Mateo offers the new family the extra row after the storm.",
+                "supports": [
+                  "Generosity strengthens a community"
+                ]
+              },
+              {
+                "id": "trade-tasks",
+                "text": "The two families begin trading garden tasks and vegetables.",
+                "supports": [
+                  "Generosity strengthens a community"
+                ]
+              },
+              {
+                "id": "pepper-tray",
+                "text": "Mateo carries a tray of pepper seedlings to the empty bed.",
+                "supports": [
+                  "Mateo plants peppers in the extra row"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        }
+      },
+      {
         "cardId": "reading-u04-l01-c2",
         "ref": {
           "type": "theme-evidence-collector",
@@ -231,6 +267,47 @@ const expectedWidgets = [
               }
             ],
             "requiredEvidenceCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u04-l01-c3",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "refusal",
+                "text": "Mateo shook his head when Mrs. Green asked whether the new family could use the extra row.",
+                "role": "main"
+              },
+              {
+                "id": "choice",
+                "text": "After hard rain washed out the neighbors' seedlings, Mateo carried over a tray of pepper seedlings.",
+                "role": "main"
+              },
+              {
+                "id": "consequence",
+                "text": "Their two families began trading garden tasks and vegetables.",
+                "role": "main"
+              },
+              {
+                "id": "return",
+                "text": "A week later, Ana brought stakes that kept Mateo's tomato vines upright.",
+                "role": "detail"
+              },
+              {
+                "id": "decor",
+                "text": "Mateo measured straight garden rows for the planting day.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "refusal",
+              "choice",
+              "consequence"
+            ],
+            "maxSentences": 4
           }
         }
       }

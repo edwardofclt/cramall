@@ -49,6 +49,44 @@ export const unit10Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "check",
+                "text": "Nora checked the tables after the evening festival.",
+                "role": "main"
+              },
+              {
+                "id": "one",
+                "text": "Every paper lantern had been collected except one glowing beside the empty stage.",
+                "role": "main"
+              },
+              {
+                "id": "carry",
+                "text": "She carried it toward the gate, where Mr. Lee was searching the dark path.",
+                "role": "main"
+              },
+              {
+                "id": "smile",
+                "text": "Mr. Lee smiled because the lantern marked the path to his family's booth.",
+                "role": "detail"
+              },
+              {
+                "id": "fact",
+                "text": "Paper lanterns are often made from bamboo and rice paper.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "check",
+              "one",
+              "carry"
+            ],
+            "maxSentences": 4
+          }
+        },
         "check": {
           "prompt": "Which element belongs especially to the narrative form here?",
           "choices": [
@@ -131,6 +169,31 @@ export const unit10Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "figurative-language-matcher",
+          "config": {
+            "pairs": [
+              {
+                "id": "moon",
+                "phrase": "the last small moon",
+                "kind": "metaphor",
+                "meaning": "the single lantern glowing in the darkness"
+              },
+              {
+                "id": "finds",
+                "phrase": "the lost light finds its hand",
+                "kind": "personification",
+                "meaning": "the lantern is returned to its owner"
+              },
+              {
+                "id": "circle",
+                "phrase": "a warm circle in the dark",
+                "kind": "metaphor",
+                "meaning": "the ring of lantern light on the ground"
+              }
+            ]
+          }
+        },
         "check": {
           "prompt": "What does “last small moon” add?",
           "choices": [
@@ -548,6 +611,31 @@ export const unit10Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "Setting out baskets was a piece of cake because her checklist was clear. The steps to the produce stand were three real wooden boards.",
+            "targetWord": "a piece of cake",
+            "clueChoices": [
+              {
+                "id": "clue-checklist",
+                "text": "because her checklist was clear",
+                "type": "definition"
+              },
+              {
+                "id": "clue-boards",
+                "text": "The steps to the produce stand were three real wooden boards",
+                "type": "contrast"
+              },
+              {
+                "id": "clue-baskets",
+                "text": "Setting out baskets",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "clue-checklist"
+          }
+        },
         "check": {
           "prompt": "Which phrase is literal?",
           "choices": [
@@ -655,6 +743,28 @@ export const unit10Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "word-root-builder",
+          "config": {
+            "root": "ripe",
+            "prefixes": [
+              "un"
+            ],
+            "suffixes": [
+              "ness"
+            ],
+            "targets": [
+              {
+                "word": "unripe",
+                "meaning": "not fully ready to eat"
+              },
+              {
+                "word": "ripeness",
+                "meaning": "how fully ready to eat something is"
+              }
+            ]
+          }
+        },
         "check": {
           "prompt": "What is an antonym of ripe?",
           "choices": [
@@ -1041,6 +1151,31 @@ export const unit10Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "context-clue-detective",
+          "config": {
+            "passage": "Then the ferry horn sounded. The horn was a giant's warning rolling through the mist. Mara knew no giant stood in the river; the metaphor made the sound feel enormous and serious.",
+            "targetWord": "giant's warning",
+            "clueChoices": [
+              {
+                "id": "clue-meaning",
+                "text": "the metaphor made the sound feel enormous and serious",
+                "type": "definition"
+              },
+              {
+                "id": "clue-noliteral",
+                "text": "Mara knew no giant stood in the river",
+                "type": "contrast"
+              },
+              {
+                "id": "clue-mist",
+                "text": "rolling through the mist",
+                "type": "example"
+              }
+            ],
+            "correctChoiceId": "clue-meaning"
+          }
+        },
         "check": {
           "prompt": "Which phrase is figurative?",
           "choices": [
@@ -1082,6 +1217,31 @@ export const unit10Lessons = [
             "text": "Response frame: The source says ____. This supports ____ because ____."
           }
         ],
+        "widget": {
+          "type": "figurative-language-matcher",
+          "config": {
+            "pairs": [
+              {
+                "id": "blanket",
+                "phrase": "the fog folded a gray blanket over the river",
+                "kind": "metaphor",
+                "meaning": "thick fog covers the river and blocks the distant view"
+              },
+              {
+                "id": "giant",
+                "phrase": "The horn was a giant's warning",
+                "kind": "metaphor",
+                "meaning": "the horn sounded enormous and serious"
+              },
+              {
+                "id": "tapped",
+                "phrase": "water tapped softly against the pilings",
+                "kind": "personification",
+                "meaning": "the water made a light knocking sound against the posts"
+              }
+            ]
+          }
+        },
         "check": {
           "prompt": "What does the gray blanket mean?",
           "choices": [

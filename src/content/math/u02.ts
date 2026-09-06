@@ -21,6 +21,7 @@ export const unit02Lessons = [
           { kind: 'example', text: 'To find how many more 52,400 is than 18,250, use 52,400 - 18,250.' },
           { kind: 'tip', text: 'Line up ones under ones, tens under tens, and every other matching place.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'total', label: 'Team total 52,400', value: 52400 }], right: [{ id: 'first', label: 'First pile 18,250', value: 18250 }, { id: 'difference', label: 'Difference 34,150', value: 34150 }, { id: 'decoy', label: 'Extra 1,000', value: 1000 }] } },
       },
       {
         id: 'math-u02-l01-c2',
@@ -30,6 +31,7 @@ export const unit02Lessons = [
           { kind: 'example', text: 'In addition, 8 ones + 7 ones = 15 ones, so write 5 ones and regroup 1 ten.' },
           { kind: 'tip', text: 'In subtraction, regroup one unit from the left as ten units in the current place.' },
         ],
+        widget: { type: 'base-ten-blocks', config: { initial: { ones: 8, tens: 2, hundreds: 0, thousands: 0 }, target: 35, allowRegroup: true } },
       },
       {
         id: 'math-u02-l01-c3',
@@ -39,6 +41,7 @@ export const unit02Lessons = [
           { kind: 'example', text: '37,425 + 27,395 = 64,820 checks that 64,820 - 27,395 = 37,425.' },
           { kind: 'tip', text: 'Use addition to check subtraction, subtraction to check addition, and an estimate to catch a misplaced digit.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'sum', label: 'Total 64,820', value: 64820 }], right: [{ id: 'addend-a', label: '37,425', value: 37425 }, { id: 'addend-b', label: '27,395', value: 27395 }, { id: 'decoy', label: 'Extra 500', value: 500 }] } },
       },
     ],
     workedExample: {
@@ -151,6 +154,7 @@ export const unit02Lessons = [
           { kind: 'example', text: '47,382 rounds to 47,000 to the nearest thousand and 50,000 to the nearest ten thousand.' },
           { kind: 'tip', text: 'Look one place to the right: 5 or more rounds up; 4 or less keeps the rounding digit.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 47000, max: 48000, a: 47382, b: 47500, step: 1 } },
       },
       {
         id: 'math-u02-l02-c2',
@@ -160,6 +164,7 @@ export const unit02Lessons = [
           { kind: 'example', text: '28,742 + 19,615 is about 29,000 + 20,000 = 49,000.' },
           { kind: 'tip', text: 'For multiplication or division, choose compatible numbers that are easy to compute mentally.' },
         ],
+        widget: { type: 'place-value-builder', config: { periods: 2, target: 49000 } },
       },
       {
         id: 'math-u02-l02-c3',
@@ -169,6 +174,7 @@ export const unit02Lessons = [
           { kind: 'example', text: '39,816 + 20,177 is 59,993, which is close to 40,000 + 20,000 = 60,000.' },
           { kind: 'tip', text: 'An estimate is a check, not a replacement for the exact answer when the situation asks for one.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'compare', left: [{ id: 'exact', label: 'Exact answer 59,993', value: 59993 }], right: [{ id: 'estimate', label: 'Estimate 60,000', value: 60000 }] } },
       },
     ],
     workedExample: {

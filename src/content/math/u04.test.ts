@@ -63,9 +63,15 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u04-l01-c1': { type: 'area-model-multiplier', config: { a: 30, b: 4, splitA: [30], splitB: [4], targetProduct: 120 } },
-  'math-u04-l02-c2': { type: 'area-model-multiplier', config: { a: 23, b: 14, splitA: [20, 3], splitB: [10, 4], targetProduct: 322 } },
-  'math-u04-l03-c1': { type: 'array-builder', config: { rows: 2, columns: 6, targetProduct: 12, editable: true } },
+  'math-u04-l01-c1': {"type": "area-model-multiplier", "config": {"a": 6, "b": 70, "splitA": [6], "splitB": [10, 10, 10, 10, 10, 10, 10], "targetProduct": 420}},
+  'math-u04-l01-c2': {"type": "array-builder", "config": {"rows": 1, "columns": 8, "targetProduct": 48, "editable": true}},
+  'math-u04-l01-c3': {"type": "array-builder", "config": {"rows": 2, "columns": 3, "targetProduct": 21, "editable": true}},
+  'math-u04-l02-c1': {"type": "area-model-multiplier", "config": {"a": 4, "b": 27, "splitA": [4], "splitB": [20, 7], "targetProduct": 108}},
+  'math-u04-l02-c2': {"type": "area-model-multiplier", "config": {"a": 23, "b": 14, "splitA": [20, 3], "splitB": [10, 4], "targetProduct": 322}},
+  'math-u04-l02-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "product", "label": "23 × 14", "value": 322}], "right": [{"id": "p1", "label": "20 × 10 = 200", "value": 200}, {"id": "p2", "label": "20 × 4 = 80", "value": 80}, {"id": "p3", "label": "3 × 10 = 30", "value": 30}, {"id": "p4", "label": "3 × 4 = 12", "value": 12}, {"id": "decoy", "label": "Extra 20", "value": 20}]}},
+  'math-u04-l03-c1': {"type": "array-builder", "config": {"rows": 1, "columns": 6, "targetProduct": 24, "editable": true}},
+  'math-u04-l03-c2': {"type": "array-builder", "config": {"rows": 1, "columns": 5, "targetProduct": 15, "editable": true}},
+  'math-u04-l03-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "total", "label": "36 shells", "value": 36}], "right": [{"id": "g1", "label": "Group of 9", "value": 9}, {"id": "g2", "label": "Group of 9", "value": 9}, {"id": "g3", "label": "Group of 9", "value": 9}, {"id": "g4", "label": "Group of 9", "value": 9}, {"id": "decoy", "label": "Extra 7", "value": 7}]}},
 } as const;
 
 test('u04 is the exact validated 3-lesson unit', () => {

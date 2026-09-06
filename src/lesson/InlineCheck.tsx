@@ -1,5 +1,6 @@
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { InlineCheck as InlineCheckData } from '../content/schema';
+import { orderedCheckChoices } from './check-order';
 
 type Feedback = { correct: boolean; choiceId: string };
 
@@ -12,6 +13,7 @@ export function InlineCheck({ check }: { check: InlineCheckData }) {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const headingId = useId();
   const statusId = useId();
+  const choices = useMemo(() => orderedCheckChoices(check), [check]);
 
   function choose(choiceId: string) {
     if (feedback?.correct) return;
@@ -32,7 +34,7 @@ export function InlineCheck({ check }: { check: InlineCheckData }) {
       </div>
       <p className="inline-check-prompt">{check.prompt}</p>
       <ul className="inline-check-choices" aria-describedby={statusId}>
-        {check.choices.map((choice) => {
+        {choices.map((choice) => {
           const state = feedback === null
             ? undefined
             : choice.id === check.correctChoiceId

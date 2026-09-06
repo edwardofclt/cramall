@@ -21,6 +21,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'A rectangle 8 meters by 5 meters has P = 2(8 + 5) = 26 meters.' },
           { kind: 'tip', text: 'Perimeter uses linear units such as inches, feet, or meters.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'perimeter', label: 'Perimeter 26 m', value: 26 }], right: [{ id: 'l1', label: 'length 8 m', value: 8 }, { id: 'l2', label: 'length 8 m', value: 8 }, { id: 'w1', label: 'width 5 m', value: 5 }, { id: 'w2', label: 'width 5 m', value: 5 }, { id: 'decoy', label: 'extra 3 m', value: 3 }] } },
       },
       {
         id: 'math-u10-l01-c2',
@@ -30,6 +31,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'If P = 30 and l = 9, then 30 - 18 = 12, so each width is 6.' },
           { kind: 'tip', text: 'Check by adding all four side lengths.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'perimeter', label: 'Perimeter 30 in', value: 30 }], right: [{ id: 'l1', label: 'length 9 in', value: 9 }, { id: 'l2', label: 'length 9 in', value: 9 }, { id: 'w6a', label: 'width 6 in', value: 6 }, { id: 'w6b', label: 'width 6 in', value: 6 }, { id: 'w4a', label: 'width 4 in', value: 4 }, { id: 'w4b', label: 'width 4 in', value: 4 }] } },
       },
       {
         id: 'math-u10-l01-c3',
@@ -39,6 +41,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'A fence around a 12-by-7-yard garden needs 2(12 + 7) = 38 yards.' },
           { kind: 'tip', text: 'A diagram helps label opposite sides and prevents omitting one edge.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'make-equal', left: [{ id: 'fence', label: 'Fence 38 yd', value: 38 }], right: [{ id: 'l1', label: 'length 12 yd', value: 12 }, { id: 'l2', label: 'length 12 yd', value: 12 }, { id: 'w1', label: 'width 7 yd', value: 7 }, { id: 'w2', label: 'width 7 yd', value: 7 }, { id: 'decoy', label: 'extra 5 yd', value: 5 }] } },
       },
     ],
     workedExample: {
@@ -88,6 +91,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'An 8-foot by 5-foot rectangle has A = 8 × 5 = 40 square feet.' },
           { kind: 'tip', text: 'Multiplying two lengths creates square units, not linear units.' },
         ],
+        widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [4, 4], splitB: [5], targetProduct: 40 } },
       },
       {
         id: 'math-u10-l02-c2',
@@ -97,7 +101,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'Eight rows of 5 squares contain 40 square units.' },
           { kind: 'tip', text: 'The unit square’s side length determines whether the label is square inches, square feet, or another square unit.' },
         ],
-        widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40 } },
+        widget: { type: 'array-builder', config: { rows: 1, columns: 5, targetProduct: 40, editable: true } },
       },
       {
         id: 'math-u10-l02-c3',
@@ -107,6 +111,7 @@ export const unit10Lessons = [
           { kind: 'example', text: 'A 12-meter by 7-meter garden covers 84 square meters.' },
           { kind: 'tip', text: 'Check whether the question asks for inside space; a boundary question asks for perimeter instead.' },
         ],
+        widget: { type: 'area-model-multiplier', config: { a: 14, b: 9, splitA: [10, 4], splitB: [9], targetProduct: 126 } },
       },
     ],
     workedExample: {

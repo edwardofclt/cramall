@@ -47,7 +47,12 @@ test('works with keyboard selection and has no UI when a card has no check', asy
   const user = userEvent.setup();
   const { rerender } = renderCard();
 
+  // Reach the correct choice by name, never by position: choices render in a per-check
+  // order (see check-order.ts), so "the first tab stop" is not reliably the right answer.
   await user.tab();
+  expect(screen.getAllByRole('button').some((button) => button === document.activeElement))
+    .toBe(true);
+  screen.getByRole('button', { name: '10' }).focus();
   await user.keyboard('{Enter}');
   expect(screen.getByRole('status')).toHaveTextContent(/nice thinking/i);
 

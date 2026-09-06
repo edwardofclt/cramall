@@ -63,8 +63,15 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u12-l01-c2': { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 } } },
-  'math-u12-l03-c2': { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, targetOutcomeId: 'red' } },
+  'math-u12-l01-c1': {"type": "data-plot-builder", "config": {"kind": "dot", "prompt": "Plot the five seedling heights in centimeters.", "categories": ["4", "5", "6", "8"], "target": {"4": 1, "5": 2, "6": 1, "8": 1}}},
+  'math-u12-l01-c2': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Build the class pet survey bar graph.", "categories": ["dog", "cat", "fish"], "target": {"dog": 8, "cat": 6, "fish": 4}}},
+  'math-u12-l01-c3': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Build the reading-minutes graph with an evenly spaced scale.", "categories": ["Monday", "Tuesday", "Wednesday"], "target": {"Monday": 20, "Tuesday": 15, "Wednesday": 10}}},
+  'math-u12-l02-c1': {"type": "data-plot-builder", "config": {"kind": "bar", "prompt": "Rebuild the vote graph from the scale: blue 16 votes, green 10 votes.", "categories": ["Blue", "Green"], "target": {"Blue": 16, "Green": 10}}},
+  'math-u12-l02-c2': {"type": "number-line-compare", "config": {"min": 0, "max": 20, "a": 16, "b": 10, "step": 2}},
+  'math-u12-l02-c3': {"type": "fraction-models", "config": {"mode": "both", "denominator": 4, "numerator": 1, "target": {"numerator": 3, "denominator": 4}, "allowEquivalent": false}},
+  'math-u12-l03-c1': {"type": "probability-spinner", "config": {"segments": [{"id": "red", "label": "Red"}, {"id": "blue", "label": "Blue"}, {"id": "green", "label": "Green"}], "trials": 6}},
+  'math-u12-l03-c2': {"type": "probability-spinner", "config": {"segments": [{"id": "red", "label": "Red", "weight": 2, "color": "#ef4444"}, {"id": "blue", "label": "Blue", "weight": 1, "color": "#3b82f6"}, {"id": "green", "label": "Green", "weight": 1, "color": "#22c55e"}], "trials": 8, "targetOutcomeId": "red"}},
+  'math-u12-l03-c3': {"type": "probability-spinner", "config": {"segments": [{"id": "red", "label": "Red", "weight": 3}, {"id": "blue", "label": "Blue"}], "trials": 8, "targetOutcomeId": "blue"}},
 } as const;
 
 test('u12 is the exact validated 3-lesson unit', () => {

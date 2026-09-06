@@ -169,6 +169,7 @@ export const unit01Lessons: Lesson[] = [
           { kind: 'tip', text: 'Imagine an alligator mouth: its wide, hungry side opens toward the greater number.' },
           { kind: 'example', text: '45,000 > 44,999 because 45,000 is greater.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 44900, max: 45100, a: 44999, b: 45000, step: 1 } },
       },
       {
         id: 'math-u01-l02-c3',
@@ -178,6 +179,7 @@ export const unit01Lessons: Lesson[] = [
           { kind: 'example', text: 'Ascending: 12,003, 12,030, 12,300.' },
           { kind: 'tip', text: 'Compare two numbers at a time, then place the third where it belongs.' },
         ],
+        widget: { type: 'place-value-builder', config: { periods: 2, target: 12300 } },
       },
     ],
     workedExample: {

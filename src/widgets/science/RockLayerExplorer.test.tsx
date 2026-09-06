@@ -31,7 +31,7 @@ test('selects before checking, permits correction, and completes only after chec
   await user.click(bottom);
   expect(bottom).toHaveAttribute('aria-pressed', 'true');
   expect(screen.getByTestId('rock-layer-bottom')).toHaveTextContent(/Selected/i);
-  expect(screen.getByRole('status')).toHaveTextContent(/relative-age rank 3.*oldest rank shown.*larger.*older/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/relative-age rank 3.*larger.*older/i);
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'select-layer' },
     { type: 'change', value: { selectedLayerId: 'bottom' } },
@@ -100,4 +100,30 @@ test('rejects blank, visually equivalent, and duplicate layer fields or a missin
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers: [{ id: 'top', label: 'Top', age: 1 }, { id: 'TOP', label: ' top ', age: 2 }] }).success).toBe(false);
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers: [{ id: 'top', label: 'Top', age: 1 }, { id: 'bottom', label: 'Bottom', age: 1 }] }).success).toBe(false);
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ ...valid, targetLayerId: 'missing' }).success).toBe(false);
+});
+
+test('selecting a layer does not announce which rank is oldest before Check', async () => {
+  const user = userEvent.setup();
+  render(
+    <RockLayerExplorer
+      config={{
+        layers: [
+          { id: 'top', label: 'Top layer', age: 1 },
+          { id: 'middle', label: 'Middle layer', age: 2 },
+          { id: 'base', label: 'Base layer', age: 3 },
+        ],
+        prompt: 'Which layer is relatively oldest?',
+        targetLayerId: 'base',
+      }}
+      onEvent={vi.fn()}
+    />,
+  );
+
+  // The oldest layer is the answer here, so naming it on selection hands it over.
+  await user.click(screen.getByRole('button', { name: /Base layer/ }));
+  expect(screen.getByRole('status')).toHaveTextContent(/relative-age rank 3/i);
+  expect(screen.getByRole('status')).not.toHaveTextContent(/oldest rank shown/i);
+
+  await user.click(screen.getByRole('button', { name: /^Check/ }));
+  expect(screen.getByRole('status')).toHaveTextContent(/correct layer/i);
 });

@@ -81,8 +81,18 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u06-l01-c2': { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true } },
-  'math-u06-l04-c1': { type: 'number-line-compare', config: { min: 0, max: 2, a: 0.5, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
+  'math-u06-l01-c1': {"type": "fraction-models", "config": {"mode": "both", "denominator": 4, "numerator": 0, "target": {"numerator": 1, "denominator": 2}, "allowEquivalent": true}},
+  'math-u06-l01-c2': {"type": "fraction-models", "config": {"mode": "both", "denominator": 4, "numerator": 0, "target": {"numerator": 1, "denominator": 2}, "allowEquivalent": true}},
+  'math-u06-l01-c3': {"type": "number-line-compare", "config": {"min": 0, "max": 2, "a": 0, "b": 1.5, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u06-l02-c1': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 8, "numerator": 2, "target": {"numerator": 5, "denominator": 8}, "allowEquivalent": false}},
+  'math-u06-l02-c2': {"type": "fraction-models", "config": {"mode": "circles", "denominator": 10, "numerator": 7, "target": {"numerator": 5, "denominator": 10}, "allowEquivalent": false}},
+  'math-u06-l02-c3': {"type": "number-line-compare", "config": {"min": 0, "max": 2, "a": 0, "b": 1.75, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u06-l03-c1': {"type": "number-line-compare", "config": {"min": 0, "max": 2.5, "a": 0, "b": 2.25, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u06-l03-c2': {"type": "array-builder", "config": {"rows": 5, "columns": 1, "targetProduct": 15, "editable": true}},
+  'math-u06-l03-c3': {"type": "balance-scale", "config": {"task": "make-equal", "left": [{"id": "wholes", "label": "2 wholes = 16 eighths", "value": 16}, {"id": "part", "label": "3 eighths", "value": 3}], "right": [{"id": "improper", "label": "19 eighths", "value": 19}, {"id": "decoy", "label": "Extra eighth", "value": 1}]}},
+  'math-u06-l04-c1': {"type": "number-line-compare", "config": {"min": 0, "max": 2, "a": 0.5, "b": 1.5, "step": 0.25, "display": "fraction", "denominator": 4}},
+  'math-u06-l04-c2': {"type": "fraction-models", "config": {"mode": "bars", "denominator": 12, "numerator": 0, "target": {"numerator": 3, "denominator": 4}, "allowEquivalent": true}},
+  'math-u06-l04-c3': {"type": "number-line-compare", "config": {"min": 1, "max": 2, "a": 1.375, "b": 1.5, "step": 0.125, "display": "fraction", "denominator": 8}},
 } as const;
 
 test('u06 is the exact validated 4-lesson unit', () => {

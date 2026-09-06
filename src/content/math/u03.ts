@@ -21,7 +21,7 @@ export const unit03Lessons = [
           { kind: 'example', text: 'For 24, the pairs are 1 × 24, 2 × 12, 3 × 8, and 4 × 6.' },
           { kind: 'tip', text: 'Test divisors in order and stop after the factors begin repeating.' },
         ],
-        widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true } },
+        widget: { type: 'array-builder', config: { rows: 3, columns: 5, targetProduct: 24, editable: true } },
       },
       {
         id: 'math-u03-l01-c2',
@@ -31,6 +31,7 @@ export const unit03Lessons = [
           { kind: 'example', text: '29 is prime because its only factor pair is 1 × 29; 30 is composite because 5 × 6 also works.' },
           { kind: 'tip', text: 'The number 1 is neither prime nor composite because it has only one factor.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 3, columns: 5, targetProduct: 17, editable: true } },
       },
       {
         id: 'math-u03-l01-c3',
@@ -40,6 +41,7 @@ export const unit03Lessons = [
           { kind: 'example', text: '49 is composite because 1 × 49 and 7 × 7 are factor pairs.' },
           { kind: 'tip', text: 'Finding one factor pair besides 1 and the number is enough to prove composite; proving prime requires checking every possible pair.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build a bar for how many factors each number has.', categories: ['12', '13', '16', '17'], target: { '12': 6, '13': 2, '16': 5, '17': 2 } as Record<string, number> } },
       },
     ],
     workedExample: {
@@ -89,6 +91,7 @@ export const unit03Lessons = [
           { kind: 'example', text: 'The pairs 2 → 8, 3 → 12, and 5 → 20 follow the rule multiply by 4.' },
           { kind: 'tip', text: 'Check a proposed rule against every given pair, not just one row.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Rule: multiply by 4. Set each bar to the output.', categories: ['Input 2', 'Input 3', 'Input 5'], target: { 'Input 2': 8, 'Input 3': 12, 'Input 5': 20 } as Record<string, number> } },
       },
       {
         id: 'math-u03-l02-c2',
@@ -98,6 +101,7 @@ export const unit03Lessons = [
           { kind: 'example', text: 'For the rule add 7, input 9 gives output 16, and output 20 came from input 13.' },
           { kind: 'tip', text: 'Write the operation beside the table and use its inverse to find a missing input.' },
         ],
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Rule: add 7. Set each bar to the output.', categories: ['Input 9', 'Input 13', 'Input 25'], target: { 'Input 9': 16, 'Input 13': 20, 'Input 25': 32 } as Record<string, number> } },
       },
       {
         id: 'math-u03-l02-c3',
@@ -107,6 +111,7 @@ export const unit03Lessons = [
           { kind: 'example', text: 'If each bag holds 6 acorns, bags 1, 2, 3, and 4 match 6, 12, 18, and 24 acorns.' },
           { kind: 'tip', text: 'Name what the input and output measure so the rule has meaning, not just numbers.' },
         ],
+        widget: { type: 'array-builder', config: { rows: 1, columns: 6, targetProduct: 24, editable: true } },
       },
     ],
     workedExample: {

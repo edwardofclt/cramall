@@ -77,7 +77,7 @@ const scienceU01L04Core = {
         },
         {
           "kind": "example",
-          "text": "Keep both coaster car masses and the track angle fixed. Change only car A from a slower to a faster release and predict the joined cars’ direction after the collision."
+          "text": "The two coaster cars roll toward each other at matching speeds, so the model starts with neither side winning. Keep both coaster car masses fixed and change only car A from a slower to a faster release, then predict the joined cars’ direction after the collision."
         },
         {
           "kind": "tip",
@@ -87,10 +87,11 @@ const scienceU01L04Core = {
       "widget": {
         "type": "collision-ramp",
         "config": {
-          "rampAngle": 5,
-          "massA": 2,
-          "massB": 8,
-          "speedA": 1,
+          "rampAngle": 0,
+          "massA": 4,
+          "massB": 4,
+          "speedA": 3,
+          "speedB": 3,
           "target": "predict-direction"
         }
       },
@@ -523,6 +524,17 @@ export const unit01Lessons = [
           { kind: 'example', text: 'Picture the same roller coaster car on a safe model track. After it leaves a high hill, compare how long it takes to travel from the first fixed near-bottom marker to the second with the same car released from a lower spot. If the first trip crosses that same short interval sooner, the car is moving faster there. In a classroom, a marble or small cart can stand in for a coaster car; people never need to ride the model.' },
           { kind: 'tip', text: 'Describe what you can observe instead of inventing an exact measurement. Say “the car traveled between the fixed markers sooner,” not “it was extremely fast.”' },
         ],
+        "widget": {
+          "type": "collision-ramp",
+          "config": {
+            "rampAngle": 0,
+            "massA": 4,
+            "massB": 4,
+            "speedA": 5,
+            "speedB": 2,
+            "target": "compare-motion"
+          }
+        },
         check: {
           prompt: 'Two trips use the same coaster car. Which observation shows that it is faster near the bottom?',
           choices: [
@@ -542,6 +554,46 @@ export const unit01Lessons = [
           { kind: 'example', text: 'A car held higher on the same roller coaster hill has more gravitational potential energy because of its higher position. When it is released, some of that stored energy changes into kinetic energy, the energy of motion. Compare that same car with itself on the same track, rather than comparing a marble on one lane with a foam ball on another.' },
           { kind: 'tip', text: 'Across unlike objects, speed alone does not tell the whole energy story. Choose the same object or another suitable fair comparison, and change only what your question asks about.' },
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This comparison changes only the release height",
+              "This comparison changes more than one condition"
+            ],
+            "details": [
+              {
+                "id": "same-car",
+                "text": "The same coaster car is used for both trips.",
+                "supports": [
+                  "This comparison changes only the release height"
+                ]
+              },
+              {
+                "id": "same-track",
+                "text": "The same track and the same two markers are used for both trips.",
+                "supports": [
+                  "This comparison changes only the release height"
+                ]
+              },
+              {
+                "id": "height",
+                "text": "Only the release height is changed between the two trips.",
+                "supports": [
+                  "This comparison changes only the release height"
+                ]
+              },
+              {
+                "id": "swap-car",
+                "text": "A heavier car is used for the second trip.",
+                "supports": [
+                  "This comparison changes more than one condition"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        },
         check: {
           prompt: 'Which tabletop roller coaster plan is a fair comparison of speed?',
           choices: [
@@ -797,6 +849,46 @@ export const unit01Lessons = [
           { kind: 'example', text: 'Nia writes: “The same coaster car released from the high mark traveled from the first near-bottom marker to the second in less time. It also pushed the paper flag farther than the car from the low mark.” Both details are relevant because they report what she could see happen during a fair comparison.' },
           { kind: 'tip', text: 'An object’s color, a student’s favorite ride, or “it looked exciting” is not evidence about a speed-energy relationship. Record the motion before explaining it.' },
         ],
+        "widget": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "The car had more energy of motion on the high-release trip",
+              "The high-release trip was more fun to watch"
+            ],
+            "evidence": [
+              {
+                "id": "marker-time",
+                "text": "The car crossed the two bottom markers in less time after the high release.",
+                "supports": [
+                  "The car had more energy of motion on the high-release trip"
+                ]
+              },
+              {
+                "id": "flag-distance",
+                "text": "The car pushed the paper flag farther after the high release.",
+                "supports": [
+                  "The car had more energy of motion on the high-release trip"
+                ]
+              },
+              {
+                "id": "favorite",
+                "text": "The high hill is the observer's favorite part of the track.",
+                "supports": [
+                  "The high-release trip was more fun to watch"
+                ]
+              },
+              {
+                "id": "bright-track",
+                "text": "The track is painted a bright color.",
+                "supports": [
+                  "The high-release trip was more fun to watch"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        },
         check: {
           prompt: 'Which notebook detail is evidence from Nia’s roller coaster model?',
           choices: [
@@ -816,6 +908,28 @@ export const unit01Lessons = [
           { kind: 'example', text: 'Nia reasons: “Because I used the same coaster car and track, the high and low releases are a fair comparison. The high-release car was faster and moved the flag farther, so it had more energy of motion at the bottom.” She does not need an exact number to make this evidence-based explanation.' },
           { kind: 'tip', text: 'Reasoning is the bridge between what was observed and what the evidence means. Name the evidence first, then connect it to the science idea.' },
         ],
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "car released from the high mark",
+              "car released from the low mark"
+            ],
+            "transfers": [
+              "faster motion at the bottom",
+              "slower motion at the bottom"
+            ],
+            "targets": [
+              "paper flag pushed farther",
+              "paper flag pushed a shorter way"
+            ],
+            "requiredPath": [
+              "car released from the high mark",
+              "faster motion at the bottom",
+              "paper flag pushed farther"
+            ]
+          }
+        },
         check: {
           prompt: 'Which sentence gives reasoning for a claim about the same coaster car?',
           choices: [
@@ -1071,6 +1185,17 @@ export const unit01Lessons = [
           { kind: 'example', text: 'On a miniature roller coaster, a marble rolls down a track and bumps a light foam block at the bottom. The marble slows, and the block slides forward. The real coaster ride is only the familiar idea; this small model is the safe way to observe a collision.' },
           { kind: 'tip', text: 'Describe what changed before and after the collision without assigning exact values. Do not say energy was “used up.” First name an observable effect, such as the block moving, the marble slowing, or a sound; then infer that energy transferred.' },
         ],
+        "widget": {
+          "type": "collision-ramp",
+          "config": {
+            "rampAngle": 0,
+            "massA": 6,
+            "massB": 3,
+            "speedA": 4,
+            "speedB": 0,
+            "target": "compare-motion"
+          }
+        },
         check: {
           prompt: 'Which note best describes a motion change in the model roller coaster collision?',
           choices: [
@@ -1090,6 +1215,46 @@ export const unit01Lessons = [
           { kind: 'example', text: 'Ask, “How does changing the release height of the same miniature roller coaster marble affect how far the same foam block moves after their collision?” This question tells you what changes and what observable result to record.' },
           { kind: 'tip', text: 'Questions about changes in speed and energy can be investigated. Questions about which collision looks coolest are opinions, so they cannot guide a fair test.' },
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "This question is testable",
+              "This question is not testable"
+            ],
+            "details": [
+              {
+                "id": "change-height",
+                "text": "It names the marble release height as the one thing to change.",
+                "supports": [
+                  "This question is testable"
+                ]
+              },
+              {
+                "id": "observe-block",
+                "text": "It names how far the foam block moves as the thing to observe.",
+                "supports": [
+                  "This question is testable"
+                ]
+              },
+              {
+                "id": "hold-same",
+                "text": "It keeps the same marble, ramp, and block for every trial.",
+                "supports": [
+                  "This question is testable"
+                ]
+              },
+              {
+                "id": "coolest",
+                "text": "It asks which track looks coolest.",
+                "supports": [
+                  "This question is not testable"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        },
         check: {
           prompt: 'Which is a testable question for the model roller coaster collision?',
           choices: [

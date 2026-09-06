@@ -15,22 +15,26 @@ const specs = [
       {
         "title": "Identify a source and receiver",
         "tag": "transfer-source-receiver",
-        "widget": null
-      },
-      {
-        "title": "Observe a change",
-        "tag": "observable-transfer-change",
         "widget": {
           "type": "energy-transfer-builder",
           "config": {
             "sources": [
-              "Sun"
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
             ],
             "transfers": [
-              "light"
+              "light",
+              "sound",
+              "electric current",
+              "heat"
             ],
             "targets": [
-              "paper square"
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
             ],
             "requiredPath": [
               "Sun",
@@ -41,9 +45,73 @@ const specs = [
         }
       },
       {
+        "title": "Observe a change",
+        "tag": "observable-transfer-change",
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "flashlight",
+              "tuning fork",
+              "battery",
+              "warm water"
+            ],
+            "transfers": [
+              "light",
+              "sound",
+              "electric current",
+              "heat"
+            ],
+            "targets": [
+              "lit card",
+              "paper bits",
+              "motor",
+              "metal spoon"
+            ],
+            "requiredPath": [
+              "flashlight",
+              "light",
+              "lit card"
+            ]
+          }
+        }
+      },
+      {
         "title": "Use the change as evidence",
         "tag": "transfer-evidence",
-        "widget": null
+        "widget": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Energy moved by light from the Sun to the paper square",
+              "The paper square was always warmer than the shaded square"
+            ],
+            "evidence": [
+              {
+                "id": "warmer",
+                "text": "The sunlit square felt warmer than the matching shaded square.",
+                "supports": [
+                  "Energy moved by light from the Sun to the paper square"
+                ]
+              },
+              {
+                "id": "shaded-same",
+                "text": "The shaded comparison square did not change.",
+                "supports": [
+                  "Energy moved by light from the Sun to the paper square"
+                ]
+              },
+              {
+                "id": "always",
+                "text": "The squares were not compared before the Sun reached them.",
+                "supports": [
+                  "The paper square was always warmer than the shaded square"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        }
       }
     ],
     "routes": [
@@ -115,13 +183,22 @@ const specs = [
           "type": "energy-transfer-builder",
           "config": {
             "sources": [
-              "tuning fork"
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
             ],
             "transfers": [
-              "sound"
+              "light",
+              "sound",
+              "electric current",
+              "heat"
             ],
             "targets": [
-              "paper bits"
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
             ],
             "requiredPath": [
               "tuning fork",
@@ -134,12 +211,78 @@ const specs = [
       {
         "title": "Track light from a source",
         "tag": "light-transfer-path",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
+            ],
+            "transfers": [
+              "light",
+              "sound",
+              "electric current",
+              "heat"
+            ],
+            "targets": [
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
+            ],
+            "requiredPath": [
+              "Sun",
+              "light",
+              "paper square"
+            ]
+          }
+        }
       },
       {
         "title": "Compare observable effects",
         "tag": "sound-light-evidence",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Sound and light are different routes with different observable effects",
+              "Sound and light always cause the same effect"
+            ],
+            "details": [
+              {
+                "id": "trembling",
+                "text": "The sound route ends with paper bits trembling near the tuning fork.",
+                "supports": [
+                  "Sound and light are different routes with different observable effects"
+                ]
+              },
+              {
+                "id": "brighter",
+                "text": "The light route ends with a brighter card facing the flashlight.",
+                "supports": [
+                  "Sound and light are different routes with different observable effects"
+                ]
+              },
+              {
+                "id": "unlike",
+                "text": "A trembling effect and a brightness effect do not look alike.",
+                "supports": [
+                  "Sound and light are different routes with different observable effects"
+                ]
+              },
+              {
+                "id": "same-claim",
+                "text": "Both routes make paper bits tremble.",
+                "supports": [
+                  "Sound and light always cause the same effect"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -207,7 +350,34 @@ const specs = [
       {
         "title": "Notice transfer by heat",
         "tag": "heat-transfer-evidence",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
+            ],
+            "transfers": [
+              "light",
+              "sound",
+              "electric current",
+              "heat"
+            ],
+            "targets": [
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
+            ],
+            "requiredPath": [
+              "warm water",
+              "heat",
+              "metal spoon"
+            ]
+          }
+        }
       },
       {
         "title": "Follow an electric-current path",
@@ -216,13 +386,22 @@ const specs = [
           "type": "energy-transfer-builder",
           "config": {
             "sources": [
-              "battery"
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
             ],
             "transfers": [
-              "electric current"
+              "light",
+              "sound",
+              "electric current",
+              "heat"
             ],
             "targets": [
-              "motor"
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
             ],
             "requiredPath": [
               "battery",
@@ -235,7 +414,46 @@ const specs = [
       {
         "title": "Separate transfer from effect",
         "tag": "transfer-effect-reasoning",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Route and effect are separate parts of the description",
+              "\"The energy moved\" is enough on its own"
+            ],
+            "details": [
+              {
+                "id": "heat-route",
+                "text": "Heat is the route in the warm-water and spoon case.",
+                "supports": [
+                  "Route and effect are separate parts of the description"
+                ]
+              },
+              {
+                "id": "warmer-effect",
+                "text": "A warmer spoon is the observed effect in that case.",
+                "supports": [
+                  "Route and effect are separate parts of the description"
+                ]
+              },
+              {
+                "id": "current-route",
+                "text": "Electric current is the route in the battery and motor case.",
+                "supports": [
+                  "Route and effect are separate parts of the description"
+                ]
+              },
+              {
+                "id": "vague",
+                "text": "Saying only \"the energy moved\" names no observable change.",
+                "supports": [
+                  "\"The energy moved\" is enough on its own"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [
@@ -303,17 +521,122 @@ const specs = [
       {
         "title": "Organize four transfer cases",
         "tag": "transfer-case-features",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Sun",
+              "tuning fork",
+              "battery",
+              "warm water"
+            ],
+            "transfers": [
+              "light",
+              "sound",
+              "electric current",
+              "heat"
+            ],
+            "targets": [
+              "paper square",
+              "paper bits",
+              "motor",
+              "metal spoon"
+            ],
+            "requiredPath": [
+              "battery",
+              "electric current",
+              "motor"
+            ]
+          }
+        }
       },
       {
         "title": "Choose relevant observations",
         "tag": "relevant-transfer-observations",
-        "widget": null
+        "widget": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "These observations describe a receiver change",
+              "These observations are not about a receiver change"
+            ],
+            "evidence": [
+              {
+                "id": "trembling",
+                "text": "Paper bits trembled near the struck tuning fork.",
+                "supports": [
+                  "These observations describe a receiver change"
+                ]
+              },
+              {
+                "id": "brighter",
+                "text": "The card facing the flashlight looked brighter.",
+                "supports": [
+                  "These observations describe a receiver change"
+                ]
+              },
+              {
+                "id": "warmer",
+                "text": "The spoon in warm water became warmer.",
+                "supports": [
+                  "These observations describe a receiver change"
+                ]
+              },
+              {
+                "id": "pencil",
+                "text": "The pencil on the table is blue.",
+                "supports": [
+                  "These observations are not about a receiver change"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 3
+          }
+        }
       },
       {
         "title": "Build a comparison claim",
         "tag": "transfer-comparison-claim",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Different routes are supported by different receiver effects",
+              "All four routes cause the same effect"
+            ],
+            "details": [
+              {
+                "id": "sound-case",
+                "text": "The sound route ended with trembling paper bits.",
+                "supports": [
+                  "Different routes are supported by different receiver effects"
+                ]
+              },
+              {
+                "id": "light-case",
+                "text": "The light route ended with a brighter card.",
+                "supports": [
+                  "Different routes are supported by different receiver effects"
+                ]
+              },
+              {
+                "id": "heat-case",
+                "text": "The heat route ended with a warmer spoon.",
+                "supports": [
+                  "Different routes are supported by different receiver effects"
+                ]
+              },
+              {
+                "id": "identical",
+                "text": "Every route ended with the same observed effect.",
+                "supports": [
+                  "All four routes cause the same effect"
+                ]
+              }
+            ],
+            "requiredDetailCount": 3
+          }
+        }
       }
     ],
     "routes": [

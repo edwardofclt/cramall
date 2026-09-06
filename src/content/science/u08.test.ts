@@ -15,7 +15,29 @@ const specs = [
       {
         "title": "Name resource origins",
         "tag": "resource-origin",
-        "widget": null
+        "widget": {
+          "type": "energy-transfer-builder",
+          "config": {
+            "sources": [
+              "Sunlight",
+              "Coal"
+            ],
+            "transfers": [
+              "Solar panel",
+              "Power line"
+            ],
+            "targets": [
+              "Home electricity",
+              "Gasoline"
+            ],
+            "requiredPath": [
+              "Sunlight",
+              "Solar panel",
+              "Power line",
+              "Home electricity"
+            ]
+          }
+        }
       },
       {
         "title": "Classify renewable and nonrenewable resources",
@@ -33,6 +55,31 @@ const specs = [
                 "id": "coal",
                 "label": "Coal",
                 "kind": "nonrenewable"
+              },
+              {
+                "id": "wind",
+                "label": "Wind",
+                "kind": "renewable"
+              },
+              {
+                "id": "dam-water",
+                "label": "Water behind a dam",
+                "kind": "renewable"
+              },
+              {
+                "id": "oil",
+                "label": "Oil",
+                "kind": "nonrenewable"
+              },
+              {
+                "id": "gas",
+                "label": "Natural gas",
+                "kind": "nonrenewable"
+              },
+              {
+                "id": "uranium",
+                "label": "Uranium",
+                "kind": "nonrenewable"
               }
             ],
             "bins": [
@@ -45,7 +92,53 @@ const specs = [
       {
         "title": "Combine information from sources",
         "tag": "resource-information",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Some resources are renewed by ongoing natural processes while others come from limited Earth materials",
+              "Every energy source on the list can be renewed"
+            ],
+            "details": [
+              {
+                "id": "a-wind",
+                "text": "Source A: wind can be renewed by ongoing natural processes.",
+                "supports": [
+                  "Some resources are renewed by ongoing natural processes while others come from limited Earth materials"
+                ]
+              },
+              {
+                "id": "a-sun",
+                "text": "Source A: sunlight can be renewed by ongoing natural processes.",
+                "supports": [
+                  "Some resources are renewed by ongoing natural processes while others come from limited Earth materials"
+                ]
+              },
+              {
+                "id": "b-fossil",
+                "text": "Source B: fossil fuels come from limited Earth materials.",
+                "supports": [
+                  "Some resources are renewed by ongoing natural processes while others come from limited Earth materials"
+                ]
+              },
+              {
+                "id": "b-nuclear",
+                "text": "Source B: nuclear fuels come from limited Earth materials.",
+                "supports": [
+                  "Some resources are renewed by ongoing natural processes while others come from limited Earth materials"
+                ]
+              },
+              {
+                "id": "all",
+                "text": "Coal is replaced as fast as it is used.",
+                "supports": [
+                  "Every energy source on the list can be renewed"
+                ]
+              }
+            ],
+            "requiredDetailCount": 4
+          }
+        }
       }
     ],
     "routes": [
@@ -144,12 +237,88 @@ const specs = [
       {
         "title": "Describe an environmental effect",
         "tag": "resource-environment-effect",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Using dammed water changes river flow and habitat",
+              "Burning fossil fuels releases air pollution"
+            ],
+            "details": [
+              {
+                "id": "flow",
+                "text": "A dam changes how much water moves down the river.",
+                "supports": [
+                  "Using dammed water changes river flow and habitat"
+                ]
+              },
+              {
+                "id": "habitat",
+                "text": "A dam changes habitat along the river.",
+                "supports": [
+                  "Using dammed water changes river flow and habitat"
+                ]
+              },
+              {
+                "id": "air",
+                "text": "Burning coal or oil puts pollution into the air.",
+                "supports": [
+                  "Burning fossil fuels releases air pollution"
+                ]
+              },
+              {
+                "id": "smoke",
+                "text": "Burning fuel for transportation adds exhaust to the air.",
+                "supports": [
+                  "Burning fossil fuels releases air pollution"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
       },
       {
         "title": "Compare choices using evidence",
         "tag": "resource-choice-comparison",
-        "widget": null
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "goal",
+                "text": "Both options aim to produce electricity for the community.",
+                "role": "main"
+              },
+              {
+                "id": "wind-benefit",
+                "text": "A wind turbine produces electricity without burning fuel at the turbine.",
+                "role": "main"
+              },
+              {
+                "id": "wind-effect",
+                "text": "A wind turbine can affect flying wildlife.",
+                "role": "main"
+              },
+              {
+                "id": "no-zero",
+                "text": "No option in this packet has zero environmental impact.",
+                "role": "detail"
+              },
+              {
+                "id": "tall",
+                "text": "Wind turbines are tall.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "goal",
+              "wind-benefit",
+              "wind-effect"
+            ],
+            "maxSentences": 4
+          }
+        }
       }
     ],
     "routes": [
@@ -218,12 +387,82 @@ const specs = [
       {
         "title": "Connect a process to a hazard",
         "tag": "hazard-cause-effect",
-        "widget": null
+        "widget": {
+          "type": "animal-structure-matcher",
+          "config": {
+            "pairs": [
+              {
+                "id": "shaking",
+                "animal": "Earth process",
+                "structure": "ground shaking",
+                "function": "creates earthquake hazards"
+              },
+              {
+                "id": "overflow",
+                "animal": "Earth process",
+                "structure": "overflowing water",
+                "function": "creates flood hazards"
+              },
+              {
+                "id": "tropical",
+                "animal": "Earth process",
+                "structure": "powerful tropical storm",
+                "function": "creates hurricane hazards"
+              },
+              {
+                "id": "rotating",
+                "animal": "Earth process",
+                "structure": "rotating storm column",
+                "function": "creates tornado hazards"
+              }
+            ]
+          }
+        }
       },
       {
         "title": "Identify impacts on people",
         "tag": "hazard-human-impact",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Hurricane impacts",
+              "Flood impacts",
+              "Earthquake impacts"
+            ],
+            "details": [
+              {
+                "id": "roof",
+                "text": "Wind damages windows or roofs.",
+                "supports": [
+                  "Hurricane impacts"
+                ]
+              },
+              {
+                "id": "shelter",
+                "text": "People need warning time to reach shelter.",
+                "supports": [
+                  "Hurricane impacts"
+                ]
+              },
+              {
+                "id": "homes",
+                "text": "Water enters homes.",
+                "supports": [
+                  "Flood impacts"
+                ]
+              },
+              {
+                "id": "buildings",
+                "text": "Buildings and roads are damaged by shaking.",
+                "supports": [
+                  "Earthquake impacts"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
       },
       {
         "title": "Match a solution to an impact",
@@ -323,7 +562,54 @@ const specs = [
       {
         "title": "Define criteria for a solution",
         "tag": "hazard-solution-criteria",
-        "widget": null
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Effectiveness",
+              "Feasibility",
+              "Coverage"
+            ],
+            "details": [
+              {
+                "id": "reduce-water",
+                "text": "Does it reduce water near roads and homes?",
+                "supports": [
+                  "Effectiveness"
+                ]
+              },
+              {
+                "id": "warn-time",
+                "text": "Does it give people warning time?",
+                "supports": [
+                  "Effectiveness"
+                ]
+              },
+              {
+                "id": "fits-land",
+                "text": "Does it fit the land the community has?",
+                "supports": [
+                  "Feasibility"
+                ]
+              },
+              {
+                "id": "maintain",
+                "text": "Can the community keep maintaining it?",
+                "supports": [
+                  "Feasibility"
+                ]
+              },
+              {
+                "id": "who",
+                "text": "Which homes and roads does it help?",
+                "supports": [
+                  "Coverage"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
       },
       {
         "title": "Compare strengths and limits",
@@ -359,7 +645,44 @@ const specs = [
       {
         "title": "Justify a combined plan",
         "tag": "hazard-solution-justification",
-        "widget": null
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "plan",
+                "text": "The combined plan uses a floodwater channel and a flood warning together.",
+                "role": "main"
+              },
+              {
+                "id": "channel",
+                "text": "The channel redirects some water away from built areas.",
+                "role": "main"
+              },
+              {
+                "id": "warning",
+                "text": "The warning reaches many people quickly so they can act.",
+                "role": "main"
+              },
+              {
+                "id": "limits",
+                "text": "The channel needs land and maintenance, and the warning does not stop the water.",
+                "role": "detail"
+              },
+              {
+                "id": "cheap",
+                "text": "Warnings are the cheapest thing to try.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "plan",
+              "channel",
+              "warning"
+            ],
+            "maxSentences": 4
+          }
+        }
       }
     ],
     "routes": [

@@ -21,6 +21,7 @@ export const unit08Lessons = [
           { kind: 'example', text: 'Seven tenths is 7/10, 0.7, and “seven tenths.”' },
           { kind: 'tip', text: 'Write a zero before the decimal point for amounts less than 1.' },
         ],
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 10, numerator: 0, target: { numerator: 7, denominator: 10 }, allowEquivalent: false } },
       },
       {
         id: 'math-u08-l01-c2',
@@ -30,6 +31,7 @@ export const unit08Lessons = [
           { kind: 'example', text: 'Thirty-five hundredths is 35/100 or 0.35.' },
           { kind: 'tip', text: 'In 0.35, the 3 is 3 tenths and the 5 is 5 hundredths.' },
         ],
+        widget: { type: 'money-counter', config: { targetCents: 35, denominations: [1, 10] } },
       },
       {
         id: 'math-u08-l01-c3',
@@ -99,6 +101,7 @@ export const unit08Lessons = [
           { kind: 'example', text: 'Six rods and 4 small squares show 0.64, while an area grid or number line can show the same amount.' },
           { kind: 'tip', text: 'Define the same-sized whole and the same scale before comparing concrete, area, or linear models.' },
         ],
+        widget: { type: 'money-counter', config: { targetCents: 64, denominations: [1, 10, 100] } },
       },
       {
         id: 'math-u08-l02-c3',
@@ -108,6 +111,7 @@ export const unit08Lessons = [
           { kind: 'example', text: '0.70 = 0.7, read as “zero point seven zero is equal to zero point seven,” because the extra zero does not change the value.' },
           { kind: 'tip', text: 'State the first place where the digits differ or cite a benchmark/model.' },
         ],
+        widget: { type: 'balance-scale', config: { task: 'compare', left: [{ id: 'written-zero', label: '0.70', value: 0.7 }], right: [{ id: 'no-zero', label: '0.7', value: 0.7 }] } },
       },
     ],
     workedExample: {
@@ -157,6 +161,7 @@ export const unit08Lessons = [
           { kind: 'example', text: '0.4 = 4/10 = 40/100, and 0.07 = 7/100.' },
           { kind: 'tip', text: 'Align decimal points because they separate whole units from fractional place values.' },
         ],
+        widget: { type: 'money-counter', config: { targetCents: 40, denominations: [1, 10] } },
       },
       {
         id: 'math-u08-l03-c2',
@@ -166,6 +171,7 @@ export const unit08Lessons = [
           { kind: 'example', text: '0.35 + 0.27 = 35/100 + 27/100 = 62/100 = 0.62.' },
           { kind: 'tip', text: 'Estimate with 0, 0.5, and 1 to check the result’s size.' },
         ],
+        widget: { type: 'money-counter', config: { targetCents: 62, denominations: [1, 10] } },
       },
       {
         id: 'math-u08-l03-c3',
@@ -175,6 +181,7 @@ export const unit08Lessons = [
           { kind: 'example', text: 'A bar model shows 1 3/10 + 7/10 = 2 because the 10 tenths combine to make another whole.' },
           { kind: 'tip', text: 'A result greater than 1 may be written as a decimal, mixed number, or fraction greater than 1.' },
         ],
+        widget: { type: 'number-line-compare', config: { min: 0, max: 2, a: 1.3, b: 2, step: 0.1, display: 'number' } },
       },
     ],
     workedExample: {

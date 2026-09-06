@@ -160,12 +160,14 @@ describe('Reading unit 1 fluency lessons', () => {
     }
   });
 
-  test('keeps the authored lesson shape schema-valid and widget-free', () => {
+  test('keeps the authored lesson shape schema-valid and manipulative-bearing', () => {
     for (const lesson of unit01Lessons) {
       expect(validateLesson(lesson)).toEqual([]);
       expect(lesson.learnCards).toHaveLength(3);
       expect(lesson.learnCards.every((card) => card.blocks.length >= 1)).toBe(true);
-      expect(lesson.learnCards.every((card) => !('widget' in card))).toBe(true);
+      // Fluency was the only unit with no manipulative at all. Each lesson now carries two,
+      // both silent and text-only: this is a solo app that never listens to or scores a voice.
+      expect(lesson.learnCards.filter((card) => 'widget' in card).length).toBe(2);
       expect(lesson.quiz.passThreshold).toBe(8);
       expect(lesson.quiz.pool).toHaveLength(13);
       expect(lesson.quiz.pool.map(({ id }) => id)).toEqual(

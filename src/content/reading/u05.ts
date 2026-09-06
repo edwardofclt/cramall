@@ -49,6 +49,37 @@ export const unit05Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "idea",
+                "text": "Salt marshes support wildlife and shorelines.",
+                "role": "main"
+              },
+              {
+                "id": "tides",
+                "text": "Twice each day, tides carry water through winding creeks among salt-tolerant grasses.",
+                "role": "detail"
+              },
+              {
+                "id": "fish",
+                "text": "Young fish and shrimp hide between the stems.",
+                "role": "detail"
+              },
+              {
+                "id": "birds",
+                "text": "Wading birds feed in the shallow water.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "idea"
+            ],
+            "maxSentences": 1
+          }
+        },
         "check": {
           "prompt": "Which is a central idea?",
           "choices": [
@@ -164,6 +195,46 @@ export const unit05Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Salt marshes give wildlife shelter and food",
+              "Salt marsh plants soften wave action at the shoreline"
+            ],
+            "details": [
+              {
+                "id": "nursery",
+                "text": "Young fish and shrimp hide between the grass stems.",
+                "supports": [
+                  "Salt marshes give wildlife shelter and food"
+                ]
+              },
+              {
+                "id": "birds",
+                "text": "Wading birds feed in the shallow marsh water.",
+                "supports": [
+                  "Salt marshes give wildlife shelter and food"
+                ]
+              },
+              {
+                "id": "stems",
+                "text": "Dense stems bend as waves pass through them.",
+                "supports": [
+                  "Salt marsh plants soften wave action at the shoreline"
+                ]
+              },
+              {
+                "id": "roots",
+                "text": "Marsh roots hold the muddy soil in place.",
+                "supports": [
+                  "Salt marsh plants soften wave action at the shoreline"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         "check": {
           "prompt": "How does the fish detail develop the idea?",
           "choices": [

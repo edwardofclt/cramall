@@ -49,6 +49,33 @@ export const unit07Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "text-structure-sorter",
+          "config": {
+            "excerpts": [
+              {
+                "id": "caption",
+                "text": "Repair marks show where adults will replace damaged boards; arrows guide visitors around the closed section.",
+                "structure": "description"
+              },
+              {
+                "id": "order",
+                "text": "First, inspect every board from the marked path. Next, replace the damaged boards. Finally, reopen the safe section.",
+                "structure": "sequence"
+              },
+              {
+                "id": "materials",
+                "text": "Recycled wood boards cost less, while composite boards last longer and resist water.",
+                "structure": "compare-contrast"
+              },
+              {
+                "id": "loose",
+                "text": "Loose boards can catch a shoe, so the crew replaces them before reopening the walkway.",
+                "structure": "problem-solution"
+              }
+            ]
+          }
+        },
         "check": {
           "prompt": "What does the caption contribute?",
           "choices": [
@@ -153,6 +180,46 @@ export const unit07Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Ordered steps keep the repair safe and complete",
+              "Comparing two materials supports a decision"
+            ],
+            "details": [
+              {
+                "id": "first",
+                "text": "First, inspect every board from the marked path.",
+                "supports": [
+                  "Ordered steps keep the repair safe and complete"
+                ]
+              },
+              {
+                "id": "finally",
+                "text": "Finally, reopen the safe section.",
+                "supports": [
+                  "Ordered steps keep the repair safe and complete"
+                ]
+              },
+              {
+                "id": "cost",
+                "text": "Recycled wood boards cost less, while composite boards last longer and resist water.",
+                "supports": [
+                  "Comparing two materials supports a decision"
+                ]
+              },
+              {
+                "id": "both",
+                "text": "Both kinds of board need secure fasteners.",
+                "supports": [
+                  "Comparing two materials supports a decision"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         "check": {
           "prompt": "How does compare-contrast help?",
           "choices": [
@@ -574,6 +641,23 @@ export const unit07Lessons = [
             "text": "Support: Read one source section at a time. Underline the words named in the question before choosing."
           }
         ],
+        "widget": {
+          "type": "data-plot-builder",
+          "config": {
+            "kind": "bar",
+            "prompt": "The table description gives the 4 p.m. totals: West 1.5 inches, Central 1.3 inches, East 0.9 inch. Build one bar per station, measured in tenths of an inch.",
+            "categories": [
+              "West Station",
+              "Central Station",
+              "East Station"
+            ],
+            "target": {
+              "West Station": 15,
+              "Central Station": 13,
+              "East Station": 9
+            } as Record<string, number>
+          }
+        },
         "check": {
           "prompt": "Which station has 1.5 inches at 4 p.m.?",
           "choices": [
@@ -656,6 +740,46 @@ export const unit07Lessons = [
             "text": "Stretch: Compare a second detail and explain whether it strengthens, limits, or changes your first answer."
           }
         ],
+        "widget": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "The audio transcript adds described sound and timing",
+              "The rainfall table adds exact measured amounts"
+            ],
+            "details": [
+              {
+                "id": "roof",
+                "text": "\"By noon, drops struck the shelter roof in a steady, loud pattern.\"",
+                "supports": [
+                  "The audio transcript adds described sound and timing"
+                ]
+              },
+              {
+                "id": "sunrise",
+                "text": "\"Rain began lightly in the west before sunrise.\"",
+                "supports": [
+                  "The audio transcript adds described sound and timing"
+                ]
+              },
+              {
+                "id": "west-noon",
+                "text": "West Station measured 1.2 inches at noon.",
+                "supports": [
+                  "The rainfall table adds exact measured amounts"
+                ]
+              },
+              {
+                "id": "east-noon",
+                "text": "East Station measured 0.3 inch at noon.",
+                "supports": [
+                  "The rainfall table adds exact measured amounts"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        },
         "check": {
           "prompt": "What does the transcript add?",
           "choices": [

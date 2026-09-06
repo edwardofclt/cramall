@@ -381,6 +381,83 @@ const expectedWidgets = [
     "id": "reading-u06-l01",
     "widgets": [
       {
+        "cardId": "reading-u06-l01-c1",
+        "ref": {
+          "type": "summary-builder",
+          "config": {
+            "sourceSentences": [
+              {
+                "id": "borrow",
+                "text": "Amina borrowed her aunt's binoculars for a marsh walk.",
+                "role": "main"
+              },
+              {
+                "id": "search",
+                "text": "She checked the overlook rail, the map bench, and the sandy path.",
+                "role": "main"
+              },
+              {
+                "id": "return",
+                "text": "Amina told her aunt what had happened and returned the binoculars.",
+                "role": "main"
+              },
+              {
+                "id": "strap",
+                "text": "The binocular strap is green.",
+                "role": "extra"
+              },
+              {
+                "id": "lunch",
+                "text": "Her friends were ready for lunch.",
+                "role": "extra"
+              }
+            ],
+            "requiredMainIds": [
+              "borrow",
+              "search",
+              "return"
+            ],
+            "maxSentences": 3
+          }
+        }
+      },
+      {
+        "cardId": "reading-u06-l01-c2",
+        "ref": {
+          "type": "theme-evidence-collector",
+          "config": {
+            "themeChoices": [
+              "Responsibility includes honest care for borrowed things",
+              "Bird watching needs the right equipment"
+            ],
+            "evidence": [
+              {
+                "id": "retrace",
+                "text": "Amina told her friends she needed to retrace the route instead of going to lunch.",
+                "supports": [
+                  "Responsibility includes honest care for borrowed things"
+                ]
+              },
+              {
+                "id": "truth",
+                "text": "Amina told her aunt exactly what had happened and returned the binoculars.",
+                "supports": [
+                  "Responsibility includes honest care for borrowed things"
+                ]
+              },
+              {
+                "id": "egret",
+                "text": "At the first overlook, Amina watched an egret step through shallow water.",
+                "supports": [
+                  "Bird watching needs the right equipment"
+                ]
+              }
+            ],
+            "requiredEvidenceCount": 2
+          }
+        }
+      },
+      {
         "cardId": "reading-u06-l01-c3",
         "ref": {
           "type": "summary-builder",
@@ -420,6 +497,72 @@ const expectedWidgets = [
   {
     "id": "reading-u06-l02",
     "widgets": [
+      {
+        "cardId": "reading-u06-l02-c1",
+        "ref": {
+          "type": "central-idea-organizer",
+          "config": {
+            "mainIdeaChoices": [
+              "Purple martin houses need suitable placement and regular care",
+              "Purple martin houses should be painted white"
+            ],
+            "details": [
+              {
+                "id": "space",
+                "text": "Open space around the house gives martins a clear flight path.",
+                "supports": [
+                  "Purple martin houses need suitable placement and regular care"
+                ]
+              },
+              {
+                "id": "clean",
+                "text": "Seasonal cleaning removes old nesting material and prepares the rooms.",
+                "supports": [
+                  "Purple martin houses need suitable placement and regular care"
+                ]
+              },
+              {
+                "id": "paint",
+                "text": "One pictured house is painted white.",
+                "supports": [
+                  "Purple martin houses should be painted white"
+                ]
+              }
+            ],
+            "requiredDetailCount": 2
+          }
+        }
+      },
+      {
+        "cardId": "reading-u06-l02-c2",
+        "ref": {
+          "type": "text-structure-sorter",
+          "config": {
+            "excerpts": [
+              {
+                "id": "steps",
+                "text": "First, choose an open site. Next, raise the house. Then, check the rooms each season.",
+                "structure": "sequence"
+              },
+              {
+                "id": "why",
+                "text": "Because old nesting material blocks the rooms, martins may not return the next spring.",
+                "structure": "cause-effect"
+              },
+              {
+                "id": "compare",
+                "text": "Wooden houses cost less, while metal houses last longer in wet weather.",
+                "structure": "compare-contrast"
+              },
+              {
+                "id": "describe",
+                "text": "These tall birdhouses contain several nesting rooms set above open ground.",
+                "structure": "description"
+              }
+            ]
+          }
+        }
+      },
       {
         "cardId": "reading-u06-l02-c3",
         "ref": {

@@ -66,7 +66,9 @@ test('u02 is the exact validated two-lesson unit', () => {
     expect(lesson.quiz.pool.map((question) => question.id)).toEqual(
       Array.from({ length: 13 }, (_, index) => `${lesson.id}-q${String(index + 1).padStart(2, '0')}`),
     );
-    expect(lesson.learnCards.every((card) => card.widget === undefined)).toBe(true);
+    // Every card now carries a manipulative; see manipulative-coverage.test.ts for the bar
+    // and widget-reachability.test.ts for the guarantee that each one is operable.
+    expect(lesson.learnCards.every((card) => card.widget !== undefined)).toBe(true);
 
     const cardSpecs = expectedCards[lesson.id as keyof typeof expectedCards];
     expect(lesson.learnCards.map((card, index) => [
