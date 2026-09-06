@@ -35,6 +35,119 @@
   --shadow: 0 4px 0 rgba(0, 0, 0, 0.08);
 }
 
+/* --- in-step widget coaching ------------------------------------------- */
+
+.widget-coach-frame {
+  display: grid;
+  gap: 0.75rem;
+  min-inline-size: 0;
+}
+
+.widget-coach-intro {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 3px solid var(--c-accent-action);
+  border-radius: 1rem;
+  background: var(--c-peek-bg);
+}
+
+.widget-coach-scene {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(5rem, 6rem);
+  align-items: end;
+  gap: 0.5rem;
+  min-block-size: 7rem;
+}
+
+.widget-coach-scene[data-speaker='kid'] {
+  grid-template-columns: minmax(5rem, 6rem) minmax(0, 1fr);
+}
+
+.widget-coach-scene[data-speaker='kid'] .speech-bubble {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.widget-coach-scene[data-speaker='kid'] .widget-coach-character {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.widget-coach-character {
+  justify-self: center;
+}
+
+.widget-coach-controls {
+  display: flex;
+  justify-content: flex-end;
+  min-block-size: 44px;
+}
+
+.widget-coach-activity {
+  min-inline-size: 0;
+  transition: opacity 0.16s ease;
+}
+
+.widget-coach-activity[inert] {
+  opacity: 0.7;
+}
+
+.widget-coach-reaction {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 5rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 5rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--c-accent-action);
+  border-radius: 1rem;
+  background: var(--c-peek-bg);
+}
+
+.widget-coach-reaction > svg {
+  justify-self: center;
+}
+
+.widget-coach-reaction-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-inline-size: 0;
+}
+
+.widget-coach-reaction-copy .speech-bubble {
+  max-inline-size: none;
+}
+
+.widget-coach-dismiss {
+  min-block-size: 44px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .widget-coach-reaction {
+    grid-template-columns: minmax(3.75rem, 4.5rem) minmax(0, 1fr);
+    border-inline-width: 0;
+    border-radius: 0.75rem;
+  }
+
+  .widget-coach-reaction-copy {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .widget-coach-dismiss {
+    justify-self: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .widget-coach-activity {
+    transition-duration: 0.001ms;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
