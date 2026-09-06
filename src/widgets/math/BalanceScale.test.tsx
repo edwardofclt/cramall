@@ -22,9 +22,15 @@ test('checks the learner comparison instead of hard-coding completion and reset 
   expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'level');
   expect(screen.getByRole('group', { name: /balance scale/i })).toBeInTheDocument();
   expect(screen.getByRole('group')).not.toHaveAccessibleName(/left total 2; right total 2/i);
+  expect(screen.getByTestId('balance-pan-left')).not.toHaveAccessibleName(/total 2/i);
+  expect(screen.getByTestId('balance-pan-right')).not.toHaveAccessibleName(/total 2/i);
+  expect(screen.queryByText('Total: 2')).not.toBeInTheDocument();
   expect(screen.getByText(/watch the beam/i)).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Balanced' }));
   expect(screen.getByRole('group')).toHaveAccessibleName(/left total 2; right total 2/i);
+  expect(screen.getByTestId('balance-pan-left')).toHaveAccessibleName(/total 2/i);
+  expect(screen.getByTestId('balance-pan-right')).toHaveAccessibleName(/total 2/i);
+  expect(screen.getAllByText('Total: 2')).toHaveLength(2);
   expect(onEvent.mock.calls).toEqual([
     [{ type: 'interaction', action: 'check' }],
     [{ type: 'change', value: { leftTotal: 2, rightTotal: 2 } }],
@@ -176,6 +182,32 @@ test('uses stable decimal totals for an equal comparison and completion', async 
     { type: 'change', value: { leftTotal: 0.3, rightTotal: 0.3 } },
     { type: 'complete', value: { leftTotal: 0.3, rightTotal: 0.3 } },
   ]);
+});
+
+test('uses neutral qualitative beam evidence before a comparison is committed', async () => {
+  const user = userEvent.setup();
+
+  render(
+    <BalanceScale
+      config={{
+        left: [{ id: 'left-two', label: '2', value: 2 }],
+        right: [{ id: 'right-one', label: '1', value: 1 }],
+        task: 'compare',
+      }}
+      onEvent={vi.fn()}
+    />,
+  );
+
+  expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'left');
+  expect(screen.getByText(/beam tilts down on the left/i)).toBeInTheDocument();
+  expect(screen.queryByText(/heavier|2\s*>\s*1/i)).not.toBeInTheDocument();
+  expect(screen.getByRole('group')).toHaveAccessibleName(/qualitative evidence only.*beam tilts down on the left/i);
+
+  await user.click(screen.getByRole('button', { name: 'Left is heavier' }));
+
+  expect(screen.getByText('2 > 1')).toBeInTheDocument();
+  expect(screen.getByText(/left pan is heavier/i)).toBeInTheDocument();
+  expect(screen.getByRole('group')).toHaveAccessibleName(/left total 2; right total 1.*left pan is heavier/i);
 });
 
 test('preserves a right-heavy comparison after exact decimal handling', async () => {

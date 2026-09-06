@@ -38,6 +38,12 @@ function relationText(relation: Relation) {
   return 'The pans are level and balanced.';
 }
 
+function beamEvidence(relation: Relation) {
+  if (relation === 'left') return 'The beam tilts down on the left.';
+  if (relation === 'right') return 'The beam tilts down on the right.';
+  return 'The beam is level.';
+}
+
 export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-scale'>) {
   const key = JSON.stringify(config);
   const task = config.task ?? 'compare';
@@ -104,7 +110,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
       className="balance-pan"
       data-testid={`balance-pan-${side}`}
       data-side={side}
-      aria-label={`${side === 'left' ? 'Left' : 'Right'} pan, total ${total}`}
+      aria-label={`${side === 'left' ? 'Left' : 'Right'} pan${relationCommitted ? `, total ${total}` : ''}`}
     >
       <h3>{side === 'left' ? 'Left pan' : 'Right pan'}</h3>
       <ul>
@@ -132,7 +138,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
           );
         })}
       </ul>
-      <p className="balance-total">Total: {total}</p>
+      <p className="balance-total">{relationCommitted ? `Total: ${total}` : 'Total hidden until you commit a comparison.'}</p>
     </section>
   );
 
@@ -145,7 +151,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
     >
       <div className="balance-model" role="group" aria-label={relationCommitted
         ? `Balance scale. Left total ${value.leftTotal}; right total ${value.rightTotal}. ${relationText(truth)}`
-        : `Balance scale. Qualitative evidence only: ${relationText(truth)} Watch the beam before committing your comparison.`}>
+        : `Balance scale. Qualitative evidence only: ${beamEvidence(truth)} Watch the beam before committing your comparison.`}>
         <div className="balance-pans">
           {renderPan('left', config.left, value.leftTotal)}
           {renderPan('right', config.right, value.rightTotal)}
@@ -158,7 +164,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
       <p className="balance-relation">
         {relationCommitted
           ? <><strong>{value.leftTotal} {truth === 'left' ? '>' : truth === 'right' ? '<' : '='} {value.rightTotal}</strong> — {relationText(truth)}</>
-          : <>Watch the beam: {relationText(truth)} Choose a relation, then check your idea.</>}
+          : <>Watch the beam: {beamEvidence(truth)} Choose a relation, then check your idea.</>}
       </p>
       {task === 'compare' ? (
         <div className="balance-relation-controls" aria-label="Choose the relationship between the pans">
