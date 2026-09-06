@@ -46,6 +46,11 @@ test('shows distractors, supports removing snapped nodes, and requires an observ
   expect(screen.getByRole('heading', { name: 'Distractors' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Add Moon to path' }));
   expect(screen.getByRole('status')).toHaveTextContent(/distractor/i);
+  expect(onEvent.mock.calls.slice(0, 3).map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'append-path' },
+    { type: 'change', value: { path: [] } },
+    { type: 'coach', cue: 'strategy' },
+  ]);
   await user.click(screen.getByRole('button', { name: 'Add Sun to path' }));
   await user.click(screen.getByRole('button', { name: 'Add light to path' }));
   expect(screen.getByTestId('selected-energy-slot-1')).toHaveTextContent('light');
@@ -55,8 +60,11 @@ test('shows distractors, supports removing snapped nodes, and requires an observ
   await user.click(screen.getByRole('button', { name: 'Add paper square to path' }));
   expect(screen.getByTestId('receiver-effect-board')).toBeInTheDocument();
   expect(screen.getByTestId('widget-energy-transfer-builder')).toHaveAttribute('data-state', 'building');
+  await user.click(screen.getByRole('button', { name: 'Remove paper square from path' }));
+  expect(screen.getByTestId('selected-energy-path')).toHaveTextContent('light');
+  await user.click(screen.getByRole('button', { name: 'Add paper square to path' }));
   await user.click(screen.getByRole('button', { name: 'Observe warmer effect' }));
   expect(screen.getByTestId('widget-energy-transfer-builder')).toHaveAttribute('data-state', 'complete');
-  expect(screen.getByRole('status')).toHaveTextContent(/observed warmer/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/modeled warmer/i);
   expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'milestone')).toBe(true);
 });

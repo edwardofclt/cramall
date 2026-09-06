@@ -257,6 +257,17 @@ test('Science comparison and design contracts reject semantically invalid refere
     requiredStart: 'source', requiredEnd: 'lamp',
     constraints: [{ id: 'safe', label: 'Safe', kind: 'safety' }],
   }).success).toBe(false);
+  expect(EnergyConversionDesignerWidgetConfigSchema.safeParse({
+    components: [
+      { id: 'source', label: 'Source', energyIn: 'stored', energyOut: 'electric', satisfiesConstraintIds: ['safe'] },
+      { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light', satisfiesConstraintIds: [] },
+    ],
+    requiredStart: 'source', requiredEnd: 'lamp',
+    constraints: [
+      { id: 'safe', label: 'Safe', kind: 'safety' },
+      { id: 'cost', label: 'Cost limit', kind: 'cost' },
+    ],
+  }).success).toBe(false);
   expect(HazardSolutionDesignerWidgetConfigSchema.safeParse({
     hazard: 'Flood',
     solutions: [{ id: 'wall', label: 'Wall', effectiveness: 'good', impacts: ['homes'] }],

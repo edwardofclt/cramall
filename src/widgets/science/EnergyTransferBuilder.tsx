@@ -24,6 +24,7 @@ export default function EnergyTransferBuilder({ config, onEvent }: WidgetProps<'
   const { completeOnce } = useCompletionLatch(key);
   const pathComplete = path.length === config.requiredPath.length && path.every((token, index) => token === config.requiredPath[index]);
   const complete = pathComplete && effect === expectedEffectFor(config.requiredPath[config.requiredPath.length - 1]!);
+
   useEffect(() => {
     setPath([]);
     setEffect(null);
@@ -49,6 +50,7 @@ export default function EnergyTransferBuilder({ config, onEvent }: WidgetProps<'
     if (pathComplete) return;
     if ((config.distractors ?? []).includes(token)) {
       setStatus(`${token} is a distractor, not part of this transfer. Trace source → route → receiver.`);
+      emit(path, 'append-path');
       coachWrong();
       return;
     }
@@ -65,7 +67,7 @@ export default function EnergyTransferBuilder({ config, onEvent }: WidgetProps<'
     emit(next, 'append-path');
   };
   const removeAt = (index: number) => {
-    if (pathComplete && effect) return;
+    if (complete) return;
     const next = path.slice(0, index);
     setEffect(null);
     setStatus(next.length ? `Path: ${next.join(' to ')}. Choose the next transfer step.` : 'Choose the source.');
@@ -80,7 +82,7 @@ export default function EnergyTransferBuilder({ config, onEvent }: WidgetProps<'
       coachWrong();
       return;
     }
-    setStatus(`Observed ${nextEffect} at the receiver. That observable effect supports the inference that energy moved.`);
+    setStatus(`Modeled ${nextEffect} at the receiver. That modeled effect supports the inference that energy moved.`);
     completeOnce(() => onEvent({ type: 'complete', value: { path } }));
   };
   const reset = () => {
@@ -99,11 +101,23 @@ export default function EnergyTransferBuilder({ config, onEvent }: WidgetProps<'
   ];
   return <section className="card widget-experiment transfer" data-testid="widget-energy-transfer-builder" data-state={complete ? 'complete' : 'building'} data-complete={complete ? 'yes' : 'no'}>
     <header><h3>Energy transfer tracing model</h3><p>This simplified diagram traces transfers. Energy is inferred from observable changes or effects, not directly seen, and this app is not physical evidence.</p></header>
-    <div className="transfer-model" aria-label="Source to transfer to target model">{groups.map(([label, tokens, category], index) => <div className="transfer-group" data-category={category} key={label}><h4>{label}</h4>{tokens.map((token) => <button key={token} aria-label={`Add ${token} to path`} aria-pressed={path.includes(token)} disabled={pathComplete || category === 'distractor' && complete} onClick={() => add(token)}>{token}</button>)}{index < 2 && <span aria-hidden="true" className="transfer-arrow">→</span>}</div>)}</div>
-    <div className="selected-energy-path" data-testid="selected-energy-path" aria-label="Selected connected energy path">{path.length ? path.map((token, index) => <span key={`${token}-${index}`} className="selected-energy-slot" data-testid={`selected-energy-slot-${index}`}><span data-testid={`selected-energy-node-${index}`} className="selected-energy-node" data-kind={categoryFor(token)}>{categoryFor(token)}: {token}</span><button type="button" className="selected-energy-remove" aria-label={`Remove ${token} from path`} onClick={() => removeAt(index)} disabled={pathComplete}>Remove</button>{index < path.length - 1 && <span data-testid="selected-energy-arrow" className="selected-energy-arrow" aria-hidden="true">→</span>}</span>) : <span className="conversion-empty">Your source → route → receiver path will snap here.</span>}</div>
+    <div className="transfer-model" aria-label="Source to transfer to target model">
+      {groups.map(([label, tokens, category], index) => <div className="transfer-group" data-category={category} key={label}>
+        <h4>{label}</h4>
+        {tokens.map((token) => <button key={token} aria-label={`Add ${token} to path`} aria-pressed={path.includes(token)} disabled={pathComplete || category === 'distractor' && complete} onClick={() => add(token)}>{token}</button>)}
+        {index < 2 && <span aria-hidden="true" className="transfer-arrow">→</span>}
+      </div>)}
+    </div>
+    <div className="selected-energy-path" data-testid="selected-energy-path" aria-label="Selected connected energy path">
+      {path.length ? path.map((token, index) => <span key={`${token}-${index}`} className="selected-energy-slot" data-testid={`selected-energy-slot-${index}`}>
+        <span data-testid={`selected-energy-node-${index}`} className="selected-energy-node" data-kind={categoryFor(token)}>{categoryFor(token)}: {token}</span>
+        <button type="button" className="selected-energy-remove" aria-label={`Remove ${token} from path`} onClick={() => removeAt(index)} disabled={complete}>Remove</button>
+        {index < path.length - 1 && <span data-testid="selected-energy-arrow" className="selected-energy-arrow" aria-hidden="true">→</span>}
+      </span>) : <span className="conversion-empty">Your source → route → receiver path will snap here.</span>}
+    </div>
     <p className="transfer-path" aria-label={`Current energy path: ${path.join(' to ') || 'empty'}`}>Path: {path.join(' → ') || 'none yet'}</p>
     {pathComplete && <div className="receiver-effect-board" data-testid="receiver-effect-board" aria-label="Observable receiver effect choices"><h4>What can you observe at the receiver?</h4><p>Choose a visible change, then use it as evidence for your energy-transfer inference.</p>{receiverEffects.map((candidate) => <button key={candidate} type="button" aria-pressed={effect === candidate} onClick={() => chooseEffect(candidate)}>Observe {candidate} effect</button>)}</div>}
     <button className="transfer-reset" onClick={reset}>Start over</button>
-    <p role="status">{complete ? `Observed ${effect} at the receiver. Energy is inferred from that effect.` : status}</p>
+    <p role="status">{complete ? `Modeled ${effect} at the receiver. Energy is inferred from that modeled effect.` : status}</p>
   </section>;
 }

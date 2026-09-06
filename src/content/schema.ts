@@ -980,6 +980,12 @@ export const EnergyConversionDesignerWidgetConfigSchema = z.object({
       context.addIssue({ code: z.ZodIssueCode.custom, path: ['components', index, 'satisfiesConstraintIds'], message: 'each component must list its satisfied constraints' });
     }
   }
+  const coveredConstraintIds = new Set(value.components.flatMap((component) => component.satisfiesConstraintIds ?? []));
+  for (const [index, constraint] of constraints.entries()) {
+    if (!coveredConstraintIds.has(constraint.id)) {
+      context.addIssue({ code: z.ZodIssueCode.custom, path: ['constraints', index, 'id'], message: 'each constraint must be satisfied by at least one component' });
+    }
+  }
 });
 
 export const EnergyConversionDesignerWidgetRefSchema = z.object({ type: z.literal('energy-conversion-designer'), config: EnergyConversionDesignerWidgetConfigSchema }).strict();

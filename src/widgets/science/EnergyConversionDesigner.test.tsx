@@ -184,3 +184,27 @@ test('coaches an incompatible chain without claiming a universally best device',
   expect(screen.getByRole('status')).toHaveTextContent(/does not connect/i);
   expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'strategy')).toBe(true);
 });
+
+test('coaches a valid endpoint chain when an authored constraint is still unmet', async () => {
+  const onEvent = vi.fn(); const user = userEvent.setup();
+  const partialConfig = {
+    components: [
+      { id: 'battery', label: 'Battery', energyIn: 'stored', energyOut: 'electric', satisfiesConstraintIds: ['material'] },
+      { id: 'lamp', label: 'Lamp', energyIn: 'electric', energyOut: 'light', satisfiesConstraintIds: ['safety'] },
+      { id: 'spare', label: 'Spare panel', energyIn: 'sunlight', energyOut: 'electric', satisfiesConstraintIds: ['cost'] },
+    ],
+    requiredStart: 'battery', requiredEnd: 'lamp',
+    constraints: [
+      { id: 'material', label: 'Available materials', kind: 'material' as const },
+      { id: 'cost', label: 'At most 8 tokens', kind: 'cost' as const },
+      { id: 'safety', label: 'Adult safety check', kind: 'safety' as const },
+    ],
+  };
+  expect(EnergyConversionDesignerWidgetConfigSchema.safeParse(partialConfig).success).toBe(true);
+  render(<EnergyConversionDesigner config={partialConfig} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: 'Add Battery' }));
+  await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
+  expect(screen.getByRole('status')).toHaveTextContent(/unmet constraints remain.*at most 8 tokens/i);
+  expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'retry')).toBe(true);
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
+});

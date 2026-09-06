@@ -30,6 +30,10 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
     setCoachPhase(cue);
     onEvent({ type: 'coach', cue });
   };
+  const coachRetry = () => {
+    setCoachPhase('retry');
+    onEvent({ type: 'coach', cue: 'retry' });
+  };
   const emit = (next: string[], action: 'append-chain' | 'reset') => {
     setChain(next);
     onEvent({ type: 'interaction', action });
@@ -67,6 +71,7 @@ export default function EnergyConversionDesigner({ config, onEvent }: WidgetProp
       ? nextUnmet.length ? `The chain connects the required endpoints, but unmet constraints remain: ${nextUnmet.map(({ label }) => label).join(', ')}.` : 'The selected conversion chain connects the required endpoints and meets every constraint.'
       : `Chain: ${next.map((componentId) => componentFor(componentId).label).join(' to ')}.`);
     emit(next, 'append-chain');
+    if (completesRequiredChain && nextUnmet.length > 0) coachRetry();
   };
   const removeAt = (index: number) => {
     const next = retainedChain.slice(0, index);
