@@ -96,4 +96,34 @@ describe('DataPlotBuilder', () => {
     expect(screen.getByTestId('data-plot-chart')).toHaveStyle({ gridTemplateColumns: '2.5rem minmax(28rem, 1fr)' });
     expect(screen.getByTestId('data-plot-baseline')).toBeInTheDocument();
   });
+
+  test('shows the goal and every source category/count in a semantic table', async () => {
+    const onEvent = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <DataPlotBuilder
+        config={{
+          kind: 'bar',
+          prompt: 'Build a pet graph',
+          taskPrompt: 'Build the class pet survey bar graph',
+          categories: ['dog', 'cat', 'fish'],
+          target: { dog: 8, cat: 6, fish: 4 },
+          sourceData: { dog: 8, cat: 6, fish: 4 },
+        }}
+        onEvent={onEvent}
+      />,
+    );
+
+    expect(screen.getByTestId('widget-task')).toHaveTextContent('Build the class pet survey bar graph');
+    const table = screen.getByTestId('data-plot-source-data');
+    expect(table.tagName).toBe('TABLE');
+    expect(table).toHaveTextContent('dog8');
+    expect(table).toHaveTextContent('cat6');
+    expect(table).toHaveTextContent('fish4');
+
+    await user.click(screen.getByRole('button', { name: 'Increase dog' }));
+    await user.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
+    expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+  });
 });

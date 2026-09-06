@@ -1,16 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
 const equivalent = (a: number, b: number, c: number, d: number) => a * d === c * b;
+const fractionText = (numerator: number, denominator: number) => `${numerator}/${denominator}`;
 
 export default function FractionModels({ config, onEvent }: WidgetProps<'fraction-models'>) {
   const key = JSON.stringify(config);
   const initial = Math.min(config.numerator ?? 0, config.denominator);
   const [numerator, setNumerator] = useState(initial);
+  const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
 
-  useEffect(() => setNumerator(initial), [key]);
+  useEffect(() => {
+    setNumerator(initial);
+    milestoneSent.current = false;
+  }, [key, initial]);
 
   const matches = (next: number) => Boolean(config.target) && (
     config.allowEquivalent
@@ -24,9 +29,20 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
   );
 
   const commit = (next: number, action: 'select-piece' | 'clear-model') => {
+    const previous = numerator;
     setNumerator(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { numerator: next, denominator: config.denominator } });
+    if (config.target && next !== previous && !matches(next)) {
+      const currentDistance = Math.abs(previous / config.denominator - config.target.numerator / config.target.denominator);
+      const nextDistance = Math.abs(next / config.denominator - config.target.numerator / config.target.denominator);
+      if (nextDistance < currentDistance && !milestoneSent.current) {
+        milestoneSent.current = true;
+        onEvent({ type: 'coach', cue: 'milestone' });
+      } else if (nextDistance >= currentDistance) {
+        onEvent({ type: 'coach', cue: 'retry' });
+      }
+    }
     if (config.target && matches(next)) {
       completeOnce(() => onEvent({
         type: 'complete',
@@ -102,6 +118,10 @@ export default function FractionModels({ config, onEvent }: WidgetProps<'fractio
       data-state={visiblyComplete ? 'complete' : 'choosing'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
+      <div className="widget-task" data-testid="widget-task">
+        <strong>Goal:</strong> {config.taskPrompt ?? `Build ${fractionText(config.target?.numerator ?? 0, config.target?.denominator ?? config.denominator)}`}
+        {config.target && <span> Target value: {fractionText(config.target.numerator, config.target.denominator)}.</span>}
+      </div>
       <button onClick={() => commit(0, 'clear-model')}>Clear model</button>
       <div role="group" aria-label="Fraction parts">
         {Array.from({ length: config.denominator }, (_, index) => (

@@ -51,3 +51,20 @@ test('a zero-cent target is not complete on mount', () => {
   expect(screen.getByTestId('widget-money-counter')).toHaveAttribute('data-state', 'building');
   expect(onEvent).not.toHaveBeenCalled();
 });
+
+test('shows a dollar goal, labeled tokens, subtotals, and meaningful cues', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(<MoneyCounter config={{ targetCents: 635, taskPrompt: 'Show $6.35' }} onEvent={onEvent} />);
+
+  expect(screen.getByTestId('widget-task')).toHaveTextContent('Show $6.35');
+  expect(screen.getByLabelText('penny, 1 cents')).toHaveTextContent('1¢');
+  expect(screen.getByTestId('money-subtotal-25')).toHaveTextContent('0¢');
+
+  await user.click(screen.getByRole('button', { name: 'Add a penny' }));
+  await user.click(screen.getByRole('button', { name: 'Start over' }));
+
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+});

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
@@ -27,18 +27,33 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
   const key = JSON.stringify(config);
   const denominations = config.denominations ?? DEFAULT_DENOMINATIONS;
   const [counts, setCounts] = useState<Counts>(ZERO);
+  const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
   const cents = total(counts);
   const matchesCurrentTarget = config.targetCents !== undefined && cents === config.targetCents;
   const visiblyComplete = completed && matchesCurrentTarget;
 
-  useEffect(() => setCounts(ZERO), [key]);
+  useEffect(() => {
+    setCounts(ZERO);
+    milestoneSent.current = false;
+  }, [key]);
 
   const commit = (next: Counts, action: 'add-coin' | 'remove-coin' | 'reset') => {
+    const previousCents = cents;
     const value = { totalCents: total(next), counts: next };
     setCounts(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value });
+    if (config.targetCents !== undefined && value.totalCents !== previousCents && value.totalCents !== config.targetCents) {
+      const currentDistance = Math.abs(previousCents - config.targetCents);
+      const nextDistance = Math.abs(value.totalCents - config.targetCents);
+      if (nextDistance < currentDistance && !milestoneSent.current) {
+        milestoneSent.current = true;
+        onEvent({ type: 'coach', cue: 'milestone' });
+      } else if (nextDistance >= currentDistance) {
+        onEvent({ type: 'coach', cue: 'retry' });
+      }
+    }
     if (config.targetCents !== undefined && value.totalCents === config.targetCents) {
       completeOnce(() => onEvent({ type: 'complete', value }));
     }
@@ -51,6 +66,10 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
       data-state={visiblyComplete ? 'complete' : 'building'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
+      <div className="widget-task" data-testid="widget-task">
+        <strong>Goal:</strong> {config.taskPrompt ?? `Show ${moneyText(config.targetCents ?? 0)}`}
+        {config.targetCents !== undefined && <span> Target amount: {moneyText(config.targetCents)}.</span>}
+      </div>
       <div className="money-denominations" aria-label="Coin counter controls">
         {denominations.map((denomination) => {
           const name = COIN_NAMES[denomination];
@@ -59,7 +78,25 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
           return (
             <section className="money-denomination" key={denomination} aria-label={`${name}, ${denomination} cents`}>
               <h3>{name} · {denomination}¢</h3>
+              <span
+                className="money-token"
+                data-token-kind={denomination === 100 ? 'bill' : 'coin'}
+                role="img"
+                aria-label={`${denomination}-cent ${name} token`}
+                style={{
+                  display: 'inline-grid',
+                  width: denomination === 100 ? '4rem' : '2.5rem',
+                  height: '2rem',
+                  placeItems: 'center',
+                  border: '2px solid currentColor',
+                  borderRadius: denomination === 100 ? '.25rem' : '50%',
+                  fontWeight: 800,
+                }}
+              >
+                {denomination}¢
+              </span>
               <p><output data-testid={`money-count-${denomination}`}>{count}</output> counted</p>
+              <output data-testid={`money-subtotal-${denomination}`}>Subtotal: {denomination * count}¢ ({moneyText(denomination * count)})</output>
               <div className="money-denomination-controls">
                 <button
                   aria-label={`Add a ${name}`}

@@ -96,3 +96,28 @@ test('renders distinct segmented bar and radial circle models with readable shad
   expect(circle.querySelectorAll('[data-testid="fraction-circle-sector"]')).toHaveLength(4);
   expect(screen.getAllByText('1 shaded, 3 unshaded')).toHaveLength(2);
 });
+
+test('shows the fraction goal and meaningful progress cues', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <FractionModels
+      config={{
+        mode: 'bars',
+        denominator: 8,
+        numerator: 3,
+        target: { numerator: 5, denominator: 8 },
+        taskPrompt: 'Build 5/8',
+      }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.getByTestId('widget-task')).toHaveTextContent('Build 5/8');
+  await user.click(screen.getByRole('button', { name: 'Shade part 4 of 8' }));
+  await user.click(screen.getByRole('button', { name: 'Shade part 1 of 8' }));
+
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+});

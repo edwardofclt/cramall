@@ -63,7 +63,7 @@ test('canonicalizes tolerated noisy quarter values for marker, readout, and comp
     />,
   );
 
-  const ruler = screen.getByRole('img');
+  const ruler = screen.getByRole('img', { name: /Quarter-inch ruler/ });
   expect(ruler.querySelector('[data-marker="true"]')).toHaveAttribute('data-inches', '0.25');
   expect(ruler).toHaveAccessibleName(/Marker at 0 1\/4 inches \(0.25 inches\)/);
   expect(screen.getByText('0 1/4 inches (0.25 inches)')).toBeInTheDocument();
@@ -75,4 +75,18 @@ test('canonicalizes tolerated noisy quarter values for marker, readout, and comp
     { type: 'change', value: { inches: 0.5 } },
     { type: 'complete', value: { inches: 0.5 } },
   ]);
+});
+
+test('shows the endpoint goal and a labeled object aligned to zero', () => {
+  render(
+    <QuarterInchRuler
+      config={{ lengthInches: 5, targetInches: 4.75, taskPrompt: 'Place the object endpoint at 4¾ inches' }}
+      onEvent={vi.fn()}
+    />,
+  );
+
+  expect(screen.getByTestId('widget-task')).toHaveTextContent('4¾ inches');
+  expect(screen.getByRole('img', { name: /Measured object starts at 0 inches and ends at 4 3\/4 inches/ })).toBeInTheDocument();
+  expect(screen.getByTestId('measured-object')).toHaveAttribute('data-start-inches', '0');
+  expect(screen.getByTestId('measured-object')).toHaveAttribute('data-end-inches', '4.75');
 });

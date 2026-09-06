@@ -21,7 +21,19 @@ export const unit07Lessons = [
           { kind: 'example', text: 'A bar model with 3 of 8 parts selected gains 2 more eighths, showing 5/8.' },
           { kind: 'tip', text: 'Describe the start, the change, and the result so the model matches the equation.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false } },
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, taskPrompt: 'Build 5/8 by adding two eighths.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Start with 3/8, then build 5/8 by adding two equal eighth-size parts to the bar.' },
+            { speaker: 'kid', text: 'I will watch the numerator change while the denominator stays eight.' },
+          ],
+          reactions: {
+            strategy: { text: 'Compare the bar with five shaded eighths and add one useful part at a time.', pose: 'think' },
+            retry: { text: 'That move missed five eighths. Check the shaded count and try the next comparison.', pose: 'oops' },
+            milestone: { text: 'Good—your bar is one shaded part closer to five eighths.', pose: 'cheer' },
+            complete: { text: 'You built 5/8: five eighths on a bar divided into eight equal parts.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u07-l01-c2',
@@ -89,7 +101,19 @@ export const unit07Lessons = [
           { kind: 'example', text: '3 × 1/4 = 1/4 + 1/4 + 1/4 = 3/4.' },
           { kind: 'tip', text: 'Keep the denominator because every group contains the same unit-size part.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false } },
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, taskPrompt: 'Build 3/4 from unit fractions.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Build three copies of one fourth so the bar shows 3/4 as repeated equal groups.' },
+            { speaker: 'kid', text: 'I will count each fourth and keep the denominator at four.' },
+          ],
+          reactions: {
+            strategy: { text: 'Count the shaded fourths one at a time until the bar shows three.', pose: 'think' },
+            retry: { text: 'Check the number of shaded fourths. The group size stays one fourth.', pose: 'oops' },
+            milestone: { text: 'You have a useful unit-fraction group started.', pose: 'cheer' },
+            complete: { text: 'You built 3/4 from three equal unit fractions, each 1/4.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u07-l02-c2',
@@ -157,7 +181,19 @@ export const unit07Lessons = [
           { kind: 'example', text: 'Three brownies shared among 4 learners gives 3 ÷ 4 = 3/4 brownie per learner.' },
           { kind: 'tip', text: 'Every recipient must receive the same amount.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false } },
+        widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, taskPrompt: 'Share 5/6 of the circle.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Share five equal sixth-size pieces of the circle to model 5/6 for each fair share.' },
+            { speaker: 'kid', text: 'I will count five equal pieces and leave one sixth unshaded.' },
+          ],
+          reactions: {
+            strategy: { text: 'Look for the next unshaded sixth and compare the circle with five selected pieces.', pose: 'think' },
+            retry: { text: 'Keep every share the same size: count sixths instead of changing the whole.', pose: 'oops' },
+            milestone: { text: 'The circle now shows several equal shares—keep counting sixths.', pose: 'cheer' },
+            complete: { text: 'You modeled 5/6: five of six equal circle parts are selected.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u07-l03-c2',

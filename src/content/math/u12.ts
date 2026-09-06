@@ -30,7 +30,19 @@ export const unit12Lessons = [
           { kind: 'example', text: 'A pet survey with dog, cat, and fish categories fits a bar graph.' },
           { kind: 'tip', text: 'Choose a display that preserves the question and all collected values.' },
         ],
-        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 } } },
+        widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 }, sourceData: { dog: 8, cat: 6, fish: 4 }, taskPrompt: 'Build the class pet survey bar graph from the source table.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the source table to build a bar graph: dog 8, cat 6, and fish 4.' },
+            { speaker: 'kid', text: 'I will match each labeled bar to its category count instead of guessing from height.' },
+          ],
+          reactions: {
+            strategy: { text: 'Compare one bar with its source-table count, then choose the next category to match.', pose: 'think' },
+            retry: { text: 'That bar no longer matches the source table. Reread the category and count before adjusting.', pose: 'oops' },
+            milestone: { text: 'One category is moving toward its source count—keep matching the table.', pose: 'cheer' },
+            complete: { text: 'Your bar graph displays dog 8, cat 6, and fish 4 from the source data.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u12-l01-c3',

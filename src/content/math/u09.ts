@@ -21,7 +21,19 @@ export const unit09Lessons = [
           { kind: 'example', text: 'Two $1 bills, 3 quarters, and 2 dimes total $2.95.' },
           { kind: 'tip', text: 'Convert all values to cents when that makes the addition clearer.' },
         ],
-        widget: { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100] } },
+        widget: { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100], taskPrompt: 'Show $6.35 with coins and bills.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Show $6.35 by combining labeled coins and bills, then watch each subtotal join the total.' },
+            { speaker: 'kid', text: 'I will count in cents first so every denomination lines up exactly.' },
+          ],
+          reactions: {
+            strategy: { text: 'Choose a useful denomination and compare its subtotal with the cents still needed.', pose: 'think' },
+            retry: { text: 'That collection moved away from $6.35. Read the subtotal labels and adjust one denomination.', pose: 'oops' },
+            milestone: { text: 'Your collection is closer—use the subtotals to plan the next coin or bill.', pose: 'cheer' },
+            complete: { text: 'You showed $6.35, or 635 cents, with a labeled collection of coins and bills.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u09-l01-c2',
@@ -166,7 +178,19 @@ export const unit09Lessons = [
           { kind: 'example', text: 'A length of about 4.72 inches is closer to 4.75 than to 4.50, so it rounds to 4 3/4 inches.' },
           { kind: 'tip', text: 'If measuring a real object, align one end with zero before reading the other end.' },
         ],
-        widget: { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0 } },
+        widget: { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0, taskPrompt: 'Place the object endpoint at 4¾ inches.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Measure the visible object from zero to its endpoint, then place the marker at 4¾ inches.' },
+            { speaker: 'kid', text: 'I will count quarter-inch steps from the aligned zero end.' },
+          ],
+          reactions: {
+            strategy: { text: 'Compare the marker with the object endpoint and move one quarter-inch step toward 4¾.', pose: 'think' },
+            retry: { text: 'The marker moved away from the endpoint. Recheck the neighboring quarter-inch marks.', pose: 'oops' },
+            milestone: { text: 'The marker is closer to the object endpoint—keep using the quarter-inch steps.', pose: 'cheer' },
+            complete: { text: 'You measured the object at 4¾ inches by aligning its end with zero.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u09-l03-c3',

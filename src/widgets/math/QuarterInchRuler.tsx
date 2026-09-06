@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
@@ -14,24 +14,47 @@ function mixedMeasurement(inches: number) {
   return `${mixed} inches (${inches} inches)`;
 }
 
+function compactMeasurement(inches: number) {
+  const quarters = Math.round(inches * 4);
+  const whole = Math.floor(quarters / 4);
+  const remainder = quarters % 4;
+  const fraction = ['', '¼', '½', '¾'][remainder];
+  return `${whole}${fraction} inches`;
+}
+
 export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quarter-inch-ruler'>) {
   const key = JSON.stringify(config);
   const length = config.lengthInches ?? 12;
   const start = canonicalQuarter(config.startInches ?? 0);
   const target = canonicalQuarter(config.targetInches);
   const [inches, setInches] = useState(start);
+  const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
   const tickCount = length * 4 + 1;
   const matchesCurrentTarget = inches === target;
   const visiblyComplete = completed && matchesCurrentTarget;
 
-  useEffect(() => setInches(start), [key]);
+  useEffect(() => {
+    setInches(start);
+    milestoneSent.current = false;
+  }, [key, start]);
 
   const commit = (raw: number, action: 'move-marker' | 'reset') => {
+    const previous = inches;
     const next = Math.round(Math.max(0, Math.min(length, raw)) * 4) / 4;
     setInches(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { inches: next } });
+    if (next !== previous && next !== target) {
+      const currentDistance = Math.abs(previous - target);
+      const nextDistance = Math.abs(next - target);
+      if (nextDistance < currentDistance && !milestoneSent.current) {
+        milestoneSent.current = true;
+        onEvent({ type: 'coach', cue: 'milestone' });
+      } else if (nextDistance >= currentDistance) {
+        onEvent({ type: 'coach', cue: 'retry' });
+      }
+    }
     if (next === target) {
       completeOnce(() => onEvent({ type: 'complete', value: { inches: next } }));
     }
@@ -46,6 +69,10 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
       data-state={visiblyComplete ? 'complete' : 'measuring'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
+      <div className="widget-task" data-testid="widget-task">
+        <strong>Goal:</strong> {config.taskPrompt ?? `Place the object endpoint at ${compactMeasurement(target)}`}
+        <span> Target endpoint: {compactMeasurement(target)}.</span>
+      </div>
       <div className="ruler-controls" aria-label="Ruler controls">
         <button
           aria-label="Move marker left one quarter inch"
@@ -64,6 +91,17 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
         <button onClick={() => commit(start, 'reset')}>Start over</button>
       </div>
       <div className="ruler-viewport" role="region" aria-label="Scrollable quarter-inch ruler" tabIndex={0}>
+        <div
+          className="ruler-measured-object"
+          data-testid="measured-object"
+          data-start-inches="0"
+          data-end-inches={target}
+          role="img"
+          aria-label={`Measured object starts at 0 inches and ends at ${mixedMeasurement(target)}`}
+          style={{ width: `${Math.max(32, target * 128)}px` }}
+        >
+          Measured object · starts at 0
+        </div>
         <div
           className="ruler-track"
           role="img"

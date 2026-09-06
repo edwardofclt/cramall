@@ -63,9 +63,9 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false } },
-  'math-u07-l02-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false } },
-  'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false } },
+  'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, taskPrompt: 'Build 5/8 by adding two eighths.' } },
+  'math-u07-l02-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, taskPrompt: 'Build 3/4 from unit fractions.' } },
+  'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, taskPrompt: 'Share 5/6 of the circle.' } },
 } as const;
 
 test('u07 is the exact validated 3-lesson unit', () => {
@@ -99,6 +99,7 @@ test('u07 is the exact validated 3-lesson unit', () => {
       const expectedWidget = expectedWidgets[card.id as keyof typeof expectedWidgets];
       expect(card.widget).toEqual(expectedWidget);
       if (card.widget) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
+      if (card.widget) expect(card.widgetCoach?.intro).toHaveLength(2);
     }
   }
 });

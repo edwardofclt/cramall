@@ -63,7 +63,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u12-l01-c2': { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 } } },
+  'math-u12-l01-c2': { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 }, sourceData: { dog: 8, cat: 6, fish: 4 }, taskPrompt: 'Build the class pet survey bar graph from the source table.' } },
   'math-u12-l03-c2': { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, targetOutcomeId: 'red' } },
 } as const;
 
@@ -98,6 +98,7 @@ test('u12 is the exact validated 3-lesson unit', () => {
       const expectedWidget = expectedWidgets[card.id as keyof typeof expectedWidgets];
       expect(card.widget).toEqual(expectedWidget);
       if (card.widget) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
+      if (card.id === 'math-u12-l01-c2') expect(card.widgetCoach?.intro).toHaveLength(2);
     }
   }
 });

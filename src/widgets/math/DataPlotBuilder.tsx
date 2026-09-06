@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
@@ -17,6 +17,7 @@ function scaleTicks(maximum: number): number[] {
 export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-plot-builder'>) {
   const key = JSON.stringify(config);
   const [values, setValues] = useState<Record<string, number>>(() => emptyValues(config.categories));
+  const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
   const maximum = Math.max(1, ...config.categories.flatMap((category) => [config.target[category], values[category]]));
   const exact = (next: Record<string, number>) => config.categories.every((category) => next[category] === config.target[category]);
@@ -24,16 +25,28 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
   const visiblyComplete = completed && matchesCurrentTarget;
   const categoryTrackWidth = config.categories.length * 7;
 
-  useEffect(() => setValues(emptyValues(config.categories)), [key]);
+  useEffect(() => {
+    setValues(emptyValues(config.categories));
+    milestoneSent.current = false;
+  }, [key]);
 
   const commit = (next: Record<string, number>, action: Action) => {
+    const previousDistance = config.categories.reduce((distance, category) => distance + Math.abs(values[category] - config.target[category]), 0);
+    const nextDistance = config.categories.reduce((distance, category) => distance + Math.abs(next[category] - config.target[category]), 0);
     setValues(next);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: { values: next } });
+    if (!exact(next) && nextDistance < previousDistance && !milestoneSent.current) {
+      milestoneSent.current = true;
+      onEvent({ type: 'coach', cue: 'milestone' });
+    } else if (!exact(next) && nextDistance >= previousDistance && nextDistance !== previousDistance) {
+      onEvent({ type: 'coach', cue: 'retry' });
+    }
     if (exact(next)) completeOnce(() => onEvent({ type: 'complete', value: { values: next } }));
   };
 
   const chartLabel = `${config.kind === 'bar' ? 'Bar' : 'Dot'} plot with a shared zero baseline and integer scale from 0 to ${maximum}. ${config.categories.map((category) => `${category}: ${values[category]}.`).join(' ')}`;
+  const sourceData = config.sourceData ?? config.target;
 
   return (
     <section
@@ -42,8 +55,17 @@ export default function DataPlotBuilder({ config, onEvent }: WidgetProps<'data-p
       data-state={visiblyComplete ? 'complete' : 'building'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
+      <div className="widget-task" data-testid="widget-task">
+        <strong>Goal:</strong> {config.taskPrompt ?? config.prompt}
+        <span> Target display: {config.kind === 'bar' ? 'bar graph' : 'dot plot'}.</span>
+      </div>
       <h3>{config.prompt}</h3>
       <p className="data-plot-instruction">Use the controls to build the exact plot. Each category starts at zero.</p>
+      <table data-testid="data-plot-source-data">
+        <caption>Source data for this plot</caption>
+        <thead><tr><th scope="col">Category</th><th scope="col">Count</th></tr></thead>
+        <tbody>{config.categories.map((category) => <tr key={category}><th scope="row">{category}</th><td>{sourceData[category]}</td></tr>)}</tbody>
+      </table>
       <div className="data-plot-controls" aria-label="Plot value controls">
         {config.categories.map((category) => (
           <section className="data-plot-control" key={category} aria-label={`${category} controls`}>

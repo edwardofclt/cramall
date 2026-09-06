@@ -31,7 +31,19 @@ export const unit06Lessons = [
           { kind: 'example', text: '3/4 × 2/2 = 6/8, so 3/4 and 6/8 are equivalent.' },
           { kind: 'tip', text: 'Changing only the numerator or only the denominator changes the value.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true } },
+        widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, taskPrompt: 'Build 1/2 with fourths.' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Build one half with four equal parts, then use the model to see why two fourths names the same amount.' },
+            { speaker: 'kid', text: 'I will shade the parts and compare the covered amount with one half.' },
+          ],
+          reactions: {
+            strategy: { text: 'Compare the shaded amount with one half before choosing another part.', pose: 'think' },
+            retry: { text: 'That choice changed the amount. Keep the whole fixed and compare the shaded parts again.', pose: 'oops' },
+            milestone: { text: 'Nice—the shaded model is moving toward one half.', pose: 'cheer' },
+            complete: { text: 'You built 2/4, an equivalent model for 1/2.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u06-l01-c3',
