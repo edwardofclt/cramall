@@ -329,6 +329,18 @@ export const unit09Lessons = [
           { kind: 'tip', text: 'Keep the equivalence visible and do not mix unrelated measurement types.' },
         ],
         widget: { type: 'balance-scale', config: { left: [{ id: 'three-feet', label: '3 feet', value: 36 }], right: [{ id: 'thirty-six-inches', label: '36 inches', value: 36 }], task: 'compare' } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use the scale to test the equivalence: 3 feet and 36 inches name the same length.' },
+            { speaker: 'kid', text: 'I will watch the beam first, then commit to the comparison it supports.' },
+          ],
+          reactions: {
+            strategy: { text: 'Use 1 foot = 12 inches and count three groups before choosing a relation.', pose: 'think' },
+            retry: { text: 'Read the beam tilt again and check whether 3 × 12 matches 36 inches.', pose: 'oops' },
+            milestone: { text: 'The beam gives you qualitative evidence—now connect it to the unit equivalence.', pose: 'cheer' },
+            complete: { text: 'Your committed comparison shows 36 = 36, so 3 feet and 36 inches are equivalent.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u09-l05-c2',

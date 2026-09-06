@@ -21,7 +21,10 @@ test('checks the learner comparison instead of hard-coding completion and reset 
 
   expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'level');
   expect(screen.getByRole('group', { name: /balance scale/i })).toBeInTheDocument();
+  expect(screen.getByRole('group')).not.toHaveAccessibleName(/left total 2; right total 2/i);
+  expect(screen.getByText(/watch the beam/i)).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Balanced' }));
+  expect(screen.getByRole('group')).toHaveAccessibleName(/left total 2; right total 2/i);
   expect(onEvent.mock.calls).toEqual([
     [{ type: 'interaction', action: 'check' }],
     [{ type: 'change', value: { leftTotal: 2, rightTotal: 2 } }],
@@ -163,8 +166,10 @@ test('uses stable decimal totals for an equal comparison and completion', async 
   );
 
   expect(screen.getByTestId('balance-beam')).toHaveAttribute('data-state', 'level');
-  expect(screen.getByRole('group')).toHaveAccessibleName(/left total 0.3; right total 0.3/i);
+  expect(screen.getByRole('group')).not.toHaveAccessibleName(/left total 0.3; right total 0.3/i);
   await user.click(screen.getByRole('button', { name: 'Balanced' }));
+
+  expect(screen.getByRole('group')).toHaveAccessibleName(/left total 0.3; right total 0.3/i);
 
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'check' },

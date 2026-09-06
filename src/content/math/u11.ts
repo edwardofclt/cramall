@@ -88,7 +88,35 @@ export const unit11Lessons = [
           { kind: 'example', text: 'A rectangle has four right angles and two pairs of parallel sides.' },
           { kind: 'tip', text: 'Use marked attributes rather than a shape’s tilt or size.' },
         ],
-        widget: { type: 'shape-classifier', config: { shapes: [{ id: 'trapezoid', label: 'Trapezoid', sides: 4, angles: 4, parallelPairs: 1 }, { id: 'rectangle', label: 'Rectangle', sides: 4, angles: 4, parallelPairs: 2 }, { id: 'square', label: 'Square', sides: 4, angles: 4, parallelPairs: 2 }], bins: [{ id: 'one-pair', label: '1 parallel pair', value: 1 }, { id: 'two-pairs', label: '2 parallel pairs', value: 2 }], rule: 'parallelPairs' } },
+        widget: { type: 'shape-classifier', config: {
+          mode: 'classifications',
+          shapes: [
+            { id: 'quadrilateral', label: 'Quadrilateral', diagram: 'quadrilateral', sides: 4, angles: 4, parallelPairs: 0, classifications: ['quadrilateral'] },
+            { id: 'parallelogram', label: 'Parallelogram', diagram: 'parallelogram', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram'] },
+            { id: 'rectangle', label: 'Rectangle', diagram: 'rectangle', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle'] },
+            { id: 'rhombus', label: 'Rhombus', diagram: 'rhombus', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rhombus'] },
+            { id: 'square', label: 'Square', diagram: 'square', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'] },
+          ],
+          bins: [
+            { id: 'quadrilateral', label: 'Quadrilateral', classification: 'quadrilateral' },
+            { id: 'parallelogram', label: 'Parallelogram', classification: 'parallelogram', parentIds: ['quadrilateral'] },
+            { id: 'rectangle', label: 'Rectangle', classification: 'rectangle', parentIds: ['parallelogram'] },
+            { id: 'rhombus', label: 'Rhombus', classification: 'rhombus', parentIds: ['parallelogram'] },
+            { id: 'square', label: 'Square', classification: 'square', parentIds: ['rectangle', 'rhombus'] },
+          ],
+        } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Read each diagram’s marks, then place every quadrilateral in the groups its attributes support.' },
+            { speaker: 'kid', text: 'I will trace inherited memberships, especially both branches for the square.' },
+          ],
+          reactions: {
+            strategy: { text: 'Start with a shape’s specific name, then add each valid parent group.', pose: 'think' },
+            retry: { text: 'Check the right-angle boxes, equal-side marks, and parallel arrows before changing a membership.', pose: 'oops' },
+            milestone: { text: 'That shape has a valid parent membership—keep tracing its attributes toward quadrilateral.', pose: 'cheer' },
+            complete: { text: 'The square belongs to all five groups: square, rectangle, rhombus, parallelogram, and quadrilateral.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u11-l02-c2',

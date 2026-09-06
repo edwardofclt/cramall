@@ -74,6 +74,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
   const value = displayTotals(exactValue);
   const truth = balanceRelation(exactValue);
   const beamState = truth === 'equal' ? 'level' : truth;
+  const relationCommitted = selectedRelation !== null;
 
   const chooseRelation = (choice: Relation) => {
     const correct = choice === truth;
@@ -85,6 +86,7 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
   const checkBalance = () => {
     const meaningful = exactValue.left.units > 0n && exactValue.right.units > 0n;
     const balanced = meaningful && truth === 'equal';
+    if (meaningful) setSelectedRelation(truth);
     setStatus(!meaningful
       ? 'Add at least one weight to each pan before checking.'
       : balanced ? 'Scale is balanced.' : 'Totals are not equal yet.');
@@ -141,7 +143,9 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
       data-state={completed ? 'complete' : task === 'compare' ? 'comparing' : 'making-equal'}
       data-complete={completed ? 'yes' : 'no'}
     >
-      <div className="balance-model" role="group" aria-label={`Balance scale. Left total ${value.leftTotal}; right total ${value.rightTotal}. ${relationText(truth)}`}>
+      <div className="balance-model" role="group" aria-label={relationCommitted
+        ? `Balance scale. Left total ${value.leftTotal}; right total ${value.rightTotal}. ${relationText(truth)}`
+        : `Balance scale. Qualitative evidence only: ${relationText(truth)} Watch the beam before committing your comparison.`}>
         <div className="balance-pans">
           {renderPan('left', config.left, value.leftTotal)}
           {renderPan('right', config.right, value.rightTotal)}
@@ -151,7 +155,11 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
           <div className="balance-fulcrum" />
         </div>
       </div>
-      <p className="balance-relation"><strong>{value.leftTotal} {truth === 'left' ? '>' : truth === 'right' ? '<' : '='} {value.rightTotal}</strong> — {relationText(truth)}</p>
+      <p className="balance-relation">
+        {relationCommitted
+          ? <><strong>{value.leftTotal} {truth === 'left' ? '>' : truth === 'right' ? '<' : '='} {value.rightTotal}</strong> — {relationText(truth)}</>
+          : <>Watch the beam: {relationText(truth)} Choose a relation, then check your idea.</>}
+      </p>
       {task === 'compare' ? (
         <div className="balance-relation-controls" aria-label="Choose the relationship between the pans">
           <button aria-label="Left is heavier" aria-pressed={selectedRelation === 'left'} onClick={() => chooseRelation('left')}>Left</button>

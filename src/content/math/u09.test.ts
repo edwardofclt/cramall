@@ -137,6 +137,11 @@ test('u09 is the exact validated 5-lesson unit', () => {
       if (card.id === 'math-u09-l01-c1' || card.id === 'math-u09-l02-c2' || card.id === 'math-u09-l03-c2') {
         expect(card.widgetCoach?.reactions.complete.text).toBeTruthy();
       }
+      if (card.id === 'math-u09-l05-c1') {
+        expect(card.widgetCoach?.intro).toHaveLength(2);
+        expect(card.widgetCoach?.intro[0].text).toContain('3 feet');
+        expect(card.widgetCoach?.reactions.complete.text).toContain('36');
+      }
     }
   }
 });

@@ -46,7 +46,23 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u11-l02-c1': { type: 'shape-classifier', config: { shapes: [{ id: 'trapezoid', label: 'Trapezoid', sides: 4, angles: 4, parallelPairs: 1 }, { id: 'rectangle', label: 'Rectangle', sides: 4, angles: 4, parallelPairs: 2 }, { id: 'square', label: 'Square', sides: 4, angles: 4, parallelPairs: 2 }], bins: [{ id: 'one-pair', label: '1 parallel pair', value: 1 }, { id: 'two-pairs', label: '2 parallel pairs', value: 2 }], rule: 'parallelPairs' } },
+  'math-u11-l02-c1': { type: 'shape-classifier', config: {
+    mode: 'classifications',
+    shapes: [
+      { id: 'quadrilateral', label: 'Quadrilateral', diagram: 'quadrilateral', sides: 4, angles: 4, parallelPairs: 0, classifications: ['quadrilateral'] },
+      { id: 'parallelogram', label: 'Parallelogram', diagram: 'parallelogram', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram'] },
+      { id: 'rectangle', label: 'Rectangle', diagram: 'rectangle', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle'] },
+      { id: 'rhombus', label: 'Rhombus', diagram: 'rhombus', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rhombus'] },
+      { id: 'square', label: 'Square', diagram: 'square', sides: 4, angles: 4, parallelPairs: 2, classifications: ['quadrilateral', 'parallelogram', 'rectangle', 'rhombus', 'square'] },
+    ],
+    bins: [
+      { id: 'quadrilateral', label: 'Quadrilateral', classification: 'quadrilateral' },
+      { id: 'parallelogram', label: 'Parallelogram', classification: 'parallelogram', parentIds: ['quadrilateral'] },
+      { id: 'rectangle', label: 'Rectangle', classification: 'rectangle', parentIds: ['parallelogram'] },
+      { id: 'rhombus', label: 'Rhombus', classification: 'rhombus', parentIds: ['parallelogram'] },
+      { id: 'square', label: 'Square', classification: 'square', parentIds: ['rectangle', 'rhombus'] },
+    ],
+  } },
 } as const;
 
 test('u11 is the exact validated 2-lesson unit', () => {
@@ -80,6 +96,10 @@ test('u11 is the exact validated 2-lesson unit', () => {
       const expectedWidget = expectedWidgets[card.id as keyof typeof expectedWidgets];
       expect(card.widget).toEqual(expectedWidget);
       if (card.widget) expect(WidgetRefSchema.safeParse(card.widget).success).toBe(true);
+      if (card.id === 'math-u11-l02-c1') {
+        expect(card.widgetCoach?.intro).toHaveLength(2);
+        expect(card.widgetCoach?.reactions.complete.text).toContain('five');
+      }
     }
   }
 });
