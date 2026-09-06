@@ -208,10 +208,12 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
       </header>
       <p className="collision-task"><strong>Goal:</strong> {config.taskPrompt ?? `Change only ${controlledLabel} and compare two modeled runs.`}</p>
       <p className="collision-locked" aria-label={lockedNote}>{lockedNote}</p>
-      <div className="collision-model comparison-track" data-testid="collision-comparison-track" data-phase={phase} data-motion-direction={trackDirection} aria-label="Two-cart collision model track">
-        <div className={`collision-cart collision-cart-a collision-position-${trackDirection}`} role="img" aria-label={`Cart A: mass ${config.massA}, speed ${inputs.speedA ?? 0}.`}><span>Cart A</span><strong>{config.massA} mass</strong><b>{inputs.speedA ?? 0} speed →</b></div>
-        <div className="collision-point" aria-label="Collision point">×<span>latch point</span></div>
-        <div className={`collision-cart collision-cart-b collision-position-${trackDirection}`} role="img" aria-label={`Cart B: mass ${config.massB}, speed ${inputs.speedB ?? 0}.`}><span>Cart B</span><strong>{config.massB} mass</strong><b>← {inputs.speedB ?? 0} speed</b></div>
+      <div className="collision-track-viewport" data-testid="collision-comparison-track-viewport">
+        <div className="collision-model comparison-track" data-testid="collision-comparison-track" data-phase={phase} data-motion-direction={trackDirection} aria-label="Two-cart collision model track">
+          <div className={`collision-cart collision-cart-a collision-position-${trackDirection}`} role="img" aria-label={`Cart A: mass ${config.massA}, speed ${inputs.speedA ?? 0}.`}><span>Cart A</span><strong>{config.massA} mass</strong><b>{inputs.speedA ?? 0} speed →</b></div>
+          <div className="collision-point" aria-label="Collision point">×<span>latch point</span></div>
+          <div className={`collision-cart collision-cart-b collision-position-${trackDirection}`} role="img" aria-label={`Cart B: mass ${config.massB}, speed ${inputs.speedB ?? 0}.`}><span>Cart B</span><strong>{config.massB} mass</strong><b>← {inputs.speedB ?? 0} speed</b></div>
+        </div>
       </div>
       <p className="collision-quantities">Modeled push numbers: Cart A {config.massA} × {inputs.speedA ?? 0} = {exactText(multiplyExact(config.massA, inputs.speedA ?? 0))}; Cart B {config.massB} × {inputs.speedB ?? 0} = {exactText(multiplyExact(config.massB, inputs.speedB ?? 0))}. These numbers are part of this lesson model.</p>
       <div className="collision-comparison-controls" data-widget-grid="controls">

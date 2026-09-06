@@ -166,6 +166,21 @@ test('runs two locked fair-test comparisons only after a prediction', async () =
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
 
+test('contains the rich comparison track in the bounded mobile viewport', () => {
+  render(<CollisionRamp config={{
+    massA: 2,
+    massB: 2,
+    speedA: 1,
+    speedB: 3,
+    controlledVariable: 'speed-a',
+    comparisonRuns: 2,
+  }} onEvent={vi.fn()} />);
+
+  const track = screen.getByTestId('collision-comparison-track');
+  expect(track.parentElement).toHaveClass('collision-track-viewport');
+  expect(track.parentElement).toHaveAttribute('data-testid', 'collision-comparison-track-viewport');
+});
+
 test('requires a correct comparison statement and reports strategy feedback without changing locked inputs', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
