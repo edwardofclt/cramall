@@ -110,7 +110,19 @@ export const unit09Lessons = [
           { kind: 'example', text: 'From 9:45 to 10:05 is 15 + 5 = 20 minutes.' },
           { kind: 'tip', text: 'The minute hand moving one full circle represents 60 minutes.' },
         ],
-        widget: { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5 } },
+        widget: { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5, jumpMinutes: [5, 10, 15] } },
+        widgetCoach: {
+          intro: [
+            { speaker: 'guide', pose: 'think', text: 'Use friendly jumps to add the elapsed minutes from the start time, pausing at an hour when it helps.' },
+            { speaker: 'kid', text: 'I will keep each jump visible and add them until the current clock reaches the end.' },
+          ],
+          reactions: {
+            strategy: { text: 'Choose a jump that fits the minutes remaining, then read the new current time.', pose: 'think' },
+            retry: { text: 'That jump would pass the end. Use a smaller remaining interval and keep the total honest.', pose: 'oops' },
+            milestone: { text: 'You crossed an hour—record that friendly jump before adding the next one.', pose: 'cheer' },
+            complete: { text: 'Your jumps add to 35 minutes, taking 9:00 AM to 9:35 AM.', pose: 'cheer' },
+          },
+        },
       },
       {
         id: 'math-u09-l02-c3',

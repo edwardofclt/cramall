@@ -17,6 +17,64 @@ test('elapsed mode crosses midnight without mount events', () => {
   expect(onEvent).not.toHaveBeenCalled();
 });
 
+test('elapsed jumps retain their timeline and hide the target until exact completion', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ClockElapsedTime
+      config={{ mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, jumpMinutes: [5, 10, 15] }}
+      onEvent={onEvent}
+    />,
+  );
+
+  expect(screen.queryByText('9:35 AM')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Add 15 minutes' })).toBeEnabled();
+  expect(screen.getByText(/35 minutes remaining\./)).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
+
+  expect(screen.getByTestId('clock-current-result')).toHaveTextContent('9:15 AM');
+  expect(screen.getByTestId('clock-jump-1')).toHaveTextContent('9:00 AM → 15 minutes → 9:15 AM');
+  expect(screen.getByText(/20 minutes remaining\./)).toBeInTheDocument();
+  expect(onEvent.mock.calls.slice(-2).map(([event]) => event)).toEqual([
+    { type: 'interaction', action: 'change-minute' },
+    { type: 'change', value: { hour: 9, minute: 15, totalMinutes: 555 } },
+  ]);
+});
+
+test('elapsed jumps disable overshoots, name the remaining interval, and complete once', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+
+  render(
+    <ClockElapsedTime
+      config={{ mode: 'elapsed', startTime: '09:45', elapsedMinutes: 35, jumpMinutes: [5, 10, 15] }}
+      onEvent={onEvent}
+    />,
+  );
+
+  await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
+  await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'milestone')).toHaveLength(1);
+  const overshoot = screen.getByRole('button', { name: 'Add 15 minutes' });
+  expect(overshoot).toBeDisabled();
+  expect(screen.getByText(/5 minutes remaining\./, { selector: 'p[role="status"]' })).toBeInTheDocument();
+  await user.click(overshoot);
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+
+  await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('clock-end-result')).toHaveTextContent('10:20 AM');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+
+  await user.click(screen.getByRole('button', { name: 'Start over' }));
+  expect(screen.queryAllByTestId(/clock-jump-/)).toHaveLength(0);
+  expect(screen.getByTestId('clock-current-result')).toHaveTextContent('9:45 AM');
+  expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'no');
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
 test('set-time controls emit next time and one completion', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
