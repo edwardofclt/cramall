@@ -4,6 +4,7 @@ import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
 
 type WaveValues = { amplitude: number; frequency: number };
+type CoachPhase = 'none' | 'strategy' | 'retry';
 
 const sampleWave = (amplitude: number, frequency: number) => Array.from({ length: 81 }, (_, index) => {
   const x = index * 1.25;
@@ -22,6 +23,7 @@ export default function WaveMaker({ config, onEvent }: WidgetProps<'wave-maker'>
   const initial: WaveValues = { amplitude: config.amplitude ?? 1, frequency: config.frequency ?? 1 };
   const [wave, setWave] = useState<WaveValues>(initial);
   const [hasChanged, setHasChanged] = useState(false);
+  const [coachPhase, setCoachPhase] = useState<CoachPhase>('none');
   const { completeOnce } = useCompletionLatch(key);
   const matches = (values: WaveValues) => !!config.target
     && (config.target.amplitude === undefined || values.amplitude === config.target.amplitude)
@@ -30,18 +32,27 @@ export default function WaveMaker({ config, onEvent }: WidgetProps<'wave-maker'>
   const targetAmplitude = config.target?.amplitude;
   const targetFrequency = config.target?.frequency;
 
-  useEffect(() => { setWave(initial); setHasChanged(false); }, [key]);
+  useEffect(() => { setWave(initial); setHasChanged(false); setCoachPhase('none'); }, [key]);
 
   const commit = (next: WaveValues, action: 'change-amplitude' | 'change-frequency') => {
     setWave(next);
     setHasChanged(true);
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: next });
-    if (matches(next)) completeOnce(() => onEvent({ type: 'complete', value: next }));
+    if (matches(next)) {
+      completeOnce(() => onEvent({ type: 'complete', value: next }));
+    } else if (config.target && coachPhase === 'none') {
+      setCoachPhase('strategy');
+      onEvent({ type: 'coach', cue: 'strategy' });
+    } else if (config.target && coachPhase === 'strategy') {
+      setCoachPhase('retry');
+      onEvent({ type: 'coach', cue: 'retry' });
+    }
   };
   const reset = () => {
     setWave(initial);
     setHasChanged(false);
+    setCoachPhase('none');
     onEvent({ type: 'interaction', action: 'reset' });
     onEvent({ type: 'change', value: initial });
   };

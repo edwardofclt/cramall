@@ -68,6 +68,20 @@ test('shows authored targets and graph effects before the learner changes contro
   expect(screen.getByText(/read frequency as cycles across this fixed width/i)).toBeInTheDocument();
 });
 
+test('coaches the first strategy and one meaningful retry without leaking the target answer', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<WaveMaker config={{ medium: 'rope', amplitude: 2, frequency: 2, target: { amplitude: 4 } }} onEvent={onEvent} />);
+
+  await user.click(screen.getByRole('button', { name: 'Increase amplitude' }));
+  await user.click(screen.getByRole('button', { name: 'Decrease amplitude' }));
+  await user.click(screen.getByRole('button', { name: 'Decrease amplitude' }));
+
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy', 'retry']);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').every(([event]) => Object.keys(event).sort().join(',') === 'cue,type')).toBe(true);
+});
+
 test('strictly bounds wave levels and requires a nonempty partial target', () => {
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'water', amplitude: 0 }).success).toBe(false);
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'rope', frequency: 11 }).success).toBe(false);

@@ -82,6 +82,8 @@ test('traces source to object to eye before committing the modeled ray', async (
   await user.click(screen.getByRole('button', { name: 'Select source: Lamp' }));
   await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
   await user.click(screen.getByRole('button', { name: 'Select eye: Eye' }));
+  expect(screen.getByRole('button', { name: 'Select source: Lamp' })).toBeDisabled();
+  expect(screen.getByRole('status')).not.toHaveTextContent(/undefined/i);
   expect(screen.getByRole('button', { name: 'Trace committed light path' })).toBeEnabled();
   await user.click(screen.getByRole('button', { name: 'Trace committed light path' }));
 

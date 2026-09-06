@@ -61,6 +61,7 @@ export default function LightReflectionEye({ config, onEvent }: WidgetProps<'lig
   const selectPathNode = (node: 'source' | 'object' | 'eye') => {
     const expected: Array<'source' | 'object' | 'eye'> = ['source', 'object', 'eye'];
     const next = expected[selectedPath.length];
+    if (pathCommitted || next === undefined) return;
     if (node !== next) {
       onEvent({ type: 'coach', cue: selectedPath.length === 0 ? 'strategy' : 'retry' });
       setChecked(false);
@@ -109,7 +110,7 @@ export default function LightReflectionEye({ config, onEvent }: WidgetProps<'lig
       <strong data-testid="reflection-angle">Reflected angle: {angle}° from the normal</strong>
     </div>}
     {tracePath && <div className="light-path-steps" aria-label="Light path steps">
-      {(['source', 'object', 'eye'] as const).map((node) => <button key={node} type="button" aria-label={`Select ${node}: ${pathLabels[node]}`} aria-pressed={selectedPath.includes(node)} disabled={pathCommitted} onClick={() => selectPathNode(node)}>{selectedPath.includes(node) ? '✓ ' : ''}{node}: {pathLabels[node]}</button>)}
+      {(['source', 'object', 'eye'] as const).map((node) => <button key={node} type="button" aria-label={`Select ${node}: ${pathLabels[node]}`} aria-pressed={selectedPath.includes(node)} disabled={pathCommitted || selectedPath.length === 3} onClick={() => selectPathNode(node)}>{selectedPath.includes(node) ? '✓ ' : ''}{node}: {pathLabels[node]}</button>)}
       <span className="light-path-order" aria-live="polite">Path: {selectedPath.length ? selectedPath.map((node) => pathLabels[node]).join(' → ') : 'not started'}</span>
     </div>}
     <div className="light-diagram" role="img" aria-label={diagramLabel}>
