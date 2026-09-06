@@ -231,6 +231,9 @@ test('requires a prediction, retains matched vegetation runs, and completes only
 
   await user.click(screen.getByRole('button', { name: /predict.*bare/i }));
   expect(run).toBeEnabled();
+  expect(onEvent.mock.calls).toContainEqual([{ type: 'interaction', action: 'choose-prediction' }]);
+  expect(onEvent.mock.calls).toContainEqual([{ type: 'change', value: { agent: 'water', vegetation: false, prediction: 'bare' } }]);
+  expect(onEvent.mock.calls).not.toContainEqual([{ type: 'interaction', action: 'toggle-vegetation' }]);
   await user.click(run);
   expect(screen.getByTestId('erosion-run-bare')).toHaveTextContent(/bare vegetation/i);
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'testing');
@@ -245,4 +248,5 @@ test('requires a prediction, retains matched vegetation runs, and completes only
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/matched.*vegetation/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+  expect(onEvent.mock.calls).toContainEqual([{ type: 'complete', value: { agent: 'water', vegetation: false, prediction: 'bare' } }]);
 });

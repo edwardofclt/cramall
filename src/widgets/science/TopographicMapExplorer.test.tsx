@@ -41,13 +41,32 @@ test('plots six authored points, exposes non-color symbols and a keyboard-linked
   expect(screen.getAllByTestId(/^topographic-point-/)).toHaveLength(6);
   expect(screen.getByTestId('topographic-point-p1')).toHaveAttribute('aria-label', expect.stringMatching(/Peak 1.*500 m/));
   expect(screen.getByTestId('topographic-point-p1')).toHaveAttribute('data-x', '20');
+  expect(screen.getByRole('img').querySelectorAll('[role="button"]').length).toBe(0);
   const listButton = screen.getByRole('button', { name: /Select Peak 1/ });
   expect(listButton).toHaveAttribute('aria-controls', 'topographic-point-p1');
   await user.click(listButton);
   expect(screen.getByRole('status')).toHaveTextContent(/elevation.*500.*pattern/i);
+  await user.click(screen.getByRole('button', { name: /Select Peak 2/ }));
   await user.click(screen.getByRole('button', { name: /choose band/i }));
   expect(screen.getByTestId('widget-topographic-map-explorer')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/visible.*band.*not.*cause/i);
+});
+
+test('does not allow direct pattern guessing without multiple same-group point evidence', async () => {
+  const user = userEvent.setup();
+  const onEvent = vi.fn();
+  const points = [
+    { id: 'p1', label: 'Peak 1', x: 20, y: 20, elevation: 500, group: 'peaks' },
+    { id: 'p2', label: 'Peak 2', x: 40, y: 20, elevation: 500, group: 'peaks' },
+    { id: 'v1', label: 'Valley 1', x: 20, y: 70, elevation: 100, group: 'valleys' },
+  ];
+  render(<TopographicMapExplorer config={{ contours, points, targetPattern: 'band' }} onEvent={onEvent} />);
+  await user.click(screen.getByRole('button', { name: /choose band/i }));
+  expect(screen.getByTestId('widget-topographic-map-explorer')).toHaveAttribute('data-state', 'exploring');
+  expect(screen.getByRole('status')).toHaveTextContent(/at least two.*same named group/i);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
+  expect(onEvent.mock.calls).toContainEqual([{ type: 'interaction', action: 'select-pattern' }]);
+  expect(onEvent.mock.calls).toContainEqual([{ type: 'change', value: { selectedPointId: null, selectedPattern: 'band', selectedPointIds: [] } }]);
 });
 
 test('presents named elevations as map-data key entries without inventing locations', () => {

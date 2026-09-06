@@ -35,6 +35,7 @@ const contourIdentifier = (index: number) => `C${index + 1}`;
 export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'topographic-map-explorer'>) {
   const key = JSON.stringify(config);
   const [selected, setSelected] = useState<string | null>(null);
+  const [selectedPointIds, setSelectedPointIds] = useState<string[]>([]);
   const [checked, setChecked] = useState<string | null>(null);
   const [patternChoice, setPatternChoice] = useState<'band' | 'cluster' | null>(null);
   const [status, setStatus] = useState(defaultPrompt);
@@ -42,45 +43,61 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
   const viewBox = useMemo(() => contourViewBox(config.contours, config.points), [config.contours, config.points]);
   const contourMapName = useMemo(() => `Topographic contour model: ${config.contours.map((contour, index) => `${contourIdentifier(index)} — Contour ${index + 1}: ${contour.elevation} m`).join('; ')}`, [config.contours]);
   const hasPlottedPoints = config.points.every(isPlottedPoint);
+  const hasPatternEvidence = hasPlottedPoints && selectedPointIds.length >= 2 && new Set(selectedPointIds.map((id) => config.points.find((point): point is PlottedPoint => point.id === id && isPlottedPoint(point))?.group)).size === 1;
   const isComplete = config.targetPattern !== undefined
-    ? patternChoice === config.targetPattern
+    ? patternChoice === config.targetPattern && hasPatternEvidence
     : config.targetPointId !== undefined && selected === config.targetPointId && checked === config.targetPointId;
 
   useEffect(() => {
     setSelected(null);
+    setSelectedPointIds([]);
     setChecked(null);
     setPatternChoice(null);
     setStatus(defaultPrompt);
   }, [key]);
 
-  const emit = (next: string | null, action: 'select-point' | 'check' | 'reset') => {
+  const emit = (next: string | null, action: 'select-point' | 'check' | 'reset', pointIds?: string[]) => {
     onEvent({type: 'interaction', action});
-    onEvent({type: 'change', value: {selectedPointId: next}});
+    onEvent({type: 'change', value: hasPlottedPoints
+      ? {selectedPointId: next, selectedPointIds: pointIds ?? selectedPointIds}
+      : {selectedPointId: next}});
   };
 
   const select = (id: string) => {
     const point = config.points.find((candidate) => candidate.id === id)!;
-    setSelected(id);
+    const nextIds = hasPlottedPoints
+      ? selectedPointIds.includes(id) ? selectedPointIds.filter((candidate) => candidate !== id) : [...selectedPointIds, id]
+      : [];
+    const nextSelected = hasPlottedPoints ? (nextIds[nextIds.length - 1] ?? null) : id;
+    setSelected(nextSelected);
+    setSelectedPointIds(nextIds);
     setChecked(null);
+    setPatternChoice(null);
     setStatus(hasPlottedPoints
-      ? `${point.label}: printed elevation ${point.elevation} m at the plotted location. Compare the visible spatial pattern; the map does not establish a cause.`
+      ? `${point.label}: printed elevation ${point.elevation} m at the plotted location. ${nextIds.length} point${nextIds.length === 1 ? '' : 's'} selected; compare the visible spatial pattern without inferring a cause.`
       : `${point.label}: ${point.elevation} m. This is printed map data, not a plotted location.`);
-    emit(id, 'select-point');
+    emit(nextSelected, 'select-point', nextIds);
     if (hasPlottedPoints) onEvent({type: 'coach', cue: 'strategy'});
   };
 
   const choosePattern = (pattern: 'band' | 'cluster') => {
     setPatternChoice(pattern);
     setChecked(pattern);
-    emit(selected, 'check');
     if (config.targetPattern === undefined) return;
+    onEvent({type: 'interaction', action: 'select-pattern'});
+    onEvent({type: 'change', value: {selectedPointId: selected, selectedPattern: pattern, selectedPointIds}});
+    if (!hasPatternEvidence) {
+      onEvent({type: 'coach', cue: 'retry'});
+      setStatus('Select at least two plotted points from the same named group before submitting a pattern. This keeps the claim tied to visible map evidence.');
+      return;
+    }
     if (pattern !== config.targetPattern) {
       onEvent({type: 'coach', cue: 'retry'});
       setStatus(`That is not the authored pattern yet. Compare the plotted locations and name only the visible spatial arrangement, not its cause.`);
       return;
     }
     setStatus(`Correct: the plotted points form a visible ${pattern}. The map supports a pattern description, not a cause claim.`);
-    completeOnce(() => onEvent({type: 'complete', value: {selectedPointId: pattern}}));
+    completeOnce(() => onEvent({type: 'complete', value: {selectedPattern: pattern, selectedPointIds}}));
   };
 
   const check = () => {
@@ -102,10 +119,11 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
 
   const reset = () => {
     setSelected(null);
+    setSelectedPointIds([]);
     setChecked(null);
     setPatternChoice(null);
     setStatus(defaultPrompt);
-    emit(null, 'reset');
+    emit(null, 'reset', []);
   };
 
   return <section className="card widget-experiment topo" data-testid="widget-topographic-map-explorer" data-state={isComplete ? 'complete' : 'exploring'} aria-describedby="topographic-model-note">
@@ -129,7 +147,9 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
             const pointId = `topographic-point-${point.id}`;
             const symbol = point.group.toLocaleLowerCase().includes('valley') || point.group.toLocaleLowerCase().includes('coast') ? '▼' : '▲';
             return <g key={point.id} id={pointId} className="topographic-plotted-point">
-              <circle data-testid={pointId} cx={point.x} cy={point.y} r="3.5" data-x={point.x} data-y={point.y} data-group={point.group} role="button" tabIndex={0} aria-label={`${point.label}: ${point.elevation} m, ${point.group}`} aria-pressed={selected === point.id} onClick={() => select(point.id)} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); select(point.id); } }} />
+              <circle data-testid={pointId} cx={point.x} cy={point.y} r="3.5" data-x={point.x} data-y={point.y} data-group={point.group} aria-label={`${point.label}: ${point.elevation} m, ${point.group}`}>
+                <title>{`${point.label}: ${point.elevation} m, ${point.group}`}</title>
+              </circle>
               <text className="topographic-point-symbol" x={point.x + 2} y={point.y + 2} aria-hidden="true">{symbol}</text>
               <text className="topographic-point-label" x={point.x + 4} y={point.y - 3} aria-hidden="true">{point.id}</text>
             </g>;
@@ -159,7 +179,7 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
       <h4 id="named-map-data-key-title">Named map-data key</h4>
         <p>{hasPlottedPoints ? 'Choose a plotted point by its printed elevation, then describe the visible spatial pattern. The model does not establish why the pattern formed.' : 'Choose a named point by its printed elevation. The model does not supply locations for these names.'}</p>
       <div className="topographic-point-buttons">
-        {config.points.map((point) => <button key={point.id} aria-label={`Select ${point.label}`} aria-controls={hasPlottedPoints ? `topographic-point-${point.id}` : undefined} aria-pressed={selected === point.id} onClick={() => select(point.id)}>{point.label}: {point.elevation} m</button>)}
+        {config.points.map((point) => <button key={point.id} aria-label={`Select ${point.label}`} aria-controls={hasPlottedPoints ? `topographic-point-${point.id}` : undefined} aria-pressed={hasPlottedPoints ? selectedPointIds.includes(point.id) : selected === point.id} onClick={() => select(point.id)}>{point.label}: {point.elevation} m</button>)}
       </div>
     </section>
     <div className="topographic-controls">

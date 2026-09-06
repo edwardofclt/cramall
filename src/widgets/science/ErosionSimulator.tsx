@@ -98,7 +98,8 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
   const choosePrediction = (value: Prediction) => {
     setPrediction(value);
     setCompared(false);
-    onEvent({ type: 'interaction', action: 'toggle-vegetation' });
+    onEvent({ type: 'interaction', action: 'choose-prediction' });
+    onEvent({ type: 'change', value: { ...inputs, prediction: value } });
     onEvent({ type: 'coach', cue: 'strategy' });
     setStatus(`Prediction saved: the ${value} tray will show more movement than the other matched run.`);
   };
@@ -115,7 +116,7 @@ export default function ErosionSimulator({config,onEvent}:WidgetProps<'erosion-s
     }
     setStatus('You compared matched bare and covered vegetation runs: the bare tray shows more modeled movement. This authored model is not physical evidence.');
     if (config.targetAgent !== undefined && comparisonRuns.bare?.agent === config.targetAgent) {
-      completeOnce(() => onEvent({ type: 'complete', value: comparisonRuns.bare! }));
+      completeOnce(() => onEvent({ type: 'complete', value: { ...comparisonRuns.bare!, prediction: 'bare' } }));
     }
   };
   const reset = () => {
