@@ -73,7 +73,19 @@ const scienceU03L01Core = {
           "frequency": 2,
           "target": {
             "amplitude": 4
-          }
+          },
+          "taskPrompt": "Raise the modeled amplitude to the visible target while keeping the cycle spacing in view."
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Compare the live rope pattern with the labeled amplitude target and keep the baseline in view." },
+          { "speaker": "kid", "text": "I will use vertical displacement for amplitude and cycles across the width for frequency." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Use the target line and measure each crest or trough from the baseline; do not count cycles to find amplitude.", "pose": "think" },
+          "retry": { "text": "The target is not matched yet. Check the labeled amplitude and keep the graph’s fixed width in mind.", "pose": "oops" },
+          "complete": { "text": "You matched the amplitude target and used the wave model’s labels to explain its pattern.", "pose": "cheer" }
         }
       }
     },
@@ -915,7 +927,19 @@ const scienceU03L03Core = {
           "frequency": 2,
           "target": {
             "amplitude": 3
-          }
+          },
+          "taskPrompt": "Change the modeled amplitude to the visible target, then predict what a floating object might do."
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Use the water-wave graph to connect a larger modeled displacement to a cautious prediction." },
+          { "speaker": "kid", "text": "I will describe what the model predicts without calling the screen an observation of a cork." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Read the vertical displacement from the baseline first, then state what motion the model predicts.", "pose": "think" },
+          "retry": { "text": "Revise the target match and keep the prediction separate from evidence collected in a real tray.", "pose": "oops" },
+          "complete": { "text": "You matched the water-wave target and connected modeled amplitude to a careful prediction.", "pose": "cheer" }
         }
       }
     },
@@ -1337,8 +1361,26 @@ const scienceU03L04Core = {
         "type": "light-reflection-eye",
         "config": {
           "incidentAngle": 25,
-          "targetAngle": 30,
-          "showEye": true
+          "showEye": true,
+          "task": "trace-path",
+          "pathLabels": {
+            "source": "Lamp",
+            "object": "Book",
+            "eye": "Eye"
+          },
+          "taskPrompt": "Connect the source, object, and eye before committing the modeled light path."
+        }
+      },
+      "widgetCoach": {
+        "intro": [
+          { "speaker": "guide", "pose": "talk", "text": "Trace the labeled path from the lamp to the book and then to the eye." },
+          { "speaker": "kid", "text": "I will commit the source → object → eye path before I explain how reflected light connects to seeing." }
+        ],
+        "reactions": {
+          "strategy": { "text": "Start with the source, then choose the object, then the eye; the labels give you the path instead of a secret angle target.", "pose": "think" },
+          "retry": { "text": "Follow the visible source → object → eye order and commit only after all three points are selected.", "pose": "oops" },
+          "milestone": { "text": "The path is taking shape. Keep the object between the source and the eye.", "pose": "talk" },
+          "complete": { "text": "You traced reflected light from the object into the eye and connected that model to seeing.", "pose": "cheer" }
         }
       }
     },

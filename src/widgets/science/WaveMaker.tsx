@@ -27,6 +27,8 @@ export default function WaveMaker({ config, onEvent }: WidgetProps<'wave-maker'>
     && (config.target.amplitude === undefined || values.amplitude === config.target.amplitude)
     && (config.target.frequency === undefined || values.frequency === config.target.frequency);
   const visiblyComplete = hasChanged && matches(wave);
+  const targetAmplitude = config.target?.amplitude;
+  const targetFrequency = config.target?.frequency;
 
   useEffect(() => { setWave(initial); setHasChanged(false); }, [key]);
 
@@ -55,6 +57,12 @@ export default function WaveMaker({ config, onEvent }: WidgetProps<'wave-maker'>
       <strong>Amplitude: {wave.amplitude}</strong><span aria-hidden="true">↕</span>
       <strong>Frequency: {wave.frequency} cycle{wave.frequency === 1 ? '' : 's'}</strong><span aria-hidden="true">↔</span>
     </div>
+    <div className="wave-targets" aria-label="Authored wave targets">
+      <strong>Goal:</strong>
+      {targetAmplitude !== undefined && <span>Target amplitude: {targetAmplitude}</span>}
+      {targetFrequency !== undefined && <span>Target frequency: {targetFrequency} cycles across this width</span>}
+      <span>Read amplitude as vertical displacement from the baseline; read frequency as cycles across this fixed width.</span>
+    </div>
     <div className="wave-controls" aria-label="Wave controls">
       <button aria-label="Decrease amplitude" disabled={wave.amplitude === 1} onClick={() => commit({ ...wave, amplitude: wave.amplitude - 1 }, 'change-amplitude')}>Amplitude −</button>
       <button aria-label="Increase amplitude" disabled={wave.amplitude === 10} onClick={() => commit({ ...wave, amplitude: wave.amplitude + 1 }, 'change-amplitude')}>Amplitude +</button>
@@ -65,6 +73,13 @@ export default function WaveMaker({ config, onEvent }: WidgetProps<'wave-maker'>
       <svg aria-hidden="true" focusable="false" viewBox="0 0 100 100" data-static={reduced ? 'yes' : 'no'}>
         <line className="wave-axis" x1="0" x2="100" y1="50" y2="50" />
         <line className="wave-axis wave-y-axis" x1="0" x2="0" y1="0" y2="100" />
+        {targetAmplitude !== undefined && <>
+          <line className="wave-target-line" data-testid="wave-target-amplitude" data-target-amplitude={targetAmplitude} x1="0" x2="100" y1={50 - targetAmplitude * 3} y2={50 - targetAmplitude * 3} />
+          <line className="wave-target-line" data-testid="wave-target-amplitude-trough" x1="0" x2="100" y1={50 + targetAmplitude * 3} y2={50 + targetAmplitude * 3} />
+        </>}
+        {targetFrequency !== undefined && <g className="wave-target-frequency" data-testid="wave-target-frequency" data-target-frequency={targetFrequency} aria-label={`Target frequency marker: ${targetFrequency} cycles across this width`}>
+          {Array.from({ length: targetFrequency + 1 }, (_, index) => <line key={index} x1={(index * 100) / targetFrequency} x2={(index * 100) / targetFrequency} y1="46" y2="54" />)}
+        </g>}
         <polyline className="wave-line" data-testid="wave-geometry" points={sampleWave(wave.amplitude, wave.frequency)} />
       </svg>
       <span className="wave-baseline-label">Baseline / no displacement</span>

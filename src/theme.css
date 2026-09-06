@@ -2617,9 +2617,13 @@ body {
 .wave-values { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; color: var(--c-ink); }
 .wave-controls { display: grid; grid-template-columns: repeat(2, minmax(44px, 1fr)); gap: .5rem; }
 .wave-controls button, .wave-reset { min-height: 44px; }
+.wave-targets { display: flex; flex-wrap: wrap; align-items: baseline; gap: .45rem .8rem; padding: .6rem .7rem; border: 3px solid var(--c-accent-action); border-radius: .65rem; background: color-mix(in srgb, var(--c-accent-action) 9%, var(--c-card)); }
+.wave-targets span { font-weight: 800; }.wave-targets span:last-child { flex-basis: 100%; color: var(--c-ink-soft); font-size: .9rem; }
 .wave-graph { display: grid; gap: .35rem; padding: .5rem; border: 3px solid var(--c-ink); border-radius: .65rem; background: var(--c-card); }
 .wave-graph svg { display: block; width: 100%; height: auto; }
 .wave-axis { stroke: var(--c-ink); stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
+.wave-target-line { stroke: var(--c-accent-action); stroke-width: 1.2; stroke-dasharray: 4 2; vector-effect: non-scaling-stroke; }
+.wave-target-frequency line { stroke: var(--c-marker-b); stroke-width: 1; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; }
 .wave-line { fill: none; stroke: var(--c-marker-a); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .wave-baseline-label { font-size: .85rem; font-weight: 800; }
 .wave-reset { justify-self: start; min-width: 44px; }
@@ -2630,8 +2634,13 @@ body {
 .light-diagram svg { display: block; width: 100%; height: auto; }
 .reflecting-surface, .incident-ray, .reflected-ray { stroke: var(--c-ink); stroke-width: 2; vector-effect: non-scaling-stroke; }
 .reflecting-surface { stroke-width: 4; }.surface-normal { stroke: var(--c-ink); stroke-width: 1; vector-effect: non-scaling-stroke; }.angle-arc { fill: none; stroke: var(--c-ink); stroke-width: 1.25; vector-effect: non-scaling-stroke; }.angle-label, .surface-label, .normal-label { fill: var(--c-ink); font-size: 5px; font-weight: 800; }.eye-receiver ellipse { fill: var(--c-card); stroke: var(--c-ink); stroke-width: 1.5; }.eye-receiver circle { fill: var(--c-ink); }.eye-receiver text { fill: var(--c-ink); font-size: 4px; font-weight: 800; }
-.light-controls { display: grid; grid-template-columns: repeat(3, minmax(44px, 1fr)); gap: .5rem; }.light-controls button, .light-reset { min-height: 44px; }.light-reset { justify-self: start; min-width: 44px; }
+.light-controls, .light-path-controls { display: grid; grid-template-columns: repeat(3, minmax(44px, 1fr)); gap: .5rem; }.light-controls button, .light-path-controls button, .light-reset { min-height: 44px; }.light-reset { justify-self: start; min-width: 44px; }
+.light-path-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }.light-path-steps button { min-height: 44px; text-align: left; }.light-path-steps button[aria-pressed='true'] { outline: 3px solid var(--c-accent-action); outline-offset: 2px; }.light-path-order { grid-column: 1 / -1; min-height: 1.5rem; font-weight: 800; }
+.light-path-controls { grid-template-columns: minmax(44px, max-content); }.light-path-node { fill: var(--c-accent-action); stroke: var(--c-ink); stroke-width: 1.25; }.light-path-label { fill: var(--c-ink); font-size: 4px; font-weight: 900; }.light-ray-committed { animation: light-ray-arrival .55s ease-out; }.light-ray-committed[data-committed='yes'] { stroke: var(--c-marker-a); }
+@keyframes light-ray-arrival { from { stroke-dasharray: 0 100; opacity: .35; } to { stroke-dasharray: 100 0; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .light-ray-committed { animation: none; } }
 @media (max-width: 520px) { .light-controls { grid-template-columns: 1fr; } }
+@media (max-width: 560px) { .light-path-steps { grid-template-columns: 1fr; } }
 .widget-experiment.message { display: grid; gap: .75rem; }
 .message header p, .message-target { margin: 0; color: var(--c-ink-soft); font-weight: 700; }.message-target { color: var(--c-ink); font-size: 1.125rem; }
 .message-reference { padding: .6rem; border: 2px solid var(--c-ink); border-radius: .65rem; }.message-reference h4, .message-reference ul { margin: 0; }.message-reference ul { display: flex; flex-wrap: wrap; gap: .35rem .8rem; padding: .4rem 0 0; list-style: none; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 800; }

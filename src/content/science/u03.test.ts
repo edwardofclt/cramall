@@ -28,7 +28,8 @@ const specs = [
             "frequency": 2,
             "target": {
               "amplitude": 4
-            }
+            },
+            "taskPrompt": "Raise the modeled amplitude to the visible target while keeping the cycle spacing in view."
           }
         }
       },
@@ -193,7 +194,8 @@ const specs = [
             "frequency": 2,
             "target": {
               "amplitude": 3
-            }
+            },
+            "taskPrompt": "Change the modeled amplitude to the visible target, then predict what a floating object might do."
           }
         }
       },
@@ -276,8 +278,14 @@ const specs = [
           "type": "light-reflection-eye",
           "config": {
             "incidentAngle": 25,
-            "targetAngle": 30,
-            "showEye": true
+            "showEye": true,
+            "task": "trace-path",
+            "pathLabels": {
+              "source": "Lamp",
+              "object": "Book",
+              "eye": "Eye"
+            },
+            "taskPrompt": "Connect the source, object, and eye before committing the modeled light path."
           }
         }
       },
@@ -418,6 +426,19 @@ test('every card has an immediate exact missed-result review route', () => {
     });
     expect(actualTargets).toEqual(expectedTargets);
   }
+});
+
+test('wave and light widget cards carry in-step Sandy coaching for their model boundaries', () => {
+  const coachedCards = unit03Lessons.flatMap((lesson) => lesson.learnCards.filter((card) => card.widget));
+  expect(coachedCards).toHaveLength(3);
+  for (const card of coachedCards) {
+    expect(card.widgetCoach?.intro).toHaveLength(2);
+    expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/model|path|amplitude|frequency/i);
+  }
+  const lightCard = unit03Lessons[3]!.learnCards[1]!;
+  expect(lightCard.widgetCoach?.reactions.strategy?.text).toMatch(/source.*object.*eye/i);
+  expect(lightCard.widgetCoach?.reactions.complete.text).toMatch(/reflected light.*eye/i);
 });
 
 test('every scenario-dependent Quick Check prompt includes its complete usable context', () => {

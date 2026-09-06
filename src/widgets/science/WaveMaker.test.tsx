@@ -58,6 +58,16 @@ test('keeps its visible state live and distinguishes sound from a literal air sh
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
 
+test('shows authored targets and graph effects before the learner changes controls', () => {
+  render(<WaveMaker config={{ medium: 'rope', amplitude: 2, frequency: 2, target: { amplitude: 4, frequency: 3 } }} onEvent={vi.fn()} />);
+
+  expect(screen.getByText('Target amplitude: 4')).toBeInTheDocument();
+  expect(screen.getByText('Target frequency: 3 cycles across this width')).toBeInTheDocument();
+  expect(screen.getByTestId('wave-target-amplitude')).toHaveAttribute('data-target-amplitude', '4');
+  expect(screen.getByText(/Read amplitude as vertical displacement from the baseline/i)).toBeInTheDocument();
+  expect(screen.getByText(/read frequency as cycles across this fixed width/i)).toBeInTheDocument();
+});
+
 test('strictly bounds wave levels and requires a nonempty partial target', () => {
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'water', amplitude: 0 }).success).toBe(false);
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'rope', frequency: 11 }).success).toBe(false);

@@ -4,6 +4,11 @@ import { expect, test, vi } from 'vitest';
 import { LightReflectionEyeWidgetConfigSchema } from '../../content/schema';
 import LightReflectionEye from './LightReflectionEye';
 
+const motionPreference = { reduced: false };
+vi.mock('../../app/useReducedMotionPref', () => ({
+  useReducedMotionPref: () => motionPreference.reduced,
+}));
+
 test('changes angle, states the reflection, and completes on check once', async () => {
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<LightReflectionEye config={{ incidentAngle: 29, targetAngle: 30, showEye: true }} onEvent={onEvent} />);
@@ -52,4 +57,55 @@ test('strictly bounds authored reflection angles and controls at both endpoints'
   expect(LightReflectionEyeWidgetConfigSchema.safeParse({ incidentAngle: 30, targetAngle: 30, extra: true }).success).toBe(false);
   render(<LightReflectionEye config={{ incidentAngle: 0 }} onEvent={vi.fn()} />);
   expect(screen.getByRole('button', { name: 'Decrease incident angle' })).toBeDisabled();
+});
+
+test('traces source to object to eye before committing the modeled ray', async () => {
+  const onEvent = vi.fn();
+  const user = userEvent.setup();
+  render(<LightReflectionEye config={{
+    incidentAngle: 25,
+    showEye: true,
+    task: 'trace-path',
+    taskPrompt: 'Connect the source, object, and eye.',
+    pathLabels: { source: 'Lamp', object: 'Book', eye: 'Eye' },
+  }} onEvent={onEvent} />);
+
+  expect(screen.getByText('Connect the source, object, and eye.')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select source: Lamp' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select object: Book' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Select eye: Eye' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Increase incident angle' })).not.toBeInTheDocument();
+  expect(screen.getByTestId('widget-light-reflection-eye')).toHaveAttribute('data-path-committed', 'no');
+
+  await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
+  expect(screen.getByRole('status')).toHaveTextContent(/start with the source/i);
+  await user.click(screen.getByRole('button', { name: 'Select source: Lamp' }));
+  await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
+  await user.click(screen.getByRole('button', { name: 'Select eye: Eye' }));
+  expect(screen.getByRole('button', { name: 'Trace committed light path' })).toBeEnabled();
+  await user.click(screen.getByRole('button', { name: 'Trace committed light path' }));
+
+  expect(screen.getByTestId('widget-light-reflection-eye')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-light-reflection-eye')).toHaveAttribute('data-path-committed', 'yes');
+  expect(screen.getByRole('status')).toHaveTextContent(/Lamp.*Book.*Eye/i);
+  expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'milestone')).toBe(true);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
+});
+
+test('uses the same committed ray and message when reduced motion is enabled', async () => {
+  motionPreference.reduced = true;
+  const user = userEvent.setup();
+  render(<LightReflectionEye config={{
+    incidentAngle: 25,
+    task: 'trace-path',
+    pathLabels: { source: 'Lamp', object: 'Book', eye: 'Eye' },
+  }} onEvent={vi.fn()} />);
+  await user.click(screen.getByRole('button', { name: 'Select source: Lamp' }));
+  await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
+  await user.click(screen.getByRole('button', { name: 'Select eye: Eye' }));
+  await user.click(screen.getByRole('button', { name: 'Trace committed light path' }));
+  expect(screen.getByTestId('widget-light-reflection-eye')).toHaveAttribute('data-motion', 'off');
+  expect(screen.getByTestId('reflected-ray')).toHaveAttribute('data-committed', 'yes');
+  expect(screen.getByRole('status')).toHaveTextContent(/Lamp.*Book.*Eye/i);
+  motionPreference.reduced = false;
 });
