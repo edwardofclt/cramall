@@ -113,7 +113,7 @@ test('emits ordered reset state and never rearms completion after revision',asyn
   await user.click(screen.getByRole('button',{name:'Start over'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'reset'},
-    {type:'change',value:{selectedIds:[],composition:''}},
+    {type:'change',value:{selectedIds:[]}},
   ]);
   expect(screen.getByTestId('summary-selected-order')).toHaveTextContent('No sentences selected yet.');
 
@@ -233,4 +233,28 @@ test('emits bounded strategy, retry, milestone, and typed composition completion
     type:'complete',
     value:{selectedIds:['main','detail'],composition:'Bees help plants by carrying pollen.'},
   });
+});
+
+test('does not coach retry for missing evidence, then retries the actual extra selection',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  expect(onEvent.mock.calls.map(([event])=>event).filter((event)=>event.type==='coach')).toEqual([
+    {type:'coach',cue:'strategy'},
+  ]);
+  await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  expect(onEvent.mock.calls.map(([event])=>event).filter((event)=>event.type==='coach')).toEqual([
+    {type:'coach',cue:'strategy'},
+    {type:'coach',cue:'retry'},
+  ]);
+});
+
+test('includes an empty composition only when a composition stage is configured',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Start over'}));
+  expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
+    {type:'interaction',action:'reset'},
+    {type:'change',value:{selectedIds:[],composition:''}},
+  ]);
 });

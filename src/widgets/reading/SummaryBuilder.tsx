@@ -73,7 +73,7 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
       strategyAnnounced.current=true;
       onEvent({type:'coach',cue:'strategy'});
     }
-    if(ordered.length>0&&!nextPlanValid&&!retryAnnounced.current){
+    if(ordered.length>0&&retryableSelectionFor(ordered)&&!retryAnnounced.current){
       retryAnnounced.current=true;
       onEvent({type:'coach',cue:'retry'});
     }
@@ -97,6 +97,16 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
       &&selectedExtrasForIds.length===0
       &&unexpectedDetailsForIds.length===0
       &&ids.length<=config.maxSentences;
+  };
+
+  const retryableSelectionFor=(ids:string[])=>{
+    const selectedExtrasForIds=ids.filter((id)=>sourceById.get(id)?.role==='extra');
+    const unexpectedDetailsForIds=requiredDetailIds.length>0
+      ?ids.filter((id)=>sourceById.get(id)?.role==='detail'&&!requiredDetailIds.includes(id))
+      :[];
+    return selectedExtrasForIds.length>0
+      ||unexpectedDetailsForIds.length>0
+      ||ids.length>config.maxSentences;
   };
 
   const updateComposition=(value:string)=>{
@@ -191,7 +201,7 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
     <div className="summary-controls"><button type="button" onClick={()=>{
       setComposition('');
       setAttemptedComposition(false);
-      emitSelection([],'reset','');
+      emitSelection([],'reset',hasCompositionStage?'':undefined);
     }}>Start over</button></div>
     <p role="status">{currentValid?'Summary ready. You wrote a plan and a bounded response.':feedback}</p>
   </section>;
