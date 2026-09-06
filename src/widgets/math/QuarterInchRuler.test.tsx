@@ -89,4 +89,7 @@ test('shows the endpoint goal and a labeled object aligned to zero', () => {
   expect(screen.getByRole('img', { name: /Measured object starts at 0 inches and ends at 4 3\/4 inches/ })).toBeInTheDocument();
   expect(screen.getByTestId('measured-object')).toHaveAttribute('data-start-inches', '0');
   expect(screen.getByTestId('measured-object')).toHaveAttribute('data-end-inches', '4.75');
+  expect(screen.getByTestId('measured-object')).toHaveAttribute('data-zero-aligned', 'true');
+  expect(screen.getByTestId('measured-object-body')).toHaveStyle({ width: '100%' });
+  expect(screen.getByTestId('measured-object-endpoint')).toHaveAttribute('data-quarter-step', '19');
 });

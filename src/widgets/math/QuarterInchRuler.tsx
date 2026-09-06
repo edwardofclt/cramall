@@ -96,11 +96,47 @@ export default function QuarterInchRuler({ config, onEvent }: WidgetProps<'quart
           data-testid="measured-object"
           data-start-inches="0"
           data-end-inches={target}
+          data-zero-aligned="true"
+          data-quarter-step={Math.round(target * 4)}
           role="img"
           aria-label={`Measured object starts at 0 inches and ends at ${mixedMeasurement(target)}`}
-          style={{ width: `${Math.max(32, target * 128)}px` }}
+          style={{
+            position: 'relative',
+            width: `${Math.max(32, target * 128)}px`,
+            minHeight: '2.5rem',
+          }}
         >
-          Measured object · starts at 0
+          <span
+            data-testid="measured-object-body"
+            aria-hidden="true"
+            style={{
+              display: 'block',
+              width: '100%',
+              height: '2rem',
+              boxSizing: 'border-box',
+              border: '3px solid var(--c-ink)',
+              borderRadius: '.5rem',
+              background: 'repeating-linear-gradient(135deg, var(--c-card) 0 .45rem, var(--c-accent) .45rem .9rem)',
+              fontWeight: 800,
+            }}
+          >
+            <span style={{ paddingInline: '.4rem' }}>Measured object</span>
+          </span>
+          <span
+            data-testid="measured-object-endpoint"
+            data-quarter-step={Math.round(target * 4)}
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '.05rem',
+              right: '-.35rem',
+              width: '.7rem',
+              height: '2.4rem',
+              border: '3px solid var(--c-ink)',
+              borderRadius: '.25rem',
+              background: 'var(--c-accent-action)',
+            }}
+          />
         </div>
         <div
           className="ruler-track"

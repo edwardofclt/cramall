@@ -60,6 +60,8 @@ test('shows a dollar goal, labeled tokens, subtotals, and meaningful cues', asyn
 
   expect(screen.getByTestId('widget-task')).toHaveTextContent('Show $6.35');
   expect(screen.getByLabelText('penny, 1 cents')).toHaveTextContent('1¢');
+  expect(screen.getByLabelText('dollar bill, 100 cents')).toHaveTextContent('100¢');
+  expect(screen.getByRole('img', { name: '100-cent dollar bill token' })).toBeInTheDocument();
   expect(screen.getByTestId('money-subtotal-25')).toHaveTextContent('0¢');
 
   await user.click(screen.getByRole('button', { name: 'Add a penny' }));

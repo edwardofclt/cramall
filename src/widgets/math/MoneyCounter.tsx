@@ -8,12 +8,12 @@ type Counts = Record<CountKey, number>;
 
 const ZERO: Counts = { '1': 0, '5': 0, '10': 0, '25': 0, '100': 0 };
 const DEFAULT_DENOMINATIONS: Denomination[] = [1, 5, 10, 25, 100];
-const COIN_NAMES: Record<Denomination, string> = {
+const DENOMINATION_NAMES: Record<Denomination, string> = {
   1: 'penny',
   5: 'nickel',
   10: 'dime',
   25: 'quarter',
-  100: 'dollar coin',
+  100: 'dollar bill',
 };
 
 const countKey = (denomination: Denomination): CountKey => String(denomination) as CountKey;
@@ -72,7 +72,7 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
       </div>
       <div className="money-denominations" aria-label="Coin counter controls">
         {denominations.map((denomination) => {
-          const name = COIN_NAMES[denomination];
+          const name = DENOMINATION_NAMES[denomination];
           const keyForDenomination = countKey(denomination);
           const count = counts[keyForDenomination];
           return (
