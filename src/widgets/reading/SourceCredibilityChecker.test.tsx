@@ -166,7 +166,7 @@ test('supports keyboard ratings with visible non-color selection markers',async(
   button.focus();
   await user.keyboard('{Enter}');
   expect(button).toHaveAttribute('aria-pressed','true');
-  expect(button).toHaveTextContent('✓ Selected');
+  expect(button).toHaveTextContent('● Selected');
 });
 
 test('normalizes records and rejects ambiguous, unsafe, or incorrectly derived configs',()=>{
@@ -247,12 +247,12 @@ test('reasoned mode keeps the question and every source criterion visible', () =
   }} onEvent={vi.fn()} />);
   expect(screen.getByText('Which source should Maya use to explain safe mosquito prevention?')).toBeVisible();
   for (const source of reasonedSources) {
-    const group = screen.getByRole('group', { name: `Source: ${source.title}` });
+    const group = screen.getByRole('article', { name: `Record: ${source.title}` });
     expect(group).toHaveTextContent(source.author);
     expect(group).toHaveTextContent(source.publisher);
     expect(group).toHaveTextContent(source.date);
     expect(group).toHaveTextContent(source.purpose);
-    for (const judgment of source.judgments) expect(group).toHaveTextContent(judgment.reason);
+    for (const judgment of source.judgments) expect(screen.getByRole('button',{name:`Select reason for ${source.title}: ${judgment.criterion}`})).not.toHaveTextContent(judgment.reason);
   }
   expect(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' })).toBeVisible();
   expect(screen.getByRole('button', { name: 'Rate County Extension guide needs more checking' })).toBeVisible();
@@ -270,10 +270,10 @@ test('reasoned mode grades ratings and selected reason stamps, then latches comp
 
   await user.click(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' }));
   await user.click(screen.getByRole('button', { name: 'Rate Amazing mosquito facts needs more checking' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The author is an entomologist.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The county extension office is accountable for the guide.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The author role does not show mosquito expertise.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The publisher gives no accountability information.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: expertise' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: publisher' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: expertise' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: publisher' }));
   await user.click(screen.getByRole('button', { name: 'Check source judgments' }));
 
   expect(screen.getByRole('status')).toHaveTextContent(/fits this question/i);
@@ -307,10 +307,10 @@ test('reasoned mode retries with one missing criterion without revealing the ans
   }} onEvent={onEvent} />);
   await user.click(screen.getByRole('button', { name: 'Rate County Extension guide credible for this question' }));
   await user.click(screen.getByRole('button', { name: 'Rate Amazing mosquito facts credible for this question' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The author is an entomologist.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: The county extension office is accountable for the guide.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The author role does not show mosquito expertise.' }));
-  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: The publisher gives no accountability information.' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: expertise' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for County Extension guide: publisher' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: expertise' }));
+  await user.click(screen.getByRole('button', { name: 'Select reason for Amazing mosquito facts: publisher' }));
   await user.click(screen.getByRole('button', { name: 'Check source judgments' }));
   const status = screen.getByRole('status');
   expect(status).toHaveTextContent(/Amazing mosquito facts/);

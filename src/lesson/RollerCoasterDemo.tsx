@@ -1,4 +1,5 @@
-import { useEffect, useState, type AnimationEvent, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type AnimationEvent, type CSSProperties } from 'react';
+import { ActivityWorkbench } from '../widgets/ActivityWorkbench';
 import { useReducedMotionPref } from '../app/useReducedMotionPref';
 import type { InstructionalDemo } from '../content/schema';
 
@@ -83,20 +84,9 @@ const COPY: Record<Focus, { title: string; prompt: string }> = {
 };
 
 function resultFor(focus: Focus, release: Exclude<Release, 'idle'>): string {
-  const higher = release === 'higher';
-  if (focus === 'speed-energy') {
-    return higher
-      ? 'Higher release complete: The same car traveled through the same fixed near-bottom interval faster, so it had more kinetic energy than on the lower release.'
-      : 'Lower release complete: The same car traveled through the same fixed near-bottom interval more slowly, so it had less kinetic energy than on the higher release.';
-  }
-  if (focus === 'evidence') {
-    return higher
-      ? 'Claim: The higher release gives the same coaster car more kinetic energy near the bottom. Model observation: In this simplified model, the same car traveled through the fixed near-bottom interval faster after the higher release. Reasoning: For the same car, faster motion means more kinetic energy. This model helps explain the pattern; it is not real experimental evidence.'
-      : 'Claim: The lower release gives the same coaster car less kinetic energy near the bottom. Model observation: In this simplified model, the same car traveled through the fixed near-bottom interval more slowly after the lower release. Reasoning: For the same car, slower motion means less kinetic energy. This model helps explain the pattern; it is not real experimental evidence.';
-  }
-  return higher
-    ? 'Higher release model complete: In this safe miniature marble-and-foam-block collision, the foam block moved farther. The faster marble had more energy of motion, so more energy of motion transferred to the block. This is a qualitative model, not an exact measurement.'
-    : 'Lower release model complete: In this safe miniature marble-and-foam-block collision, the foam block moved a shorter distance. The marble slowed as some energy of motion transferred to the block. This is a qualitative model, not an exact measurement.';
+  const label = release === 'higher' ? 'Higher' : 'Lower';
+  if (focus === 'collision') return `${label} release model complete: In this miniature marble-and-foam-block collision, the foam block moved ${release === 'higher' ? 'farther' : 'a shorter distance'}. This is a qualitative model, not an exact measurement.`;
+  return `${label} release complete: The same car traveled through the same fixed near-bottom interval ${release === 'higher' ? 'faster' : 'more slowly'}. This is a model observation, not real experimental evidence.`;
 }
 
 function runningFor(focus: Focus, release: Exclude<Release, 'idle'>): string {
@@ -299,8 +289,16 @@ function CoasterScene({ focus, release, phase, reduced, runNumber, onAnimationCo
   );
 }
 
-export function RollerCoasterDemo({ focus }: { focus: Focus }) {
+export type DemoCoachCue = 'prediction' | 'observation' | 'retry' | 'complete' | 'reset';
+
+export function RollerCoasterDemo({ focus, onCoach }: { focus: Focus; onCoach?: (cue: DemoCoachCue) => void }) {
   const reduced = useReducedMotionPref();
+  const coachCallback = useRef(onCoach);
+  coachCallback.current = onCoach;
+  const [prediction, setPrediction] = useState<'lower' | 'higher' | null>(null);
+  const [records, setRecords] = useState<Partial<Record<'lower' | 'higher', string>>>({});
+  const [explanation, setExplanation] = useState<'energy' | 'motion' | null>(null);
+  const firstControl = useRef<HTMLButtonElement>(null);
   const [demoRun, setDemoRun] = useState<DemoRun>({
     release: 'idle',
     sequence: 0,
@@ -319,6 +317,15 @@ export function RollerCoasterDemo({ focus }: { focus: Focus }) {
       : current);
   }, [reduced]);
 
+  useEffect(() => { if (demoRun.release === 'idle') firstControl.current?.focus({ preventScroll: true }); }, [demoRun.release]);
+  useEffect(() => {
+    if (phase === 'complete' && demoRun.release !== 'idle') {
+      const release = demoRun.release;
+      setRecords(current => ({ ...current, [release]: resultFor(focus, release) }));
+      coachCallback.current?.('observation');
+    }
+  }, [phase, demoRun.release, demoRun.sequence, focus]);
+
   const runRelease = (release: Exclude<Release, 'idle'>) => {
     setDemoRun((current) => ({
       release,
@@ -328,6 +335,8 @@ export function RollerCoasterDemo({ focus }: { focus: Focus }) {
     }));
   };
   const reset = () => {
+    coachCallback.current?.('reset');
+    setPrediction(null); setRecords({}); setExplanation(null);
     setDemoRun((current) => ({
       release: 'idle',
       sequence: current.sequence + 1,
@@ -355,7 +364,7 @@ export function RollerCoasterDemo({ focus }: { focus: Focus }) {
 
   return (
     <section
-      className="rc-demo"
+      className="rc-demo activity-shell"
       aria-label={`Interactive roller-coaster model: ${copy.title}`}
       data-run={demoRun.release}
       data-motion={demoRun.release === 'idle' ? 'idle' : phase === 'running' ? 'animate' : 'instant'}
@@ -363,17 +372,14 @@ export function RollerCoasterDemo({ focus }: { focus: Focus }) {
       data-focus={focus}
       data-block-distance={blockDistance}
     >
+      <ActivityWorkbench label="Roller-coaster comparison" revealKey={records.lower && records.higher ? 'explain' : 'run'} visual={<>
       <div className="rc-demo-heading">
         <div>
           <span className="rc-demo-kicker">Interactive roller-coaster model</span>
           <h3>{copy.title}</h3>
         </div>
-        <span className="rc-demo-badge">Practice only</span>
+        <span className="rc-demo-badge">Practice model</span>
       </div>
-      <p className="rc-demo-prompt">{copy.prompt}</p>
-      <p className="rc-demo-note">
-        Simplified model: it helps us notice a pattern, but it is not real experimental evidence.
-      </p>
 
       <CoasterScene
         focus={focus}
@@ -384,31 +390,58 @@ export function RollerCoasterDemo({ focus }: { focus: Focus }) {
         onAnimationComplete={completeRun}
       />
 
+      <section className="rc-observation-board" aria-label="Release comparison record">
+        <h4>Compare your runs</h4>
+        <dl>{(['lower', 'higher'] as const).map(release => <div key={release}>
+          <dt>{release === 'lower' ? 'Lower' : 'Higher'} release</dt>
+          <dd>{!records[release] ? 'Not run yet' : focus === 'collision' ? release === 'lower' ? 'Shorter block movement' : 'Farther block movement' : release === 'lower' ? 'Slower in the fixed interval' : 'Faster in the fixed interval'}</dd>
+        </div>)}</dl>
+      </section>
+      </>}>
+      <fieldset className="rc-task"><legend>1 · Predict</legend><p>{focus === 'collision' ? 'Which release might move the block farther?' : 'Which release might make the car faster near the bottom?'}</p>
+        <button ref={firstControl} type="button" className="btn" disabled={demoRun.release !== 'idle'} aria-pressed={prediction === 'lower'} onClick={() => { setPrediction('lower'); onCoach?.('prediction'); }}>The lower release</button>
+        <button type="button" className="btn" disabled={demoRun.release !== 'idle'} aria-pressed={prediction === 'higher'} onClick={() => { setPrediction('higher'); onCoach?.('prediction'); }}>The higher release</button>
+        <p aria-label="Release prediction feedback">{records.lower && records.higher ? prediction === 'higher' ? 'Your prediction matched the modeled comparison.' : 'Your prediction differed from the modeled comparison. Keep it as a record of your first idea.' : prediction ? 'Prediction saved. Run both releases to compare.' : 'Choose an idea before running the model.'}</p>
+      </fieldset>
+      <section className="rc-task"><h4>2 · Run and compare</h4>
+      <p className="rc-demo-prompt">{copy.prompt}</p>
+      <p className="rc-demo-note">
+        Simplified model: it helps us notice a pattern, but it is not real experimental evidence.
+      </p>
       <div className="rc-controls" aria-label="Roller-coaster model controls">
         <button
           className="btn rc-control rc-control-lower"
           type="button"
           aria-pressed={demoRun.release === 'lower'}
+          disabled={!prediction}
           onClick={() => runRelease('lower')}
         >
           Run lower release
         </button>
         <button
-          className="btn btn-primary rc-control"
+          className="btn rc-control"
           type="button"
           aria-pressed={demoRun.release === 'higher'}
+          disabled={!prediction}
           onClick={() => runRelease('higher')}
         >
           Run higher release
-        </button>
-        <button className="btn rc-control" type="button" onClick={reset}>
-          Reset
         </button>
       </div>
 
       <p className="rc-status" role="status" aria-live="polite">
         {status}
       </p>
+      {records.lower && <p aria-label="Lower release record">{records.lower}</p>}
+      {records.higher && <p aria-label="Higher release record">{records.higher}</p>}
+      </section>
+      {records.lower && records.higher && <fieldset className="rc-task" data-activity-reveal><legend>3 · Explain</legend><p>What could this comparison help explain?</p>
+        <button type="button" className="btn" data-outcome={explanation === 'energy' ? 'retry' : undefined} onClick={() => { setExplanation('energy'); onCoach?.('retry'); }}>We directly saw energy</button>
+        <button type="button" className="btn" data-outcome={explanation === 'motion' ? 'correct' : undefined} onClick={() => { setExplanation('motion'); onCoach?.('complete'); }}>The change in motion could support an energy explanation</button>
+        {explanation && <p aria-label="Release explanation feedback">{explanation === 'energy' ? 'Try again. We can describe motion, but we do not directly see energy.' : 'Correct. The motion comparison could support an energy explanation. A real observation would be needed as physical evidence.'}</p>}
+      </fieldset>}
+      <button className="btn rc-control" type="button" onClick={reset}>Reset</button>
+      </ActivityWorkbench>
     </section>
   );
 }

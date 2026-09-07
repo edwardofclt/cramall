@@ -440,9 +440,9 @@ test('animal matcher card coaches a connected internal/external system explanati
   const card = unit06Lessons[1]!.learnCards[1]!;
   expect(card.widgetCoach?.intro).toHaveLength(2);
   expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
-  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/outside|inside|function/i);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/body part.*helps.*animal/i);
   expect(card.widgetCoach?.reactions.retry?.text).toMatch(/internal.*external|external.*internal/i);
-  expect(card.widgetCoach?.reactions.complete.text).toMatch(/cooperate.*system/i);
+  expect(card.widgetCoach?.reactions.complete.text).toMatch(/different jobs.*internal.*external/i);
   const pairs = (card.widget as { config: { pairs: Array<{ kind?: string }> } }).config.pairs;
   expect(pairs.some(({ kind }) => kind === 'internal')).toBe(true);
   expect(pairs.some(({ kind }) => kind === 'external')).toBe(true);

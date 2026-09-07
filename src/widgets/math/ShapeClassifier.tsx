@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
@@ -18,7 +20,7 @@ function propertyDescription(shape: { label: string; sides: number; angles: numb
 type ClassificationConfig = Extract<WidgetProps<'shape-classifier'>['config'], { mode: 'classifications' }>;
 type LegacyConfig = Exclude<WidgetProps<'shape-classifier'>['config'], { mode: 'classifications' }>;
 
-function CanonicalShapeDiagram({ shape }: { shape: ClassificationConfig['shapes'][number] }) {
+function CanonicalShapeDiagram({ shape, label }: { shape: ClassificationConfig['shapes'][number]; label: string }) {
   const details: Record<ClassificationConfig['shapes'][number]['diagram'], { points: string; evidence: string }> = {
     'equilateral-triangle': { points: '20,76 80,76 50,24', evidence: 'three equal-side marks; three acute angles; and equal-angle evidence' },
     'isosceles-acute-triangle': { points: '25,76 75,76 50,25', evidence: 'two equal-side marks and three acute angles' },
@@ -57,45 +59,56 @@ function CanonicalShapeDiagram({ shape }: { shape: ClassificationConfig['shapes'
     <g className="shape-parallel-mark" data-parallel-pair="one" data-edge-anchors="AB,CD"><path d="M50 28l-4-3m4 3l-4 3 M50 72l-4-3m4 3l-4 3" /></g>
     <g className="shape-parallel-mark" data-parallel-pair="two" data-edge-anchors="BC,DA"><path d="M72 50l-3-4m3 4l-3 4 M28 50l3-4m-3 4l3 4" /></g>
   </> : null;
-  const classes = shape.classifications.map((classification) => classification.replace(/-/g, ' ')).join(', ');
-  return <svg className="shape-canonical-diagram" role="img" aria-label={`${shape.label}: canonical ${shape.diagram.replace(/-/g, ' ')} with ${shape.sides} sides, ${shape.angles} angles, and ${shape.parallelPairs} pairs of parallel sides. Observable evidence: ${evidence}. Canonical classes: ${classes}.`} viewBox="0 0 100 100" data-diagram={shape.diagram}>
+  return <svg className="shape-canonical-diagram" role="img" aria-label={`${label}: ${shape.sides} sides, ${shape.angles} angles, and ${shape.parallelPairs} pairs of parallel sides. Observable evidence: ${evidence}.`} viewBox="0 0 100 100" data-diagram={shape.diagram}>
     <polygon points={points} />{right}{parallel}{equal}
   </svg>;
 }
 
 function ClassificationShapeClassifier({ config, onEvent }: { config: ClassificationConfig; onEvent: WidgetProps<'shape-classifier'>['onEvent'] }) {
   const key = JSON.stringify(config);
+  const name = (id: string) => `Shape ${String.fromCharCode(65 + config.shapes.findIndex(item => item.id === id))}`;
   const [selected, setSelected] = useState<string | null>(null);
   const [memberships, setMemberships] = useState<Record<string, string[]>>({});
-  const [status, setStatus] = useState('Select a shape, then choose every class that fits it.');
+  const [checks, setChecks] = useState<Record<string, { correct: boolean; classes: string[] }>>({});
   const { completeOnce } = useCompletionLatch(key);
-  useEffect(() => { setSelected(null); setMemberships({}); setStatus('Select a shape, then choose every class that fits it.'); }, [key]);
-  const targetIds = (shape: ClassificationConfig['shapes'][number]) => shape.classifications.map((classification) => config.bins.find((bin) => bin.classification === classification)!.id);
-  const correct = (next: Record<string, string[]>) => config.shapes.every((shape) => {
-    const chosen = next[shape.id] ?? []; const target = targetIds(shape);
-    return chosen.length === target.length && target.every((id) => chosen.includes(id));
-  });
-  const matched = correct(memberships);
-  const emit = (next: Record<string, string[]>, action: Action) => {
-    setMemberships(next); onEvent({ type: 'interaction', action }); onEvent({ type: 'change', value: { memberships: next } });
-    if (correct(next)) { setStatus('Every shape is in exactly the classes shown by its diagram.'); completeOnce(() => onEvent({ type: 'complete', value: { memberships: next } })); }
-  };
-  const place = (binId: string) => {
+  useEffect(() => { setSelected(null); setMemberships({}); setChecks({}); }, [key]);
+  const shape = config.shapes.find(candidate => candidate.id === selected) ?? config.shapes[0]!;
+  const targetIds = (item: ClassificationConfig['shapes'][number]) => item.classifications.map(classification => config.bins.find(bin => bin.classification === classification)!.id);
+  const correct = (item: ClassificationConfig['shapes'][number], chosen: string[]) => chosen.length === targetIds(item).length && targetIds(item).every(id => chosen.includes(id));
+  const matched = config.shapes.every(item => checks[item.id]?.correct && correct(item, memberships[item.id] ?? []));
+  const current = memberships[shape.id] ?? [];
+  const checked = checks[shape.id];
+  const currentWasChecked = checked && checked.classes.length === current.length && checked.classes.every(id => current.includes(id));
+  function choose(id: string) { if (selected === id) return; setSelected(id); onEvent({ type: 'interaction', action: 'select-shape' }); onEvent({ type: 'change', value: { memberships } }); }
+  function place(id: string) {
     if (!selected) return;
-    const current = memberships[selected] ?? [];
-    const nextMembership = current.includes(binId) ? current.filter((id) => id !== binId) : [...current, binId];
-    const shape = config.shapes.find((candidate) => candidate.id === selected)!;
-    setStatus(`${shape.label} ${current.includes(binId) ? 'removed from' : 'added to'} ${config.bins.find((bin) => bin.id === binId)?.label}.`);
-    emit({ ...memberships, [selected]: nextMembership }, 'place-shape');
-  };
-  return <section className="card widget-experiment shapes" data-testid="widget-shape-classifier" data-state={matched ? 'complete' : 'sorting'} data-complete={matched ? 'yes' : 'no'}>
-    <header className="shapes-heading"><h3>Classify the shapes</h3><p>Select every class supported by each diagram.</p></header>
-    <div className="shape-cards" aria-label="Shape classification cards">{config.shapes.map((shape) => <article className="shape-card" data-selected={selected === shape.id ? 'true' : 'false'} key={shape.id}>
-      <CanonicalShapeDiagram shape={shape} /><div className="shape-properties"><h4>{shape.label}</h4><p>Classes: {(memberships[shape.id] ?? []).map((id) => config.bins.find((bin) => bin.id === id)?.label).join(', ') || 'not placed'}</p></div>
-      <button aria-label={`Select ${shape.label}`} aria-pressed={selected === shape.id} onClick={() => { setSelected(shape.id); setStatus(`Selected ${shape.label}. Choose every class that fits.`); emit(memberships, 'select-shape'); }}>Select {shape.label}</button>
-    </article>)}</div>
-    <section className="shape-bins" aria-label="Classification bins"><h4>Choose every class that fits</h4><div>{config.bins.map((bin) => <button aria-label={`Place selected shape in ${bin.label}`} aria-pressed={selected ? (memberships[selected] ?? []).includes(bin.id) : false} disabled={!selected} key={bin.id} onClick={() => place(bin.id)}>{bin.label}</button>)}</div></section>
-    <button className="shape-reset" onClick={() => { setSelected(null); setStatus('Classifications cleared. Select a shape.'); emit({}, 'reset'); }}>Start over</button><p role="status">{matched ? 'Every shape is in exactly the classes shown by its diagram.' : status}</p>
+    const nextClasses = current.includes(id) ? current.filter(value => value !== id) : [...current, id];
+    const next = { ...memberships, [selected]: nextClasses };
+    setMemberships(next); onEvent({ type: 'interaction', action: 'place-shape' }); onEvent({ type: 'change', value: { memberships: next } });
+  }
+  function check() {
+    if (!selected) return;
+    const isCorrect = correct(shape, current);
+    const next = { ...checks, [shape.id]: { correct: isCorrect, classes: [...current] } };
+    setChecks(next);
+    onEvent({ type: 'coach', cue: isCorrect ? 'milestone' : 'retry' });
+    if (config.shapes.every(item => next[item.id]?.correct && correct(item, memberships[item.id] ?? []))) completeOnce(() => onEvent({ type: 'complete', value: { memberships } }));
+  }
+  return <section className="card widget-experiment shapes activity-shell math-activity" data-testid="widget-shape-classifier" data-state={matched ? 'complete' : 'sorting'} data-complete={matched ? 'yes' : 'no'}>
+    <ActivityWorkbench label="Classify by shape attributes" revealKey={`${selected}-${currentWasChecked}`} visual={<>
+      <header className="shapes-heading"><h3>Classify the shapes</h3><p>Use side and angle marks to decide every group that fits.</p></header>
+      <div className="math-selected-shape"><CanonicalShapeDiagram shape={shape} label={name(shape.id)} /><h4>{name(shape.id)}</h4></div>
+      <p>Right-angle boxes, equal-side ticks, and parallel arrows describe the shape.</p>
+      <p className="math-record">Your classes: {current.map(id => config.bins.find(bin => bin.id === id)?.label).join(', ') || 'none selected'}</p>
+    </>}>
+      <section className="math-task"><h4>1 · Choose a shape</h4><div className="math-choice-grid">{config.shapes.map(item => <button type="button" key={item.id} aria-label={`Select ${name(item.id)}`} aria-pressed={selected === item.id} onClick={() => choose(item.id)}>{name(item.id)}{checks[item.id]?.correct && correct(item, memberships[item.id] ?? []) ? ' · Checked' : ''}</button>)}</div></section>
+      <section className="shape-bins math-task" data-activity-reveal={selected && !currentWasChecked ? "" : undefined} aria-label="Classification bins"><h4>2 · Select every class that fits</h4><div>{config.bins.map(bin => <button type="button" aria-label={`Place selected shape in ${bin.label}`} aria-pressed={selected ? current.includes(bin.id) : false} disabled={!selected} key={bin.id} onClick={() => place(bin.id)}>{bin.label}</button>)}</div><button type="button" disabled={!selected} onClick={check}>Check these classes</button>
+        <p aria-label="Shape check feedback" role="status" data-outcome={currentWasChecked ? checked.correct ? 'correct' : 'retry' : undefined}>{!currentWasChecked ? 'These choices are not checked yet.' : checked.correct ? 'Correct. Every selected class is supported by this shape’s attributes.' : 'Try again. Check for missing groups and groups whose attributes do not fit. Use the diagram marks.'}</p>
+      </section>
+      <section className="math-task" aria-label="Shape check record" data-activity-reveal={currentWasChecked ? "" : undefined}><h4>3 · Compare your checks</h4>{Object.entries(checks).map(([id, record]) => <p className="math-record" key={id}>{name(id)}: {record.classes.map(classId => config.bins.find(bin => bin.id === classId)?.label).join(', ') || 'no classes'}. {record.correct ? 'Correct when checked.' : 'Needed another look when checked.'}</p>)}<p>Which marked attribute explains why one shape can belong to more than one group?</p></section>
+      <button type="button" className="shape-reset" onClick={() => { setSelected(null); setMemberships({}); setChecks({}); onEvent({ type: 'interaction', action: 'reset' }); onEvent({ type: 'change', value: { memberships: {} } }); }}>Start over</button>
+      <p role="status">{matched ? 'Every shape is in exactly the classes shown by its diagram.' : 'Select a shape, inspect its marks, and check its classes.'}</p>
+    </ActivityWorkbench>
   </section>;
 }
 
@@ -157,16 +170,16 @@ export default function ShapeClassifier({ config, onEvent }: WidgetProps<'shape-
 
   return (
     <section
-      className="card widget-experiment shapes"
+      className="card widget-experiment shapes activity-shell math-activity"
       data-testid="widget-shape-classifier"
       data-state={matched ? 'complete' : 'sorting'}
       data-complete={matched ? 'yes' : 'no'}
     >
-      <header className="shapes-heading">
+<ActivityWorkbench label="Classify by shape attributes" visual={<><header className="shapes-heading">
         <h3>Classify the shapes</h3>
         <p>Classify by: <strong>{ruleLabels[legacyConfig.rule]}</strong></p>
       </header>
-      <div className="shape-cards" aria-label="Shape property cards">
+<div className="shape-cards" aria-label="Shape property cards">
         {legacyConfig.shapes.map((shape) => {
           const bin = legacyConfig.bins.find((candidate) => candidate.id === placements[shape.id]);
           const description = propertyDescription(shape);
@@ -200,8 +213,8 @@ export default function ShapeClassifier({ config, onEvent }: WidgetProps<'shape-
             </article>
           );
         })}
-      </div>
-      <section className="shape-bins" aria-label={`Bins for ${ruleLabels[legacyConfig.rule]}`}>
+      </div></>}>
+<section className="shape-bins" aria-label={`Bins for ${ruleLabels[legacyConfig.rule]}`}>
         <h4>Choose a {ruleLabels[legacyConfig.rule]} bin</h4>
         <div>
           {legacyConfig.bins.map((bin) => (
@@ -216,8 +229,9 @@ export default function ShapeClassifier({ config, onEvent }: WidgetProps<'shape-
           ))}
         </div>
       </section>
-      <button className="shape-reset" onClick={reset}>Start over</button>
-      <p role="status">{matched ? 'Every shape is classified by the active rule.' : status}</p>
-    </section>
+<button className="shape-reset" onClick={reset}>Start over</button>
+<p role="status">{matched ? 'Every shape is classified by the active rule.' : status}</p>
+</ActivityWorkbench>
+</section>
   );
 }

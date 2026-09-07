@@ -84,7 +84,7 @@ describe('PlaceValueBuilder', () => {
     await tap(user, 'Take one from the tens place');
 
     expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-state', 'building');
-    expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-complete', 'yes');
+    expect(screen.getByTestId('widget-place-value-builder')).toHaveAttribute('data-complete', 'no');
     expect(screen.getByTestId('pv-standard')).toHaveTextContent('30');
     expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
   });
@@ -308,7 +308,7 @@ describe('NumberLineCompare', () => {
     await tap(user, 'Move A right');
 
     expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-state', 'choosing');
-    expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'yes');
+    expect(screen.getByTestId('widget-number-line-compare')).toHaveAttribute('data-complete', 'no');
     expect(screen.queryByTestId('nl-feedback')).toBeNull();
     expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
   });

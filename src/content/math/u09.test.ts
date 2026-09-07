@@ -100,7 +100,7 @@ const expectedWidgets = {
   'math-u09-l01-c1': { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100], taskPrompt: 'Show $6.35 with coins and bills.' } },
   'math-u09-l02-c2': { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5, jumpMinutes: [5, 10, 15] } },
   'math-u09-l03-c2': { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0, taskPrompt: 'Place the object endpoint at 4¾ inches.' } },
-  'math-u09-l05-c1': { type: 'balance-scale', config: { left: [{ id: 'three-feet', label: '3 feet', value: 36 }], right: [{ id: 'thirty-six-inches', label: '36 inches', value: 36 }], task: 'compare' } },
+  'math-u09-l05-c1': { type: 'balance-scale', config: { left: [{ id: 'three-feet', label: '3 feet', value: 36 }], right: [{ id: 'thirty-six-inches', label: '36 inches', value: 36 }], task: 'compare', lengthModel: { feet: 3, inches: 36 } } },
 } as const;
 
 test('u09 is the exact validated 5-lesson unit', () => {

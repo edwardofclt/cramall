@@ -39,6 +39,11 @@ const constrainedConfig = {
   ],
 };
 
+async function runAndExplain(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(screen.getByRole('button', {name: 'Run connected device'}));
+  await user.click(screen.getByRole('button', {name: 'The device changed motion into another effect'}));
+}
+
 test('rejects incompatible adjacency without corrupting the valid chain', async () => {
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
@@ -54,6 +59,7 @@ test('rejects incompatible adjacency without corrupting the valid chain', async 
   expect(screen.getByTestId('conversion-chain')).toHaveTextContent('sun');
   await user.click(screen.getByRole('button', { name: 'Add Panel' }));
   await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
+  await runAndExplain(user);
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
   const completeCalls = onEvent.mock.calls.filter(([event]) => event.type === 'complete');
   expect(completeCalls[completeCalls.length - 1]?.[0]).toEqual({ type: 'complete', value: { chain: ['sun', 'panel', 'lamp'] } });
@@ -97,6 +103,7 @@ test('renders the selected chain as labelled nodes and returns live state to bui
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
   for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
   expect(screen.getByTestId('conversion-chain')).toHaveTextContent(/Sun.*light.*Panel.*electric.*Lamp/i);
   expect(screen.getAllByTestId('conversion-connector')).toHaveLength(2);
   expect(screen.getByText(/simplified energy-conversion model.*not directly seen.*not physical evidence/i)).toBeInTheDocument();
@@ -109,6 +116,7 @@ test('keeps exact correction feedback live after an incompatible append to a com
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
   for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
   onEvent.mockClear();
   await user.click(screen.getByRole('button', { name: 'Add Sun' }));
   expect(screen.getByTestId('conversion-chain')).toHaveTextContent(/sun.*panel.*lamp/i);
@@ -117,31 +125,34 @@ test('keeps exact correction feedback live after an incompatible append to a com
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'append-chain' },
     { type: 'change', value: { chain: ['sun', 'panel', 'lamp'] } },
-    { type: 'coach', cue: 'milestone' },
     { type: 'coach', cue: 'strategy' },
   ]);
 });
 
-test('announces success when a valid append completes the required chain', async () => {
+test('announces a connected chain and enables the model without completing on setup', async () => {
   const onEvent = vi.fn(); const user = userEvent.setup();
   render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
   await user.click(screen.getByRole('button', { name: 'Add Sun' }));
   await user.click(screen.getByRole('button', { name: 'Add Panel' }));
   await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
-  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
+  expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
   expect(screen.getByRole('status')).toHaveTextContent(/connects the required endpoints/i);
+  expect(screen.getByRole('button', {name:'Run connected device'})).toBeEnabled();
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
 });
 
 test('clears a retained chain before a replacement config removes its interior component', async () => {
   const onEvent = vi.fn(); const user = userEvent.setup();
   const view = render(<EnergyConversionDesigner config={config} onEvent={onEvent} />);
   for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
 
   view.rerender(<EnergyConversionDesigner config={replacementConfig} onEvent={onEvent} />);
   expect(screen.getByTestId('conversion-chain')).toHaveAccessibleName(/empty/i);
   expect(screen.getByRole('status')).toHaveTextContent(/choose the required starting component/i);
 
   for (const label of ['Sun', 'Battery', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByTestId('conversion-chain')).toHaveTextContent(/sun.*battery.*lamp/i);
 });
@@ -151,12 +162,14 @@ test('recovers from an interior-component config replacement inside WidgetFrame 
   const view = render(<WidgetFrame type="energy-conversion-designer" config={config} onEvent={onEvent} />);
   await screen.findByTestId('widget-energy-conversion-designer');
   for (const label of ['Sun', 'Panel', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
 
   view.rerender(<WidgetFrame type="energy-conversion-designer" config={replacementConfig} onEvent={onEvent} />);
   expect(await screen.findByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'building');
   expect(screen.queryByTestId('widget-napping')).not.toBeInTheDocument();
 
   for (const label of ['Sun', 'Battery', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label}` }));
+  await runAndExplain(user);
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
 });
 
@@ -167,6 +180,7 @@ test('snaps and removes chain tokens, then requires every visible constraint sta
   expect(screen.getAllByTestId(/constraint-stamp-/)).toHaveLength(4);
   await user.click(screen.getByRole('button', { name: 'Add Battery' }));
   await user.click(screen.getByRole('button', { name: 'Add Lamp' }));
+  await runAndExplain(user);
   expect(screen.getByTestId('conversion-chain-slot-1')).toHaveTextContent('Lamp');
   expect(screen.getByTestId('widget-energy-conversion-designer')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByTestId('conversion-constraints')).toHaveTextContent(/all constraints met/i);

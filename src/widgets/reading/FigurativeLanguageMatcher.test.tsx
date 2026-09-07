@@ -37,7 +37,7 @@ test('keeps every phrase and meaning visible with keyboard and non-color selecti
   phrase.focus();
   await user.keyboard('{Enter}');
   expect(phrase).toHaveAttribute('aria-pressed','true');
-  expect(phrase).toHaveTextContent('✓ Selected');
+  expect(phrase).toHaveTextContent('● Selected');
   expect(screen.getByText('Phrase selected. Choose a language type, then revise any match that needs another look.')).not.toHaveTextContent(/simile|idiom|metaphor|personification/i);
 });
 
@@ -54,7 +54,7 @@ test('emits unchanged matches when selecting and retains wrong matches for revis
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Match metaphor'}));
   expect(screen.getByTestId('figurative-match-flash')).toHaveTextContent('metaphor');
-  expect(screen.getByText('○ Needs revision')).toBeVisible();
+  expect(screen.getByText('Try again: revise a match')).toBeVisible();
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'match'},
     {type:'change',value:{matches:{flash:'metaphor'}}},

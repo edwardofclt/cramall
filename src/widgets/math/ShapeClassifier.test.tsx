@@ -17,7 +17,8 @@ const config = {
 };
 
 describe('ShapeClassifier', () => {
-  test('requires all seven unambiguous triangle diagrams and renders their mathematical evidence', () => {
+  test('requires all seven unambiguous triangle diagrams and renders their mathematical evidence when selected', async () => {
+    const user = userEvent.setup();
     const triangleConfig = {
       mode: 'classifications' as const,
       shapes: [
@@ -36,11 +37,17 @@ describe('ShapeClassifier', () => {
     expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...triangleConfig, shapes: [{ ...triangleConfig.shapes[1], diagram: 'isosceles-triangle' }] }).success).toBe(false);
 
     const { container } = render(<ShapeClassifier config={triangleConfig as never} onEvent={vi.fn()} />);
-    const points = [...container.querySelectorAll('.shape-canonical-diagram polygon')].map((polygon) => polygon.getAttribute('points'));
+    const history = document.createElement('div');
+    for (const shape of triangleConfig.shapes) {
+      await user.click(screen.getByRole('button', { name: `Select Shape ${String.fromCharCode(65 + triangleConfig.shapes.indexOf(shape))}` }));
+      history.append(container.querySelector('.shape-canonical-diagram')!.cloneNode(true));
+    }
+    const points = [...history.querySelectorAll('.shape-canonical-diagram polygon')].map(polygon => polygon.getAttribute('points'));
     expect(new Set(points).size).toBe(7);
-    expect(screen.getByRole('img', { name: /equilateral.*three equal-side marks.*acute.*equiangular/i })).toBeInTheDocument();
-    expect(screen.getAllByTitle('Right-angle box')).toHaveLength(2);
-    expect(container.querySelector('[data-diagram="scalene-obtuse-triangle"] .shape-equal-mark')).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'Select Shape A' }));
+    expect(screen.getByRole('img', { name: /Shape A.*three equal-side marks.*acute.*equal-angle evidence/i })).toBeInTheDocument();
+    expect([...history.querySelectorAll('title')].filter(title => title.textContent === 'Right-angle box')).toHaveLength(2);
+    expect(history.querySelector('[data-diagram="scalene-obtuse-triangle"] .shape-equal-mark')).toBeNull();
   });
 
   test('returns live status to sorting after a correct classification or placement is removed', async () => {
@@ -51,9 +58,10 @@ describe('ShapeClassifier', () => {
       bins: [{ id: 'triangle', label: 'Triangle', classification: 'triangle' }, { id: 'scalene', label: 'Scalene', classification: 'scalene-triangle' }, { id: 'right-angle', label: 'Right', classification: 'right-triangle' }],
     };
     render(<ShapeClassifier config={oneShape as never} onEvent={onEvent} />);
-    for (const label of ['Triangle', 'Scalene', 'Right']) { await user.click(screen.getByRole('button', { name: 'Select Right scalene' })); await user.click(screen.getByRole('button', { name: `Place selected shape in ${label}` })); }
+    for (const label of ['Triangle', 'Scalene', 'Right']) { await user.click(screen.getByRole('button', { name: 'Select Shape A' })); await user.click(screen.getByRole('button', { name: `Place selected shape in ${label}` })); }
+    await user.click(screen.getByRole('button', { name: 'Check these classes' }));
     expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'complete');
-    await user.click(screen.getByRole('button', { name: 'Select Right scalene' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in Right' }));
+    await user.click(screen.getByRole('button', { name: 'Select Shape A' })); await user.click(screen.getByRole('button', { name: 'Place selected shape in Right' }));
     expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-state', 'sorting');
     expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
   });
@@ -90,20 +98,22 @@ describe('ShapeClassifier', () => {
 
     expect(ShapeClassifierWidgetConfigSchema.safeParse(hierarchyConfig).success).toBe(true);
     render(<ShapeClassifier config={hierarchyConfig} onEvent={onEvent} />);
-    expect(screen.getByRole('img', { name: /Isosceles right triangle.*3 sides.*3 angles/i })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Shape A.*3 sides.*3 angles/i })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Select Isosceles right triangle' }));
+    await user.click(screen.getByRole('button', { name: 'Select Shape A' }));
     await user.click(screen.getByRole('button', { name: 'Place selected shape in Triangle' }));
-    await user.click(screen.getByRole('button', { name: 'Select Isosceles right triangle' }));
+    await user.click(screen.getByRole('button', { name: 'Select Shape A' }));
     await user.click(screen.getByRole('button', { name: 'Place selected shape in Isosceles triangle' }));
-    await user.click(screen.getByRole('button', { name: 'Select Isosceles right triangle' }));
+    await user.click(screen.getByRole('button', { name: 'Select Shape A' }));
     onEvent.mockClear();
     await user.click(screen.getByRole('button', { name: 'Place selected shape in Right triangle' }));
+    await user.click(screen.getByRole('button', { name: 'Check these classes' }));
 
     expect(screen.getByTestId('widget-shape-classifier')).toHaveAttribute('data-complete', 'yes');
     expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
       { type: 'interaction', action: 'place-shape' },
       { type: 'change', value: { memberships: { 'iso-right': ['triangle', 'isosceles', 'right'] } } },
+      { type: 'coach', cue: 'milestone' },
       { type: 'complete', value: { memberships: { 'iso-right': ['triangle', 'isosceles', 'right'] } } },
     ]);
   });
@@ -127,7 +137,8 @@ describe('ShapeClassifier', () => {
     expect(ShapeClassifierWidgetConfigSchema.safeParse({ ...square, shapes: [{ ...square.shapes[0], sides: 3 }] }).success).toBe(false);
   });
 
-  test('draws distinct honest quadrilateral geometries and two marked parallel pairs where authored', () => {
+  test('draws distinct honest quadrilateral geometries and two marked parallel pairs when selected', async () => {
+    const user = userEvent.setup();
     const quadrilateralConfig = {
       mode: 'classifications' as const,
       shapes: [
@@ -141,20 +152,25 @@ describe('ShapeClassifier', () => {
     };
     expect(ShapeClassifierWidgetConfigSchema.safeParse(quadrilateralConfig).success).toBe(true);
     const { container } = render(<ShapeClassifier config={quadrilateralConfig as never} onEvent={vi.fn()} />);
-    const points = [...container.querySelectorAll('.shape-canonical-diagram polygon')].map((polygon) => polygon.getAttribute('points'));
+    const history = document.createElement('div');
+    for (const shape of quadrilateralConfig.shapes) {
+      await user.click(screen.getByRole('button', { name: `Select Shape ${String.fromCharCode(65 + quadrilateralConfig.shapes.indexOf(shape))}` }));
+      history.append(container.querySelector('.shape-canonical-diagram')!.cloneNode(true));
+    }
+    const points = [...history.querySelectorAll('.shape-canonical-diagram polygon')].map((polygon) => polygon.getAttribute('points'));
     expect(new Set(points).size).toBe(5);
-    expect(container.querySelector('[data-diagram="quadrilateral"] [data-parallel-pair]')).toBeNull();
-    expect(container.querySelectorAll('[data-diagram="square"] [data-parallel-pair]')).toHaveLength(2);
-    expect(container.querySelector('[data-diagram="rhombus"] polygon')).toHaveAttribute('points', '50,15 80,50 50,85 20,50');
-    expect(container.querySelector('[data-diagram="rhombus"] polygon')).not.toHaveAttribute('points', container.querySelector('[data-diagram="square"] polygon')?.getAttribute('points'));
-    expect(container.querySelector('[data-diagram="rhombus"] [data-equal-sides="4"]')).toHaveAttribute('data-edge-anchors', 'AB,BC,CD,DA');
-    expect(container.querySelector('[data-diagram="rhombus"] .shape-equal-mark path')).toHaveAttribute('d', 'M62 35.5l6-6 M62 64.5l6 6 M32 64.5l6 6 M32 35.5l6-6');
-    expect(container.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"]')).toHaveAttribute('data-edge-anchors', 'AB,CD');
-    expect(container.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"] path')).toHaveAttribute('d', 'M47 25l-4-3m4 3l-4 3 M47 75l-4-3m4 3l-4 3');
-    expect(container.querySelector('[data-diagram="rectangle"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
-    expect(container.querySelector('[data-diagram="rectangle"] .shape-right-mark')).toHaveAttribute('d', 'M23 32h8v-8 M69 24h8v8 M77 68h-8v8 M31 76h-8v-8');
-    expect(container.querySelector('[data-diagram="square"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
-    expect(container.querySelector('[data-diagram="square"] .shape-right-mark')).toHaveAttribute('d', 'M28 36h8v-8 M64 28h8v8 M72 64h-8v8 M36 72h-8v-8');
+    expect(history.querySelector('[data-diagram="quadrilateral"] [data-parallel-pair]')).toBeNull();
+    expect(history.querySelectorAll('[data-diagram="square"] [data-parallel-pair]')).toHaveLength(2);
+    expect(history.querySelector('[data-diagram="rhombus"] polygon')).toHaveAttribute('points', '50,15 80,50 50,85 20,50');
+    expect(history.querySelector('[data-diagram="rhombus"] polygon')).not.toHaveAttribute('points', history.querySelector('[data-diagram="square"] polygon')?.getAttribute('points'));
+    expect(history.querySelector('[data-diagram="rhombus"] [data-equal-sides="4"]')).toHaveAttribute('data-edge-anchors', 'AB,BC,CD,DA');
+    expect(history.querySelector('[data-diagram="rhombus"] .shape-equal-mark path')).toHaveAttribute('d', 'M62 35.5l6-6 M62 64.5l6 6 M32 64.5l6 6 M32 35.5l6-6');
+    expect(history.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"]')).toHaveAttribute('data-edge-anchors', 'AB,CD');
+    expect(history.querySelector('[data-diagram="parallelogram"] [data-parallel-pair="one"] path')).toHaveAttribute('d', 'M47 25l-4-3m4 3l-4 3 M47 75l-4-3m4 3l-4 3');
+    expect(history.querySelector('[data-diagram="rectangle"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
+    expect(history.querySelector('[data-diagram="rectangle"] .shape-right-mark')).toHaveAttribute('d', 'M23 32h8v-8 M69 24h8v8 M77 68h-8v8 M31 76h-8v-8');
+    expect(history.querySelector('[data-diagram="square"] [data-parallel-pair="two"]')).toHaveAttribute('data-edge-anchors', 'BC,DA');
+    expect(history.querySelector('[data-diagram="square"] .shape-right-mark')).toHaveAttribute('d', 'M28 36h8v-8 M64 28h8v8 M72 64h-8v8 M36 72h-8v-8');
   });
 
   test('retains two correct button placements and completes once', async () => {

@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import { HazardScene } from './ScienceScenes';
 import {useEffect, useState} from 'react';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
@@ -13,6 +15,7 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
   const prompt = hasReasoning
     ? `Design a plan for ${config.hazard}. Choose protections, then choose the impacts they address.`
     : `Choose protections for ${config.hazard}.`;
+  const [planFeedback,setPlanFeedback]=useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [selectedImpacts, setSelectedImpacts] = useState<Record<string, string[]>>({});
   const [checked, setChecked] = useState(false);
@@ -22,14 +25,18 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
   const selectedInConfigOrder = orderedIds(selected, config.solutions.map((solution) => solution.id));
   const selectedImpactIds = config.solutions.flatMap((solution) => selectedImpacts[solution.id] ?? []);
   const requiredImpactIds = config.requiredImpactIds ?? [];
+  const impactOptions = [...new Set(config.solutions.flatMap(solution=>solution.impacts ?? []))];
+  const mismatchedLinks = config.solutions.filter(solution=>(selectedImpacts[solution.id] ?? []).some(impact=>!solution.impacts?.includes(impact)));
   const reasonedPlanComplete = hasReasoning
     && selectedInConfigOrder.length > 0
+    && mismatchedLinks.length === 0
+    && selectedInConfigOrder.every(id=>(selectedImpacts[id] ?? []).length > 0)
     && selectedInConfigOrder.every((id) => config.solutions.find((solution) => solution.id === id)?.effectiveness !== 'poor')
     && requiredImpactIds.every((impactId) => selectedImpactIds.includes(impactId));
   const visibleComplete = completed && checked && (hasReasoning ? reasonedPlanComplete : sameSet(selectedInConfigOrder, config.requiredIds));
 
   useEffect(() => {
-    setSelected([]);
+    setSelected([]);setPlanFeedback('');
     setSelectedImpacts({});
     setChecked(false);
     setStatus(prompt);
@@ -75,8 +82,7 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
     setChecked(false);
     setStatus(`${impactId} ${nextForSolution.includes(impactId) ? 'connected to' : 'removed from'} ${config.solutions.find((solution) => solution.id === solutionId)?.label}. Check the revised plan.`);
     emit(selected, 'toggle-solution');
-    const nextImpactIds = config.solutions.flatMap((solution) => nextImpacts[solution.id] ?? []);
-    if (hasReasoning && requiredImpactIds.length > 0 && requiredImpactIds.every((id) => nextImpactIds.includes(id))) onEvent({type: 'coach', cue: 'milestone'});
+
   };
 
   const check = () => {
@@ -103,9 +109,11 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
       coachWrong();
       return;
     }
+    if(mismatchedLinks.length){const message=`Try again: a chosen impact does not match ${mismatchedLinks.map(solution=>solution.label).join(', ')}. Compare its job with the impact.`;setStatus(message);setPlanFeedback(message);coachWrong();return;}
     const poor = config.solutions.filter((solution) => ordered.includes(solution.id) && solution.effectiveness === 'poor');
     const missing = requiredImpactIds.filter((id) => !selectedImpactIds.includes(id));
     if (reasonedPlanComplete) {
+      setPlanFeedback('Your checked protections address the named impacts. Each still has limits.');
       setStatus('Plan complete. You connected protections to required impacts. Risk is reduced, not eliminated.');
       completeOnce(() => onEvent({type: 'complete', value: {selectedIds: ordered}}));
       return;
@@ -115,12 +123,13 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
       poor.length ? `${poor.map((solution) => solution.label).join(', ')} does not reduce the named impact; revise that choice.` : '',
       missing.length ? `Connect a selected protection to: ${missing.join(', ')}.` : '',
     ].filter(Boolean).join(' ');
+    setPlanFeedback(`Try again. ${details}`);
     setStatus(`Revise the plan. ${details} Risk can be reduced, not eliminated.`);
     coachWrong();
   };
 
   const reset = () => {
-    setSelected([]);
+    setSelected([]);setPlanFeedback('');
     setSelectedImpacts({});
     setChecked(false);
     setStatus(prompt);
@@ -134,15 +143,17 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
     limits: solution.limits ?? ['This simplified plan has limits and cannot promise safety.'],
   });
 
-  return <section className="card widget-experiment hazard" data-testid="widget-hazard-solution-designer" data-state={visibleComplete ? 'complete' : 'designing'} aria-describedby="hazard-model-note">
-    <header>
-      <h3>Hazard-solution designer</h3>
-      <p id="hazard-model-note">This is a simplified authored mitigation-planning model, not emergency advice. A plan can reduce risk and impacts, but it does not promise safety and cannot eliminate risk.</p>
-    </header>
+  return <section className="card widget-experiment hazard activity-shell science-activity" data-testid="widget-hazard-solution-designer" data-state={visibleComplete ? 'complete' : 'designing'} aria-describedby="hazard-model-note">
+    <ActivityWorkbench label="Hazard planning model" revealKey={checked?'checked':'designing'} visual={<>
+    <header><h3>Hazard-solution designer</h3><p className="science-model-label">Model only · not physical evidence</p></header>
     <section className="hazard-context" data-testid="hazard-context" aria-label="Current hazard">
       <h4>Hazard: {config.hazard}</h4>
-      <p>Choose protections, then explain which impacts each protection addresses.</p>
+
     </section>
+      <HazardScene flood={/flood/i.test(config.hazard)} selected={selectedInConfigOrder} checked={checked}/>
+      <p className="science-selection-summary">Your plan: {selectedInConfigOrder.map(id=>config.solutions.find(solution=>solution.id===id)?.label).join(' + ') || 'No protections placed yet'}.</p>
+    </>}>
+    <p>Choose protections, then explain which impacts each protection addresses.</p>
     <section className="hazard-design-cards" aria-label={`Solutions for ${config.hazard}`}>
       {config.solutions.map((solution) => {
         const details = detailsFor(solution);
@@ -152,21 +163,27 @@ export default function HazardSolutionDesigner({config, onEvent}: WidgetProps<'h
           {selected.includes(solution.id) && <span className="hazard-selected-marker">Selected</span>}
           <dl className="hazard-solution-details">
             <div><dt>Strengths</dt><dd>{details.strengths.join(' ')}</dd></div>
-            <div><dt>Impacts addressed</dt><dd>{details.impacts.join(' ')}</dd></div>
+            {checked && <div><dt>Impacts addressed</dt><dd>{details.impacts.join(' ')}</dd></div>}
             <div><dt>Limits</dt><dd>{details.limits.join(' ')}</dd></div>
           </dl>
           <button aria-label={`Toggle ${solution.label}`} aria-pressed={selected.includes(solution.id)} onClick={() => toggle(solution.id)}>Choose {solution.label}</button>
           {selected.includes(solution.id) && <fieldset className="hazard-impact-choices">
             <legend>Connect impacts for {solution.label}</legend>
-            {details.impacts.map((impact) => <button type="button" key={impact} aria-label={`Connect ${impact} to ${solution.label}`} aria-pressed={chosenImpacts.includes(impact)} onClick={() => toggleImpact(solution.id, impact)}>{chosenImpacts.includes(impact) ? 'Connected: ' : 'Connect: '}{impact}</button>)}
+            {(hasReasoning ? impactOptions : details.impacts).map((impact) => <button type="button" key={impact} aria-label={`Connect ${impact} to ${solution.label}`} aria-pressed={chosenImpacts.includes(impact)} onClick={() => toggleImpact(solution.id, impact)}>{chosenImpacts.includes(impact) ? 'Connected: ' : 'Connect: '}{impact}</button>)}
           </fieldset>}
         </article>;
       })}
     </section>
+    {planFeedback && <p className="science-feedback" aria-label="Checked plan feedback">{!checked && 'Earlier check — plan changed: '}{planFeedback}</p>}
     <div className="hazard-controls">
       <button aria-label="Check solution" onClick={check}>Check solution</button>
       <button onClick={reset}>Start over</button>
     </div>
     <p role="status">{status}</p>
+    <section className="science-model-notes" aria-label="About this model"><h4>About this model</h4>
+
+      <p id="hazard-model-note">This is a simplified authored mitigation-planning model, not emergency advice. A plan can reduce risk and impacts, but it does not promise safety and cannot eliminate risk.</p>
+    </section>
+    </ActivityWorkbench>
   </section>;
 }

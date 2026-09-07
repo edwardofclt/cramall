@@ -114,8 +114,8 @@ export const unit02Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"Let’s snap the root and affixes together, then reread the whole word’s meaning."},
-            {"speaker":"kid","text":"I’ll build it left to right and check whether the whole word fits the intended meaning."}
+            {"speaker":"guide","pose":"think","text":"Let’s build a word around the root, then check how its parts change the meaning."},
+            {"speaker":"kid","text":"I’ll try the parts, check the spelling, and choose a meaning for the whole word."}
           ],
           "reactions": {
             "strategy": {"text":"Start with the root, then choose only the prefix or suffix that changes its meaning the right way.","pose":"think"},
@@ -529,7 +529,7 @@ export const unit02Lessons = [
           },
           {
             "kind": "example",
-            "text": "“Nocturnal animals, creatures that are active at night, include owls and moths.” The phrase after the comma defines nocturnal; owls and moths are examples."
+            "text": "Another example: “The path was narrow, or not very wide.” The words after “or” restate what narrow means."
           },
           {
             "kind": "tip",
@@ -563,7 +563,7 @@ export const unit02Lessons = [
         "widgetCoach": {
           "intro": [
             {"speaker":"guide","pose":"think","text":"Read the whole sentence, then choose the exact words that unlock the target word."},
-            {"speaker":"kid","text":"I’ll commit the clue text first, then name its kind from the punctuation and meaning."}
+            {"speaker":"kid","text":"I’ll choose the clue words first, then use the whole sentence to name the kind of clue."}
           ],
           "reactions": {
             "strategy": {"text":"Scan around the target word and point to the words that explain it.","pose":"think"},

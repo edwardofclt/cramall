@@ -46,7 +46,7 @@ test('uses accurate resource and conservation bin language with an honest author
   expect(screen.getByRole('button', {name: 'Place selected item in Renewable resource'})).toBeInTheDocument();
   expect(screen.getByRole('button', {name: 'Place selected item in Nonrenewable resource'})).toBeInTheDocument();
   expect(screen.getByRole('button', {name: 'Place selected item in Conservation action'})).toBeInTheDocument();
-  expect(screen.getByText('Use less electricity')).toBeInTheDocument();
+  expect(screen.getAllByText('Use less electricity').length).toBeGreaterThan(0);
   expect(screen.getByText(/authored categories for this activity/i)).toHaveTextContent(/does not examine resources or measure environmental effects/i);
 });
 
@@ -226,4 +226,17 @@ test('completes a fully item-scoped rich branch with each item’s own effect ch
   await user.click(screen.getByRole('button', {name: 'Connect Coal to Limited'}));
 
   expect(screen.getByTestId('widget-resource-sorter')).toHaveAttribute('data-state', 'complete');
+});
+
+
+test('keeps sorting controls beside the chosen item and reveals effects after placement', async () => {
+  const user = userEvent.setup();
+  render(<ResourceSorter config={reasonedConfig} onEvent={vi.fn()} />);
+  expect(screen.queryByRole('button', {name: 'Connect Sunlight to Replenished through natural processes'})).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', {name: 'Select Sunlight'}));
+  const choice = screen.getByRole('button', {name: 'Place selected item in Renewable resource'});
+  expect(choice.closest('.resource-item-card')).toHaveTextContent('Sunlight');
+  await user.click(choice);
+  expect(screen.getByRole('button', {name: 'Connect Sunlight to Replenished through natural processes'})).toBeEnabled();
+  expect(screen.queryByRole('button', {name: 'Connect Coal to Limited supply can run out'})).not.toBeInTheDocument();
 });

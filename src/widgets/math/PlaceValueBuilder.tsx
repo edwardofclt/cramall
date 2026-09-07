@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { Fragment, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { springy } from '../../app/motion';
@@ -183,12 +185,13 @@ export default function PlaceValueBuilder({
   const [digits, setDigits] = useState<number[]>(() => Array<number>(columns).fill(0));
   const [interacted, setInteracted] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [checkedValue, setCheckedValue] = useState<number | null>(null);
 
   // A card that swaps its config mid-flight gets a matching set of columns back.
   useEffect(() => {
     setDigits(Array<number>(columns).fill(0));
     setInteracted(false);
-    setCompleted(false);
+    setCompleted(false); setCheckedValue(null);
   }, [columns, target]);
 
   const places = digits.length === columns ? digits : Array<number>(columns).fill(0);
@@ -198,11 +201,12 @@ export default function PlaceValueBuilder({
 
   const applyDigits = (next: number[], action: 'change-place' | 'reset') => {
     const nextValue = next.reduce((sum, digit, index) => sum + digit * 10 ** index, 0);
+    if (action === 'reset') setCheckedValue(null);
     setDigits(next);
-    setInteracted(true);
+    setInteracted(action !== 'reset');
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value: nextValue });
-    if (!completed && target !== null && nextValue === target) {
+    if (action !== 'reset' && !completed && target !== null && nextValue === target) {
       setCompleted(true);
       onEvent({ type: 'complete', value: nextValue });
     }
@@ -233,19 +237,63 @@ export default function PlaceValueBuilder({
 
   return (
     <div
-      className="card widget-experiment pv"
+      className="card widget-experiment pv activity-shell math-activity"
       data-testid="widget-place-value-builder"
       data-state={matched ? 'matched' : 'building'}
-      data-complete={completed ? 'yes' : 'no'}
+      data-complete={matched ? 'yes' : 'no'}
     >
-      <div className="widget-head">
+<ActivityWorkbench label="Build a place-value number" visual={<><div className="widget-head">
         <h3 className="widget-title">
           <span aria-hidden="true">🔢</span> Place Value Builder
         </h3>
         {target !== null && (
           <span className="badge pv-target">Build {withCommas(target)}</span>
         )}
-        <button
+
+      </div>
+
+<div className="pv-readouts" aria-live="polite" aria-atomic="true">
+        <p className="pv-readout">
+          <span className="pv-readout-label">Standard form</span>
+          <motion.span
+            className="pv-standard"
+            data-testid="pv-standard"
+            animate={matched && !reduced ? { scale: [1, 1.16, 1] } : { scale: 1 }}
+            transition={springy}
+          >
+            {withCommas(value)}
+          </motion.span>
+        </p>
+        <p className="pv-readout">
+          <span className="pv-readout-label">Word form</span>
+          <span className="pv-words" data-testid="pv-words">
+            {numberToWords(value)}
+          </span>
+        </p>
+        <p className="pv-readout">
+          <span className="pv-readout-label">Expanded form</span>
+          <span className="pv-expanded" data-testid="pv-expanded">
+            {expanded}
+          </span>
+        </p>
+      </div>
+{matched && !reduced && (
+        <div className="pv-sparkles" aria-hidden="true">
+          {SPARKS.map((spark, i) => (
+            <motion.span
+              key={i}
+              className="pv-spark"
+              initial={{ opacity: 0, y: 10, scale: 0.4 }}
+              animate={{ opacity: [0, 1, 0], y: -80 - i * 6, scale: [0.4, 1.3, 0.9] }}
+              transition={{ duration: 1.4, delay: i * 0.09, ease: 'easeOut' }}
+              style={{ left: `${18 + i * 16}%` }}
+            >
+              {spark}
+            </motion.span>
+          ))}
+        </div>
+      )}</>}>
+<button
           type="button"
           className="btn pv-reset"
           onClick={() => applyDigits(Array<number>(columns).fill(0), 'reset')}
@@ -253,9 +301,7 @@ export default function PlaceValueBuilder({
         >
           Start over
         </button>
-      </div>
-
-      <div className="pv-columns" role="group" aria-label="Place value columns">
+<div className="pv-columns" role="group" aria-label="Place value columns">
         {groups.map((group, gi) => (
           <Fragment key={group.name}>
             {gi > 0 && (
@@ -282,34 +328,7 @@ export default function PlaceValueBuilder({
           </Fragment>
         ))}
       </div>
-
-      <div className="pv-readouts" aria-live="polite" aria-atomic="true">
-        <p className="pv-readout">
-          <span className="pv-readout-label">Standard form</span>
-          <motion.span
-            className="pv-standard"
-            data-testid="pv-standard"
-            animate={matched && !reduced ? { scale: [1, 1.16, 1] } : { scale: 1 }}
-            transition={springy}
-          >
-            {withCommas(value)}
-          </motion.span>
-        </p>
-        <p className="pv-readout">
-          <span className="pv-readout-label">Word form</span>
-          <span className="pv-words" data-testid="pv-words">
-            {numberToWords(value)}
-          </span>
-        </p>
-        <p className="pv-readout">
-          <span className="pv-readout-label">Expanded form</span>
-          <span className="pv-expanded" data-testid="pv-expanded">
-            {expanded}
-          </span>
-        </p>
-      </div>
-
-      {target !== null && (
+{target !== null && (
         <p className="pv-feedback" data-testid="pv-feedback" data-tone={matched ? 'good' : 'hint'}>
           {matched
             ? `🎉 You built it! That's exactly ${withCommas(target)}.`
@@ -320,23 +339,9 @@ export default function PlaceValueBuilder({
                 : 'A little too big — take some away.'}
         </p>
       )}
-
-      {matched && !reduced && (
-        <div className="pv-sparkles" aria-hidden="true">
-          {SPARKS.map((spark, i) => (
-            <motion.span
-              key={i}
-              className="pv-spark"
-              initial={{ opacity: 0, y: 10, scale: 0.4 }}
-              animate={{ opacity: [0, 1, 0], y: -80 - i * 6, scale: [0.4, 1.3, 0.9] }}
-              transition={{ duration: 1.4, delay: i * 0.09, ease: 'easeOut' }}
-              style={{ left: `${18 + i * 16}%` }}
-            >
-              {spark}
-            </motion.span>
-          ))}
-        </div>
-      )}
-    </div>
+<section className="math-task"><h4>Check and explain</h4><button type="button" onClick={() => { setCheckedValue(value); onEvent({ type: 'coach', cue: target !== null && value !== target ? 'retry' : 'milestone' }); }}>Check my number</button>
+<p aria-label="Place-value check feedback" role="status">{checkedValue === null ? 'Build a number, then check the digit in each place.' : target !== null && checkedValue !== target ? `Try again. You checked ${withCommas(checkedValue)}. Compare each digit’s place with ${withCommas(target)}.` : `You checked ${withCommas(checkedValue)}. Its expanded form names the value of each nonzero place.`}</p><p>What changes when the same digit moves one place to the left?</p></section>
+</ActivityWorkbench>
+</div>
   );
 }

@@ -14,7 +14,7 @@ test('snaps configured morphemes into left-to-right slots before checking whole-
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Check word'}));
   expect(screen.getByRole('status')).toHaveTextContent(/spelling fits/i);
-  expect(screen.getByRole('button',{name:'Check whole-word meaning'})).toBeVisible();
+  expect(screen.queryByRole('button',{name:'Check whole-word meaning'})).not.toBeInTheDocument();
   expect(onEvent.mock.calls.map(([e])=>e)).toEqual([
     {type:'interaction',action:'check'},
     {type:'change',value:{parts:['re','view'],word:'review'}},
@@ -22,7 +22,6 @@ test('snaps configured morphemes into left-to-right slots before checking whole-
   ]);
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(0);
   await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: see again'}));
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByRole('status')).toHaveTextContent('see again');
   expect(onEvent.mock.calls.map(([e])=>e)).toEqual([
     {type:'interaction',action:'check'},
@@ -32,7 +31,7 @@ test('snaps configured morphemes into left-to-right slots before checking whole-
     {type:'change',value:{parts:['re','view'],word:'review'}},
     {type:'complete',value:{word:'review',meaning:'see again'}},
   ]);
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
+  await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: see again'}));
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(1);
 });
 
@@ -47,14 +46,12 @@ test('requires a learner-selected whole-word meaning and coaches a wrong meaning
   expect(screen.getByRole('button',{name:'Choose whole-word meaning: able to be carried'})).toBeVisible();
 
   await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: able to be carried'}));
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByRole('status')).toHaveTextContent(/meaning choice does not fit/i);
   expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','meaning-check');
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
   expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'retry'});
 
   await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: carry from one place to another'}));
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','complete');
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
@@ -89,7 +86,6 @@ test('lets a learner revise to explicit blank affixes after completion without e
   await user.click(screen.getByRole('button',{name:'Select prefix re'}));
   await user.click(screen.getByRole('button',{name:'Check word'}));
   await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: see again'}));
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','complete');
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Select no prefix'}));
@@ -97,7 +93,6 @@ test('lets a learner revise to explicit blank affixes after completion without e
   expect(screen.getByRole('button',{name:'Select no prefix'})).toHaveAttribute('aria-pressed','true');
   await user.click(screen.getByRole('button',{name:'Check word'}));
   await user.click(screen.getByRole('button',{name:'Choose whole-word meaning: look'}));
-  await user.click(screen.getByRole('button',{name:'Check whole-word meaning'}));
   expect(screen.getByRole('status')).toHaveTextContent('look');
   expect(onEvent.mock.calls.filter(([e])=>e.type==='complete')).toHaveLength(0);
 });
@@ -122,4 +117,30 @@ test('points only to word parts that can be revised after an invalid check',asyn
   rerender(<WordRootBuilder config={{root:'view',prefixes:['re'],suffixes:['er'],targets:[{word:'reviewer',meaning:'a person who reviews'}]}} onEvent={vi.fn()}/>);
   await user.click(screen.getByRole('button',{name:'Check word'}));
   expect(screen.getByRole('status')).toHaveTextContent(/reconsider both prefix and suffix\.$/i);
+});
+
+test('checks a meaning immediately and clears success when the learner revises or resets',async()=>{
+  const onEvent=vi.fn(),user=userEvent.setup();
+  render(<WordRootBuilder config={{root:'port',prefixes:['trans'],suffixes:['able'],targets:[{word:'transport',meaning:'carry across'},{word:'portable',meaning:'able to be carried'}]}} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Select prefix trans'}));
+  await user.click(screen.getByRole('button',{name:'Check word'}));
+  const right=screen.getByRole('button',{name:'Choose whole-word meaning: carry across'});
+  const wrong=screen.getByRole('button',{name:'Choose whole-word meaning: able to be carried'});
+  await user.click(wrong);
+  expect(wrong).toHaveAttribute('data-outcome','incorrect');
+  expect(wrong).toHaveTextContent('Try again');
+  expect(screen.getByLabelText('Meaning feedback')).toHaveTextContent('Try again');
+  expect(screen.getByLabelText('Spelling feedback')).toHaveTextContent('The spelling fits');
+  await user.click(right);
+  expect(right).toHaveAttribute('data-outcome','correct');
+  expect(right).toHaveTextContent('Correct');
+  await user.click(wrong);
+  expect(screen.getByTestId('widget-word-root-builder')).toHaveAttribute('data-state','meaning-check');
+  expect(right).not.toHaveAttribute('data-outcome');
+  expect(screen.getByLabelText('Meaning feedback')).toHaveTextContent('Try again');
+  await user.click(right);
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
+  await user.click(screen.getByRole('button',{name:'Start over'}));
+  expect(screen.queryByLabelText('Meaning feedback')).not.toBeInTheDocument();
+  expect(screen.getByRole('button',{name:'Check word'})).toBeVisible();
 });

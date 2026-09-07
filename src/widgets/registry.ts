@@ -16,6 +16,10 @@ type BalanceValue = { leftTotal: number; rightTotal: number };
 type LightValue = { incidentAngle: number; reflectionAngle: number };
 
 export type WidgetEventMap = {
+  'regrouping-lab':
+    | { type: 'interaction'; action: 'choose-operation' | 'exchange' | 'remove' | 'check-column' | 'explain' | 'reset' }
+    | { type: 'change'; value: { counters: number[]; column: number } }
+    | { type: 'complete'; value: { result: number } };
   'place-value-builder':
     | { type: 'interaction'; action: 'change-place' | 'reset' }
     | { type: 'change'; value: number }
@@ -75,11 +79,11 @@ export type WidgetEventMap = {
     | { type: 'change'; value: { rampAngle: number; speedA: number; speedB: number } }
     | { type: 'complete'; value: { prediction: 'left' | 'right' | 'same'; correct: boolean } };
   'energy-transfer-builder':
-    | { type: 'interaction'; action: 'append-path' | 'reset' }
+    | { type: 'interaction'; action: 'append-path' | 'reset' | 'choose-prediction' | 'run' | 'explain' }
     | { type: 'change'; value: { path: string[] } }
     | { type: 'complete'; value: { path: string[] } };
   'wave-maker':
-    | { type: 'interaction'; action: 'change-amplitude' | 'change-frequency' | 'reset' }
+    | { type: 'interaction'; action: 'change-amplitude' | 'change-frequency' | 'reset' | 'compare' | 'explain' }
     | { type: 'change'; value: { amplitude: number; frequency: number } }
     | { type: 'complete'; value: { amplitude: number; frequency: number } };
   'light-reflection-eye':
@@ -87,11 +91,11 @@ export type WidgetEventMap = {
     | { type: 'change'; value: LightValue }
     | { type: 'complete'; value: LightValue };
   'message-sender':
-    | { type: 'interaction'; action: 'append-symbol' | 'remove-symbol' | 'send' | 'reset' }
+    | { type: 'interaction'; action: 'append-symbol' | 'remove-symbol' | 'send' | 'reset' | 'explain' }
     | { type: 'change'; value: { encoded: string } }
     | { type: 'complete'; value: { encoded: string; decoded: string } };
   'energy-conversion-designer':
-    | { type: 'interaction'; action: 'append-chain' | 'reset' }
+    | { type: 'interaction'; action: 'append-chain' | 'reset' | 'run' | 'explain' }
     | { type: 'change'; value: { chain: string[] } }
     | { type: 'complete'; value: { chain: string[] } };
   'animal-structure-matcher':
@@ -99,7 +103,7 @@ export type WidgetEventMap = {
     | { type: 'change'; value: { matches: Record<string, string> } }
     | { type: 'complete'; value: { matches: Record<string, string> } };
   'erosion-simulator':
-    | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'choose-prediction' | 'run' | 'reset' }
+    | { type: 'interaction'; action: 'select-agent' | 'toggle-vegetation' | 'choose-prediction' | 'run' | 'reset' | 'compare' }
     | { type: 'change'; value: { agent: string; vegetation: boolean; prediction?: 'bare' | 'covered' } }
     | { type: 'complete'; value: { agent: string; vegetation: boolean } | { agent: string; vegetation: boolean; prediction: 'bare' | 'covered' } };
   'rock-layer-explorer':
@@ -133,11 +137,11 @@ export type WidgetEventMap = {
     | { type: 'change'; value: { entries: Record<string,string> } }
     | { type: 'complete'; value: { entries: Record<string,string> } };
   'theme-evidence-collector':
-    | {type:'interaction';action:'choose-theme'|'toggle-evidence'|'reset'}
+    | {type:'interaction';action:'choose-theme'|'toggle-evidence'|'check'|'reset'}
     | {type:'change';value:{theme:string|null;evidenceIds:string[]}}
     | {type:'complete';value:{theme:string;evidenceIds:string[]}};
   'central-idea-organizer':
-    | {type:'interaction';action:'choose-main-idea'|'toggle-detail'|'reset'}
+    | {type:'interaction';action:'choose-main-idea'|'toggle-detail'|'check'|'reset'}
     | {type:'change';value:{mainIdea:string|null;detailIds:string[]}}
     | {type:'complete';value:{mainIdea:string;detailIds:string[]}};
   'text-structure-sorter':
@@ -145,11 +149,11 @@ export type WidgetEventMap = {
     | {type:'change';value:{placements:Record<string,string>}}
     | {type:'complete';value:{placements:Record<string,string>}};
   'summary-builder':
-    | {type:'interaction';action:'toggle-sentence'|'reset'}
+    | {type:'interaction';action:'toggle-sentence'|'check'|'reset'}
     | {type:'change';value:{selectedIds:string[];composition?:string}}
     | {type:'complete';value:{selectedIds:string[];composition?:string}};
   'pov-switcher':
-    | {type:'interaction';action:'select-pronoun'|'apply'|'reset'}
+    | {type:'interaction';action:'select-pronoun'|'apply'|'compare'|'reset'}
     | {type:'change';value:{selectedPronouns:string[]}}
     | {type:'complete';value:{rewrittenText:string}};
   'figurative-language-matcher':
@@ -182,6 +186,7 @@ export type WidgetRegistry = {
  * it, so a new widget type cannot ship without something to render it.
  */
 export const widgetRegistry = {
+  'regrouping-lab': lazy(() => import('./math/RegroupingLab')),
   'place-value-builder': lazy(() => import('./math/PlaceValueBuilder')),
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),
   'base-ten-blocks': lazy(() => import('./math/BaseTenBlocks')),

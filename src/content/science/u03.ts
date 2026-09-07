@@ -78,16 +78,36 @@ const scienceU03L01Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Compare the live rope pattern with the labeled amplitude target and keep the baseline in view." },
-          { "speaker": "kid", "text": "I will use vertical displacement for amplitude and cycles across the width for frequency." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Use the target line and measure each crest or trough from the baseline; do not count cycles to find amplitude.", "pose": "think" },
-          "retry": { "text": "The target is not matched yet. Check the labeled amplitude and keep the graph’s fixed width in mind.", "pose": "oops" },
-          "complete": { "text": "You matched the amplitude target and used the wave model’s labels to explain its pattern.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Let’s change the wave’s height while keeping the baseline in view."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll move the control, compare the starting and changed patterns, and explain the difference."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare the starting pattern with the changed pattern before explaining.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Compare each crest with the baseline and the target marks, then revise.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your pattern matches the target. Now explain the visible change.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You compared wave patterns and explained what amplitude describes.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u03-l01-c3",
@@ -932,16 +952,36 @@ const scienceU03L03Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Use the water-wave graph to connect a larger modeled displacement to a cautious prediction." },
-          { "speaker": "kid", "text": "I will describe what the model predicts without calling the screen an observation of a cork." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Read the vertical displacement from the baseline first, then state what motion the model predicts.", "pose": "think" },
-          "retry": { "text": "Revise the target match and keep the prediction separate from evidence collected in a real tray.", "pose": "oops" },
-          "complete": { "text": "You matched the water-wave target and connected modeled amplitude to a careful prediction.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Let’s compare a water-wave model before and after changing its height."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll change the amplitude, watch the floating marker, and compare its distance from the baseline."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare the starting pattern with the changed pattern before explaining.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Compare each crest with the baseline and the target marks, then revise.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your pattern matches the target. Now explain the visible change.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You compared wave patterns and explained what amplitude describes.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u03-l03-c3",
@@ -1372,17 +1412,36 @@ const scienceU03L04Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Trace the labeled path from the lamp to the book and then to the eye." },
-          { "speaker": "kid", "text": "I will commit the source → object → eye path before I explain how reflected light connects to seeing." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Start with the source, then choose the object, then the eye; the labels give you the path instead of a secret angle target.", "pose": "think" },
-          "retry": { "text": "Follow the visible source → object → eye order and commit only after all three points are selected.", "pose": "oops" },
-          "milestone": { "text": "The path is taking shape. Keep the object between the source and the eye.", "pose": "talk" },
-          "complete": { "text": "You traced reflected light from the object into the eye and connected that model to seeing.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "How could light from this lamp help someone see the book?"
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll build a path, turn on the model, and check where the light goes."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Think about which object supplies light and which receives it.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "The eye receives light. Start over and test another proposed path.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your committed path now shows how light could reach the eye.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You traced reflected light to the eye to explain how someone could see the object.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u03-l04-c3",

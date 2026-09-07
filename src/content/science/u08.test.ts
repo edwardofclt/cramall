@@ -518,7 +518,7 @@ test('Unit 8 coached hazard and resource widgets expose lesson-grounded reasonin
   for (const card of widgetCards) {
     expect(card.widgetCoach?.intro).toHaveLength(2);
     expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/lesson|impact|category|resource/i);
-    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/lesson|impact|fact|card/i);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/category|effect|impact/i);
     expect(card.widgetCoach?.reactions.complete.text).toMatch(/risk|effect|resource|impact/i);
   }
   for (const card of widgetCards) {

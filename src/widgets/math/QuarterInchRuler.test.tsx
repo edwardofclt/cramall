@@ -90,6 +90,8 @@ test('shows the endpoint goal and a labeled object aligned to zero', () => {
   expect(screen.getByTestId('measured-object')).toHaveAttribute('data-start-inches', '0');
   expect(screen.getByTestId('measured-object')).toHaveAttribute('data-end-inches', '4.75');
   expect(screen.getByTestId('measured-object')).toHaveAttribute('data-zero-aligned', 'true');
-  expect(screen.getByTestId('measured-object-body')).toHaveStyle({ width: '100%' });
+  expect(screen.getByTestId('measured-object-body').tagName.toLowerCase()).toBe('rect');
+  expect(screen.getByTestId('measured-object-body')).toHaveAttribute('x', '24');
+  expect(Number(screen.getByTestId('measured-object-endpoint').getAttribute('x1'))).toBeCloseTo(24 + 4.75 / 5 * 592);
   expect(screen.getByTestId('measured-object-endpoint')).toHaveAttribute('data-quarter-step', '19');
 });

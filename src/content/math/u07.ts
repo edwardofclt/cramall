@@ -21,17 +21,17 @@ export const unit07Lessons = [
           { kind: 'example', text: 'A bar model with 3 of 8 parts selected gains 2 more eighths, showing 5/8.' },
           { kind: 'tip', text: 'Describe the start, the change, and the result so the model matches the equation.' },
         ],
-        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Build 5/8 by adding two eighths.' } },
+        widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Start with 3/8 and add two eighths. What amount do you build?' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Start with 3/8, then build 5/8 by adding two equal eighth-size parts to the bar.' },
-            { speaker: 'kid', text: 'I will watch the numerator change while the denominator stays eight.' },
+            { speaker: 'guide', pose: 'think', text: 'Start with three eighths. Add two more eighth-size pieces. What amount will you have?' },
+            { speaker: 'kid', text: 'I will add the pieces and notice what changes in the fraction.' },
           ],
           reactions: {
-            strategy: { text: 'Compare the bar with five shaded eighths and add one useful part at a time.', pose: 'think' },
-            retry: { text: 'That move missed five eighths. Check the shaded count and try the next comparison.', pose: 'oops' },
-            milestone: { text: 'Good—your bar is one shaded part closer to five eighths.', pose: 'cheer' },
-            complete: { text: 'You built 5/8: five eighths on a bar divided into eight equal parts.', pose: 'cheer' },
+            strategy: { text: 'The size of each part stays fixed while you change how many are shaded.', pose: 'think' },
+            retry: { text: 'Count the shaded parts and compare with the change in the problem.', pose: 'oops' },
+            milestone: { text: 'You connected the added pieces to the numerator.', pose: 'think' },
+            complete: { text: 'You built 5/8. Adding eighth-size parts changes the numerator, while each part stays an eighth.', pose: 'cheer' },
           },
         },
       },
@@ -104,13 +104,13 @@ export const unit07Lessons = [
         widget: { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, task: 'groups', taskPrompt: 'Build 3/4 from unit fractions.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Build three copies of one fourth so the bar shows 3/4 as repeated equal groups.' },
-            { speaker: 'kid', text: 'I will count each fourth and keep the denominator at four.' },
+            { speaker: 'guide', pose: 'think', text: 'Build three groups, each containing one fourth of a whole.' },
+            { speaker: 'kid', text: 'I will add one unit-fraction group at a time and compare the total.' },
           ],
           reactions: {
-            strategy: { text: 'Count the shaded fourths one at a time until the bar shows three.', pose: 'think' },
-            retry: { text: 'Check the number of shaded fourths. The group size stays one fourth.', pose: 'oops' },
-            milestone: { text: 'You have a useful unit-fraction group started.', pose: 'cheer' },
+            strategy: { text: 'Each group contains the same unit fraction. Count the groups you add.', pose: 'think' },
+            retry: { text: 'Check the number of groups. The amount in each group stays one fourth.', pose: 'oops' },
+            milestone: { text: 'Your model connects repeated groups to a fraction total.', pose: 'think' },
             complete: { text: 'You built 3/4 from three equal unit fractions, each 1/4.', pose: 'cheer' },
           },
         },
@@ -184,13 +184,13 @@ export const unit07Lessons = [
         widget: { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5 whole units among 6 learners.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Cut five whole units into sixths and distribute one equal sixth-size part to each learner from every unit.' },
-            { speaker: 'kid', text: 'I will give every learner the same five sixth-size pieces, so each share is 5/6.' },
+            { speaker: 'guide', pose: 'think', text: 'Share five wholes fairly among six learners. Each whole is cut into six equal pieces.' },
+            { speaker: 'kid', text: 'I will give every learner one piece at a time and watch how many pieces remain.' },
           ],
           reactions: {
-            strategy: { text: 'Look for the next waiting sixth in every learner row and keep each distribution equal.', pose: 'think' },
-            retry: { text: 'Keep every share the same size: count sixths instead of changing the whole.', pose: 'oops' },
-            milestone: { text: 'Every learner row now shows the same growing share—keep distributing sixths.', pose: 'cheer' },
+            strategy: { text: 'The source loses one whole’s pieces when each learner receives one sixth.', pose: 'think' },
+            retry: { text: 'Keep the shares equal and use only the pieces in the source.', pose: 'oops' },
+            milestone: { text: 'Each learner has the same growing share. Compare it with the pieces left.', pose: 'think' },
             complete: { text: 'You shared five whole units fairly: every learner receives 5/6.', pose: 'cheer' },
           },
         },

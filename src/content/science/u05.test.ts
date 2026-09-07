@@ -484,8 +484,8 @@ test('energy conversion cards expose constraint and trade-off coaching', () => {
   expect(widgetCards).toHaveLength(2);
   for (const card of widgetCards) {
     expect(card.widgetCoach?.intro).toHaveLength(2);
-    expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/chain|input|constraint/i);
-    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/link|constraint|stamp/i);
+    expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/output.*connect.*next part/i);
+    expect(card.widgetCoach?.reactions.retry?.text).toMatch(/connection|requirement/i);
     expect(card.widgetCoach?.reactions.complete.text).toMatch(/observable|constraint|universally best/i);
   }
   expect(JSON.stringify(unit05Lessons)).toMatch(/universally best|always best/i);

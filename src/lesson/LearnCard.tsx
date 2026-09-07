@@ -63,6 +63,8 @@ export function LearnCard({
   stageVisitKey = card.id,
   onWidgetCoachIntroActiveChange,
 }: LearnCardProps) {
+  const [sourceReadyVisit, setSourceReadyVisit] = useState<string | null>(null);
+  const sourceReady = (!card.widgetCoach && !card.demo) || sourceReadyVisit === stageVisitKey;
   const [dialogueDone, setDialogueDone] = useState(false);
   const spoken = speechText([
     card.title,
@@ -102,15 +104,16 @@ export function LearnCard({
           guide={guide}
           visitKey={stageVisitKey}
           onEvent={onWidgetEvent}
+          onActivityReady={() => setSourceReadyVisit(stageVisitKey)}
           onIntroActiveChange={(active) => onWidgetCoachIntroActiveChange?.(!active)}
         />
       ) : (
         card.widget && <WidgetFrame {...card.widget} onEvent={onWidgetEvent} />
       )}
 
-      {card.demo && <LessonDemo demo={card.demo} />}
+      {card.demo && <LessonDemo key={stageVisitKey} demo={card.demo} guide={guide} onIntroActiveChange={(active) => { if (!active) setSourceReadyVisit(stageVisitKey); onWidgetCoachIntroActiveChange?.(active); }} />}
 
-      {card.check && <InlineCheck check={card.check} />}
+      {card.check && sourceReady && <InlineCheck check={card.check} />}
     </section>
   );
 }

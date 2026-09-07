@@ -1,0 +1,34 @@
+.regrouping-lab .activity-workbench-visual { display: flex; flex-direction: column; gap: 12px; }
+.regrouping-lab .activity-workbench-visual h3 { margin: 0; font-size: 1.3rem; }
+.regrouping-lab .regroup-problem { margin: 0; font-size: 1.3rem; font-weight: 800; }
+.regroup-board { display: grid; gap: 5px; padding: 12px 4px; background: #fffdf4; border: 2px solid #9f6816; border-radius: 16px; }
+.regroup-tray { min-width: 0; text-align: center; border-radius: 8px; border: 1px solid #d8c9a8; background: #fff; overflow: hidden; }
+.regroup-tray[data-active=true] { outline: 2px solid #9f6816; outline-offset: 1px; background: #fff2cd; }
+.regroup-tray > strong { display: block; background: #61430f; color: white; padding: 5px 1px; font-size: .78rem; }
+.regroup-original { display: block; padding: 5px 0; line-height: 1.4; border-bottom: 1px dashed #b9a47a; font-size: .85rem; }
+.regroup-tray [role=group] { height: 142px; padding: 4px 3px; }
+.regroup-tray [role=group] b { font-size: 1rem; }
+.regroup-counters { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 3px; margin-top: 4px; }
+.regroup-counters i { display: block; width: 100%; max-width: 16px; aspect-ratio: 1; border-radius: 50%; background: #dba643; border: 1px solid #61430f; }
+.regroup-digit { display: block; min-height: 28px; border-top: 1px solid #c4b18b; font-weight: bold; }
+.regrouping-lab .regroup-key { margin: 0; font-size: .85rem; line-height: 1.4; }
+.regrouping-lab .regroup-result { margin: 0; font-weight: 800; }
+.regroup-task { border: 1px solid #c3a46c; padding: 14px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px; }
+.regroup-task h4, .regroup-task p { margin: 0; }
+.regroup-task button, .regrouping-lab .activity-workbench-tasks > button { min-height: 44px; padding: 9px; border: 2px solid #856222; border-radius: 12px; background: #fffdf7; color: #433719; font: inherit; }
+.regroup-task button[aria-pressed=true] { background: #f5e2b5; box-shadow: inset 4px 0 #856222; }
+.regroup-task button:disabled { opacity: .5; }
+.regroup-task label { display: flex; flex-direction: column; gap: 6px; }
+.regroup-task input { min-height: 44px; width: 100%; padding: 8px; font: inherit; }
+@media(max-width:700px) {
+ .regrouping-lab .activity-workbench-visual { gap: 8px; }
+ .regrouping-lab .activity-workbench-visual h3, .regrouping-lab .regroup-problem { font-size: 1rem; line-height: 1.25; }
+ .regroup-board { gap: 4px; padding: 7px 3px; }
+ .regroup-original { font-size: .7rem; line-height: 1.2; padding: 3px 0; }
+ .regroup-tray > strong { font-size: .65rem; padding: 3px 0; }
+ .regroup-tray [role=group] { height: 97px; padding: 2px; }
+ .regroup-counters { gap: 2px; }
+ .regroup-counters i { max-width: 9px; }
+ .regrouping-lab .regroup-key { font-size: .72rem; }
+ .regrouping-lab .regroup-result { font-size: .83rem; }
+}

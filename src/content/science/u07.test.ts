@@ -593,12 +593,12 @@ test('Unit 7 map and erosion widgets connect Sandy coaching to fair comparisons 
   const mapCard = unit07Lessons[1]!.learnCards[1]!;
   const erosionCard = unit07Lessons[2]!.learnCards[1]!;
   expect(mapCard.widgetCoach?.intro).toHaveLength(2);
-  expect(mapCard.widgetCoach?.reactions.strategy?.text).toMatch(/elevation.*location|location.*elevation/i);
-  expect(mapCard.widgetCoach?.reactions.complete.text).toMatch(/visible map pattern/i);
+  expect(mapCard.widgetCoach?.reactions.strategy?.text).toMatch(/selected places.*positions.*map/i);
+  expect(mapCard.widgetCoach?.reactions.complete.text).toMatch(/pattern description.*locations.*map/i);
   expect(erosionCard.widgetCoach?.intro).toHaveLength(2);
-  expect(erosionCard.widgetCoach?.reactions.strategy?.text).toMatch(/vegetation.*same|same.*vegetation/i);
-  expect(erosionCard.widgetCoach?.reactions.milestone?.text).toMatch(/matched run/i);
-  expect(erosionCard.widgetCoach?.reactions.complete.text).toMatch(/matched bare and covered/i);
+  expect(erosionCard.widgetCoach?.reactions.strategy?.text).toMatch(/original prediction.*both model results/i);
+  expect(erosionCard.widgetCoach?.reactions.milestone?.text).toMatch(/modeled result.*other condition.*fair comparison/i);
+  expect(erosionCard.widgetCoach?.reactions.complete.text).toMatch(/both modeled results.*explain/i);
   const mapConfig = (mapCard.widget as { config: { points: unknown[]; targetPattern?: string } }).config;
   expect(mapConfig.points).toHaveLength(6);
   expect(mapConfig.targetPattern).toBe('band');
@@ -610,8 +610,8 @@ test('opening topographic card uses rich plotted points and in-step Sandy coachi
   const card = unit07Lessons[0]!.learnCards[0]!;
   expect(card.widgetCoach?.intro).toHaveLength(2);
   expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
-  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/elevation|point|contour/i);
-  expect(card.widgetCoach?.reactions.retry?.text).toMatch(/pattern|point|elevation/i);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/selected places.*positions/i);
+  expect(card.widgetCoach?.reactions.retry?.text).toMatch(/selected.*arrangement.*cause/i);
   expect(card.widgetCoach?.reactions.complete.text).toMatch(/pattern|elevation|model/i);
   const config = (card.widget as { config: { points: Array<Record<string, unknown>>; targetPattern?: string; targetPointId?: string } }).config;
   expect(config.targetPattern).toMatch(/^(band|cluster)$/);
@@ -622,9 +622,9 @@ test('opening topographic card uses rich plotted points and in-step Sandy coachi
 test('rock-layer widget coaches relative rank with fossil evidence and no invented age', () => {
   const card = unit07Lessons[3]!.learnCards[1]!;
   expect(card.widgetCoach?.intro).toHaveLength(2);
-  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/rank.*fossil|fossil.*rank/i);
+  expect(card.widgetCoach?.reactions.strategy?.text).toMatch(/positions.*relative-age ranks.*not years/i);
   expect(card.widgetCoach?.reactions.retry?.text).toMatch(/years|process/i);
-  expect(card.widgetCoach?.reactions.complete.text).toMatch(/relative-age.*rank.*fossil|rank.*fossil/i);
+  expect(card.widgetCoach?.reactions.complete.text).toMatch(/relative-age conclusion.*layer.*fossil/i);
   const config = (card.widget as { config: { evidenceChoices?: Array<{ id: string }>; requiredEvidenceId?: string } }).config;
   expect(config.evidenceChoices).toHaveLength(3);
   expect(config.requiredEvidenceId).toBe('fossil-order');

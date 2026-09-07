@@ -1,0 +1,50 @@
+.widget-coach-frame.tuning-coach { height: 620px; display: block; position: relative; }
+.tuning-coach .widget-coach-intro { height: 100%; min-height: 0; display: flex; flex-direction: column; justify-content: center; overflow: auto; }
+.tuning-coach .widget-coach-scene { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.tuning-coach .widget-coach-character { width: min(360px, 100%); height: auto; flex: 0 0 auto; }
+.tuning-coach .widget-coach-intro-live { height: 200px; min-height: 200px; flex: 0 0 200px; width: 100%; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+.tuning-coach .widget-coach-activity { height: 100%; margin: 0; padding: 0; }
+.tuning-activity { height: 620px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr); border: 2px solid #527f74; border-radius: 24px; overflow: hidden; background: #f1f8f2; color: #244a43; }
+.tuning-visual { min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; padding: 24px; background: radial-gradient(ellipse at 50% 45%, #fffdf0, #e3f0e8); }
+.tuning-eyebrow { font-size: .73rem; font-weight: 800; letter-spacing: .08em; }
+.tuning-visual h3 { font-size: clamp(1.5rem, 3vw, 2.3rem); margin: 8px 0; }
+.tuning-visual p { margin: 6px 0; }
+.tuning-visual svg { width: 100%; min-height: 0; flex: 0 1 340px; overflow: hidden; }
+.tuning-visual svg text { fill: #244a43; font-size: 19px; font-weight: 600; }
+.tuning-caption { font-weight: 700; font-size: .9rem; }
+.tuning-boundary { font-size: .8rem; line-height: 1.5; }
+.tuning-tasks { display: flex; flex-direction: column; gap: 14px; height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 18px; scroll-padding-block: 18px; border-left: 1px solid #b0cbbf; }
+.tuning-tasks > * { flex: 0 0 auto; }
+.tuning-task { background: #fffef8; border: 1px solid #b6ccbf; border-radius: 15px; padding: 16px; }
+.tuning-task h4 { margin: 6px 0 12px; font-size: 1.05rem; }
+.tuning-task p, .tuning-coaching p { font-size: .9rem; line-height: 1.5; margin: 12px 0 0; }
+.tuning-tasks button { min-height: 44px; width: 100%; padding: 10px 12px; margin-top: 8px; background: white; border: 2px solid #5a8177; border-radius: 10px; color: #244a43; font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.tuning-tasks button[aria-pressed=true] { background: #eaf0f3; border-color: #45616c; box-shadow: inset 4px 0 #45616c; }
+.tuning-tasks button[data-outcome=retry] { background: #fff0d6; color: #713e09; border-color: #94540f; box-shadow: inset 4px 0 #94540f; }
+.tuning-tasks button[data-outcome=correct] { background: #dcece0; color: #234f44; border-color: #234f44; box-shadow: inset 4px 0 #234f44; opacity: 1; }
+.tuning-answer-label { display: block; margin-top: 6px; font-size: .85em; }
+.tuning-tasks button:disabled { cursor: default; opacity: .72; }
+.tuning-tasks .tuning-strike { background: #285d50; color: white; font-weight: 700; text-align: center; }
+.tuning-tasks :focus-visible { outline: 3px solid #986016; outline-offset: 3px; }
+.tuning-coaching { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tuning-coaching > span { flex: 0 0 64px; }
+.tuning-coaching p { margin: 0; }
+@keyframes fork-shiver { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-2px); } 75% { transform: translateX(2px); } }
+@keyframes paper-tremble { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px); } }
+@keyframes fork-strike { 0%,100% { transform: translate(0,0); } 35% { transform: translate(30px,-6px); } }
+.tuning-fork-motion { animation: fork-shiver .1s 20 .15s; }
+.tuning-paper-motion { animation: paper-tremble .18s 10; }
+.tuning-striker-motion { animation: fork-strike .35s 1; }
+@media (max-width: 700px) {
+  .widget-coach-frame.tuning-coach, .tuning-activity { height: 760px; }
+  .tuning-activity { grid-template-columns: minmax(0,1fr); grid-template-rows: 310px minmax(0,1fr); }
+  .tuning-visual { padding: 14px; }
+  .tuning-visual h3 { font-size: 1.4rem; margin: 3px 0; }
+  .tuning-visual header > p { display: none; }
+  .tuning-visual svg { flex: 1 1 160px; }
+  .tuning-caption, .tuning-boundary { font-size: .75rem; }
+  .tuning-tasks { border-left: none; border-top: 1px solid #b0cbbf; padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tuning-activity * { animation: none !important; scroll-behavior: auto !important; }
+}

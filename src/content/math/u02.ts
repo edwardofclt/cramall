@@ -15,6 +15,8 @@ export const unit02Lessons = [
     learnCards: [
       {
         id: 'math-u02-l01-c1',
+        widget: {"type": "regrouping-lab", "config": {"a": 23468, "b": 17857, "operation": "add", "context": "Two acorn teams collected 23,468 and 17,857 acorns. How many did they collect altogether?"}},
+        widgetCoach: {"intro": [{"speaker": "guide", "pose": "talk", "text": "Two teams want to join their acorn counts. Choose an operation, then exchange counters whenever a tray holds ten or more."}, {"speaker": "kid", "text": "I’ll combine the amounts, record each digit, and explain why an exchange keeps the same value."}], "reactions": {"strategy": {"pose": "think", "text": "Work from the ones. Each tray’s label tells the value of one counter."}, "retry": {"pose": "oops", "text": "Compare the values in the trays with your move. Count carefully and try again."}, "milestone": {"pose": "talk", "text": "Every place is recorded. Use the exchanges to explain why the result makes sense."}, "complete": {"pose": "cheer", "text": "You used equal-value exchanges and checked how the parts fit together."}}},
         title: 'Choose an Addition or Subtraction Strategy',
         blocks: [
           { kind: 'text', text: 'Add when amounts join or a total is needed. Subtract when an amount is removed or a difference is needed.' },
@@ -24,6 +26,8 @@ export const unit02Lessons = [
       },
       {
         id: 'math-u02-l01-c2',
+        widget: {"type": "regrouping-lab", "config": {"a": 50003, "b": 26718, "operation": "subtract", "context": "A store has 50,003 seeds and sends out 26,718. How many seeds remain?"}},
+        widgetCoach: {"intro": [{"speaker": "guide", "pose": "talk", "text": "Some trays start empty. We can exchange one larger unit for ten smaller units to help remove the seeds."}, {"speaker": "kid", "text": "I’ll work from the ones, exchange across empty trays, and count what remains."}], "reactions": {"strategy": {"pose": "think", "text": "Work from the ones. Each tray’s label tells the value of one counter."}, "retry": {"pose": "oops", "text": "Compare the values in the trays with your move. Count carefully and try again."}, "milestone": {"pose": "talk", "text": "Every place is recorded. Use the exchanges to explain why the result makes sense."}, "complete": {"pose": "cheer", "text": "You used equal-value exchanges and checked how the parts fit together."}}},
         title: 'Regroup by Place Value',
         blocks: [
           { kind: 'text', text: 'Ten units in one place can be regrouped as one unit in the place to its left without changing the number.' },
@@ -33,6 +37,8 @@ export const unit02Lessons = [
       },
       {
         id: 'math-u02-l01-c3',
+        widget: {"type": "regrouping-lab", "config": {"a": 38465, "b": 28956, "operation": "add", "context": "A gardener says 67,421 − 28,956 = 38,465. Add 38,465 and 28,956 to check whether they rebuild 67,421.", "purpose": "inverse-check"}},
+        widgetCoach: {"intro": [{"speaker": "guide", "pose": "talk", "text": "Let’s check a subtraction by rebuilding the original amount from its two parts."}, {"speaker": "kid", "text": "I’ll add the removed amount back, regroup the counters, and compare the total with the starting amount."}], "reactions": {"strategy": {"pose": "think", "text": "Work from the ones. Each tray’s label tells the value of one counter."}, "retry": {"pose": "oops", "text": "Compare the values in the trays with your move. Count carefully and try again."}, "milestone": {"pose": "talk", "text": "Every place is recorded. Use the exchanges to explain why the result makes sense."}, "complete": {"pose": "cheer", "text": "You used equal-value exchanges and checked how the parts fit together."}}},
         title: 'Justify and Check the Result',
         blocks: [
           { kind: 'text', text: 'Explain why the chosen operation fits the situation and why each regroup keeps the same value.' },

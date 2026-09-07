@@ -11,6 +11,8 @@ test('rejects an invalid next token then completes the exact path', async () => 
   expect(screen.getByRole('status')).toHaveTextContent(/not the next transfer/i);
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([{ type: 'interaction', action: 'append-path' }, { type: 'change', value: { path: [] } }, { type: 'coach', cue: 'strategy' }]);
   for (const label of ['Sun', 'Electricity', 'Lamp']) await user.click(screen.getByRole('button', { name: `Add ${label} to path` }));
+  await user.click(screen.getByRole('button', {name:'Predict a change'}));
+  await user.click(screen.getByRole('button', {name:'Run transfer model'}));
   await user.click(screen.getByRole('button', { name: 'Observe brighter effect' }));
   expect(screen.getByTestId('widget-energy-transfer-builder')).toHaveAttribute('data-state', 'complete');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toEqual([[{ type: 'complete', value: { path: ['Sun', 'Electricity', 'Lamp'] } }]]);
@@ -43,7 +45,7 @@ test('shows distractors, supports removing snapped nodes, and requires an observ
     sources: ['Sun'], transfers: ['light'], targets: ['paper square'],
     distractors: ['Moon', 'sound'], requiredPath: ['Sun', 'light', 'paper square'],
   }} onEvent={onEvent} />);
-  expect(screen.getByRole('heading', { name: 'Distractors' })).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Other parts' })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Add Moon to path' }));
   expect(screen.getByRole('status')).toHaveTextContent(/distractor/i);
   expect(onEvent.mock.calls.slice(0, 3).map(([event]) => event)).toEqual([
@@ -63,6 +65,8 @@ test('shows distractors, supports removing snapped nodes, and requires an observ
   await user.click(screen.getByRole('button', { name: 'Remove paper square from path' }));
   expect(screen.getByTestId('selected-energy-path')).toHaveTextContent('light');
   await user.click(screen.getByRole('button', { name: 'Add paper square to path' }));
+  await user.click(screen.getByRole('button', {name:'Predict a change'}));
+  await user.click(screen.getByRole('button', {name:'Run transfer model'}));
   await user.click(screen.getByRole('button', { name: 'Observe warmer effect' }));
   expect(screen.getByTestId('widget-energy-transfer-builder')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/modeled warmer/i);

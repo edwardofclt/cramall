@@ -171,14 +171,14 @@ export const unit06Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"First, build a plan from the plot, theme, and one useful detail."},
-            {"speaker":"kid","text":"Then I’ll say what those choices mean in my own words."}
+            {"speaker":"guide","pose":"think","text":"Let’s choose the important ideas and details for a short summary plan."},
+            {"speaker":"kid","text":"I’ll check my plan, write in my own words, and reread it for meaning."}
           ],
           "reactions": {
             "strategy":{"text":"Read the source, then keep the plot and theme with the detail that proves them.","pose":"think"},
             "retry":{"text":"That sentence is not needed. Check which choice helps explain the plot or theme.","pose":"oops"},
             "milestone":{"text":"Nice plan! You connected the plot, theme, and evidence.","pose":"cheer"},
-            "complete":{"text":"You planned with evidence and explained the story in your own words.","pose":"cheer"}
+            "complete":{"text":"Your plan and word count are checked. Now reread your own words to check their meaning.","pose":"cheer"}
           }
         },
         "check": {
@@ -725,14 +725,14 @@ export const unit06Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"Choose the central idea and the two details that show how martin houses help birds."},
-            {"speaker":"kid","text":"I’ll make the plan first, then explain it without copying the source."}
+            {"speaker":"guide","pose":"think","text":"Let’s choose the article’s important idea and the details that explain it."},
+            {"speaker":"kid","text":"I’ll check my plan, write a short summary, and compare it with the source."}
           ],
           "reactions": {
-            "strategy":{"text":"Look back at the article: keep details that explain placement and regular care.","pose":"think"},
+            "strategy":{"text":"Look at the supplied source sentences. Which details explain the main idea?","pose":"think"},
             "retry":{"text":"That choice is a side detail. Find the evidence that supports the central idea.","pose":"oops"},
             "milestone":{"text":"Great! Your plan has the idea and both useful supports.","pose":"cheer"},
-            "complete":{"text":"You connected central idea, evidence, and your own words in a concise summary.","pose":"cheer"}
+            "complete":{"text":"Your plan and word count are checked. Compare your own words with the source for meaning.","pose":"cheer"}
           }
         },
         "check": {

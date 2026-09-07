@@ -624,7 +624,7 @@ export const unit11Lessons = [
           },
           {
             "kind": "example",
-            "text": "B is the best fit for this question because its expertise, accountable publisher, evidence, current date, and purpose all support the judgment."
+            "text": "Source A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Claim: “A leaf trick chases every mosquito forever.” Source B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.” Source C — Mystery Screenshot. Author, date, and publisher: not supplied. Purpose: share a quick message. Claim: “Share this now!” These records are invented for practice."
           },
           {
             "kind": "tip",
@@ -699,13 +699,13 @@ export const unit11Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"Read every source record, then compare its evidence with Maya’s prevention question."},
-            {"speaker":"kid","text":"I’ll weigh the criteria before I choose a source and explain the limits of my judgment."}
+            {"speaker":"guide","pose":"think","text":"Let’s inspect these practice source records for Maya’s prevention question."},
+            {"speaker":"kid","text":"I’ll propose a judgment, choose reasons from each record, and check my case."}
           ],
           "reactions": {
             "strategy": {"text":"Start with one source and inspect its expertise, publisher, evidence, date, and purpose.","pose":"think"},
             "retry": {"text":"That judgment needs another look. Point to the visible criteria that support or weaken this source for the question.","pose":"oops"},
-            "milestone": {"text":"Nice! You connected a source judgment to more than one visible criterion.","pose":"cheer"},
+            "milestone": {"text":"A checked source judgment fits more than one supplied criterion. Compare the other records too.","pose":"cheer"},
             "complete": {"text":"You weighed the supplied evidence and explained why the best source fits this question.","pose":"cheer"}
           }
         },

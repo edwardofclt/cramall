@@ -98,7 +98,8 @@ describe('widgetSpeechText', () => {
     expect(text).toContain('2025');
     expect(text).toContain('Explain local river changes');
     expect(text).toContain('The river level changed after the storm.');
-    expect(text).toContain('The author studies rivers.');
+    expect(text).not.toContain('The author studies rivers.');
+    expect(text).toContain('expertise');
     expect(text).not.toContain('source-a');
     expect(text).not.toContain('credible-for-question');
     expect(text).not.toContain('supports');
@@ -150,4 +151,22 @@ describe('widgetSpeechText', () => {
     expect(text).toContain('Classify by pairs of parallel sides.');
     expect(text).not.toContain('parallelPairs');
   });
+});
+
+
+test('reads equal sharing and neutral shape names without supplying classifications', () => {
+  const division = parse({type:'array-builder', config:{rows:4,columns:3,editable:true,task:'division',dividend:936,divisor:4}});
+  expect(widgetSpeechText(division).join(' ')).toContain('936 shared into 4 equal groups');
+  const shapes = parse({type:'shape-classifier',config:{shapes:[{id:'s',label:'Square',sides:4,angles:4,parallelPairs:2},{id:'t',label:'Triangle',sides:3,angles:3,parallelPairs:0}],bins:[{id:'two',label:'Two pairs',value:2},{id:'none',label:'No pairs',value:0}],rule:'parallelPairs'}});
+  const text = widgetSpeechText(shapes).join(' ');
+  expect(text).toContain('Shape A');
+  expect(text).not.toContain('Square');
+});
+
+
+test('keeps protection impact keys out of pre-check read-aloud', () => {
+  const hazard = parse({type:'hazard-solution-designer',config:{hazard:'flood',solutions:[{id:'wall',label:'Barrier',effectiveness:'good',strengths:['blocks rising water'],limits:['needs upkeep'],impacts:['Rising water reaches homes.']},{id:'drain',label:'Drain',effectiveness:'partial',strengths:['carries water away'],limits:['can clog'],impacts:['Water pools on roads.']}],requiredIds:['wall'],requiredImpactIds:['Rising water reaches homes.']}});
+  const spoken = widgetSpeechText(hazard).join(' ');
+  expect(spoken).toContain('Barrier');
+  expect(spoken).not.toContain('Rising water reaches homes.');
 });

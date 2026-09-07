@@ -1,0 +1,80 @@
+/* Shared geometry; subject styles own the actual models, sources and controls. */
+.widget-coach-frame.guide-led-coach { display: block; height: 700px; min-width: 0; }
+.guide-led-coach .widget-coach-intro { height: 100%; min-height: 0; display: flex; flex-direction: column; justify-content: center; overflow: auto; }
+.guide-led-coach .widget-coach-scene { display: flex; flex-direction: column; align-items: center; width: 100%; }
+.guide-led-coach .widget-coach-character { width: min(360px, 100%); height: auto; flex: 0 0 auto; }
+.guide-led-coach .widget-coach-intro-live { height: 220px; min-height: 220px; flex: 0 0 220px; width: 100%; display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; }
+.guide-led-coach .widget-coach-activity { height: 100%; padding: 0; margin: 0; }
+.activity-shell { display: block !important; height: 700px; min-height: 0; min-width: 0; padding: 0 !important; overflow: hidden; border: 2px solid var(--c-accent-action); border-radius: 22px; }
+.activity-workbench { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(265px,1fr); height: 100%; min-height: 0; min-width: 0; background: var(--c-card); }
+.activity-workbench-visual { min-width: 0; min-height: 0; padding: 20px; overflow: hidden; background: color-mix(in srgb, var(--c-peek-bg) 55%, white); }
+.activity-workbench-visual[data-scrollable=yes] { overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.activity-workbench-tasks { display: flex; flex-direction: column; gap: 14px; height: 100%; min-height: 0; min-width: 0; padding: 18px; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-gutter: stable; scroll-padding-block: 16px; border-left: 1px solid var(--c-line); }
+.activity-workbench-tasks > * { flex: 0 0 auto; min-width: 0; max-width: 100%; }
+.activity-workbench :is(button,input,select,textarea) { max-width: 100%; }
+.activity-workbench button { min-height: 44px; overflow-wrap: anywhere; white-space: normal; }
+.activity-workbench :is(p,h3,h4,legend,label) { overflow-wrap: anywhere; }
+.activity-workbench :focus-visible { outline: 3px solid var(--c-accent-action); outline-offset: 3px; }
+.activity-workbench-visual > :first-child { margin-top: 0; }
+.activity-coach-slot { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid var(--c-line); border-radius: 16px; background: var(--c-peek-bg); }
+.activity-coach-slot > span { flex: 0 0 72px; }
+.activity-coach-slot > div { min-width: 0; }
+.activity-coach-slot p { margin: 0 0 8px; font-size: .9rem; line-height: 1.5; }
+.activity-coach-slot .activity-coach-dismiss { min-height: 44px; }
+.activity-workbench [data-outcome=retry] { background: #fff0d6; color: #713e09; border-color: #94540f; }
+.activity-workbench [data-outcome=correct] { background: #dcece0; color: #234f44; border-color: #234f44; }
+@media (max-width: 700px) {
+  .widget-coach-frame.guide-led-coach, .activity-shell { display: block !important; height: 860px; }
+  .activity-workbench { grid-template-columns: minmax(0,1fr); grid-template-rows: 360px minmax(0,1fr); }
+  .activity-workbench-visual { padding: 14px; }
+  .activity-workbench-tasks { padding: 12px; border-left: none; border-top: 1px solid var(--c-line); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .activity-workbench, .activity-workbench * { scroll-behavior: auto !important; }
+}
+
+.rc-demo.activity-shell .rc-scene { width: 100%; min-height: 0; max-height: 480px; }
+@media (max-width: 700px) {
+  .rc-demo.activity-shell .rc-demo-heading { gap: 6px; }
+  .rc-demo.activity-shell .rc-demo-heading h3 { font-size: 1.05rem; line-height: 1.35; }
+  .rc-demo.activity-shell .rc-demo-kicker { font-size: .65rem; }
+  .rc-demo.activity-shell .rc-demo-badge { display: none; }
+  .rc-demo.activity-shell .rc-scene { max-height: 240px; }
+}
+
+.activity-workbench-task-column { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.activity-workbench-task-column > .activity-workbench-tasks { flex: 1 1 auto; }
+.activity-workbench-task-column > .activity-coach-slot { flex: 0 0 auto; max-height: 210px; overflow-y: auto; overscroll-behavior: contain; border-radius: 0; border-width: 1px 0 0 1px; }
+@media (max-width: 700px) {
+  .activity-workbench-task-column > .activity-coach-slot { max-height: 190px; border-left: 0; }
+}
+
+/* Coaster tasks follow the same calm card hierarchy as the subject workbenches. */
+.rc-demo.activity-shell { border-color: #56776e; }
+.rc-demo.activity-shell .rc-demo-kicker { color: #365d51; }
+.rc-demo.activity-shell .rc-demo-heading h3 { line-height: 1.3; }
+.rc-demo.activity-shell .activity-workbench-visual { display: flex; flex-direction: column; gap: 12px; }
+.rc-demo.activity-shell .rc-observation-board { border: 1px solid #9bb8ab; border-radius: 14px; background: #fffef8; padding: 12px; }
+.rc-observation-board h4 { margin: 0 0 8px; }
+.rc-observation-board dl { margin: 0; }
+.rc-observation-board dl > div { display: grid; grid-template-columns: 1fr 1.3fr; gap: 12px; padding-block: 8px; }
+.rc-observation-board dl > div + div { border-top: 1px solid #d6e0d8; }
+.rc-observation-board dt { font-weight: 700; }
+.rc-observation-board dd { margin: 0; }
+.rc-demo.activity-shell .rc-task { margin: 0; min-width: 0; border: 1px solid #9bb8ab; border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+.rc-demo.activity-shell .rc-task legend { font-weight: 800; padding-inline: 5px; }
+.rc-demo.activity-shell .rc-task :is(h4,p) { margin: 0; }
+.rc-demo.activity-shell .btn { border: 1px solid #718c7e; border-radius: 12px; box-shadow: none; color: #27483e; background: #fffef8; padding: 10px 12px; }
+.rc-demo.activity-shell .btn[aria-pressed=true] { background: #e7eee9; box-shadow: inset 4px 0 #56776e; }
+.rc-demo.activity-shell .btn:disabled { opacity: .5; }
+.rc-demo.activity-shell .btn[data-outcome=retry] { color: #713e09; background: #fff0d6; border-color: #94540f; }
+.rc-demo.activity-shell .btn[data-outcome=correct] { color: #234f44; background: #dcece0; border-color: #234f44; }
+.rc-demo.activity-shell .rc-controls { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.rc-demo.activity-shell .rc-demo-note { background: #f1f4ed; border: 0; padding: 10px; color: #365d51; font-weight: 400; }
+.rc-demo.activity-shell .rc-status { background: #edf3ef; color: #365d51; font-weight: 400; }
+@media(max-width:700px) {
+ .rc-demo.activity-shell .activity-workbench-visual { gap: 8px; }
+ .rc-demo.activity-shell .rc-observation-board { padding: 8px; font-size: .73rem; line-height: 1.35; }
+ .rc-observation-board h4 { margin-bottom: 4px; }
+ .rc-observation-board dl > div { padding-block: 5px; gap: 8px; }
+}

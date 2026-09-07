@@ -79,7 +79,7 @@ export const unit07Lessons = [
           },
           {
             "kind": "example",
-            "text": "Loose boards/replacement is problem-solution; First/Next/Then is sequence; wood/composite is compare-contrast."
+            "text": "Read each complete excerpt and ask how its ideas connect before sorting it."
           },
           {
             "kind": "tip",
@@ -115,8 +115,8 @@ export const unit07Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker": "guide", "pose": "talk", "text": "You just read three repair relationships. Let’s sort each excerpt by what its ideas are doing."},
-            {"speaker": "kid", "text": "I’ll look for the relationship, not just a signal word."}
+            {"speaker": "guide", "pose": "talk", "text": "Let’s sort these repair excerpts by how their ideas connect."},
+            {"speaker": "kid", "text": "I’ll place each excerpt, compare the relationships, and revise any mismatch."}
           ],
           "reactions": {
             "strategy": {"text": "Read the whole excerpt, then name the relationship between its ideas.", "pose": "think"},

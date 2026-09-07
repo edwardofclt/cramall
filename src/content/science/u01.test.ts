@@ -336,11 +336,11 @@ describe('Science unit 1 energy and motion lessons', () => {
     const collisionCard = lesson.learnCards[1]!;
     expect(collisionCard.widgetCoach?.intro).toHaveLength(2);
     expect(collisionCard.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
-    expect(collisionCard.widgetCoach?.intro.map(({ text }) => text).join(' ')).toMatch(/models a prediction.*not physical evidence/i);
-    expect(collisionCard.widgetCoach?.reactions.strategy?.text).toMatch(/one condition at a time/i);
-    expect(collisionCard.widgetCoach?.reactions.retry?.text).toMatch(/before-and-after motion/i);
-    expect(collisionCard.widgetCoach?.reactions.milestone?.text).toMatch(/Run 1/i);
-    expect(collisionCard.widgetCoach?.reactions.complete.text).toMatch(/compared two modeled collision runs/i);
+    expect(collisionCard.widgetCoach?.intro.map(({ text }) => text).join(' ')).toMatch(/modeled bumps.*predict.*compare/i);
+    expect(collisionCard.widgetCoach?.reactions.strategy?.text).toMatch(/all but one.*condition.*fixed/i);
+    expect(collisionCard.widgetCoach?.reactions.retry?.text).toMatch(/saved runs.*motion/i);
+    expect(collisionCard.widgetCoach?.reactions.milestone?.text).toMatch(/modeled comparison.*motion/i);
+    expect(collisionCard.widgetCoach?.reactions.complete.text).toMatch(/compared modeled motion.*observations.*energy-transfer/i);
     const tags = ['collision-motion-evidence', 'collision-outcome-prediction', 'collision-energy-inference'] as const;
     const cards = lesson.learnCards.map(({ id }) => id);
     expect(lesson.intro.map(({ speaker, pose }) => ({ speaker, pose }))).toEqual([

@@ -1,4 +1,6 @@
 import {useState} from 'react';
+import {ActivityWorkbench} from '../ActivityWorkbench';
+import './guide-led-reading.css';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -23,6 +25,7 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
   const required=config.requiredReasonCount??1;
   const answers=config.answers??{};
   const [ratings,setRatings]=useState<Record<string,ReasonedRating>>({});
+  const [checkedSources,setCheckedSources]=useState<Record<string,'correct'|'incorrect'|'incomplete'>>({});
   const [selectedReasons,setSelectedReasons]=useState<Record<string,string[]>>({});
   const [viewState,setViewState]=useState<CredibilityState>('rating');
   const [status,setStatus]=useState('Choose a judgment for every source, then support each choice with reason stamps.');
@@ -60,8 +63,10 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
     return {ratings:ratingsInOrder,reasons:reasonsInOrder};
   };
   const rate=(sourceId:string,rating:ReasonedRating)=>{
+    if(ratings[sourceId]===rating)return;
     emitChange({...ratings,[sourceId]:rating},selectedReasons,'rate-source');
-    setViewState('revision');
+    setViewState('rating');
+    setCheckedSources(previous=>{const next={...previous};delete next[sourceId];return next;});
     onEvent({type:'coach',cue:'strategy'});
     setStatus('Judgment saved. Select reason stamps that support it.');
   };
@@ -69,12 +74,18 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
     const current=selectedReasons[source.id]??[];
     const next=current.includes(criterion)?current.filter((id)=>id!==criterion):[...current,criterion];
     emitChange(ratings,{...selectedReasons,[source.id]:next},'select-reason');
-    setViewState('revision');
-    if(next.length===1) onEvent({type:'coach',cue:'milestone'});
+    setViewState('rating');
+    setCheckedSources(previous=>{const updated={...previous};delete updated[source.id];return updated;});
     setStatus(`${next.length} reason stamp${next.length===1?'':'s'} selected for ${source.title}.`);
   };
   const check=()=>{
     const emitted=emitChange(ratings,selectedReasons,'check');
+    const outcomes=Object.fromEntries(sources.map(source=>[source.id,
+      !emitted.ratings[source.id]||(emitted.reasons[source.id]?.length??0)<required?'incomplete'
+      :emitted.ratings[source.id]===answers[source.id]&&sourceReasonsValid(source,emitted.ratings,emitted.reasons)?'correct':'incorrect',
+    ])) as Record<string,'correct'|'incorrect'|'incomplete'>;
+    setCheckedSources(outcomes);
+    if(Object.values(outcomes).some(outcome=>outcome==='correct'))onEvent({type:'coach',cue:'milestone'});
     if(!allRated(emitted.ratings)){
       setViewState('revision');
       setStatus('Choose a judgment for every source before checking.');
@@ -99,49 +110,52 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
       :`Recheck “${source.title}”: look closely at ${weak.criterion}.`);
   };
   const reset=()=>{
+    setCheckedSources({});
     emitChange({}, {}, 'reset');
     setViewState('rating');
     setStatus('Choose a judgment for every source, then support each choice with reason stamps.');
   };
 
-  return <section className="card widget-experiment credibility" data-testid="widget-source-credibility-checker" data-state={viewState}>
+  return <section className="card widget-experiment activity-shell reading-activity credibility" data-testid="widget-source-credibility-checker" data-state={viewState}>
+    <ActivityWorkbench label="Source credibility" visualScrollable visual={<>
     <header>
       <h3>Build a source credibility case</h3>
       <p>Question: <strong>{config.question}</strong></p>
-      <p>Credibility depends on the question and the evidence—not a badge or a famous-sounding name.</p>
-      <p>These are practice records supplied by this lesson. This model does not browse or verify real sources.</p>
+      <p>Compare who wrote each source, when, and why.</p>
     </header>
+    <div className="reading-records">{sources.map((source,index)=><article key={source.id} aria-label={`Record: ${source.title}`}>
+      <h4>Source {String.fromCharCode(65+index)} — {source.title}</h4>
+      <dl><div><dt>Author expertise:</dt><dd>{source.author??'Not supplied'}</dd></div><div><dt>Publisher/accountability:</dt><dd>{source.publisher??'Not supplied'}</dd></div><div><dt>Date relevance:</dt><dd>{source.date??'Not supplied'}</dd></div><div><dt>Purpose:</dt><dd>{source.purpose??'Not supplied'}</dd></div></dl>
+      <strong>Supplied claims:</strong><ul>{source.claims?.map(claim=><li key={claim}>{claim}</li>)}</ul>
+    </article>)}</div>
+    </>}>
+    <p>These are practice records supplied by this lesson. This model does not browse or verify real sources.</p>
     <div className="credibility-sources">
       {sources.map((source)=>{
         const rating=ratings[source.id];
         const selected=selectedReasons[source.id]??[];
         return <fieldset className="credibility-source" key={source.id} aria-label={`Source: ${source.title}`}>
           <legend>{source.title}</legend>
-          <dl>
-            <div><dt>Author expertise:</dt><dd>{source.author??'Not supplied'}</dd></div>
-            <div><dt>Publisher/accountability:</dt><dd>{source.publisher??'Not supplied'}</dd></div>
-            <div><dt>Date relevance:</dt><dd>{source.date??'Not supplied'}</dd></div>
-            <div><dt>Purpose:</dt><dd>{source.purpose??'Not supplied'}</dd></div>
-          </dl>
-          <div className="credibility-claims"><strong>Evidence and citations:</strong>{source.claims&&source.claims.length>0?<ul>{source.claims.map((claim)=><li key={claim}>{claim}</li>)}</ul>:<span> No checkable evidence supplied.</span>}</div>
-          <div className="credibility-judgments" aria-label={`Reasons for ${source.title}`}>
-            <strong>Reason stamps</strong>
-            {source.judgments.map((judgment)=><button className={`credibility-reason credibility-reason-${judgment.strength}`} type="button" key={judgment.criterion} aria-pressed={selected.includes(judgment.criterion)} aria-label={`Select reason for ${source.title}: ${judgment.reason}`} onClick={()=>toggleReason(source,judgment.criterion)}>
-              <span>{judgment.strength==='supports'?'Supports':'Concern'} · {judgment.criterion}</span>
-              <span>{judgment.reason}</span>
-              <span className="credibility-selection-marker" aria-hidden="true">{selected.includes(judgment.criterion)?'✓ Selected':'○ Choose'}</span>
-            </button>)}
-          </div>
           <div className="credibility-ratings" aria-label={`Judgment for ${source.title}`}>
             {(['credible-for-question','needs-checking'] as const).map((choice)=>{
               const selectedRating=rating===choice;
               const label=choice==='credible-for-question'?'credible for this question':'needs more checking';
               return <button type="button" key={choice} aria-label={`Rate ${source.title} ${label}`} aria-pressed={selectedRating} onClick={()=>rate(source.id,choice)}>
                 <span>{choice==='credible-for-question'?'Credible for this question':'Needs more checking'}</span>
-                <span className="credibility-selection-marker" aria-hidden="true">{selectedRating?'✓ Selected':'○ Not selected'}</span>
+                <span className="credibility-selection-marker" aria-hidden="true">{selectedRating?'● Selected':'○ Not selected'}</span>
               </button>;
             })}
           </div>
+          <div className="credibility-judgments" aria-label={`Reasons for ${source.title}`}>
+            <strong>Reason stamps</strong>
+            {source.judgments.map((judgment)=><button className={`credibility-reason${checkedSources[source.id]&&checkedSources[source.id]!=='incomplete'?` credibility-reason-${judgment.strength}`:''}`} type="button" key={judgment.criterion} aria-pressed={selected.includes(judgment.criterion)} aria-label={`Select reason for ${source.title}: ${judgment.criterion}`} onClick={()=>toggleReason(source,judgment.criterion)}>
+              <span>{judgment.criterion}</span>
+              {checkedSources[source.id]&&checkedSources[source.id]!=='incomplete'&&selected.includes(judgment.criterion)&&<span>{judgment.strength==='supports'?'Supports':'Concern'}: {judgment.reason}</span>}
+              <span className="credibility-selection-marker" aria-hidden="true">{selected.includes(judgment.criterion)?'● Selected':'○ Choose'}</span>
+            </button>)}
+          </div>
+          <p aria-label={`Judgment feedback for ${source.id}`}>{rating?`Your proposed judgment: ${rating==='credible-for-question'?'credible for this question':'needs more checking'}.`:'Choose a judgment based on the source record.'}</p>
+          <p aria-label={`Evidence feedback for ${source.id}`} data-outcome={checkedSources[source.id]??'neutral'}>{checkedSources[source.id]==='correct'?'Correct: your judgment is supported by the selected source criteria.':checkedSources[source.id]==='incorrect'?'Try again: compare your judgment and selected criteria with this source record.':checkedSources[source.id]==='incomplete'?`Keep building: choose a judgment and at least ${required} reasons.`:'Select reasons, then check your evidence.'}</p>
           <p className="credibility-reason-progress">{selected.length} of {required} reason stamps selected.</p>
         </fieldset>;
       })}
@@ -152,6 +166,7 @@ function ReasonedSourceCredibility({config,onEvent}:SourceCredibilityCheckerProp
       <button type="button" onClick={reset}>Start over</button>
     </div>
     <p role="status" aria-live="polite">{status}</p>
+    </ActivityWorkbench>
   </section>;
 }
 
@@ -208,12 +223,15 @@ function LegacySourceCredibility({config,onEvent}:SourceCredibilityCheckerProps)
     setViewState('rating');
     setStatus('Rate every source.');
   };
-  return <section className="card widget-experiment credibility" data-testid="widget-source-credibility-checker" data-state={viewState}>
+  return <section className="card widget-experiment activity-shell reading-activity credibility" data-testid="widget-source-credibility-checker" data-state={viewState}>
+    <ActivityWorkbench label="Source credibility" visualScrollable visual={<>
     <header>
       <h3>Check source credibility</h3>
       <p>Use only the supplied author, evidence, date, and purpose records. Polished design, popularity, or a domain name alone does not establish credibility.</p>
       <p>These are practice records supplied by this lesson. This model does not browse or verify real sources.</p>
     </header>
+    <div className="reading-records">{config.sources.map(source=><article key={source.id}><h4>{source.title}</h4><p>{source.author??'Author missing'} · {source.date??'Date missing'}</p><p>{source.purpose??'Purpose missing'}</p><ul>{source.claims?.map(claim=><li key={claim}>{claim}</li>)}</ul></article>)}</div>
+    </>}>
     <p className="credibility-criteria"><strong>Criteria for this check:</strong> {criteria.join(', ')}</p>
     <div className="credibility-sources">
       {config.sources.map((source)=>{
@@ -233,7 +251,7 @@ function LegacySourceCredibility({config,onEvent}:SourceCredibilityCheckerProps)
               const label=choice==='credible'?'credible':'needs checking';
               return <button type="button" key={choice} aria-label={`Rate ${source.title} ${label}`} aria-pressed={selected} onClick={()=>rate(source.id,choice)}>
                 <span>{choice==='credible'?'Credible':'Needs checking'}</span>
-                <span className="credibility-selection-marker" aria-hidden="true">{selected?'✓ Selected':'○ Not selected'}</span>
+                <span className="credibility-selection-marker" aria-hidden="true">{selected?'● Selected':'○ Not selected'}</span>
               </button>;
             })}
           </div>
@@ -243,6 +261,7 @@ function LegacySourceCredibility({config,onEvent}:SourceCredibilityCheckerProps)
     <strong className="credibility-valid-marker">{viewState==='complete'?'✓ Ratings supported':'○ Check the evidence'}</strong>
     <div className="credibility-controls"><button type="button" aria-label="Check sources" onClick={check}>Check</button><button type="button" onClick={reset}>Start over</button></div>
     <p role="status" aria-live="polite">{status}</p>
+    </ActivityWorkbench>
   </section>;
 }
 

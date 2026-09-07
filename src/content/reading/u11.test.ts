@@ -1098,7 +1098,7 @@ const expectedVisiblePriorSnippets = [
   { cardId: 'reading-u11-l01-c3', snippets: ['Staggered blooms, suitable native plants, safe shelter/water, and careful maintenance answer the inquiry.'] },
   { cardId: 'reading-u11-l02-c1', snippets: ['Source B supplies an author role and publisher; A lacks a publisher; C lacks both.'] },
   { cardId: 'reading-u11-l02-c2', snippets: ['B gives checkable prevention actions and explanatory purpose; A entertains without evidence.'] },
-  { cardId: 'reading-u11-l02-c3', snippets: ['B is the best fit for this question because its expertise, accountable publisher, evidence, current date, and purpose all support the judgment.'] },
+  { cardId: 'reading-u11-l02-c3', snippets: ['Source A — Amazing Mosquito Facts. Author: Kai Reed. Date: 2018. Publisher: Popular Posts. Purpose: entertain readers with surprising claims. Claim: “A leaf trick chases every mosquito forever.” Source B — County Extension Mosquito Guide. Author: Dr. Lena Ortiz, entomology educator. Date: April 2026. Publisher: Sample County Extension. Purpose: explain safe mosquito prevention for families. Claims: “Standing water can become mosquito habitat. Empty small containers after rain.” Source C — Mystery Screenshot. Author, date, and publisher: not supplied. Purpose: share a quick message. Claim: “Share this now!” These records are invented for practice.'] },
   {
     cardId: 'reading-u11-l03-c1',
     snippets: [

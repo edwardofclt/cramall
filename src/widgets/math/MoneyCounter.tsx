@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
@@ -27,21 +29,24 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
   const key = JSON.stringify(config);
   const denominations = config.denominations ?? DEFAULT_DENOMINATIONS;
   const [counts, setCounts] = useState<Counts>(ZERO);
+  const [acted, setActed] = useState(false);
+  const [checkedCents, setCheckedCents] = useState<number | null>(null);
   const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
   const cents = total(counts);
   const matchesCurrentTarget = config.targetCents !== undefined && cents === config.targetCents;
-  const visiblyComplete = completed && matchesCurrentTarget;
+  const visiblyComplete = completed && acted && matchesCurrentTarget;
 
   useEffect(() => {
-    setCounts(ZERO);
+    setCounts(ZERO); setCheckedCents(null); setActed(false);
     milestoneSent.current = false;
   }, [key]);
 
   const commit = (next: Counts, action: 'add-coin' | 'remove-coin' | 'reset') => {
+    if (action === 'reset') setCheckedCents(null);
     const previousCents = cents;
     const value = { totalCents: total(next), counts: next };
-    setCounts(next);
+    setCounts(next); setActed(action !== 'reset');
     onEvent({ type: 'interaction', action });
     onEvent({ type: 'change', value });
     if (config.targetCents !== undefined && value.totalCents !== previousCents && value.totalCents !== config.targetCents) {
@@ -50,27 +55,32 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
       if (nextDistance < currentDistance && !milestoneSent.current) {
         milestoneSent.current = true;
         onEvent({ type: 'coach', cue: 'milestone' });
-      } else if (nextDistance >= currentDistance) {
-        onEvent({ type: 'coach', cue: 'retry' });
       }
     }
-    if (config.targetCents !== undefined && value.totalCents === config.targetCents) {
+    if (action !== 'reset' && config.targetCents !== undefined && value.totalCents === config.targetCents) {
       completeOnce(() => onEvent({ type: 'complete', value }));
     }
   };
 
   return (
     <section
-      className="card widget-experiment money"
+      className="card widget-experiment money activity-shell math-activity"
       data-testid="widget-money-counter"
       data-state={visiblyComplete ? 'complete' : 'building'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
-      <div className="widget-task" data-testid="widget-task">
+<ActivityWorkbench label="Build an amount of money" visual={<><div className="widget-task" data-testid="widget-task">
         <strong>Goal:</strong> {config.taskPrompt ?? `Show ${moneyText(config.targetCents ?? 0)}`}
         {config.targetCents !== undefined && <span> Target amount: {moneyText(config.targetCents)}.</span>}
       </div>
-      <div className="money-denominations" aria-label="Coin counter controls">
+<div className="math-money-tray" role="img" aria-label={`Your collection: ${denominations.map(d => `${counts[countKey(d)]} ${DENOMINATION_NAMES[d]}`).join(', ')}`}>
+  {denominations.flatMap(denomination => Array.from({ length: counts[countKey(denomination)] }, (_, index) => <span className="math-money-piece" data-testid="money-collected-piece" data-bill={denomination === 100} aria-hidden="true" key={`${denomination}-${index}`}>{denomination === 100 ? '$1' : `${denomination}¢`}</span>))}
+  {cents === 0 && <p>The tray is empty. Add coins or bills.</p>}
+</div>
+<output className="money-total" aria-label={`${cents} cents, ${moneyText(cents)}`}>
+        Total: {cents}¢ ({moneyText(cents)})
+      </output></>}>
+<div className="money-denominations" aria-label="Coin counter controls">
         {denominations.map((denomination) => {
           const name = DENOMINATION_NAMES[denomination];
           const keyForDenomination = countKey(denomination);
@@ -116,11 +126,12 @@ export default function MoneyCounter({ config, onEvent }: WidgetProps<'money-cou
           );
         })}
       </div>
-      <button className="money-reset" onClick={() => commit(ZERO, 'reset')}>Start over</button>
-      <output className="money-total" aria-label={`${cents} cents, ${moneyText(cents)}`}>
-        Total: {cents}¢ ({moneyText(cents)})
-      </output>
-      <p role="status">{visiblyComplete ? 'Target amount complete.' : `${cents} cents counted.`}</p>
-    </section>
+<button className="money-reset" onClick={() => commit(ZERO, 'reset')}>Start over</button>
+<p role="status">{visiblyComplete ? 'Target amount complete.' : `${cents} cents counted.`}</p>
+<section className="math-task"><h4>Check and explain</h4><button type="button" onClick={() => { setCheckedCents(cents); onEvent({ type: 'coach', cue: matchesCurrentTarget ? 'milestone' : 'retry' }); }}>Check my collection</button>
+<p aria-label="Money check feedback" role="status">{checkedCents === null ? 'Build a collection before checking.' : checkedCents === config.targetCents ? `Correct: your collection totaled ${moneyText(checkedCents)}. The subtotals add to the same amount.` : `Try again. Your checked collection totaled ${moneyText(checkedCents)}. Compare it with the target and adjust a denomination.`}</p>
+<p>Which coins could replace one bill or one coin without changing the total?</p></section>
+</ActivityWorkbench>
+</section>
   );
 }

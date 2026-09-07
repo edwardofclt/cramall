@@ -156,11 +156,11 @@ test('runs two locked fair-test comparisons only after a prediction', async () =
   await user.click(screen.getByRole('button', { name: 'Run collision model' }));
   await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
   expect(screen.getByText(/Run 2.*before.*after/i)).toBeInTheDocument();
-  expect(screen.getByRole('button', { name: 'Compare runs' })).toBeDisabled();
+  expect(screen.queryByRole('button', { name: 'Compare runs' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: /Run 2 had more Cart A speed/i }));
-  await user.click(screen.getByRole('button', { name: 'Compare runs' }));
 
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'compared');
+  await user.click(screen.getByRole('button',{name:'Motion changes could support an energy-transfer idea'}));
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-complete', 'yes');
   expect(screen.getByRole('status')).toHaveTextContent(/compared/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
@@ -204,7 +204,6 @@ test('requires a correct comparison statement and reports strategy feedback with
   await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
 
   await user.click(screen.getByRole('button', { name: /Run 1 had more Cart B speed/i }));
-  await user.click(screen.getByRole('button', { name: 'Compare runs' }));
   expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed');
   expect(screen.getByRole('status')).toHaveTextContent(/revise|compare/i);
   expect(onEvent.mock.calls.some(([event]) => event.type === 'coach' && event.cue === 'retry')).toBe(true);
@@ -241,3 +240,18 @@ test('uses truthful outcome-specific collision motion keyframes', () => {
   expect(themeCss).toMatch(/@keyframes\s+collision-cart-roll-left[\s\S]*?translateX\(-8%\)/);
   expect(themeCss).toMatch(/@keyframes\s+collision-cart-roll-right[\s\S]*?translateX\(8%\)/);
 });
+
+ test('settles an in-flight comparison when reduced motion turns on', async () => {
+  motionPreference.reduced = false;
+  const onEvent=vi.fn(); const user=userEvent.setup();
+  const config={massA:1,massB:2,speedA:1,speedB:2,comparisonRuns:2 as const,controlledVariable:'speed-a' as const};
+  const {rerender}=render(<CollisionRamp config={config} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Moves left'}));
+  await user.click(screen.getByRole('button',{name:'Run collision model'}));
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase','running');
+  motionPreference.reduced=true;
+  rerender(<CollisionRamp config={config} onEvent={onEvent}/>);
+  expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase','observed');
+  expect(screen.getByRole('button',{name:'Increase Cart A speed'})).toBeEnabled();
+  motionPreference.reduced=false;
+ });

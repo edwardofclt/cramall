@@ -617,8 +617,8 @@ export const unit10Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker": "guide", "pose": "talk", "text": "You just learned three ways a phrase can mean more than its literal words. Let’s match each phrase to its kind."},
-            {"speaker": "kid", "text": "I’ll use the phrase and its meaning as clues."}
+            {"speaker": "guide", "pose": "talk", "text": "Let’s use each phrase and its supplied meaning to compare kinds of figurative language."},
+            {"speaker": "kid", "text": "I’ll match each phrase, revise any mismatch, and explain the words that helped me."}
           ],
           "reactions": {
             "strategy": {"text": "Read the phrase and meaning together before choosing its language kind.", "pose": "think"},

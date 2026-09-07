@@ -150,13 +150,13 @@ export const unit09Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker": "guide", "pose": "talk", "text": "You compared how Lila’s viewpoint changes what readers know. Now rewrite the same trail event."},
-            {"speaker": "kid", "text": "I’ll change the narrator words while keeping the event and meaning steady."}
+            {"speaker": "guide", "pose": "talk", "text": "Let’s change the narrator words in this trail sentence and compare the result."},
+            {"speaker": "kid", "text": "I’ll choose the forms, apply the rewrite, and compare what changed in both sentences."}
           ],
           "reactions": {
             "strategy": {"text": "Choose the two target forms, then reread both passages for the same event.", "pose": "think"},
-            "retry": {"text": "Select both target forms before applying the rewrite, then check the source again.", "pose": "oops"},
-            "milestone": {"text": "You have the target narrator forms ready for a meaning check.", "pose": "cheer"},
+            "retry": {"text": "Compare the narrator words and the event in the source. Check the part you just tried again.", "pose": "oops"},
+            "milestone": {"text": "The rewrite is applied. Compare it with the source before deciding what changed.", "pose": "cheer"},
             "complete": {"text": "Your rewrite changes the point of view while preserving the trail event.", "pose": "cheer"}
           }
         },

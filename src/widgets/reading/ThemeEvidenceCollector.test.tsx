@@ -21,24 +21,31 @@ test('emits authored-order state and completes once when every selected detail s
 
   await user.click(screen.getByRole('button',{name:'Choose theme Practice pays off'}));
   await user.click(screen.getByRole('button',{name:'Toggle evidence Ava improves after a week.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Toggle evidence Ava practices each day.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
 
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'toggle-evidence'},
     {type:'change',value:{theme:'Practice pays off',evidenceIds:['daily','improves']}},
+    {type:'interaction',action:'check'},
+    {type:'change',value:{theme:'Practice pays off',evidenceIds:['daily','improves']}},
+    {type:'coach',cue:'milestone'},
     {type:'complete',value:{theme:'Practice pays off',evidenceIds:['daily','improves']}},
   ]);
   expect(screen.getByTestId('widget-theme-evidence-collector')).toHaveAttribute('data-state','complete');
-  expect(screen.getByRole('status')).toHaveTextContent('Theme supported');
+  expect(screen.getByRole('status')).toHaveTextContent('Correct:');
 
   await user.click(screen.getByRole('button',{name:'Toggle evidence The cat wears a tiny hat.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   expect(screen.getByTestId('widget-theme-evidence-collector')).toHaveAttribute('data-state','revision');
   expect(screen.getByRole('status')).toHaveTextContent(/does not support/i);
   expect(screen.getByRole('status')).not.toHaveTextContent(/Ava practices|Ava improves/i);
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 
   await user.click(screen.getByRole('button',{name:'Toggle evidence The cat wears a tiny hat.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   expect(screen.getByTestId('widget-theme-evidence-collector')).toHaveAttribute('data-state','complete');
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
@@ -91,8 +98,11 @@ test('switching themes after success exits visible success without rearming comp
   render(<ThemeEvidenceCollector config={config} onEvent={onEvent}/>);
   await user.click(screen.getByRole('button',{name:'Choose theme Practice pays off'}));
   await user.click(screen.getByRole('button',{name:'Toggle evidence Ava practices each day.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   await user.click(screen.getByRole('button',{name:'Toggle evidence Ava improves after a week.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   await user.click(screen.getByRole('button',{name:'Choose theme Cats are funny'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
 
   expect(screen.getByTestId('widget-theme-evidence-collector')).toHaveAttribute('data-state','revision');
   expect(screen.getByRole('status')).toHaveTextContent(/does not support/i);
@@ -105,6 +115,7 @@ test('resets safely on the first render of a new config',async()=>{
   const view=render(<ThemeEvidenceCollector config={config} onEvent={vi.fn()}/>);
   await user.click(screen.getByRole('button',{name:'Choose theme Practice pays off'}));
   await user.click(screen.getByRole('button',{name:'Toggle evidence Ava practices each day.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
 
   view.rerender(<ThemeEvidenceCollector config={{themeChoices:['Kindness matters','Weather changes'],evidence:[{id:'help',text:'Mia helps a neighbor.',supports:['Kindness matters']},{id:'share',text:'Mia shares her lunch.',supports:['Kindness matters']}],requiredEvidenceCount:2}} onEvent={vi.fn()}/>);
 

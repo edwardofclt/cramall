@@ -43,14 +43,18 @@ test('accepts the required main, keeps a detail concise, then explains an extra'
   render(<SummaryBuilder config={config} onEvent={onEvent}/>);
 
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'toggle-sentence'},
     {type:'coach',cue:'strategy'},
-    {type:'coach',cue:'milestone'},
     {type:'change',value:{selectedIds:['main']}},
+    {type:'interaction',action:'check'},
+    {type:'change',value:{selectedIds:['main']}},
+    {type:'coach',cue:'milestone'},
     {type:'complete',value:{selectedIds:['main']}},
   ]);
   await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByTestId('widget-summary-builder')).toHaveAttribute('data-state','complete');
   expect(within(screen.getByTestId('summary-selected-order')).getAllByRole('listitem').map((item)=>item.textContent)).toEqual([
     'Bees help plants.',
@@ -59,6 +63,7 @@ test('accepts the required main, keeps a detail concise, then explains an extra'
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 
   await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByRole('status')).toHaveTextContent(/extra/i);
   expect(screen.getByTestId('widget-summary-builder')).toHaveAttribute('data-state','revision');
   expect(screen.getByText('Selected 3 of 2 sentences.')).toBeVisible();
@@ -69,8 +74,8 @@ test('keeps every source sentence visible with keyboard-ready non-color selectio
   const user=userEvent.setup();
   render(<SummaryBuilder config={config} onEvent={vi.fn()}/>);
   const main=screen.getByRole('button',{name:'Toggle Bees help plants.'});
-  expect(screen.getByText('They carry pollen.')).toBeVisible();
-  expect(screen.getByText('Blue is a color.')).toBeVisible();
+  expect(screen.getByText('They carry pollen.',{selector:'li'})).toBeVisible();
+  expect(screen.getByText('Blue is a color.',{selector:'li'})).toBeVisible();
   expect(main).toHaveAttribute('aria-pressed','false');
   expect(main).toHaveTextContent('Not selected');
 
@@ -78,7 +83,8 @@ test('keeps every source sentence visible with keyboard-ready non-color selectio
   await user.keyboard('{Enter}');
   expect(main).toHaveAttribute('aria-pressed','true');
   expect(main).toHaveTextContent('Selected');
-  expect(screen.getByText('✓ Summary ready')).toBeVisible();
+  expect(screen.getByText('Build your plan')).toBeVisible();
+  expect(screen.queryByText('Response submitted')).not.toBeInTheDocument();
 });
 
 test('retains over-limit choices in authored order and gives bounded revision feedback',async()=>{
@@ -86,8 +92,11 @@ test('retains over-limit choices in authored order and gives bounded revision fe
   const user=userEvent.setup();
   render(<SummaryBuilder config={config} onEvent={vi.fn()}/>);
   await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(within(screen.getByTestId('summary-selected-order')).getAllByRole('listitem').map((item)=>item.textContent)).toEqual([
     'Bees help plants.',
     'They carry pollen.',
@@ -95,7 +104,9 @@ test('retains over-limit choices in authored order and gives bounded revision fe
   ]);
 
   await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByRole('status')).toHaveTextContent(/main idea/i);
   expect(screen.getByRole('status')).not.toHaveTextContent('Bees help plants.');
 });
@@ -105,9 +116,11 @@ test('emits ordered reset state and never rearms completion after revision',asyn
   const onEvent=vi.fn(),user=userEvent.setup();
   render(<SummaryBuilder config={config} onEvent={onEvent}/>);
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByTestId('widget-summary-builder')).toHaveAttribute('data-current-valid','no');
-  expect(screen.getByText('○ Needs revision')).toBeVisible();
+  expect(screen.getByText('Try again: revise your plan')).toBeVisible();
 
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Start over'}));
@@ -118,6 +131,7 @@ test('emits ordered reset state and never rearms completion after revision',asyn
   expect(screen.getByTestId('summary-selected-order')).toHaveTextContent('No sentences selected yet.');
 
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
 });
 
@@ -138,7 +152,7 @@ test('resets stale selections safely on the first render of a new config',async(
   }} onEvent={vi.fn()}/>);
   expect(screen.getByRole('button',{name:'Toggle Rain fills the river.'})).toHaveAttribute('aria-pressed','false');
   expect(screen.getByTestId('summary-selected-order')).toHaveTextContent('No sentences selected yet.');
-  expect(screen.getByRole('status')).toHaveTextContent(/main idea/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/check.*ready/i);
 });
 
 test('normalizes authoring text and rejects equivalent, dangling, duplicate, or unsolvable references',()=>{
@@ -175,15 +189,19 @@ test('requires exact supporting evidence before revealing an honest composition 
   render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
 
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByRole('status')).toHaveTextContent(/supporting detail/i);
   expect(screen.queryByRole('textbox',{name:/summary/i})).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByRole('status')).toHaveTextContent(/not required/i);
   expect(screen.queryByRole('textbox',{name:/summary/i})).not.toBeInTheDocument();
 
   await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(screen.getByRole('textbox',{name:/summary/i})).toBeVisible();
   expect(screen.getByText(compositionConfig.compositionPrompt)).toBeVisible();
   expect(screen.getByText(/not meaning or originality/i)).toBeVisible();
@@ -191,7 +209,7 @@ test('requires exact supporting evidence before revealing an honest composition 
 
   await user.type(screen.getByRole('textbox',{name:/summary/i}),'Bees help plants by carrying pollen.');
   await user.click(screen.getByRole('button',{name:'Finish summary'}));
-  expect(screen.getByRole('status')).toHaveTextContent(/ready/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/submitted/i);
   const completeEvents=onEvent.mock.calls.map(([event])=>event).filter((event)=>event.type==='complete');
   expect(completeEvents).toEqual([{
     type:'complete',
@@ -203,7 +221,9 @@ test('keeps source visible and preserves a revision while word bounds are unmet'
   const user=userEvent.setup();
   render(<SummaryBuilder config={compositionConfig} onEvent={vi.fn()}/>);
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   const textbox=screen.getByRole('textbox',{name:/summary/i});
   await user.type(textbox,'Too short');
   expect(screen.getByRole('status')).toHaveTextContent(/at least 5 words/i);
@@ -219,8 +239,10 @@ test('emits bounded strategy, retry, milestone, and typed composition completion
   render(<SummaryBuilder config={compositionConfig} onEvent={onEvent}/>);
   await user.click(screen.getByRole('button',{name:'Toggle Bees help plants.'}));
   await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   await user.click(screen.getByRole('button',{name:'Toggle Flowers receive the pollen.'}));
   await user.click(screen.getByRole('button',{name:'Toggle They carry pollen.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   const events=onEvent.mock.calls.map(([event])=>event);
   expect(events.filter((event)=>event.type==='coach')).toEqual([
     {type:'coach',cue:'strategy'},
@@ -243,6 +265,7 @@ test('does not coach retry for missing evidence, then retries the actual extra s
     {type:'coach',cue:'strategy'},
   ]);
   await user.click(screen.getByRole('button',{name:'Toggle Blue is a color.'}));
+  await user.click(screen.getByRole('button',{name:'Check summary plan'}));
   expect(onEvent.mock.calls.map(([event])=>event).filter((event)=>event.type==='coach')).toEqual([
     {type:'coach',cue:'strategy'},
     {type:'coach',cue:'retry'},

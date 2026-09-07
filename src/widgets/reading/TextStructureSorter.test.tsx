@@ -47,7 +47,7 @@ test('keeps full excerpts, selection, and incorrect placements visible for revis
   const user=userEvent.setup();
   render(<TextStructureSorter config={config} onEvent={vi.fn()}/>);
   const rain=screen.getByRole('button',{name:'Select Rain fell, so the field flooded.'});
-  expect(screen.getByText('First mix, then bake.')).toBeVisible();
+  expect(screen.getByText('First mix, then bake.',{selector:'p'})).toBeVisible();
   expect(rain).toHaveAttribute('aria-pressed','false');
   expect(screen.getByTestId('text-structure-placement-rain')).toHaveTextContent('Not placed yet');
 

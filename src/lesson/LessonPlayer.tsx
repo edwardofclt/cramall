@@ -225,7 +225,7 @@ function LessonStages({
   const [cardDialogueDone, setCardDialogueDone] = useState(false);
   const [widgetCoachStageKey, setWidgetCoachStageKey] = useState(stage.key);
   const [widgetCoachIntroActive, setWidgetCoachIntroActive] = useState(
-    'card' in stage && Boolean(stage.card.widgetCoach),
+    'card' in stage && Boolean(stage.card.widgetCoach || stage.card.demo),
   );
   const activeStageVisit = useRef({ key: stage.key, id: 0 });
   if (activeStageVisit.current.key !== stage.key) {
@@ -241,7 +241,7 @@ function LessonStages({
   }
   if (widgetCoachStageKey !== stage.key) {
     setWidgetCoachStageKey(stage.key);
-    setWidgetCoachIntroActive('card' in stage && Boolean(stage.card.widgetCoach));
+    setWidgetCoachIntroActive('card' in stage && Boolean(stage.card.widgetCoach || stage.card.demo));
   }
 
   const cardDialogueActive =

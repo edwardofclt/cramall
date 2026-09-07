@@ -73,17 +73,36 @@ const scienceU04L01Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Use the shared two-value reference to build the target message one character group at a time." },
-          { "speaker": "kid", "text": "I will check the first mismatched group and revise it without changing the code key." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Read the binary reference left to right, then separate each character group before sending.", "pose": "think" },
-          "retry": { "text": "Find the first mismatched character group and compare it with the reference before revising.", "pose": "oops" },
-          "milestone": { "text": "Your message groups are taking shape; check the next group with the same shared key.", "pose": "talk" },
-          "complete": { "text": "You encoded and decoded the message with a shared two-value key, just as the lesson describes.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "A shared code can carry a message using a simple signal."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll build the code, send it in the model, and compare the received message."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare the first mismatched group with the code reference.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Revise the mismatched group and check any character separators.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "The receiver decoded your signal. Explain why the shared code matters.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You built a signal and explained how a shared code connects it to a message.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u04-l01-c3",
@@ -490,17 +509,36 @@ const scienceU04L02Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Use dot and dash as the two signal values, then keep the A pattern in its shared order." },
-          { "speaker": "kid", "text": "I will separate character groups and repair the first mismatch instead of guessing." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Tap the two signal values in order and use a separator when the next character begins.", "pose": "think" },
-          "retry": { "text": "Compare the first mismatched group with the Morse reference, then revise only that group.", "pose": "oops" },
-          "milestone": { "text": "One character group is ready; keep the remaining symbols in the same shared order.", "pose": "talk" },
-          "complete": { "text": "You built a Morse pattern that the shared key can decode back into the intended message.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "A shared code can carry a message using a simple signal."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll build the code, send it in the model, and compare the received message."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare the first mismatched group with the code reference.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Revise the mismatched group and check any character separators.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "The receiver decoded your signal. Explain why the shared code matters.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You built a signal and explained how a shared code connects it to a message.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u04-l02-c2",

@@ -21,22 +21,30 @@ test('retains unsupported details, emits authored order, and completes once afte
 
   await user.click(screen.getByRole('button',{name:'Choose main idea Plants need sunlight'}));
   await user.click(screen.getByRole('button',{name:'Toggle detail Dogs wag their tails.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   expect(screen.getByRole('button',{name:'Toggle detail Dogs wag their tails.'})).toHaveAttribute('aria-pressed','true');
   expect(screen.getByRole('status')).toHaveTextContent(/does not support/i);
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
 
   await user.click(screen.getByRole('button',{name:'Toggle detail Dogs wag their tails.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   await user.click(screen.getByRole('button',{name:'Toggle detail Plants grow toward a window.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Toggle detail Leaves use sunlight.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'toggle-detail'},
     {type:'change',value:{mainIdea:'Plants need sunlight',detailIds:['sun','grow']}},
+    {type:'interaction',action:'check'},
+    {type:'change',value:{mainIdea:'Plants need sunlight',detailIds:['sun','grow']}},
+    {type:'coach',cue:'milestone'},
     {type:'complete',value:{mainIdea:'Plants need sunlight',detailIds:['sun','grow']}},
   ]);
   expect(screen.getByTestId('widget-central-idea-organizer')).toHaveAttribute('data-state','complete');
 
   await user.click(screen.getByRole('button',{name:'Choose main idea Dogs like bones'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
   expect(screen.getByTestId('widget-central-idea-organizer')).toHaveAttribute('data-state','revision');
   expect(screen.getByRole('status')).toHaveTextContent(/does not support/i);
   expect(screen.getByRole('status')).not.toHaveTextContent(/Dogs wag their tails/i);
@@ -88,6 +96,7 @@ test('resets safely on the first render of a new config',async()=>{
   const view=render(<CentralIdeaOrganizer config={config} onEvent={vi.fn()}/>);
   await user.click(screen.getByRole('button',{name:'Choose main idea Plants need sunlight'}));
   await user.click(screen.getByRole('button',{name:'Toggle detail Leaves use sunlight.'}));
+  await user.click(screen.getByRole('button',{name:'Check evidence'}));
 
   view.rerender(<CentralIdeaOrganizer config={{mainIdeaChoices:['Rain changes rivers','Wind moves sand'],details:[{id:'rain',text:'Rain fills the stream.',supports:['Rain changes rivers']},{id:'bank',text:'Fast water wears a bank.',supports:['Rain changes rivers']}],requiredDetailCount:2}} onEvent={vi.fn()}/>);
   expect(screen.getByRole('button',{name:'Choose main idea Rain changes rivers'})).toHaveAttribute('aria-pressed','false');

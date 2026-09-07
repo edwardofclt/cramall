@@ -100,14 +100,14 @@ export const unit10Lessons = [
         widget: { type: 'area-model-multiplier', config: { a: 8, b: 5, splitA: [8], splitB: [5], targetProduct: 40, revealMode: 'all' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Cover the 8-by-5 rectangle with unit squares so every square counts once.' },
-            { speaker: 'kid', text: 'Eight rows of five should make 40 square units.' },
+            { speaker: 'guide', pose: 'think', text: 'This rectangle has eight rows of five unit squares. How many square units cover it?' },
+            { speaker: 'kid', text: 'I will work out a total, then check how the rows cover the rectangle.' },
           ],
           reactions: {
-            strategy: { text: 'Look across one row of five unit squares, then count all eight rows.', pose: 'think' },
-            retry: { text: 'Check that each unit square fills the rectangle without gaps or overlaps.', pose: 'oops' },
-            milestone: { text: 'You can see the equal rows that make the area formula work.', pose: 'cheer' },
-            complete: { text: 'The 40 unit squares confirm that 8 × 5 = 40 square units.', pose: 'cheer' },
+            strategy: { text: 'Use the number in each row and the total number of rows.', pose: 'think' },
+            retry: { text: 'Count each unit square once, with no gaps or overlaps.', pose: 'oops' },
+            milestone: { text: 'Your total fits the side lengths. Connect it to the equal rows.', pose: 'think' },
+            complete: { text: 'The rectangle contains 40 unit squares: 8 × 5 = 40 square units.', pose: 'cheer' },
           },
         },
       },

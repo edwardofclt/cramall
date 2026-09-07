@@ -1,4 +1,6 @@
 import {useState} from 'react';
+import {ActivityWorkbench} from '../ActivityWorkbench';
+import './guide-led-reading.css';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -36,6 +38,7 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     if(correct(ordered))completeOnce(()=>onEvent({type:'complete',value:{matches:ordered}}));
   };
   const select=(id:string)=>{
+    if(selectedId===id)return;
     setSelectedId(id);
     emit(matches,'select-phrase');
   };
@@ -52,7 +55,7 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
     const value=ownMatch(matches,pair.id);
     return value!==undefined&&value!==pair.kind;
   });
-  const state=currentComplete?'complete':Object.keys(matches).length?'revision':'matching';
+  const state=currentComplete?'complete':hasWrongMatch?'revision':'matching';
   const wrongPair=config.pairs.find((pair)=>pair.id===lastMissId&&ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind)
     ??config.pairs.find((pair)=>ownMatch(matches,pair.id)!==undefined&&ownMatch(matches,pair.id)!==pair.kind);
   const status=currentComplete
@@ -65,7 +68,8 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
         ?`The match for “${wrongPair?.phrase??'this phrase'}” needs another look. Select it and reread its meaning.`
         :'Select a phrase, then choose its language type.';
 
-  return <section className="card widget-experiment figurative" data-testid="widget-figurative-language-matcher" data-state={state}>
+  return <section className="card widget-experiment activity-shell reading-activity figurative" data-testid="widget-figurative-language-matcher" data-state={state}>
+    <ActivityWorkbench label="Figurative language" visualScrollable visual={<>
     <header>
       <h3>Match figurative language</h3>
       <p>Read each complete phrase and meaning. Match its language type, and revise any choice that needs another look.</p>
@@ -77,20 +81,22 @@ function FigurativeLanguageMatcherBody({config,onEvent}:FigurativeLanguageMatche
         return <article className="figurative-pair" key={pair.id} data-selected={selected?'yes':'no'}>
           <blockquote>{pair.phrase}</blockquote>
           <p><strong>Meaning:</strong> {pair.meaning}</p>
-          <button aria-label={`Select phrase ${pair.phrase}`} aria-pressed={selected} onClick={()=>select(pair.id)}>
-            <span>Choose this phrase</span>
-            <span className="figurative-selection-marker" aria-hidden="true">{selected?'✓ Selected':'○ Not selected'}</span>
-          </button>
+
           <output aria-label={`Current match for ${pair.phrase}`} data-testid={`figurative-match-${pair.id}`}>{matchValue??''}</output>
         </article>;
       })}
     </div>
+    </>}>
+    <div className="figurative-pairs" aria-label="Choose a phrase">{config.pairs.map(pair=><button key={pair.id} aria-label={`Select phrase ${pair.phrase}`} aria-pressed={selectedId===pair.id} onClick={()=>select(pair.id)}>{pair.phrase}<span>{selectedId===pair.id?' · ● Selected':' · Not selected'}</span></button>)}</div>
     <div className="figurative-kinds" aria-label="Language types">
       {kinds.map((kind)=><button key={kind} aria-label={`Match ${kind}`} disabled={selectedId===null} onClick={()=>match(kind)}>{kind}</button>)}
     </div>
-    <strong className="figurative-valid-marker">{currentComplete?'✓ All matched':'○ Needs revision'}</strong>
+    <strong className="figurative-valid-marker">{currentComplete?'✓ All matched':hasWrongMatch?'Try again: revise a match':'Build your matches'}</strong>
     <button className="figurative-reset" onClick={reset}>Start over</button>
+    <div aria-label="Match record">{config.pairs.map(pair=><p key={pair.id} aria-label={`Match feedback for ${pair.id}`} data-outcome={!ownMatch(matches,pair.id)?'neutral':ownMatch(matches,pair.id)===pair.kind?'correct':'incorrect'}>{pair.phrase} — {!ownMatch(matches,pair.id)?'Not matched yet.':ownMatch(matches,pair.id)===pair.kind?'Correct: this kind fits the phrase and meaning.':'Try again: compare the complete phrase with its meaning.'}</p>)}</div>
+    {currentComplete&&<p>Compare two phrases. Explain which words show how each phrase goes beyond its literal meaning.</p>}
     <p role="status">{status}</p>
+    </ActivityWorkbench>
   </section>;
 }
 

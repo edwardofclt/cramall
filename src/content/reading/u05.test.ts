@@ -227,6 +227,7 @@ const expectedWidgets = [
               {
                 "id": "definition",
                 "text": "Any place with rainwater is a salt marsh.",
+                "sourceContradictsDetail": true,
                 "supports": [
                   "Every wet place is a salt marsh"
                 ],

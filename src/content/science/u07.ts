@@ -90,17 +90,36 @@ const scienceU07L01Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Read the contour key, compare the printed elevations, and select the two ridge points that form the visible band." },
-          { "speaker": "kid", "text": "I will use the plotted points and elevation labels to describe the map pattern without guessing a cause." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Start with the elevation key, then select both ridge points from the same plotted group before choosing a pattern.", "pose": "think" },
-          "retry": { "text": "Compare the selected point labels and elevations again; use two same-group points to support the visible band claim.", "pose": "oops" },
-          "milestone": { "text": "Two plotted ridge points are selected. Check their shared group and location before naming the pattern.", "pose": "talk" },
-          "complete": { "text": "You compared printed elevations and identified the visible ridge band from plotted map evidence in this model.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "These plotted places may form a pattern. Let’s look across the map."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll select related places, compare their positions, and name the pattern."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "The line joins your selected places. Compare their positions on the map.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Check which places you selected and describe their arrangement without inventing a cause.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your selected places are ready to compare.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected a pattern description to selected locations on the map.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u07-l01-c2",
@@ -587,17 +606,36 @@ const scienceU07L02Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Select several plotted points, then compare their printed elevations and locations in the model." },
-          { "speaker": "kid", "text": "I will name the visible band or cluster without guessing why the points formed." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Use the point labels and coordinate placement to describe elevation and location separately; the model does not give a cause.", "pose": "think" },
-          "retry": { "text": "Look across several plotted points again. Revise the pattern description without turning it into a cause claim.", "pose": "oops" },
-          "milestone": { "text": "You have selected a useful map point. Compare the other points before naming the whole spatial pattern.", "pose": "talk" },
-          "complete": { "text": "You named the visible map pattern from several plotted points and kept the explanation within the model data.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "These plotted places may form a pattern. Let’s look across the map."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll select related places, compare their positions, and name the pattern."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "The line joins your selected places. Compare their positions on the map.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Check which places you selected and describe their arrangement without inventing a cause.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your selected places are ready to compare.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected a pattern description to selected locations on the map.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u07-l02-c3",
@@ -1015,17 +1053,36 @@ const scienceU07L03Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Predict first, then run bare and covered vegetation with the same water setup; this screen models a comparison, not physical evidence." },
-          { "speaker": "kid", "text": "I will keep the conditions matched, compare both modeled runs, and limit my claim to this setup." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Change only vegetation cover and keep the water agent and authored terrain conditions the same.", "pose": "think" },
-          "retry": { "text": "The comparison needs both retained runs. Check the bare and covered cards before revising your prediction.", "pose": "oops" },
-          "milestone": { "text": "One matched run is retained; now run the other vegetation condition before comparing.", "pose": "talk" },
-          "complete": { "text": "You compared matched bare and covered model runs and explained the visible difference without calling it physical evidence.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "These trays have the same soil and water. One has plants."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll predict which tray loses more soil, run both models, and compare."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Keep your original prediction so you can compare it with both model results.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Keep your prediction. Recheck the moved material and revise your conclusion.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "One modeled result is saved. Run the other condition for a fair comparison.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You used both modeled results to explain the difference, even if your prediction changed.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u07-l03-c3",
@@ -1461,17 +1518,36 @@ const scienceU07L04Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Check the relative-age rank, then choose the fossil evidence that supports the layer-order conclusion." },
-          { "speaker": "kid", "text": "I will connect rank and fossil pattern without turning relative order into years or an invented process." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Compare the printed ranks first, then use the fossil pattern as evidence for the relative conclusion.", "pose": "think" },
-          "retry": { "text": "Choose evidence from the shown rank and fossils; do not treat a rank as a calendar age or process.", "pose": "oops" },
-          "milestone": { "text": "You identified the older rank; now attach the fossil evidence that supports the relative-age claim.", "pose": "talk" },
-          "complete": { "text": "You supported a relative-age conclusion with rank and fossil evidence while staying within the model data.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "These rock layers hold clues about their order and the past."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll inspect their positions and fossils, choose a layer, and support my idea."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare the layer positions and relative-age ranks. Ranks are not years.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Look for a clue actually shown in the layers, rather than an exact age or invented process.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your layer choice is checked. Now connect it with a supporting clue.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You supported a relative-age conclusion with the displayed layer and fossil information.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u07-l04-c3",

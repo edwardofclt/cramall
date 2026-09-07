@@ -1,4 +1,6 @@
-import {useRef, useState} from 'react';
+import {useState} from 'react';
+import {ActivityWorkbench} from '../ActivityWorkbench';
+import './guide-led-reading.css';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -13,11 +15,11 @@ type ProductionEntries = Record<string,string>;
 function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
   const key=JSON.stringify(config);
   const [entries,setEntries]=useState<Record<string,string>>(()=>emptyEntries(config.fields));
-  const [fieldOrder,setFieldOrder]=useState<string[]>(()=>[...config.fields]);
+
   const [status,setStatus]=useState('Fill in the story map.');
   const [mapState,setMapState]=useState<MapState>('mapping');
   const {completeOnce}=useCompletionLatch(key);
-  const milestoneSent=useRef(false);
+
 
   const production = !!config.source && !!config.choices && !!config.answerChoiceIds;
 
@@ -54,8 +56,8 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
     setEntries(next);
     setMapState('mapping');
     setStatus('Fill in the story map.');
-    setFieldOrder([...config.fields]);
-    milestoneSent.current=false;
+
+
     emitChange(next,'reset');
   };
 
@@ -82,10 +84,7 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
       setMapState('mapping');
       setStatus(`${titleCase(field)} placed. Keep tracing the story.`);
       emitProduction(next,'change-field');
-      if (!milestoneSent.current && answers[field]===choiceId) {
-        milestoneSent.current=true;
-        onEvent({type:'coach',cue:'milestone'});
-      }
+
     };
     const undo=(field:string)=>{
       const next={...productionEntries};
@@ -95,22 +94,13 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
       setStatus(`${titleCase(field)} is ready for a new clue.`);
       emitProduction(next,'change-field');
     };
-    const moveField=(field:string,direction:-1|1)=>{
-      const index=fieldOrder.indexOf(field);
-      const nextIndex=index+direction;
-      if(index<0||nextIndex<0||nextIndex>=fieldOrder.length) return;
-      const next=[...fieldOrder];
-      [next[index],next[nextIndex]]=[next[nextIndex]!,next[index]!];
-      setFieldOrder(next);
-      setStatus(`${titleCase(field)} moved ${direction<0?'earlier':'later'} in the plot path.`);
-      emitProduction(productionEntries,'change-field');
-    };
     const checkProduction=()=>{
       emitProduction(productionEntries,'check');
       const wrongField=config.fields.find((field)=>productionEntries[field]!==answers[field]);
       if (!wrongField) {
         setMapState('complete');
-        setStatus('Story path complete: setting → problem → choices → solution.');
+        setStatus('Correct: your story elements match the source. Explain how the setting led to the problem and how the choices helped solve it.');
+        onEvent({type:'coach',cue:'milestone'});
         completeOnce(()=>onEvent({type:'complete',value:{entries:productionEntries}}));
         return;
       }
@@ -119,7 +109,8 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
       onEvent({type:'coach',cue:'retry'});
     };
 
-    return <section className="card widget-experiment story-map" data-testid="widget-story-elements-mapper" data-state={mapState}>
+    return <section className="card widget-experiment activity-shell reading-activity story-map" data-testid="widget-story-elements-mapper" data-state={mapState}>
+      <ActivityWorkbench label="Story map" visualScrollable visual={<>
       <header>
         <h3>{config.textTitle}</h3>
         <p>Point each story element to words in the source. You can revise the path anytime.</p>
@@ -128,14 +119,15 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
         <h4 id="story-map-source-title">{source.title}</h4>
         <p>{source.text}</p>
       </article>
+      <div aria-label="Your story map"><h4>Story connections</h4><ol>{config.fields.map(field=><li key={field}><strong>{titleCase(field)}: </strong>{choices.find(choice=>choice.id===productionEntries[field])?.text??'No clue placed yet.'}</li>)}</ol></div>
+      </>}>
       <div className="story-map-path" data-testid="story-map-path">
         <h4>Ordered story path</h4>
         <ol aria-label="Ordered story path">
-          {fieldOrder.map((field,index)=>{
+          {config.fields.map((field)=>{
             const choiceId=productionEntries[field];
             const choice=choices.find((item)=>item.id===choiceId);
-            const canMoveEarlier=index>0;
-            const canMoveLater=index<fieldOrder.length-1;
+
             return <li key={field} className="story-map-slot">
               <fieldset aria-label={titleCase(field)}>
                 <legend>{titleCase(field)}</legend>
@@ -143,11 +135,10 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
                   <span>{choice.text}</span>
                   <div className="story-map-slot-controls">
                     <button type="button" onClick={()=>undo(field)}>Undo {titleCase(field)}</button>
-                    {canMoveEarlier&&<button type="button" onClick={()=>moveField(field,-1)}>Move {titleCase(field)} earlier</button>}
-                    {canMoveLater&&<button type="button" onClick={()=>moveField(field,1)}>Move {titleCase(field)} later</button>}
+
                   </div>
                 </div> : <div className="story-map-choice-bank" aria-label={`Choices for ${titleCase(field)}`}>
-                  {choices.filter((item)=>!placedIds.has(item.id)).map((item)=><button type="button" key={item.id} onClick={()=>place(field,item.id)}>Place “{item.text}” in {titleCase(field)}</button>)}
+                  {choices.filter((item)=>!placedIds.has(item.id)).map((item)=><button type="button" key={item.id} aria-label={`Place “${item.text}” in ${titleCase(field)}`} onClick={()=>place(field,item.id)}>{item.text}</button>)}
                 </div>}
               </fieldset>
             </li>;
@@ -159,14 +150,17 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
         <button type="button" onClick={reset}>Start over</button>
       </div>
       <p role="status">{status}</p>
+      </ActivityWorkbench>
     </section>;
   }
 
-  return <section className="card widget-experiment story-map" data-testid="widget-story-elements-mapper" data-state={mapState}>
+  return <section className="card widget-experiment activity-shell reading-activity story-map" data-testid="widget-story-elements-mapper" data-state={mapState}>
+    <ActivityWorkbench label="Story map" visualScrollable visual={<>
     <header>
       <h3>{config.textTitle}</h3>
       <p>Use the story you are reading to organize its important parts.</p>
     </header>
+    </>}>
     <div className="story-map-fields">
       {config.fields.map((field)=>{
         const label=titleCase(field);
@@ -178,6 +172,7 @@ function StoryElementsMapperBody({config,onEvent}:StoryElementsMapperProps){
       <button onClick={reset}>Start over</button>
     </div>
     <p role="status">{status}</p>
+    </ActivityWorkbench>
   </section>;
 }
 

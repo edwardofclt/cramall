@@ -236,7 +236,7 @@ const expectedWidgets = [
             "requiredEvidenceCount": 2,
             "source": {
               "title": "The Extra Row",
-              "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+              "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
             }
           }
         }
@@ -249,16 +249,16 @@ const expectedSources = [
     "id": "reading-u04-l01",
     "passage": {
       "title": "The Extra Row",
-      "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+      "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
     },
     "reference": {
       "title": "Read “The Extra Row”",
-      "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+      "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
     },
     "evidence": [
       "extra row",
-      "generosity",
-      "cooperation"
+      "carried over a tray of pepper seedlings",
+      "Their two families began trading garden tasks"
     ]
   }
 ] as const;
@@ -266,11 +266,26 @@ const normalize = (value: string): string => value.normalize('NFKC').toLocaleLow
 const visible = (question: Question): readonly { id: string; text: string }[] => 'choices' in question ? question.choices : 'items' in question ? question.items : question.acceptedAnswers.map((text,index)=>({id:`accepted-${index}`,text}));
 
 describe('Reading unit 4 literal content', () => {
-  test('describes the theme as inferred before the final explanatory paragraph states it', () => {
+  test('keeps the full story visible without explaining the theme before commitment', () => {
+    const lesson = unit04Lessons[0]!;
+    const widget = lesson.learnCards[1]!.widget!;
+    if (widget.type !== 'theme-evidence-collector') throw new Error('Expected theme evidence activity');
+    const sources = [widget.config.source!.text, lesson.workedExample.passage!.text, lesson.quiz.reference!.text];
+    for (const source of sources) {
+      expect(source).not.toMatch(/No narrator states|events support the implied theme|generosity strengthens a community/i);
+      expect(source.split('\n\n')).toHaveLength(4);
+      expect(source).toContain('Mateo measured straight garden rows');
+      expect(source).toContain('We can plant these together');
+      expect(source).toContain('Their two families began trading garden tasks and vegetables.');
+      for (const evidence of widget.config.evidence) expect(source).toContain(evidence.sourceQuote);
+    }
+  });
+
+  test('asks readers to infer the theme from story events', () => {
     const question = unit04Lessons[0]!.quiz.pool.find(({ id }) => id === 'reading-u04-l01-q10');
-    expect(question?.prompt).toBe('Before the final explanatory paragraph, readers must infer the theme from Mateo’s actions and their consequences.');
-    expect('choices' in question! && question.choices[0]!.text).toBe('True — the events imply the message before it is explained');
-    expect(question?.explanation).toBe('Mateo never states the message; the final explanatory paragraph names the theme after the narrative events imply it.');
+    expect(question?.prompt).toBe('Readers must infer the theme from Mateo’s actions and their consequences.');
+    expect('choices' in question! && question.choices[0]!.text).toBe('True — the events imply the message');
+    expect(question?.explanation).toBe('The story never directly states its message. Mateo’s choice to share and the cooperation that follows imply the theme.');
   });
 
   test('coaches theme evidence with Winnie-sized strategy and retry copy', () => {

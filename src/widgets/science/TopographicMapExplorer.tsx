@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-science.css';
 import {useEffect, useMemo, useState} from 'react';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
@@ -44,8 +46,11 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
   const contourMapName = useMemo(() => `Topographic contour model: ${config.contours.map((contour, index) => `${contourIdentifier(index)} — Contour ${index + 1}: ${contour.elevation} m`).join('; ')}`, [config.contours]);
   const hasPlottedPoints = config.points.every(isPlottedPoint);
   const hasPatternEvidence = hasPlottedPoints && selectedPointIds.length >= 2 && new Set(selectedPointIds.map((id) => config.points.find((point): point is PlottedPoint => point.id === id && isPlottedPoint(point))?.group)).size === 1;
+  const selectedGroup = config.points.find(point=>point.id===selectedPointIds[0]);
+  const selectedGroupCount = selectedGroup && isPlottedPoint(selectedGroup) ? config.points.filter(point=>isPlottedPoint(point) && point.group===selectedGroup.group).length : 0;
+  const completePatternEvidence = hasPatternEvidence && selectedPointIds.length===selectedGroupCount;
   const isComplete = config.targetPattern !== undefined
-    ? patternChoice === config.targetPattern && hasPatternEvidence
+    ? patternChoice === config.targetPattern && completePatternEvidence
     : config.targetPointId !== undefined && selected === config.targetPointId && checked === config.targetPointId;
 
   useEffect(() => {
@@ -77,7 +82,7 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
       ? `${point.label}: printed elevation ${point.elevation} m at the plotted location. ${nextIds.length} point${nextIds.length === 1 ? '' : 's'} selected; compare the visible spatial pattern without inferring a cause.`
       : `${point.label}: ${point.elevation} m. This is printed map data, not a plotted location.`);
     emit(nextSelected, 'select-point', nextIds);
-    if (hasPlottedPoints) onEvent({type: 'coach', cue: 'strategy'});
+    if (hasPlottedPoints && nextIds.length === 2 && selectedPointIds.length < 2) onEvent({type:'coach',cue:'strategy'});
   };
 
   const choosePattern = (pattern: 'band' | 'cluster') => {
@@ -86,9 +91,9 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
     if (config.targetPattern === undefined) return;
     onEvent({type: 'interaction', action: 'select-pattern'});
     onEvent({type: 'change', value: {selectedPointId: selected, selectedPattern: pattern, selectedPointIds}});
-    if (!hasPatternEvidence) {
+    if (!completePatternEvidence) {
       onEvent({type: 'coach', cue: 'retry'});
-      setStatus('Select at least two plotted points from the same named group before submitting a pattern. This keeps the claim tied to visible map evidence.');
+      setStatus('Select at least two plotted points from the same named group and include the whole visible group before submitting a pattern.');
       return;
     }
     if (pattern !== config.targetPattern) {
@@ -126,11 +131,9 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
     emit(null, 'reset', []);
   };
 
-  return <section className="card widget-experiment topo" data-testid="widget-topographic-map-explorer" data-state={isComplete ? 'complete' : 'exploring'} aria-describedby="topographic-model-note">
-    <header>
-      <h3>Topographic-map explorer</h3>
-      <p id="topographic-model-note">This is an authored topographic model. It supports comparing printed elevation data, but it is not a measured survey, physical evidence, or proof of a real location.</p>
-    </header>
+  return <section className="card widget-experiment topo activity-shell science-activity" data-testid="widget-topographic-map-explorer" data-state={isComplete ? 'complete' : 'exploring'} aria-describedby="topographic-model-note">
+    <ActivityWorkbench label="Map pattern model" revealKey={checked ?? 'selecting'} visual={<>
+    <header><h3>Topographic-map explorer</h3><p className="science-model-label">Model only · not physical evidence</p></header>
     <div className="topographic-model">
       <figure className="topographic-contours">
         <svg aria-label={contourMapName} viewBox={viewBox} role="img">
@@ -142,20 +145,21 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
               <text className="topographic-contour-label" x={x + 2} y={y - 2} aria-hidden="true">{identifier}</text>
             </g>;
           })}
+          {hasPlottedPoints && selectedPointIds.length > 1 && <polyline className="map-selection-link" data-testid="map-selection-link" points={selectedPointIds.map(id=>{const point=config.points.find(p=>p.id===id)! as PlottedPoint;return `${point.x},${point.y}`;}).join(' ')}/>}
           {hasPlottedPoints && config.points.map((point) => {
             if (!isPlottedPoint(point)) return null;
             const pointId = `topographic-point-${point.id}`;
             const symbol = point.group.toLocaleLowerCase().includes('valley') || point.group.toLocaleLowerCase().includes('coast') ? '▼' : '▲';
             return <g key={point.id} id={pointId} className="topographic-plotted-point">
-              <circle data-testid={pointId} cx={point.x} cy={point.y} r="3.5" data-x={point.x} data-y={point.y} data-group={point.group} aria-label={`${point.label}: ${point.elevation} m, ${point.group}`}>
-                <title>{`${point.label}: ${point.elevation} m, ${point.group}`}</title>
+              <circle data-selected={selectedPointIds.includes(point.id)?'yes':'no'} data-testid={pointId} cx={point.x} cy={point.y} r="3.5" data-x={point.x} data-y={point.y} data-group={point.group} aria-label={`${point.label}: ${point.elevation} m`}>
+                <title>{`${point.label}: ${point.elevation} m`}</title>
               </circle>
               <text className="topographic-point-symbol" x={point.x + 2} y={point.y + 2} aria-hidden="true">{symbol}</text>
               <text className="topographic-point-label" x={point.x + 4} y={point.y - 3} aria-hidden="true">{point.id}</text>
             </g>;
           })}
         </svg>
-        <figcaption>{hasPlottedPoints ? 'Contours and named points are plotted in this authored model. Symbols and labels keep the pattern readable without relying on color.' : 'Contour lines are an authored model; named map-data entries are not plotted on this drawing.'}</figcaption>
+        <figcaption>{hasPlottedPoints ? 'Model map · compare the labeled locations.' : 'Named entries are not plotted locations.'}</figcaption>
       </figure>
       <section className="topographic-elevation-key" aria-labelledby="contour-elevation-key-title">
         <h4 id="contour-elevation-key-title">Contour elevation key</h4>
@@ -167,6 +171,8 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
         </ul>
       </section>
     </div>
+    </>}>
+    <p className="science-selection-summary" aria-label="Selected map locations">Selected places: {selectedPointIds.map(id=>config.points.find(p=>p.id===id)?.label).join(', ') || 'none yet'}. The line joins your choices; compare their actual positions.</p>
     {hasPlottedPoints && <section className="topographic-symbol-key" aria-labelledby="topographic-symbol-key-title">
       <h4 id="topographic-symbol-key-title">Map symbol legend</h4>
       <ul aria-label="Map symbol legend">
@@ -190,5 +196,10 @@ export default function TopographicMapExplorer({config, onEvent}: WidgetProps<'t
       <button onClick={reset}>Start over</button>
     </div>
     <p role="status">{status}</p>
+    <section className="science-model-notes" aria-label="About this model"><h4>About this model</h4>
+
+      <p id="topographic-model-note">This is an authored topographic model. It supports comparing printed elevation data, but it is not a measured survey, physical evidence, or proof of a real location.</p>
+    </section>
+    </ActivityWorkbench>
   </section>;
 }

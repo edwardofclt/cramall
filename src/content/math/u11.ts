@@ -107,14 +107,14 @@ export const unit11Lessons = [
         } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Read each diagram’s marks, then place every quadrilateral in the groups its attributes support.' },
-            { speaker: 'kid', text: 'I will trace inherited memberships, especially both branches for the square.' },
+            { speaker: 'guide', pose: 'think', text: 'A shape can belong to more than one group. Use the diagram’s marks to decide which groups fit.' },
+            { speaker: 'kid', text: 'I will choose all the classes supported by the marks, then check each shape.' },
           ],
           reactions: {
-            strategy: { text: 'Start with a shape’s specific name, then add each valid parent group.', pose: 'think' },
-            retry: { text: 'Check the right-angle boxes, equal-side marks, and parallel arrows before changing a membership.', pose: 'oops' },
-            milestone: { text: 'That shape has a valid parent membership—keep tracing its attributes toward quadrilateral.', pose: 'cheer' },
-            complete: { text: 'The square belongs to all five groups: square, rectangle, rhombus, parallelogram, and quadrilateral.', pose: 'cheer' },
+            strategy: { text: 'Use the marked sides and angles to support each class you select.', pose: 'think' },
+            retry: { text: 'Look for missing groups or a group whose attributes do not fit the diagram.', pose: 'oops' },
+            milestone: { text: 'The checked classes fit this shape’s attributes. Compare with another shape.', pose: 'think' },
+            complete: { text: 'You checked every shape. The square fits all five groups because it has the attributes each group requires.', pose: 'cheer' },
           },
         },
       },

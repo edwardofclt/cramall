@@ -29,7 +29,7 @@ describe('DataPlotBuilder', () => {
     await user.click(screen.getByRole('button', { name: 'Decrease A' }));
     expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-state', 'building');
     expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'no');
-    expect(screen.getByRole('status')).toHaveTextContent('Adjust the plot values.');
+    expect(screen.getByLabelText('Plot build status')).toHaveTextContent('Adjust the plot values.');
 
     await user.click(screen.getByRole('button', { name: 'Increase A' }));
     expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-state', 'complete');
@@ -92,8 +92,8 @@ describe('DataPlotBuilder', () => {
       />,
     );
 
-    expect(screen.getByTestId('data-plot-columns')).toHaveStyle({ gridTemplateColumns: 'repeat(4, minmax(7rem, 1fr))' });
-    expect(screen.getByTestId('data-plot-chart')).toHaveStyle({ gridTemplateColumns: '2.5rem minmax(28rem, 1fr)' });
+    expect(screen.getByTestId('data-plot-columns')).toHaveStyle({ gridTemplateColumns: 'repeat(4, minmax(4rem, 1fr))' });
+    expect(screen.getByTestId('data-plot-chart')).toHaveStyle({ gridTemplateColumns: '2.5rem minmax(16rem, 1fr)' });
     expect(screen.getByTestId('data-plot-baseline')).toBeInTheDocument();
   });
 
@@ -124,7 +124,7 @@ describe('DataPlotBuilder', () => {
     await user.click(screen.getByRole('button', { name: 'Increase dog' }));
     await user.click(screen.getByRole('button', { name: 'Start over' }));
     expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
-    expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+    expect(onEvent.mock.calls.map(([event]) => event)).not.toContainEqual({ type: 'coach', cue: 'retry' });
   });
 
   test('requires display, title, labels, and scale decisions before data entry', async () => {
@@ -148,13 +148,13 @@ describe('DataPlotBuilder', () => {
     expect(screen.getByRole('button', { name: 'Increase dog' })).toBeDisabled();
 
     await user.click(screen.getByRole('button', { name: 'Bar graph' }));
-    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    expect(screen.queryByRole('button', { name: 'Confirm display' })).not.toBeInTheDocument();
     const title = screen.getByRole('textbox', { name: 'Graph title' });
     await user.type(title, 'Class pets');
     await user.click(screen.getByRole('button', { name: 'Confirm title' }));
     await user.click(screen.getByRole('button', { name: 'Confirm category labels' }));
     await user.click(screen.getByRole('button', { name: 'Scale 1' }));
-    await user.click(screen.getByRole('button', { name: 'Confirm scale' }));
+    expect(screen.queryByRole('button', { name: 'Confirm scale' })).not.toBeInTheDocument();
 
     expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('Bar graph');
     expect(screen.getByTestId('data-plot-decisions')).toHaveTextContent('Class pets');
@@ -164,7 +164,8 @@ describe('DataPlotBuilder', () => {
     await user.click(screen.getByRole('button', { name: 'Increase dog' }));
     await user.click(screen.getByRole('button', { name: 'Increase dog' }));
     await user.click(screen.getByRole('button', { name: 'Increase cat' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Plot matches the target.');
+    await user.click(screen.getByRole('button', { name: 'Check my graph' }));
+    expect(screen.getByLabelText('Graph check feedback')).toHaveTextContent('matches every source count');
   });
 
   test('does not commit or complete a wrong display choice', async () => {
@@ -178,19 +179,22 @@ describe('DataPlotBuilder', () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Dot plot' }));
-    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    expect(screen.queryByRole('button', { name: 'Confirm display' })).not.toBeInTheDocument();
     expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'no');
     expect(onEvent.mock.calls).toContainEqual([{ type: 'coach', cue: 'retry' }]);
     expect(screen.getByRole('button', { name: 'Increase A' })).toBeDisabled();
 
     await user.click(screen.getByRole('button', { name: 'Bar graph' }));
-    await user.click(screen.getByRole('button', { name: 'Confirm display' }));
+    expect(screen.queryByRole('button', { name: 'Confirm display' })).not.toBeInTheDocument();
     await user.type(screen.getByRole('textbox', { name: 'Graph title' }), 'A graph');
     await user.click(screen.getByRole('button', { name: 'Confirm title' }));
     await user.click(screen.getByRole('button', { name: 'Confirm category labels' }));
     await user.click(screen.getByRole('button', { name: 'Scale 1' }));
-    await user.click(screen.getByRole('button', { name: 'Confirm scale' }));
+    expect(screen.queryByRole('button', { name: 'Confirm scale' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Increase A' }));
+    await user.click(screen.getByRole('button', { name: 'Check my graph' }));
+    await user.type(screen.getByRole('spinbutton', { name: 'How many more?' }), '0');
+    await user.click(screen.getByRole('button', { name: 'Check my comparison' }));
     expect(screen.getByTestId('widget-data-plot-builder')).toHaveAttribute('data-complete', 'yes');
   });
 });

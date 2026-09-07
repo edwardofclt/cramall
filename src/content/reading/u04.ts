@@ -100,7 +100,7 @@ export const unit04Lessons = [
             "requiredEvidenceCount": 2,
             "source": {
               "title": "The Extra Row",
-              "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+              "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
             },
             "evidence": [
               {
@@ -126,13 +126,13 @@ export const unit04Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"Choose a message, then anchor each supporting detail to the story’s exact words."},
-            {"speaker":"kid","text":"I’ll test whether the details show the message across the whole story, not just one moment."}
+            {"speaker":"guide","pose":"think","text":"Let’s test a message by collecting details from different parts of the story."},
+            {"speaker":"kid","text":"I’ll choose a message, gather source quotes, and check whether they work together."}
           ],
           "reactions": {
             "strategy": {"text":"Start with the source: look for choices and consequences that repeat or connect.","pose":"think"},
             "retry": {"text":"That detail may belong to another idea. Recheck its source quote and the message it supports.","pose":"oops"},
-            "milestone": {"text":"One strong detail is anchored. Find another moment that supports the same message.","pose":"cheer"},
+            "milestone": {"text":"Your checked details support the same message. Compare the moments they describe.","pose":"cheer"},
             "complete": {"text":"You built a theme from two source-anchored details that work together.","pose":"cheer"}
           }
         },
@@ -202,7 +202,7 @@ export const unit04Lessons = [
       "title": "Infer generosity from choices and consequences",
       "passage": {
         "title": "The Extra Row",
-        "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+        "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
       },
       "steps": [
         "State the topic as generosity.",
@@ -214,7 +214,7 @@ export const unit04Lessons = [
       "passThreshold": 8,
       "reference": {
         "title": "Read “The Extra Row”",
-        "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables.\n\nNo narrator states the story’s lesson directly. Mateo’s choice to give up space helps Ana, and that generosity later brings cooperation back to him. The events support the implied theme that generosity strengthens a community."
+        "text": "The Extra Row\n\nMateo measured straight garden rows for the neighborhood planting day. When Mrs. Green asked whether the new family next door could use the extra row beside his tomatoes, Mateo shook his head. He had planned to fill it with peppers, although he already had more seedlings than his yard could hold.\n\nThat night, hard rain washed the neighbors’ newly planted seedlings from their sloped bed. The next morning, Mateo found Ana gathering broken stems. He looked at his untouched extra row, then carried over a tray of pepper seedlings. “We can plant these together,” he said.\n\nAna and Mateo rebuilt the row, pressed soil around each plant, and shared the watering job. A week later, Ana brought stakes that kept Mateo’s tomato vines upright. Their two families began trading garden tasks and vegetables."
       },
       "pool": [
         {
@@ -446,11 +446,11 @@ export const unit04Lessons = [
         },
         {
           "type": "true-false",
-          "prompt": "Before the final explanatory paragraph, readers must infer the theme from Mateo’s actions and their consequences.",
+          "prompt": "Readers must infer the theme from Mateo’s actions and their consequences.",
           "choices": [
             {
               "id": "true",
-              "text": "True — the events imply the message before it is explained"
+              "text": "True — the events imply the message"
             },
             {
               "id": "false",
@@ -458,7 +458,7 @@ export const unit04Lessons = [
             }
           ],
           "correctChoiceId": "true",
-          "explanation": "Mateo never states the message; the final explanatory paragraph names the theme after the narrative events imply it.",
+          "explanation": "The story never directly states its message. Mateo’s choice to share and the cooperation that follows imply the theme.",
           "id": "reading-u04-l01-q10",
           "conceptTag": "theme-development",
           "reviewCardId": "reading-u04-l01-c3"

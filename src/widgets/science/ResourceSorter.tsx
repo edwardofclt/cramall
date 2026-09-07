@@ -1,3 +1,6 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-science.css';
+import { ResourceObject } from './ScienceScenes';
 import {useEffect, useState} from 'react';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
@@ -134,22 +137,31 @@ function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
     emit({}, 'reset');
   };
 
-  return <section className="card widget-experiment resources" data-testid="widget-resource-sorter" data-state={visibleComplete ? 'complete' : 'sorting'} aria-describedby="resource-model-note">
-    <header>
-      <h3>Resource sorter</h3>
-      <p id="resource-model-note">This model uses authored categories for this activity ({config.lessonCategory ?? 'resource use'}). It does not examine resources or measure environmental effects; revise a connection when the lesson fact changes your thinking.</p>
-    </header>
+  const categoryChoices = <section className="resource-bins" aria-label="Authored categories">
+      {config.bins.map((bin) => <article className="resource-bin" key={bin}>
+        <strong>{binLabels[bin]}</strong>
+
+        <button aria-label={`Place selected item in ${binLabels[bin]}`} disabled={!selected} onClick={() => place(bin)}>{binLabels[bin]}</button>
+      </article>)}
+    </section>;
+
+  return <section className="card widget-experiment resources activity-shell science-activity" data-testid="widget-resource-sorter" data-state={visibleComplete ? 'complete' : 'sorting'} aria-describedby="resource-model-note">
+    <ActivityWorkbench label="Resource connections" revealKey={Object.keys(placements).length+Object.keys(effects).length} visual={<>
+    <header><h3>Resource sorter</h3><p className="science-model-label">Model only · not physical evidence</p></header>
+      <div className="science-resource-board">{config.items.map(item=><article key={item.id} className="science-feedback"><ResourceObject label={item.label}/><strong>{item.label}</strong><p>{placements[item.id] === undefined ? 'Choose this resource or action to place it.' : `Your placement: ${binLabels[placements[item.id]]}`}</p>{effects[item.id] && <p>{effectChoicesFor(item).find(choice=>choice.id===effects[item.id])?.text}</p>}</article>)}</div>
+    </>}>
     <section className="resource-items" aria-label="Items to sort">
       {config.items.map((item) => {
         const choices = effectChoicesFor(item);
         const selectedEffect = effects[item.id];
         return <article className="resource-item-card" key={item.id} data-selected={selected === item.id ? 'yes' : 'no'}>
           <strong>{item.label}</strong>
-          {item.lessonCategory && <span className="resource-category-note">Lesson category: {item.lessonCategory}</span>}
+          {placements[item.id] !== undefined && <span aria-label={`${item.label} category feedback`} className="resource-category-note" data-outcome={placements[item.id] === item.kind ? 'correct' : 'retry'}>{placements[item.id] === item.kind ? '✓ Category matched: ' : 'Try again: '}{binLabels[placements[item.id]]}{placements[item.id] === item.kind && item.lessonCategory ? ` · ${item.lessonCategory}` : ''}</span>}
           {selected === item.id && <span className="resource-selection-marker">Selected</span>}
           <button aria-label={`Select ${item.label}`} aria-pressed={selected === item.id} onClick={() => select(item.id)}>Select {item.label}</button>
+          {selected === item.id && categoryChoices}
           <p className="resource-placement" data-testid={`resource-placement-${item.id}`}>{placements[item.id] === undefined ? 'Not sorted yet' : `Placed in: ${binLabels[placements[item.id]]}`}</p>
-          {choices.length > 0 && <fieldset className="resource-effect-choices" disabled={placements[item.id] === undefined}>
+          {choices.length > 0 && placements[item.id] !== undefined && <fieldset className="resource-effect-choices" disabled={placements[item.id] === undefined}>
             <legend>Connect {item.label} to a use/effect</legend>
             {choices.map((choice) => <button type="button" key={choice.id} aria-label={`Connect ${item.label} to ${choice.text}`} aria-pressed={selectedEffect === choice.id} onClick={() => chooseEffect(item.id, choice.id)}>{selectedEffect === choice.id ? 'Connected: ' : 'Connect: '}{choice.text}</button>)}
             {selectedEffect && <span className="resource-effect-status">Current connection: {choices.find((choice) => choice.id === selectedEffect)?.text}</span>}
@@ -157,15 +169,14 @@ function ResourceSorterBody({config, onEvent}: WidgetProps<'resource-sorter'>) {
         </article>;
       })}
     </section>
-    <section className="resource-bins" aria-label="Authored categories">
-      {config.bins.map((bin) => <article className="resource-bin" key={bin}>
-        <strong>{binLabels[bin]}</strong>
-        <span className="resource-placement-marker">Category</span>
-        <button aria-label={`Place selected item in ${binLabels[bin]}`} disabled={!selected} onClick={() => place(bin)}>Place here</button>
-      </article>)}
-    </section>
+    {!selected && categoryChoices}
     <div className="resource-controls"><button onClick={reset}>Start over</button></div>
     <p role="status">{status}</p>
+    <section className="science-model-notes" aria-label="About this model"><h4>About this model</h4>
+
+      <p id="resource-model-note">This model uses authored categories for this activity ({config.lessonCategory ?? 'resource use'}). It does not examine resources or measure environmental effects; revise a connection when the lesson fact changes your thinking.</p>
+    </section>
+    </ActivityWorkbench>
   </section>;
 }
 

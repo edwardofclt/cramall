@@ -434,10 +434,10 @@ test('wave and light widget cards carry in-step Sandy coaching for their model b
   for (const card of coachedCards) {
     expect(card.widgetCoach?.intro).toHaveLength(2);
     expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
-    expect(card.widgetCoach?.reactions.complete.text).toMatch(/model|path|amplitude|frequency/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/model|path|amplitude|frequency|reflected light/i);
   }
   const lightCard = unit03Lessons[3]!.learnCards[1]!;
-  expect(lightCard.widgetCoach?.reactions.strategy?.text).toMatch(/source.*object.*eye/i);
+  expect(lightCard.widgetCoach?.reactions.strategy?.text).toMatch(/supplies light.*receives/i);
   expect(lightCard.widgetCoach?.reactions.complete.text).toMatch(/reflected light.*eye/i);
 });
 

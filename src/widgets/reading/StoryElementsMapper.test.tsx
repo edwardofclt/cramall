@@ -134,7 +134,7 @@ test('keeps the complete source visible and uses evidence choices instead of pro
   expect(screen.getByRole('button',{name:/Place “Priya” in Character/})).toBeInTheDocument();
 });
 
-test('supports keyboard placement, named undo/move controls, bounded retry, and one completion',async()=>{
+test('supports keyboard placement, named undo controls and a stable path, bounded retry, and one completion',async()=>{
   const onEvent=vi.fn(),user=userEvent.setup();
   render(<StoryElementsMapper config={productionConfig} onEvent={onEvent}/>);
 
@@ -143,8 +143,8 @@ test('supports keyboard placement, named undo/move controls, bounded retry, and 
   await user.keyboard('{Enter}');
   expect(screen.getByTestId('story-map-placed-character')).toHaveTextContent('Priya');
   expect(screen.getByRole('button',{name:'Undo Character'})).toBeInTheDocument();
-  expect(screen.getByRole('button',{name:'Move Character later'})).toBeInTheDocument();
-  expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'coach',cue:'milestone'});
+  expect(screen.queryByRole('button',{name:'Move Character later'})).not.toBeInTheDocument();
+  expect(onEvent.mock.calls.map(([event])=>event)).not.toContainEqual({type:'coach',cue:'milestone'});
 
   await user.click(screen.getByRole('button',{name:'Check story map'}));
   expect(screen.getByRole('status')).toHaveTextContent('Setting');
@@ -159,13 +159,13 @@ test('supports keyboard placement, named undo/move controls, bounded retry, and 
   await user.click(screen.getByRole('button',{name:'Check story map'}));
 
   expect(screen.getByTestId('widget-story-elements-mapper')).toHaveAttribute('data-state','complete');
-  expect(screen.getByRole('status')).toHaveTextContent(/setting.*problem.*choices.*solution/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/setting.*problem.*choices.*solve/i);
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
   await user.click(screen.getByRole('button',{name:'Check story map'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
 
-test('does not celebrate an unsupported first placement, then celebrates the first supported one',async()=>{
+test('does not celebrate unchecked placements, including a supported one',async()=>{
   const onEvent=vi.fn(),user=userEvent.setup();
   render(<StoryElementsMapper config={productionConfig} onEvent={onEvent}/>);
 
@@ -174,5 +174,5 @@ test('does not celebrate an unsupported first placement, then celebrates the fir
 
   await user.click(screen.getByRole('button',{name:'Undo Character'}));
   await user.click(screen.getByRole('button',{name:/Place “Priya” in Character/}));
-  expect(onEvent.mock.calls.filter(([event])=>event.type==='coach'&&event.cue==='milestone')).toHaveLength(1);
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='coach'&&event.cue==='milestone')).toHaveLength(0);
 });

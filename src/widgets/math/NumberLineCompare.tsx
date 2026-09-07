@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { motion, useAnimationControls, type PanInfo } from 'framer-motion';
 import { springy } from '../../app/motion';
@@ -46,12 +48,12 @@ function snapToStep(value: number, min: number, max: number, step: number): numb
   return clamp(Number(snapped.toFixed(10)), min, max);
 }
 
-/** Ticks a fourth grader can count: at most ~11 of them, on friendly intervals. */
+/** Use a few wide landmarks so long whole-number labels stay readable. */
 function tickStep(range: number): number {
   for (const step of [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2500, 5000, 10000]) {
-    if (range / step <= 10) return step;
+    if (range / step <= 5) return step;
   }
-  return Math.max(1, Math.ceil(range / 10));
+  return Math.max(1, Math.ceil(range / 5));
 }
 
 export function formatNumberLineValue(
@@ -76,10 +78,12 @@ function tickValues(
   markerStep?: number,
 ): number[] {
   if (display === 'fraction' && denominator && denominator >= 100 && (max - min) * denominator > 10) {
-    const landmarkStep = 10 / denominator;
+    const landmarkStep = Math.ceil((max - min) * denominator / 50) * 10 / denominator;
     const ticks: number[] = [];
     for (let value = Math.ceil(min / landmarkStep) * landmarkStep; value <= max + landmarkStep / 2; value += landmarkStep) {
-      ticks.push(Number(value.toFixed(10)));
+      const tick = Number(value.toFixed(10));
+      if (tick > max) break;
+      ticks.push(tick);
     }
     if (ticks[0] !== min) ticks.unshift(min);
     if (ticks[ticks.length - 1] !== max) ticks.push(max);
@@ -311,13 +315,15 @@ export default function NumberLineCompare({
   const [b, setB] = useState(settings.b);
   const [choice, setChoice] = useState<Sym | null>(null);
   const [attempts, setAttempts] = useState(0);
-  const { completed, completeOnce } = useCompletionLatch(configKey);
+  const [previous, setPrevious] = useState<{ a: number; b: number; choice: Sym; correct: boolean } | null>(null);
+  const strategySent = useRef(false);
+  const { completeOnce } = useCompletionLatch(configKey);
 
   // A card handing this widget a new configuration starts a fresh question.
   useEffect(() => {
     setA(settings.a);
     setB(settings.b);
-    setChoice(null);
+    setChoice(null); setPrevious(null); strategySent.current = false;
   }, [configKey]);
 
   const truth: Sym = a < b ? '<' : a > b ? '>' : '=';
@@ -325,7 +331,10 @@ export default function NumberLineCompare({
 
   const move = (marker: 'A' | 'B', setter: (value: number) => void) => (raw: number) => {
     const next = snapToStep(raw, min, max, step);
+    if (next === (marker === 'A' ? a : b)) return;
+    if (choice) setPrevious({ a, b, choice, correct: choice === truth });
     setter(next);
+    if (!strategySent.current) { strategySent.current = true; onEvent({ type: 'coach', cue: 'strategy' }); }
     // The answer was about the old picture; ask again now that the picture changed.
     setChoice(null);
     onEvent({ type: 'interaction', action: 'move-marker' });
@@ -336,6 +345,7 @@ export default function NumberLineCompare({
   };
 
   const choose = (symbol: Sym) => {
+    if (choice === symbol) return;
     setChoice(symbol);
     setAttempts((n) => n + 1);
     onEvent({ type: 'interaction', action: 'choose-comparison' });
@@ -343,6 +353,7 @@ export default function NumberLineCompare({
     if (symbol === truth) {
       completeOnce(() => onEvent({ type: 'complete', value: { a, b, choice: symbol } }));
     }
+    if (symbol !== truth) onEvent({ type: 'coach', cue: 'retry' });
     if (reduced) return;
     board.start(
       symbol === truth
@@ -355,19 +366,18 @@ export default function NumberLineCompare({
 
   return (
     <div
-      className="card widget-experiment nl"
+      className="card widget-experiment nl activity-shell math-activity"
       data-testid="widget-number-line-compare"
       data-state={state}
-      data-complete={completed ? 'yes' : 'no'}
+      data-complete={state === 'correct' ? 'yes' : 'no'}
     >
-      <div className="widget-head">
+<ActivityWorkbench label="Compare number-line positions" revealKey={state} visual={<><div className="widget-head">
         <h3 className="widget-title">
           <span aria-hidden="true">📏</span> Which one is bigger?
         </h3>
         <span className="badge nl-hint">Slide the markers, then pick a symbol</span>
       </div>
-
-      <motion.div className="nl-board" animate={board}>
+<motion.div className="nl-board" animate={board}>
         {state !== 'choosing' && (
           // Keyed by attempt so the flash replays on every answer, right or wrong.
           <div key={attempts} className="nl-flash" data-tone={state} aria-hidden="true" />
@@ -397,7 +407,7 @@ export default function NumberLineCompare({
                 y2={LINE_Y + 10}
               />
               <text
-                className={`nl-tick-label${display === 'fraction' ? ' nl-fraction-label' : ''}`}
+                className={`nl-tick-label${display === 'fraction' ? ' nl-fraction-label' : ''}${format(tick).length > 4 ? ' nl-long-label' : ''}`}
                 x={pxOf(tick, min, max)}
                 y={LINE_Y + 32}
                 textAnchor="middle"
@@ -430,13 +440,7 @@ export default function NumberLineCompare({
           />
         </svg>
       </motion.div>
-
-      <div className="nl-steppers" role="group" aria-label="Move the markers">
-        <Stepper letter="A" value={a} min={min} max={max} step={step} format={format} onMove={move('A', setA)} />
-        <Stepper letter="B" value={b} min={min} max={max} step={step} format={format} onMove={move('B', setB)} />
-      </div>
-
-      <p className="nl-sentence" data-testid="nl-sentence">
+<p className="nl-sentence" data-testid="nl-sentence">
         <span className="nl-sentence-number" data-marker="a">
           {format(a)}
         </span>
@@ -446,9 +450,12 @@ export default function NumberLineCompare({
         <span className="nl-sentence-number" data-marker="b">
           {format(b)}
         </span>
-      </p>
-
-      <div className="nl-symbols" role="group" aria-label="Choose the comparison">
+      </p></>}>
+<div className="nl-steppers" role="group" aria-label="Move the markers">
+        <Stepper letter="A" value={a} min={min} max={max} step={step} format={format} onMove={move('A', setA)} />
+        <Stepper letter="B" value={b} min={min} max={max} step={step} format={format} onMove={move('B', setB)} />
+      </div>
+<div className="nl-symbols" role="group" aria-label="Choose the comparison">
         {SYMBOLS.map((symbol) => (
           <motion.button
             key={symbol}
@@ -469,9 +476,8 @@ export default function NumberLineCompare({
           </motion.button>
         ))}
       </div>
-
-      {state !== 'choosing' && (
-        <p className="nl-feedback" data-testid="nl-feedback" data-tone={state} role="status">
+{state !== 'choosing' && (
+        <p className="nl-feedback" data-testid="nl-feedback" data-activity-reveal data-tone={state} role="status">
           {state === 'correct'
           ? `🎉 Yes! ${format(a)} is ${WORDS[truth]} ${format(b)}.`
             : truth === '='
@@ -479,6 +485,10 @@ export default function NumberLineCompare({
               : 'Not quite — the number farther to the right is always bigger. Try again!'}
         </p>
       )}
-    </div>
+{previous && <p className="math-record" aria-label="Previous comparison">Earlier: {format(previous.a)} {previous.choice} {format(previous.b)}. {previous.correct ? 'That comparison was correct.' : 'That comparison needed another look.'} Moving a marker creates a new comparison.</p>}
+<section className="math-task"><h4>Compare what changed</h4><p>{choice === truth ? `The marker positions support your comparison. A point farther right has a greater value; markers at the same point have equal value.` : 'Move a marker to make a different relationship. Which position must change?'}</p></section>
+<button type="button" onClick={() => { setA(settings.a); setB(settings.b); setChoice(null); setPrevious(null); strategySent.current = false; onEvent({ type: 'interaction', action: 'move-marker' }); onEvent({ type: 'change', value: { a: settings.a, b: settings.b, choice: null } }); }}>Start over</button>
+</ActivityWorkbench>
+</div>
   );
 }

@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useReducedMotionPref } from '../../app/useReducedMotionPref';
 import type { WidgetProps } from '../registry';
@@ -57,8 +59,9 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
   const [spins, setSpins] = useState(0);
   const [prediction, setPrediction] = useState<string | null>(null);
   const [classification, setClassification] = useState<'certain' | 'possible' | 'impossible' | null>(null);
-  const { completed, completeOnce } = useCompletionLatch(key);
+  const { completeOnce } = useCompletionLatch(key);
   const coached = Boolean(config.eventQuestion);
+  const completed = coached ? classification === config.eventQuestion?.classification && spins >= (config.trials ?? 1) : spins >= (config.trials ?? 1) && (!config.targetOutcomeId || counts[config.targetOutcomeId] > 0);
   const totalWeight = config.segments.reduce((sum, segment) => sum + segmentWeight(segment), 0);
   const trials = config.trials ?? 1;
   const geometry = weightedGeometry(config.segments, outcome);
@@ -128,37 +131,16 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
   const wheelLabel = `Spinner model: ${config.segments.map((segment) => `${segment.label} has ${segmentWeight(segment)} of ${totalWeight} equal part${totalWeight === 1 ? '' : 's'}`).join('; ')}.`;
   return (
     <section
-      className="card widget-experiment spinner"
+      className="card widget-experiment spinner activity-shell math-activity"
       data-testid="widget-probability-spinner"
       data-motion={reduced ? 'off' : 'on'}
       data-state={completed ? 'complete' : 'ready'}
       data-complete={completed ? 'yes' : 'no'}
     >
-      <h3>Weighted probability spinner</h3>
-      {config.taskPrompt && <p className="spinner-task"><strong>Goal:</strong> {config.taskPrompt}</p>}
-      <p className="spinner-explanation">This model uses a random number for each spin. Larger areas are more likely over many spins, but one spin does not prove what a future spin will be.</p>
-      {coached && (
-        <div className="spinner-probability-setup" data-testid="spinner-probability-setup">
-          <section className="spinner-prediction" aria-labelledby="spinner-prediction-title">
-            <h4 id="spinner-prediction-title">1. Make a prediction</h4>
-            <p>Which outcome do you predict might appear? Your prediction is a starting idea, not a score.</p>
-            <div className="spinner-prediction-choices">
-              {config.segments.map((segment) => (
-                <button key={segment.id} type="button" aria-pressed={prediction === segment.id} onClick={() => { setPrediction(segment.id); onEvent({ type: 'coach', cue: 'strategy' }); }}>
-                  Predict {segment.label}
-                </button>
-              ))}
-            </div>
-            <p className="spinner-decision-summary">{prediction ? `Prediction: ${config.segments.find((segment) => segment.id === prediction)?.label}.` : 'Prediction needed before the first spin.'}</p>
-          </section>
-          <section className="spinner-sample-space" data-testid="spinner-sample-space" aria-labelledby="spinner-sample-space-title">
-            <h4 id="spinner-sample-space-title">Sample space</h4>
-            <p>{config.segments.map((segment) => segment.label).join(', ')}</p>
-            {config.eventQuestion && <p>Event to classify: land on {eventOutcomeLabel}.</p>}
-          </section>
-        </div>
-      )}
-      <div className="spinner-model">
+<ActivityWorkbench label="Predict and spin" revealKey={spins >= trials ? "classify" : prediction ? "spin" : "predict"} visual={<><h3>Weighted probability spinner</h3>
+{config.taskPrompt && <p className="spinner-task"><strong>Goal:</strong> {config.taskPrompt}</p>}
+
+<div className="spinner-model">
         <svg
           className="spinner-wheel"
           data-testid="spinner-wheel"
@@ -212,26 +194,7 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
           ))}
         </ul>
       </div>
-      <p className="spinner-progress">Completed {spins} of {trials} trial{trials === 1 ? '' : 's'}; {Math.max(0, trials - spins)} remaining.</p>
-      {config.targetOutcomeId && !coached && <p className="spinner-target">Completion also needs: {config.segments.find((segment) => segment.id === config.targetOutcomeId)?.label}.</p>}
-      <div className="spinner-controls">
-        <button aria-label="Spin" disabled={(coached && prediction === null) || spins >= trials || completed} onClick={run}>Spin</button>
-        <button onClick={reset}>Start over</button>
-      </div>
-      {coached && (
-        <section className="spinner-classification" aria-labelledby="spinner-classification-title">
-          <h4 id="spinner-classification-title">3. Classify the event from the sample space</h4>
-          <div className="spinner-classification-choices">
-            {(['certain', 'possible', 'impossible'] as const).map((choice) => (
-              <button key={choice} type="button" aria-pressed={classification === choice} disabled={spins < trials || completed} onClick={() => classify(choice)}>
-                {choice[0]!.toUpperCase() + choice.slice(1)}
-              </button>
-            ))}
-          </div>
-          <p className="spinner-decision-summary">{classification ? `Your classification: ${classification}.` : spins >= trials ? 'Choose one classification.' : `Complete all ${trials} trials first.`}</p>
-        </section>
-      )}
-      <table className="spinner-frequency" aria-label="Cumulative spin frequencies">
+<table className="spinner-frequency" aria-label="Cumulative spin frequencies">
         <caption>Cumulative frequency table</caption>
         <thead><tr><th scope="col">Outcome</th><th scope="col">Times selected</th></tr></thead>
         <tbody>
@@ -239,10 +202,53 @@ export default function ProbabilitySpinner({ config, onEvent }: WidgetProps<'pro
             <tr key={segment.id}><th scope="row">{segment.label}</th><td>{counts[segment.id]}</td></tr>
           ))}
         </tbody>
-      </table>
-      <p role="status">
+      </table></>}>
+<p className="spinner-explanation">This model uses a random number for each spin. Larger areas are more likely over many spins, but one spin does not prove what a future spin will be.</p>
+{coached && (
+        <div className="spinner-probability-setup" data-testid="spinner-probability-setup">
+          <section className="spinner-prediction" aria-labelledby="spinner-prediction-title">
+            <h4 id="spinner-prediction-title">1. Make a prediction</h4>
+            <p>Which outcome do you predict might appear? Your prediction is a starting idea, not a score.</p>
+            <div className="spinner-prediction-choices">
+              {config.segments.map((segment) => (
+                <button key={segment.id} type="button" aria-pressed={prediction === segment.id} disabled={spins > 0} onClick={() => { if (prediction === segment.id) return; setPrediction(segment.id); onEvent({ type: 'coach', cue: 'strategy' }); }}>
+                  Predict {segment.label}
+                </button>
+              ))}
+            </div>
+            <p className="spinner-decision-summary">{prediction ? `Prediction: ${config.segments.find((segment) => segment.id === prediction)?.label}.` : 'Prediction needed before the first spin.'}</p>
+          </section>
+          <section className="spinner-sample-space" data-testid="spinner-sample-space" aria-labelledby="spinner-sample-space-title">
+            <h4 id="spinner-sample-space-title">Sample space</h4>
+            <p>{config.segments.map((segment) => segment.label).join(', ')}</p>
+            {config.eventQuestion && <p>Event to classify: land on {eventOutcomeLabel}.</p>}
+          </section>
+        </div>
+      )}
+<p className="spinner-progress">Completed {spins} of {trials} trial{trials === 1 ? '' : 's'}; {Math.max(0, trials - spins)} remaining.</p>
+{config.targetOutcomeId && !coached && <p className="spinner-target">Completion also needs: {config.segments.find((segment) => segment.id === config.targetOutcomeId)?.label}.</p>}
+<div className="spinner-controls" data-activity-reveal={prediction && spins < trials ? "" : undefined}>
+        <button aria-label="Spin" disabled={(coached && prediction === null) || spins >= trials || completed} onClick={run}>Spin</button>
+        <button onClick={reset}>Start over</button>
+      </div>
+{coached && (
+        <> <section className="math-task" aria-label="Prediction comparison"><h4>Compare the prediction with the record</h4><p>{spins > 0 ? `Your prediction was ${config.segments.find(segment => segment.id === prediction)?.label}. It appeared ${prediction ? counts[prediction] : 0} times in ${spins} spins. A short record does not promise the next result.` : 'Your first prediction will stay here while you collect results.'}</p></section>
+        <section className="spinner-classification" data-activity-reveal={spins >= trials ? "" : undefined} aria-labelledby="spinner-classification-title">
+          <h4 id="spinner-classification-title">3. Classify the event from the sample space</h4>
+          <div className="spinner-classification-choices">
+            {(['certain', 'possible', 'impossible'] as const).map((choice) => (
+              <button key={choice} type="button" aria-pressed={classification === choice} data-outcome={classification === choice ? classificationWrong ? 'retry' : 'correct' : undefined} disabled={spins < trials || completed} onClick={() => classify(choice)}>
+                {choice[0]!.toUpperCase() + choice.slice(1)}{classification === choice && <strong>{classificationWrong ? ' · Try again' : ' · Correct'}</strong>}
+              </button>
+            ))}
+          </div>
+          <p className="spinner-decision-summary" aria-label="Classification feedback">{classification ? classificationWrong ? `Try again. Your choice was ${classification}. Check which outcomes the wheel allows.` : `Correct: ${classification}. Use the wheel’s possible outcomes, not only this short record.` : spins >= trials ? 'Choose one classification.' : `Complete all ${trials} trials first.`}</p>
+        </section></>
+      )}
+<p role="status">
         {classificationWrong ? 'Try classifying the event from the sample space.' : coached && spins >= trials && !classification ? 'Classify the event from the sample space.' : outcomeLabel ? `Spinner selected ${outcomeLabel}.` : coached && prediction === null ? 'Make a prediction before the first spin.' : 'Press Spin to choose a model-generated random outcome.'}
       </p>
-    </section>
+</ActivityWorkbench>
+</section>
   );
 }

@@ -66,7 +66,9 @@ test('u02 is the exact validated two-lesson unit', () => {
     expect(lesson.quiz.pool.map((question) => question.id)).toEqual(
       Array.from({ length: 13 }, (_, index) => `${lesson.id}-q${String(index + 1).padStart(2, '0')}`),
     );
-    expect(lesson.learnCards.every((card) => card.widget === undefined)).toBe(true);
+    if (lesson.id === 'math-u02-l01') {
+      expect(lesson.learnCards.every(card => card.widget?.type === 'regrouping-lab' && card.widgetCoach?.intro.length === 2)).toBe(true);
+    } else expect(lesson.learnCards.every(card => card.widget === undefined)).toBe(true);
 
     const cardSpecs = expectedCards[lesson.id as keyof typeof expectedCards];
     expect(lesson.learnCards.map((card, index) => [

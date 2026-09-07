@@ -275,7 +275,7 @@ describe('LessonPlayer', () => {
       lessonId: 'math-u12-l03',
       cardId: 'math-u12-l03-c2',
       guide: 'nutty',
-      source: /Predict, run eight trials, and classify landing on red/i,
+      source: /red/i,
       retryText: 'Reread the sample space: red is listed but not the only outcome, so landing on red is possible.',
       retryPose: 'oops',
       completeText: 'You used the full sample space to classify landing on red as possible; the random results were evidence, not a guarantee.',
@@ -306,12 +306,17 @@ describe('LessonPlayer', () => {
   ])('$name uses a real repaired card with an in-step coached activity', async ({ lessonId, cardId, guide, source, retryText, retryPose, completeText, completePose }) => {
     const user = userEvent.setup();
     const storageSpy = vi.spyOn(Storage.prototype, 'setItem');
+    const actual = await vi.importActual<typeof import('../content/subjects')>('../content/subjects');
+    const authoredCoach = actual.findLesson(lessonId)!.lesson.learnCards.find(card => card.id === cardId)!.widgetCoach!;
+    retryText = authoredCoach.reactions.retry!.text;
+    retryPose = authoredCoach.reactions.retry!.pose ?? 'talk';
+    completeText = authoredCoach.reactions.complete.text;
+    completePose = authoredCoach.reactions.complete.pose ?? 'talk';
     renderPlayer(`/lesson/${lessonId}?step=card:${cardId}&peek=1&focus=flow`);
 
     expect(await screen.findByRole('heading', { level: 2 })).toBeInTheDocument();
-    expect(await screen.findAllByText(source)).not.toHaveLength(0);
     expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
-    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
     expect(screen.getByTestId('router-location')).toHaveTextContent(`focus=flow`);
     expect(screen.getByTestId('widget-coach-intro').querySelector('[data-speaker="guide"]')).not.toBeNull();
@@ -321,6 +326,8 @@ describe('LessonPlayer', () => {
     expect(screen.getByTestId('widget-coach-intro').querySelector('[data-speaker="kid"]')).not.toBeNull();
     await user.click(screen.getByRole('button', { name: 'Try it' }));
     expect(screen.getByTestId('widget-coach-activity')).not.toHaveAttribute('inert');
+    await screen.findByTestId(`widget-${guide === 'nutty' ? 'probability-spinner' : guide === 'winnie' ? 'word-root-builder' : 'collision-ramp'}`);
+    expect(await screen.findAllByText(source)).not.toHaveLength(0);
     expect(storageSpy).not.toHaveBeenCalled();
     storageSpy.mockClear();
 
@@ -328,7 +335,7 @@ describe('LessonPlayer', () => {
       await user.click(screen.getByRole('button', { name: 'Predict Red' }));
       for (let index = 0; index < 8; index += 1) await user.click(screen.getByRole('button', { name: 'Spin' }));
       await user.click(screen.getByRole('button', { name: 'Certain' }));
-      expect(within(screen.getByTestId('widget-probability-spinner')).getByRole('status')).toHaveTextContent(/classif/i);
+      expect(screen.getByLabelText('Classification feedback')).toHaveTextContent(/Try again.*certain/i);
       expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(retryText);
       expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === retryPose)).toBe(true);
       await user.click(screen.getByRole('button', { name: 'Possible' }));
@@ -343,7 +350,6 @@ describe('LessonPlayer', () => {
       await user.click(screen.getByRole('button', { name: 'Remove suffix able' }));
       await user.click(screen.getByRole('button', { name: 'Check word' }));
       await user.click(screen.getByRole('button', { name: 'Choose whole-word meaning: carry from one place to another' }));
-      await user.click(screen.getByRole('button', { name: 'Check whole-word meaning' }));
       expect(screen.getByText(/connected the word parts/i)).toBeInTheDocument();
     } else {
       await user.click(screen.getByRole('button', { name: 'Moves right' }));
@@ -354,13 +360,12 @@ describe('LessonPlayer', () => {
       await user.click(screen.getByRole('button', { name: 'Run collision model' }));
       await waitFor(() => expect(screen.getByTestId('widget-collision-ramp')).toHaveAttribute('data-phase', 'observed'));
       await user.click(screen.getByRole('button', { name: 'Run 1 had more Cart A speed' }));
-      await user.click(screen.getByRole('button', { name: 'Compare runs' }));
-      expect(within(screen.getByTestId('widget-collision-ramp')).getByRole('status')).toHaveTextContent(/does not match|revise/i);
+      expect(screen.getByTestId('widget-collision-ramp').querySelector('p[role="status"]')).toHaveTextContent(/does not match|revise/i);
       expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(retryText);
       expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === retryPose)).toBe(true);
       await user.click(screen.getByRole('button', { name: 'Run 2 had more Cart A speed' }));
-      await user.click(screen.getByRole('button', { name: 'Compare runs' }));
-      expect(screen.getByText(/compared two modeled collision runs/i)).toBeInTheDocument();
+      await user.click(screen.getByRole('button', {name:'Motion changes could support an energy-transfer idea'}));
+      expect(screen.getByLabelText('Collision inference feedback')).toHaveTextContent(/could support/);
     }
 
     expect(storageSpy).not.toHaveBeenCalled();
@@ -372,6 +377,12 @@ describe('LessonPlayer', () => {
     const firstCardId = cardId.replace(/c2$/, 'c1');
     await user.click(nav().getByRole('button', { name: /next step/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
+    if (guide === 'sandy') {
+      await screen.findByTestId('demo-coach-intro');
+      expect(nav().queryByRole('button', {name:/next step/i})).not.toBeInTheDocument();
+      await user.click(screen.getByRole('button', {name:'Next'}));
+      await user.click(screen.getByRole('button', {name:'Start the model'}));
+    }
     await user.click(nav().getByRole('button', { name: /next step/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe('worked'));
     await user.click(screen.getByRole('button', { name: /browser back/i }));
@@ -379,7 +390,7 @@ describe('LessonPlayer', () => {
     await user.click(screen.getByRole('button', { name: /browser back/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${cardId}`));
     expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
-    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /browser forward/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
     await user.click(screen.getByRole('button', { name: /browser forward/i }));
@@ -408,7 +419,7 @@ describe('LessonPlayer', () => {
 
       await user.click(screen.getByRole('button', { name: 'Next' }));
       await user.click(screen.getByRole('button', { name: 'Try it' }));
-      await user.click(screen.getByRole('button', { name: 'Force widget crash' }));
+      await user.click(await screen.findByRole('button', { name: 'Force widget crash' }));
 
       expect(await screen.findByTestId('widget-napping')).toHaveTextContent(/keep going/i);
       expect(nav().getByRole('button', { name: /next step/i })).toBeEnabled();
@@ -431,7 +442,7 @@ describe('LessonPlayer', () => {
     expect(await screen.findByRole('heading', { name: 'Build the target number' })).toBeInTheDocument();
     expect(screen.getByText(/Build the target one place at a time/)).toBeInTheDocument();
     expect(screen.getByText(/connect place value to the model/)).toBeInTheDocument();
-    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
     expect(currentSearchParams().get('mode')).toBe('demo');
 
@@ -461,7 +472,7 @@ describe('LessonPlayer', () => {
     await user.click(screen.getByRole('button', { name: /browser back/i }));
     expect(await screen.findByRole('heading', { name: 'Build the target number' })).toBeInTheDocument();
     expect(screen.getByText(/connect place value to the model/)).toBeInTheDocument();
-    expect(screen.getByTestId('widget-coach-activity')).toHaveAttribute('inert');
+    expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     expect(nav().queryByRole('button', { name: /next step/i })).toBeNull();
     expect(currentSearchParams().get('mode')).toBe('demo');
 

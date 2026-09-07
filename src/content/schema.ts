@@ -13,6 +13,7 @@ export const WIDGET_TYPES = [
   'place-value-builder',
   'number-line-compare',
   'base-ten-blocks',
+  'regrouping-lab',
   'fraction-models',
   'area-model-multiplier',
   'array-builder',
@@ -236,6 +237,19 @@ export const NumberLineWidgetConfigSchema = z.object({
   }
 });
 
+export const RegroupingLabWidgetConfigSchema = z.object({
+  a: z.number().int().min(1).max(100000),
+  b: z.number().int().min(1).max(100000),
+  operation: z.enum(['add', 'subtract']),
+  context: z.string().trim().min(1),
+  purpose: z.literal('inverse-check').optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.operation === 'add' && value.a + value.b > 100000) ctx.addIssue({code:z.ZodIssueCode.custom,message:'The sum must be at most 100,000.'});
+  if (value.operation === 'subtract' && value.a < value.b) ctx.addIssue({code:z.ZodIssueCode.custom,message:'The difference must not be negative.'});
+  if (value.purpose === 'inverse-check' && value.operation !== 'add') ctx.addIssue({code:z.ZodIssueCode.custom,message:'Use addition to rebuild the original subtraction total.'});
+});
+export const RegroupingLabWidgetRefSchema = z.object({type:z.literal('regrouping-lab'),config:RegroupingLabWidgetConfigSchema}).strict();
+
 export const BaseTenBlocksWidgetConfigSchema = z.object({
   target: z.number().int().min(0).max(9999).optional(),
   initial: z.object({
@@ -332,11 +346,20 @@ export const ArrayBuilderWidgetConfigSchema = z.object({
   columns: z.number().int().min(1).max(20),
   targetProduct: z.number().int().min(1).max(400).optional(),
   editable: z.boolean().optional(),
+  targetRows: z.number().int().min(1).max(20).optional(),
+  targetColumns: z.number().int().min(1).max(20).optional(),
   taskPrompt: WidgetTaskPromptSchema,
   task: z.enum(['editable', 'factor-hunt', 'division']).optional(),
   dividend: z.number().int().positive().max(9999).optional(),
   divisor: z.number().int().positive().optional(),
 }).strict().superRefine((value, context) => {
+  if ((value.targetRows === undefined) !== (value.targetColumns === undefined)) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetRows'], message: 'grouping targets require both rows and columns' });
+  }
+  if (value.targetRows !== undefined && value.targetColumns !== undefined) {
+    if (value.targetProduct !== undefined && value.targetRows * value.targetColumns !== value.targetProduct) context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetProduct'], message: 'grouping target must match product' });
+    if (!value.editable && (value.rows !== value.targetRows || value.columns !== value.targetColumns)) context.addIssue({ code: z.ZodIssueCode.custom, path: ['targetRows'], message: 'grouping target is unreachable without editable dimensions' });
+  }
   if (value.task === 'division' && (value.dividend === undefined || value.divisor === undefined)) {
     context.addIssue({ code: z.ZodIssueCode.custom, path: ['task'], message: 'division tasks require dividend and divisor' });
   }
@@ -538,7 +561,12 @@ export const BalanceScaleWidgetConfigSchema = z.object({
   right: z.array(WeightSchema).min(1),
   task: z.enum(['compare', 'make-equal']).optional(),
   taskPrompt: WidgetTaskPromptSchema,
+  lengthModel: z.object({feet:z.number().int().min(1).max(10),inches:z.number().int().min(1).max(120)}).strict().optional(),
 }).strict().superRefine((value, context) => {
+  if (value.lengthModel) {
+    if (value.task !== 'compare') context.addIssue({code:z.ZodIssueCode.custom,path:['lengthModel'],message:'length models require compare tasks'});
+    if (value.left.reduce((sum, item) => sum + item.value, 0) !== value.lengthModel.feet * 12 || value.right.reduce((sum, item) => sum + item.value, 0) !== value.lengthModel.inches) context.addIssue({code:z.ZodIssueCode.custom,path:['lengthModel'],message:'length units must match the configured comparison'});
+  }
   const ids = [...value.left, ...value.right].map((weight) => weight.id);
   if (new Set(ids).size !== ids.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'duplicate ids' });
@@ -833,6 +861,7 @@ export const CollisionRampWidgetRefSchema = z.object({
 
 const EnergyTransferTokenSchema = z.string().trim().min(1);
 export const EnergyTransferBuilderWidgetConfigSchema = z.object({
+  experience: z.literal('tuning-fork').optional(),
   sources: z.array(EnergyTransferTokenSchema).min(1), transfers: z.array(EnergyTransferTokenSchema).min(1), targets: z.array(EnergyTransferTokenSchema).min(1), requiredPath: z.array(EnergyTransferTokenSchema).min(3),
   distractors: z.array(EnergyTransferTokenSchema).min(1).optional(),
 }).strict().superRefine((value, context) => {
@@ -1492,6 +1521,7 @@ const CentralDetailSchema=z.object({
   text:CentralIdeaTextSchema,
   supports:z.array(CentralIdeaTextSchema).min(1),
   sourceQuote: CentralIdeaTextSchema.optional(),
+  sourceContradictsDetail: z.boolean().optional(),
 }).strict();
 
 export const CentralIdeaOrganizerWidgetConfigSchema=z.object({
@@ -1512,7 +1542,7 @@ export const CentralIdeaOrganizerWidgetConfigSchema=z.object({
       &&detail.supports.every((idea)=>value.mainIdeaChoices.includes(idea));
   });
   const solvable=required<=value.details.length
-    &&value.mainIdeaChoices.some((idea)=>value.details.filter((detail)=>detail.supports.includes(idea)).length>=required);
+    &&value.mainIdeaChoices.some((idea)=>value.details.filter((detail)=>!detail.sourceContradictsDetail && detail.supports.includes(idea)).length>=required);
   const quotesValid=value.details.every((detail)=>
     detail.sourceQuote === undefined || (value.source !== undefined && sourceContainsQuote(value.source, detail.sourceQuote)),
   );
@@ -1809,6 +1839,7 @@ export const WidgetRefSchema = z.discriminatedUnion('type', [
     config: NumberLineWidgetConfigSchema,
   }).strict(),
   BaseTenBlocksWidgetRefSchema,
+  RegroupingLabWidgetRefSchema,
   FractionModelsWidgetRefSchema,
   AreaModelMultiplierWidgetRefSchema,
   ArrayBuilderWidgetRefSchema,

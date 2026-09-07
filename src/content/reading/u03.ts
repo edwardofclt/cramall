@@ -165,13 +165,13 @@ export const unit03Lessons = [
         },
         "widgetCoach": {
           "intro": [
-            {"speaker":"guide","pose":"think","text":"Point each story element to the words that prove it in the story."},
-            {"speaker":"kid","text":"I will build the setting → problem → choices → solution path from visible clues."}
+            {"speaker":"guide","pose":"think","text":"Let’s connect the story’s setting, problem, choices, and solution using its words."},
+            {"speaker":"kid","text":"I’ll place the story clues, check my map, and explain how the events connect."}
           ],
           "reactions": {
             "strategy": {"text":"Read the source line by line and look for the clue that answers each field.","pose":"think"},
             "retry": {"text":"That field needs a different story clue. Scan the source before trying again.","pose":"oops"},
-            "milestone": {"text":"Nice evidence match! Keep building the plot path.","pose":"cheer"},
+            "milestone": {"text":"Your checked story clues fit the source. Trace how one event led to the next.","pose":"cheer"},
             "complete": {"text":"You connected setting, problem, choices, and solution using the story’s words.","pose":"cheer"}
           }
         },

@@ -68,5 +68,5 @@ test('shows a dollar goal, labeled tokens, subtotals, and meaningful cues', asyn
   await user.click(screen.getByRole('button', { name: 'Start over' }));
 
   expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
-  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+  expect(onEvent.mock.calls.map(([event]) => event)).not.toContainEqual({ type: 'coach', cue: 'retry' });
 });

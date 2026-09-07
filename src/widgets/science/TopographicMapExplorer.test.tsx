@@ -47,6 +47,7 @@ test('plots six authored points, exposes non-color symbols and a keyboard-linked
   await user.click(listButton);
   expect(screen.getByRole('status')).toHaveTextContent(/elevation.*500.*pattern/i);
   await user.click(screen.getByRole('button', { name: /Select Peak 2/ }));
+  await user.click(screen.getByRole('button', { name: /Select Peak 3/ }));
   await user.click(screen.getByRole('button', { name: /choose band/i }));
   expect(screen.getByTestId('widget-topographic-map-explorer')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/visible.*band.*not.*cause/i);

@@ -29,11 +29,13 @@ test('shows a labelled pre-run terrain and a water-shaped after terrain', async 
   render(<ErosionSimulator config={{ terrain: 'soil', agents: ['water'], vegetation: false }} onEvent={vi.fn()} />);
 
   expect(screen.getByTestId('erosion-before')).toHaveTextContent(/before.*soil/i);
-  expect(screen.getByTestId('erosion-after')).toHaveTextContent(/run the authored model/i);
+  expect(screen.getByLabelText('Erosion run record')).toHaveTextContent(/run the authored model/i);
   await user.click(screen.getByRole('button', { name: 'Run erosion' }));
   expect(screen.getByTestId('erosion-after')).toHaveAttribute('data-agent', 'water');
-  expect(screen.getByTestId('erosion-after')).toHaveTextContent(/water path.*moved soil/i);
+  expect(screen.getByLabelText('Erosion run record')).toHaveTextContent(/water path.*moved soil/i);
   expect(screen.getByTestId('erosion-after-geometry')).toHaveAttribute('data-pattern', 'channel');
+  expect(screen.getByLabelText('Erosion run record').closest('.activity-workbench-tasks')).not.toBeNull();
+  expect(screen.getByTestId('erosion-after').textContent!.length).toBeLessThan(100);
 });
 
 test('makes vegetation a visible movement comparison for soil and marks an old run stale', async () => {
@@ -49,7 +51,7 @@ test('makes vegetation a visible movement comparison for soil and marks an old r
   expect(screen.getByRole('status')).toHaveTextContent(/displayed result.*stale.*run/i);
   await user.click(screen.getByRole('button', { name: 'Run erosion' }));
   expect(screen.getByTestId('erosion-after-geometry')).not.toHaveAttribute('data-pattern', barePattern!);
-  expect(screen.getByTestId('erosion-after')).toHaveTextContent(/vegetation.*less movement.*not stop all erosion/i);
+  expect(screen.getByLabelText('Erosion run record')).toHaveTextContent(/vegetation.*less movement.*not stop all erosion/i);
 });
 
 test('keeps reduced-motion and normal runs at the same final terrain state', async () => {
@@ -63,7 +65,7 @@ test('keeps reduced-motion and normal runs at the same final terrain state', asy
   await user.click(screen.getByRole('button', { name: 'Run erosion' }));
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-motion', 'off');
   expect(screen.getByTestId('erosion-after-geometry')).toHaveAttribute('data-shape', normal!);
-  expect(screen.getByTestId('erosion-after')).toHaveTextContent(/ice.*erosion/i);
+  expect(screen.getByLabelText('Erosion run record')).toHaveTextContent(/ice.*erosion/i);
   motion.reduced = false;
 });
 
@@ -241,10 +243,10 @@ test('requires a prediction, retains matched vegetation runs, and completes only
   await user.click(screen.getByRole('button', { name: 'Toggle vegetation' }));
   await user.click(run);
   expect(screen.getByTestId('erosion-run-covered')).toHaveTextContent(/covered vegetation/i);
-  expect(screen.getByRole('button', { name: /compare.*runs/i })).toBeEnabled();
+  expect(screen.queryByRole('button', { name: /compare.*runs/i })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button',{name:'Conclude bare tray moved more soil'}));
   expect(screen.getByRole('status')).toHaveTextContent(/compare.*bare.*covered/i);
 
-  await user.click(screen.getByRole('button', { name: /compare.*runs/i }));
   expect(screen.getByTestId('widget-erosion-simulator')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByRole('status')).toHaveTextContent(/matched.*vegetation/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);

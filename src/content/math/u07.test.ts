@@ -63,7 +63,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
-  'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Build 5/8 by adding two eighths.' } },
+  'math-u07-l01-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 8, numerator: 3, target: { numerator: 5, denominator: 8 }, allowEquivalent: false, task: 'change', taskPrompt: 'Start with 3/8 and add two eighths. What amount do you build?' } },
   'math-u07-l02-c1': { type: 'fraction-models', config: { mode: 'bars', denominator: 4, numerator: 0, target: { numerator: 3, denominator: 4 }, allowEquivalent: false, task: 'groups', taskPrompt: 'Build 3/4 from unit fractions.' } },
   'math-u07-l03-c1': { type: 'fraction-models', config: { mode: 'circles', denominator: 6, numerator: 0, target: { numerator: 5, denominator: 6 }, allowEquivalent: false, task: 'share', taskPrompt: 'Share 5 whole units among 6 learners.' } },
 } as const;

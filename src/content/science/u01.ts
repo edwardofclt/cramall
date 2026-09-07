@@ -99,36 +99,36 @@ const scienceU01L04Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          {
-            "speaker": "guide",
-            "pose": "talk",
-            "text": "Keep the coaster cars, track, ramp angle, and Cart B alike while you change only Cart A speed; this screen models a prediction, not physical evidence from real carts."
-          },
-          {
-            "speaker": "kid",
-            "text": "I will predict, watch the before-and-after motion, and compare both modeled runs."
-          }
-        ],
-        "reactions": {
-          "strategy": {
-            "text": "A fair test changes one condition at a time, so keep the locked setup values alike.",
-            "pose": "think"
-          },
-          "retry": {
-            "text": "Read the visible before-and-after motion and revise your prediction for the next run.",
-            "pose": "oops"
-          },
-          "milestone": {
-            "text": "Run 1 is a useful model result; now change only Cart A speed for a fair comparison.",
-            "pose": "talk"
-          },
-          "complete": {
-            "text": "You compared two modeled collision runs and connected the motion changes to a fair test.",
-            "pose": "cheer"
-          }
-        }
-      },
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Keep the carts and track the same. Let’s change one cart’s speed and compare two modeled bumps."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll predict each run, then compare how the joined carts move."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Keep all but one setup condition fixed for a fair comparison.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Compare the saved runs. Use their motion to revise your idea.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "You saved a modeled comparison. Use the motion changes to explain your idea.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You compared modeled motion and explained how observations could support an energy-transfer idea.",
+      "pose": "cheer"
+    }
+  }
+},
       "check": {
         "prompt": "Which roller coaster plan asks a fair, testable collision question?",
         "choices": [

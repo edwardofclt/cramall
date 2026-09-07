@@ -33,14 +33,14 @@ export const unit12Lessons = [
         widget: { type: 'data-plot-builder', config: { kind: 'bar', prompt: 'Build the class pet survey bar graph.', categories: ['dog', 'cat', 'fish'], target: { dog: 8, cat: 6, fish: 4 }, sourceData: { dog: 8, cat: 6, fish: 4 }, displayChoices: ['bar', 'dot'], taskPrompt: 'Build the class pet survey bar graph from the source table.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Use the source table to build a bar graph: dog 8, cat 6, and fish 4.' },
-            { speaker: 'kid', text: 'I will match each labeled bar to its category count instead of guessing from height.' },
+            { speaker: 'guide', pose: 'think', text: 'Turn the pet survey table into a bar graph. Keep each bar connected to its source count.' },
+            { speaker: 'kid', text: 'I will choose the graph setup, build the bars, and use them to compare two categories.' },
           ],
           reactions: {
-            strategy: { text: 'Compare one bar with its source-table count, then choose the next category to match.', pose: 'think' },
-            retry: { text: 'That bar no longer matches the source table. Reread the category and count before adjusting.', pose: 'oops' },
-            milestone: { text: 'One category is moving toward its source count—keep matching the table.', pose: 'cheer' },
-            complete: { text: 'Your bar graph displays dog 8, cat 6, and fish 4 from the source data.', pose: 'cheer' },
+            strategy: { text: 'Use the source table to make the next setup or graph decision.', pose: 'think' },
+            retry: { text: 'Check the current task: compare the display, bar height, or difference with the source and scale.', pose: 'oops' },
+            milestone: { text: 'Your check connects the graph with its source counts.', pose: 'think' },
+            complete: { text: 'Your bar graph matches the source data, and your comparison uses the difference between two bar heights.', pose: 'cheer' },
           },
         },
       },
@@ -180,14 +180,14 @@ export const unit12Lessons = [
         widget: { type: 'probability-spinner', config: { segments: [{ id: 'red', label: 'Red', weight: 2, color: '#ef4444' }, { id: 'blue', label: 'Blue', weight: 1, color: '#3b82f6' }, { id: 'green', label: 'Green', weight: 1, color: '#22c55e' }], trials: 8, eventQuestion: { eventLabel: 'red', classification: 'possible' }, taskPrompt: 'Predict, run eight trials, and classify landing on red.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'The sample space is red, blue, and green; red has two equal sections, but one spin is still random.' },
-            { speaker: 'kid', text: 'I will make a prediction, run all eight trials, then classify landing on red from the sample space.' },
+            { speaker: 'guide', pose: 'think', text: 'This spinner has three possible colors. Predict one, then collect eight results.' },
+            { speaker: 'kid', text: 'I will keep my prediction and use the full wheel to decide whether landing on red is certain, possible, or impossible.' },
           ],
           reactions: {
-            strategy: { text: 'Make a prediction from the labeled sample space, then let each trial add evidence without treating one result as a guarantee.', pose: 'think' },
-            retry: { text: 'Reread the sample space: red is listed but not the only outcome, so landing on red is possible.', pose: 'oops' },
-            milestone: { text: 'Your first trial is recorded. Keep running the planned trials before classifying the event.', pose: 'cheer' },
-            complete: { text: 'You used the full sample space to classify landing on red as possible; the random results were evidence, not a guarantee.', pose: 'cheer' },
+            strategy: { text: 'Your prediction is saved. Each spin adds one result to the record.', pose: 'think' },
+            retry: { text: 'Check whether the wheel allows the event on every section, some sections, or no sections.', pose: 'oops' },
+            milestone: { text: 'Your first spin is recorded. Keep collecting the planned eight results.', pose: 'think' },
+            complete: { text: 'You classified landing on red as possible from the full wheel. A short random record does not guarantee the next spin.', pose: 'cheer' },
           },
         },
       },

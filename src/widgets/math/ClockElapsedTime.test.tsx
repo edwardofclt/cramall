@@ -27,6 +27,9 @@ test('elapsed jumps retain their timeline and hide the target until exact comple
       onEvent={onEvent}
     />,
   );
+  await user.type(screen.getByRole('textbox', { name: 'My predicted ending time' }), '10:00 AM');
+  await user.click(screen.getByRole('button', { name: 'Save prediction' }));
+
 
   expect(screen.queryByText('9:35 AM')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Add 15 minutes' })).toBeEnabled();
@@ -53,6 +56,9 @@ test('elapsed jumps disable overshoots, name the remaining interval, and complet
       onEvent={onEvent}
     />,
   );
+  await user.type(screen.getByRole('textbox', { name: 'My predicted ending time' }), '10:00 AM');
+  await user.click(screen.getByRole('button', { name: 'Save prediction' }));
+
 
   await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
   await user.click(screen.getByRole('button', { name: 'Add 15 minutes' }));
@@ -87,6 +93,9 @@ test('elapsed jumps offer an accessible final remainder for targets outside the 
       onEvent={onEvent}
     />,
   );
+  await user.type(screen.getByRole('textbox', { name: 'My predicted ending time' }), '10:00 AM');
+  await user.click(screen.getByRole('button', { name: 'Save prediction' }));
+
 
   await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
   const remainder = screen.getByRole('button', { name: 'Add remaining 2 minutes' });
@@ -108,6 +117,9 @@ test('a zero-minute elapsed interval has an explicit completion action', async (
       onEvent={onEvent}
     />,
   );
+  await user.type(screen.getByRole('textbox', { name: 'My predicted ending time' }), '10:00 AM');
+  await user.click(screen.getByRole('button', { name: 'Save prediction' }));
+
 
   await user.click(screen.getByRole('button', { name: 'Complete 0-minute interval' }));
   expect(screen.getByTestId('widget-clock-elapsed-time')).toHaveAttribute('data-complete', 'yes');
@@ -124,6 +136,9 @@ test('reset after completion clears progress without replaying completion or ret
       onEvent={onEvent}
     />,
   );
+  await user.type(screen.getByRole('textbox', { name: 'My predicted ending time' }), '10:00 AM');
+  await user.click(screen.getByRole('button', { name: 'Save prediction' }));
+
 
   await user.click(screen.getByRole('button', { name: 'Add 5 minutes' }));
   await user.click(screen.getByRole('button', { name: 'Start over' }));

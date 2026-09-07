@@ -34,13 +34,13 @@ export const unit06Lessons = [
         widget: { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, task: 'equivalent', comparisonTarget: { numerator: 1, denominator: 2 }, taskPrompt: 'Build 1/2 with fourths.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Build one half with four equal parts, then use the model to see why two fourths names the same amount.' },
-            { speaker: 'kid', text: 'I will shade the parts and compare the covered amount with one half.' },
+            { speaker: 'guide', pose: 'think', text: 'Can fourth-size pieces cover the same amount as one half?' },
+            { speaker: 'kid', text: 'I will build with fourths and compare the shaded amounts on equal-sized wholes.' },
           ],
           reactions: {
-            strategy: { text: 'Compare the shaded amount with one half before choosing another part.', pose: 'think' },
-            retry: { text: 'That choice changed the amount. Keep the whole fixed and compare the shaded parts again.', pose: 'oops' },
-            milestone: { text: 'Nice—the shaded model is moving toward one half.', pose: 'cheer' },
+            strategy: { text: 'Compare how much is shaded, keeping the whole the same size.', pose: 'think' },
+            retry: { text: 'Keep the whole fixed and compare the shaded amounts again.', pose: 'oops' },
+            milestone: { text: 'Your comparison connects different equal parts to the same amount.', pose: 'think' },
             complete: { text: 'You built 2/4, an equivalent model for 1/2.', pose: 'cheer' },
           },
         },
@@ -239,14 +239,14 @@ export const unit06Lessons = [
         widget: { type: 'number-line-compare', config: { min: 0, max: 2, a: 0.5, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Use the benchmark line to compare one half and one whole plus one half.' },
-            { speaker: 'kid', text: 'I will locate both fractions and use their positions to choose a symbol.' },
+            { speaker: 'guide', pose: 'think', text: 'Use the number line to compare fractions on both sides of one whole.' },
+            { speaker: 'kid', text: 'I will locate both markers and choose a symbol using their positions.' },
           ],
           reactions: {
-            strategy: { text: 'Count fourths between the landmarks: 1/2 is two fourths, while 1 1/2 is farther right.', pose: 'think' },
-            retry: { text: 'Check which marker is farther right, and make sure both fractions name the same-sized parts.', pose: 'oops' },
-            milestone: { text: 'Great—the line is showing how a fraction greater than one sits past the whole.', pose: 'cheer' },
-            complete: { text: 'You compared the fractions by their locations and benchmarks, not just by their symbols.', pose: 'cheer' },
+            strategy: { text: 'Count equal fourth-size spaces between the labeled landmarks.', pose: 'think' },
+            retry: { text: 'Compare the marker positions using the same-sized spaces.', pose: 'oops' },
+            milestone: { text: 'The whole-number landmarks help locate fractions greater than one.', pose: 'think' },
+            complete: { text: 'You compared the fractions by their locations and benchmarks.', pose: 'cheer' },
           },
         },
       },

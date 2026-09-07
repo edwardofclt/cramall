@@ -1,3 +1,6 @@
+import LengthComparison from './LengthComparison';
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useState } from 'react';
 import {
   compareExactDecimals,
@@ -44,7 +47,11 @@ function beamEvidence(relation: Relation) {
   return 'The beam is level.';
 }
 
-export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-scale'>) {
+export default function BalanceScale(props: WidgetProps<'balance-scale'>) {
+  return props.config.lengthModel ? <LengthComparison {...props} /> : <WeightBalance {...props} />;
+}
+
+function WeightBalance({ config, onEvent }: WidgetProps<'balance-scale'>) {
   const key = JSON.stringify(config);
   const task = config.task ?? 'compare';
   const all = [...config.left, ...config.right];
@@ -144,12 +151,12 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
 
   return (
     <section
-      className="card widget-experiment balance"
+      className="card widget-experiment balance activity-shell math-activity"
       data-testid="widget-balance-scale"
       data-state={completed ? 'complete' : task === 'compare' ? 'comparing' : 'making-equal'}
       data-complete={completed ? 'yes' : 'no'}
     >
-      <div className="balance-model" role="group" aria-label={relationCommitted
+<ActivityWorkbench label="Compare the two sides" visual={<><div className="balance-model" role="group" aria-label={relationCommitted
         ? `Balance scale. Left total ${value.leftTotal}; right total ${value.rightTotal}. ${relationText(truth)}`
         : `Balance scale. Qualitative evidence only: ${beamEvidence(truth)} Watch the beam before committing your comparison.`}>
         <div className="balance-pans">
@@ -161,12 +168,12 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
           <div className="balance-fulcrum" />
         </div>
       </div>
-      <p className="balance-relation">
+<p className="balance-relation">
         {relationCommitted
           ? <><strong>{value.leftTotal} {truth === 'left' ? '>' : truth === 'right' ? '<' : '='} {value.rightTotal}</strong> — {relationText(truth)}</>
           : <>Watch the beam: {beamEvidence(truth)} Choose a relation, then check your idea.</>}
       </p>
-      {task === 'compare' ? (
+{task === 'compare' ? (
         <div className="balance-relation-controls" aria-label="Choose the relationship between the pans">
           <button aria-label="Left is heavier" aria-pressed={selectedRelation === 'left'} onClick={() => chooseRelation('left')}>Left</button>
           <button aria-label="Balanced" aria-pressed={selectedRelation === 'equal'} onClick={() => chooseRelation('equal')}>Balanced</button>
@@ -174,9 +181,10 @@ export default function BalanceScale({ config, onEvent }: WidgetProps<'balance-s
         </div>
       ) : (
         <button className="balance-check" aria-label="Check balance" onClick={checkBalance}>Check balance</button>
-      )}
-      <button className="balance-reset" onClick={reset}>Start over</button>
-      <p role="status">{status}</p>
-    </section>
+      )}</>}>
+<button className="balance-reset" onClick={reset}>Start over</button>
+<p role="status">{status}</p>
+</ActivityWorkbench>
+</section>
   );
 }

@@ -118,8 +118,8 @@ test('shows the fraction goal and meaningful progress cues', async () => {
   await user.click(screen.getByRole('button', { name: 'Shade part 4 of 8' }));
   await user.click(screen.getByRole('button', { name: 'Shade part 1 of 8' }));
 
-  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'milestone' });
-  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'retry' });
+  expect(onEvent.mock.calls.map(([event]) => event)).toContainEqual({ type: 'coach', cue: 'strategy' });
+  expect(onEvent.mock.calls.map(([event]) => event)).not.toContainEqual({ type: 'coach', cue: 'retry' });
 });
 
 test('shows equivalent fractions as side-by-side equal-sized wholes', () => {
@@ -163,7 +163,7 @@ test('renders multiple wholes without hiding an improper fraction', () => {
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('1 whole and 1/4');
 });
 
-test('makes the start, change, and result visible for an operation model', () => {
+test('shows the start and change while leaving the result for the learner to build', () => {
   render(
     <FractionModels
       config={{
@@ -181,7 +181,8 @@ test('makes the start, change, and result visible for an operation model', () =>
   const equation = screen.getByTestId('fraction-equation');
   expect(equation).toHaveTextContent('Start: 3/8');
   expect(equation).toHaveTextContent('Change: +2/8');
-  expect(equation).toHaveTextContent('Result: 5/8');
+  expect(equation).toHaveTextContent('Current: 3/8');
+  expect(equation).not.toHaveTextContent('5/8');
 });
 
 test('explains fair-sharing distribution and exposes add/remove controls', async () => {
@@ -201,7 +202,8 @@ test('explains fair-sharing distribution and exposes add/remove controls', async
   );
 
   expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('5 whole units');
-  expect(screen.getByTestId('fair-share-distribution')).toHaveTextContent('Each learner receives 5/6');
+  expect(screen.getByTestId('fair-share-distribution')).not.toHaveTextContent('Each learner receives 5/6');
+  expect(screen.getByLabelText('Pieces left to share')).toHaveTextContent('30');
   expect(screen.getAllByTestId('fair-share-recipient')).toHaveLength(6);
   expect(screen.getAllByTestId('fair-share-unit')).toHaveLength(36);
   await user.click(screen.getByRole('button', { name: 'Add one part' }));
@@ -209,7 +211,7 @@ test('explains fair-sharing distribution and exposes add/remove controls', async
   expect(screen.getAllByTestId('fair-share-unit').filter((unit) => unit.getAttribute('data-state') === 'distributed')).toHaveLength(6);
   await user.click(screen.getByRole('button', { name: 'Remove one part' }));
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('0/6');
-  await user.click(screen.getByRole('button', { name: 'Shade part 5 of 6' }));
+  for (let i = 0; i < 5; i++) await user.click(screen.getByRole('button', { name: 'Add one part' }));
   expect(screen.getByTestId('widget-fraction-models')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByTestId('fraction-total')).toHaveTextContent('Fraction complete.');
   expect(screen.getByTestId('fair-share-state')).toHaveTextContent('Each learner receives an equal 5/6 share');

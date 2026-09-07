@@ -170,6 +170,8 @@ test('requires an internal and external match to be connected as one cooperating
   expect(screen.getByTestId('animal-system-map')).toHaveTextContent(/external.*internal/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
 
+  await user.click(screen.getByRole('button',{name:'Use beak in the system'}));
+  await user.click(screen.getByRole('button',{name:'Use lungs in the system'}));
   await user.click(screen.getByRole('button', { name: /connect cooperating system/i }));
   expect(screen.getByTestId('widget-animal-structure-matcher')).toHaveAttribute('data-state', 'complete');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);

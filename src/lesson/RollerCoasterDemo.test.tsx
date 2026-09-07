@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import type { InstructionalDemo, LearnCard as LearnCardData } from '../content/schema';
 import { LearnCard } from './LearnCard';
+import { RollerCoasterDemo } from './RollerCoasterDemo';
 
 const motionPreference = vi.hoisted(() => ({ reduced: false }));
 vi.mock('../app/useReducedMotionPref', () => ({
@@ -19,15 +20,11 @@ function renderDemo(
   focus: InstructionalDemo['focus'],
   onWidgetEvent = vi.fn(),
 ) {
-  const onDialogueAnnouncement = vi.fn();
-  const renderCard = () => (
-    <LearnCard
-      card={{ ...baseCard, demo: { type: 'roller-coaster' as const, focus } }}
-      onWidgetEvent={onWidgetEvent}
-      onDialogueAnnouncement={onDialogueAnnouncement}
-    />
-  );
+  const renderCard = () => <RollerCoasterDemo focus={focus} />;
   const view = render(renderCard());
+  // Geometry tests begin after a neutral prediction; the real dialogue and prediction
+  // gate are covered in RollerCoasterGuide.test.tsx.
+  fireEvent.click(screen.getByRole('button', { name: 'The lower release' }));
   return {
     onWidgetEvent,
     ...view,
@@ -169,7 +166,7 @@ describe('roller-coaster instructional demo', () => {
     expect(vehicle).toHaveAttribute('transform', 'translate(493 203) rotate(0)');
     expect(within(demo).getByRole('status')).toHaveTextContent(/same car/i);
     expect(within(demo).getByRole('status')).toHaveTextContent(/same fixed near-bottom interval/i);
-    expect(within(demo).getByRole('status')).toHaveTextContent(/more slowly.*less kinetic energy/i);
+    expect(within(demo).getByRole('status')).toHaveTextContent(/more slowly.*model observation/i);
   });
 
   test('schedules a fresh browser CSS animation every time the same release is run', async () => {
@@ -220,7 +217,7 @@ describe('roller-coaster instructional demo', () => {
 
     expect(demo).toHaveAttribute('data-run', 'higher');
     expect(within(demo).getByRole('status')).toHaveTextContent(
-      /same fixed near-bottom interval faster.*more kinetic energy/i,
+      /same fixed near-bottom interval faster/i,
     );
 
     await user.click(within(demo).getByRole('button', { name: 'Reset' }));
@@ -231,7 +228,7 @@ describe('roller-coaster instructional demo', () => {
     );
   });
 
-  test('frames model observations as Claim, Evidence, and Reasoning without calling them experimental evidence', async () => {
+  test('reports model observations without supplying the learner’s explanation', async () => {
     const user = userEvent.setup();
     renderDemo('evidence');
     const demo = screen.getByRole('region', { name: /interactive roller-coaster model/i });
@@ -246,9 +243,9 @@ describe('roller-coaster instructional demo', () => {
     fireEvent.animationEnd(vehicle!);
 
     const result = within(demo).getByRole('status');
-    expect(result).toHaveTextContent(/claim:/i);
-    expect(result).toHaveTextContent(/model observation:.*fixed near-bottom interval faster/i);
-    expect(result).toHaveTextContent(/reasoning:.*same car.*more kinetic energy/i);
+    expect(result).toHaveTextContent(/fixed near-bottom interval faster/i);
+    expect(result).toHaveTextContent(/model observation.*not real experimental evidence/i);
+    expect(result).not.toHaveTextContent(/claim:|reasoning:/i);
   });
 
   test('shows the higher-release marble moving the foam block farther after a safe collision', async () => {
@@ -271,7 +268,7 @@ describe('roller-coaster instructional demo', () => {
     expect(demo).toHaveAttribute('data-phase', 'complete');
     expect(demo).toHaveAttribute('data-block-distance', 'shorter');
     expect(within(demo).getByRole('status')).toHaveTextContent(
-      /foam block moved a shorter distance.*some energy of motion transferred/i,
+      /foam block moved a shorter distance.*qualitative model/i,
     );
     const firstLowerBlock = within(demo)
       .getByTestId('roller-coaster-scene')
@@ -296,7 +293,7 @@ describe('roller-coaster instructional demo', () => {
     fireEvent.animationEnd(higherBlock!);
     expect(demo).toHaveAttribute('data-block-distance', 'farther');
     expect(within(demo).getByRole('status')).toHaveTextContent(
-      /foam block moved farther.*more energy of motion transferred/i,
+      /foam block moved farther.*qualitative model/i,
     );
   });
 

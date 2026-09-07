@@ -1,0 +1,134 @@
+.science-scene { display:block; width:100%; max-height:330px; flex:1 1 auto; min-height:110px; }
+.science-scene text,.science-tray text { font: 14px system-ui,sans-serif; fill:#274f53; }
+.science-tray { width:100%; max-height:170px; }
+.science-activity .science-feedback { border:1px solid #a7c5bb; border-radius:14px; padding:.8rem; background:#f1f7ef; margin:.65rem 0; }
+.science-activity .science-feedback h4 { margin:0 0 .35rem; }
+.science-activity .science-feedback p { margin:.25rem 0; }
+.science-activity .science-choice-row {display:flex; flex-wrap:wrap; gap:.5rem;}
+.science-activity .science-received {display:flex; gap:.6rem; flex-wrap:wrap; padding:1rem; border-radius:15px; background:#e5eee8;}
+.science-activity .science-signal {display:inline-grid;place-items:center;min-width:38px;min-height:38px;border:2px solid #527477;border-radius:9px; background:#f5dda0; font-weight:800;}
+.science-activity .science-received[data-sent="yes"] .science-signal {animation:science-signal-arrive .5s both;}
+.science-activity .wave-before {stroke:#9aa99f;stroke-width:1;stroke-dasharray:2 2;fill:none;}
+.science-activity .wave-marker {fill:#d29143;stroke:#6e5138;stroke-width:1;}
+.science-activity .topographic-plotted-point circle[data-selected="yes"] {fill:#f2ce74;stroke:#245d64;stroke-width:2;}
+.science-activity .map-selection-link {stroke:#367980;stroke-width:1.5;stroke-dasharray:3 2;fill:none;}
+.science-activity .rock-layer {position:relative;background-image:repeating-linear-gradient(7deg,transparent,transparent 14px,#87694622 15px,#87694622 17px);}
+.science-activity .rock-fossils {font-size:1.4rem;letter-spacing:.8rem;color:#775f42;}
+.science-activity .resource-icon {display:block;font-size:2.6rem;line-height:1.2;}
+.science-activity .conversion-node,.science-activity .selected-energy-slot {min-width:0;max-width:100%;}
+.science-activity .conversion-chain,.science-activity .selected-energy-path {flex-wrap:wrap;}
+.science-activity .science-selection-summary {padding:.65rem;border:1px dashed #75988d;border-radius:12px;}
+.science-motor-turn {transform-origin:386px 179px;animation:science-rotate 1.1s linear 3;}
+.science-crank-turn {transform-origin:102px 175px;animation:science-rotate 1.1s linear 3;}
+.science-buzzer-tremble {animation:science-tremble .12s alternate 16;}
+.science-soil-grain {animation:science-soil .65s ease-out both;}
+@keyframes science-rotate {to{transform:rotate(360deg)}}
+@keyframes science-tremble {to{transform:translateX(2px)}}
+@keyframes science-soil {from{transform:translate(-45px,-18px)}to{transform:translate(0,0)}}
+@keyframes science-signal-arrive {from{opacity:.35}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.science-motor-turn,.science-crank-turn,.science-buzzer-tremble,.science-soil-grain,.science-activity .science-received[data-sent="yes"] .science-signal{animation:none}}
+.science-activity .science-model-label {font-size:.82rem;margin:.3rem 0 .5rem;line-height:1.3;color:#496d69;}
+.science-activity .activity-workbench-visual > header h3 {font-size:1.12rem;line-height:1.25;margin:0;}
+.science-activity .science-model-notes {font-size:.86rem;line-height:1.45;border-top:1px solid #bfd0c7;padding-top:.7rem;}
+.science-activity .science-model-notes summary {cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center;}
+.science-activity .science-resource-board {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.45rem;}
+.science-activity .science-resource-board .science-feedback {padding:.45rem;overflow-wrap:anywhere;font-size:.8rem;}
+.science-activity .science-resource-board .science-feedback p {font-size:.76rem;}
+.science-activity .science-resource-board .resource-icon {font-size:2rem;}
+.science-activity .activity-workbench-visual .topographic-model {display:block;}
+.science-activity .activity-workbench-visual .topographic-contours {margin:0;}
+.science-activity .activity-workbench-visual .topographic-contours svg {max-height:290px;width:100%;}
+.science-activity .activity-workbench-visual .topographic-contours figcaption {font-size:.75rem;line-height:1.2;}
+.science-activity .activity-workbench-visual .topographic-elevation-key {padding:.4rem;margin-top:.3rem;}
+.science-activity .activity-workbench-visual .topographic-elevation-key h4 {font-size:.85rem;margin:0;}
+.science-activity .activity-workbench-visual .topographic-elevation-key ul {font-size:.78rem;margin:.25rem 0;padding-left:1rem;}
+.science-activity .activity-workbench-visual .wave-values,.science-activity .activity-workbench-visual .wave-targets {font-size:.8rem;padding:.35rem;margin:.3rem 0;}
+.science-activity .activity-workbench-visual .wave-targets > span:last-child {display:none;}
+.science-activity .activity-workbench-visual .wave-graph {min-height:0;height:240px;}
+.science-activity .activity-workbench-visual .light-diagram {min-height:0;height:310px;}
+.science-activity .activity-workbench-visual .rock-layer-stack {gap:.7rem;}
+.science-activity .activity-workbench-visual .rock-layer {padding:.6rem;font-size:.85rem;}
+.science-activity .activity-workbench-visual .rock-fossils {font-size:1.15rem;}
+.science-activity .activity-workbench-visual .erosion-comparison {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem;}
+.science-activity .activity-workbench-visual .erosion-terrain {padding:.3rem;min-height:0;}
+.science-activity .activity-workbench-visual .erosion-terrain figcaption {font-size:.8rem;line-height:1.3;min-height:0;}
+.science-activity .activity-workbench-visual .terrain-art {padding:0;min-height:0;background:none;}
+.science-activity .activity-workbench-visual .collision-task,.science-activity .activity-workbench-visual .collision-locked,.science-activity .activity-workbench-visual .collision-quantities {font-size:.8rem;line-height:1.3;padding:.3rem;margin:.4rem 0;}
+@media(max-width:700px){
+ .science-activity .activity-workbench-visual .science-scene {max-height:180px;}
+ .science-activity .activity-workbench-visual > p {font-size:.77rem;line-height:1.3;margin:.35rem 0;}
+ .science-activity .activity-workbench-visual .topographic-contours svg {max-height:175px;}
+ .science-activity .activity-workbench-visual .wave-graph {height:155px;}
+ .science-activity .activity-workbench-visual .light-diagram {height:205px;}
+ .science-activity .activity-workbench-visual .message-reference {padding:.35rem;margin:.3rem 0;}
+ .science-activity .activity-workbench-visual .message-reference h4 {font-size:.85rem;margin:0;}
+ .science-activity .activity-workbench-visual .message-reference ul {font-size:.8rem;margin:.25rem 0;}
+ .science-activity .activity-workbench-visual .science-feedback {padding:.45rem;margin:.35rem 0;}
+ .science-activity .activity-workbench-visual .science-feedback h4 {font-size:.9rem;}
+ .science-activity .activity-workbench-visual .science-feedback p {font-size:.75rem;line-height:1.2;}
+ .science-activity .activity-workbench-visual .science-received {padding:.35rem;gap:.3rem;}
+ .science-activity .activity-workbench-visual .science-signal {min-width:24px;min-height:30px;}
+ .science-activity .activity-workbench-visual .collision-locked {display:none;}
+}
+.science-activity .activity-workbench-visual .light-diagram svg {height:100%;max-height:100%;}
+.science-activity .activity-workbench-visual .wave-graph svg {height:100%;min-height:0;max-height:100%;}
+@media(max-width:700px){
+ .science-activity .activity-workbench-visual .topographic-contours {padding:.35rem;gap:.2rem;}
+ .science-activity .activity-workbench-visual .topographic-contours svg {block-size:145px;min-block-size:0;max-block-size:145px;}
+ .science-activity .activity-workbench-visual .topographic-elevation-key {display:block;padding:.25rem;}
+ .science-activity .activity-workbench-visual .topographic-elevation-key ul {gap:0;}
+ .science-activity .activity-workbench-visual .rock-layer-stack {gap:.35rem;}
+ .science-activity .activity-workbench-visual .rock-layer {padding:.35rem;gap:.1rem;font-size:.8rem;line-height:1.2;}
+ .science-activity .activity-workbench-visual .rock-fossils {font-size:1rem;line-height:1;}
+ .science-activity .activity-workbench-visual .hazard-context {padding:.3rem;}
+ .science-activity .activity-workbench-visual .hazard-context h4 {font-size:.9rem;}
+ .science-activity .activity-workbench-visual .science-selection-summary {padding:.35rem;}
+}
+.science-scene text[fill="white"] {fill:#fff;}
+
+/* Keep every control readable within the task column, including desktop split panes. */
+.science-activity .activity-workbench-tasks button {
+  min-width: 0; max-width: 100%; min-height: 44px; padding: 10px 12px;
+  border: 2px solid #597a73; border-radius: 12px; background: #fffef9;
+  color: #294a43; font: inherit; font-weight: 700; line-height: 1.4;
+  white-space: normal; overflow-wrap: normal; box-shadow: none;
+}
+.science-activity .activity-workbench-tasks button[aria-pressed="true"] {
+  background: #eee7d4; outline: none; box-shadow: inset 4px 0 #8c7746;
+}
+.science-activity .activity-workbench-tasks button:focus-visible {
+  outline: 3px solid #8d661e; outline-offset: 3px;
+}
+.science-activity .science-feedback { background: #fffef9; }
+.science-activity .activity-workbench-tasks :is(.transfer-group,.conversion-node,.conversion-constraints,.animal-structure-card,.animal-function-card,.rock-evidence,.resource-item-card,.resource-bin,.hazard-solution-card,.collision-run-card,.collision-compare-choices,.erosion-retained-runs,.message-entry,.message-reference) {
+  border-color: #9ab5ab; border-width: 1px; border-radius: 14px;
+}
+.science-activity .transfer-model { display: grid; grid-template-columns: 1fr; overflow: visible; gap: 10px; }
+.science-activity .transfer-group { min-width: 0; grid-template-columns: 1fr; padding: 12px; }
+.science-activity .transfer-arrow { display: none; }
+.science-activity .message-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.science-activity .message-controls > button:last-child { grid-column: 1 / -1; }
+.science-activity .erosion-controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.science-activity .erosion-controls > button:last-child { grid-column: 1 / -1; }
+.science-activity .collision-compare-choices { grid-template-columns: 1fr; }
+.science-activity .science-feedback > button { display: block; width: 100%; margin-top: 8px; text-align: left; }
+.science-activity .activity-workbench-tasks [data-outcome="retry"] { color: #75480f; border: 1px solid #bf8b3b; background: #fff0cf; padding: 10px; border-radius: 12px; }
+.science-activity .activity-workbench-tasks [data-outcome="correct"] { color: #245445; border: 1px solid #739b85; background: #e6f1e5; padding: 10px; border-radius: 12px; }
+.science-activity .collision-track-viewport { overflow: visible; }
+.science-activity .comparison-track { min-width: 0; width: 100%; grid-template-columns: minmax(0,1fr) 45px minmax(0,1fr); gap: 8px; padding: 22px 12px 38px; background: #eaf1eb; }
+.science-activity .comparison-track::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 28px; height: 6px; border-radius: 3px; background: #718b86; }
+.science-activity .comparison-track .collision-cart { padding: 10px 4px; min-width: 0; border: 2px solid #55756f; border-radius: 12px 12px 5px 5px; background: #dbe8df; font-size: .8rem; }
+.science-activity .comparison-track .collision-cart-b { background: #eddfbd; }
+.science-activity .comparison-track .collision-cart::before,.science-activity .comparison-track .collision-cart::after { content: ''; position: absolute; width: 15px; height: 15px; bottom: -13px; border-radius: 50%; border: 4px solid #465b58; background: #b5c3b7; }
+.science-activity .comparison-track .collision-cart::before { left: 8px; }
+.science-activity .comparison-track .collision-cart::after { right: 8px; }
+.science-activity .comparison-track .collision-cart b { font-size: .85rem; }
+.science-activity .comparison-track .collision-point { min-width: 0; padding: 5px 0; border: 0; background: transparent; }
+.science-activity .comparison-track .collision-point span { font-size: .65rem; }
+.science-resource-object { display: block; width: 100%; height: 78px; }
+.science-activity .resource-bins { grid-template-columns: 1fr; gap: 8px; }
+.science-activity .resource-bin { min-block-size: 0; padding: 0; border: 0; background: transparent; }
+.science-activity .resource-bin > strong { display: none; }
+.science-activity .resource-item-card .resource-bins { padding: 10px; background: #f0eee2; border-radius: 12px; }
+.science-activity .science-resource-board .science-feedback { margin-top: 0; }
+.science-activity .collision-predictions > button:last-child { grid-column: 1 / -1; }

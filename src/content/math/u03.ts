@@ -24,13 +24,13 @@ export const unit03Lessons = [
         widget: { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true, task: 'factor-hunt', taskPrompt: 'Find every factor pair for 24.' } },
         widgetCoach: {
           intro: [
-            { speaker: 'guide', pose: 'think', text: 'Build arrays that make 24, then record each factor pair in order.' },
-            { speaker: 'kid', text: 'I will treat 2 × 12 and 12 × 2 as the same pair.' },
+            { speaker: 'guide', pose: 'think', text: 'Arrange 24 counters into equal rows. How many different factor pairs can you find?' },
+            { speaker: 'kid', text: 'I will change the rows and columns and record each new pair.' },
           ],
           reactions: {
-            strategy: { text: 'Try a row count that divides 24, then check the matching columns.', pose: 'think' },
-            retry: { text: 'That array does not make a new factor pair for 24. Check the product and try again.', pose: 'oops' },
-            milestone: { text: 'Nice! You found a new unique pair for 24.', pose: 'cheer' },
+            strategy: { text: 'Try a row count, then check whether equal columns make 24.', pose: 'think' },
+            retry: { text: 'Check the product and your record. A reversed pair is still the same factor pair.', pose: 'oops' },
+            milestone: { text: 'You recorded a new factor pair. Compare it with the arrays already found.', pose: 'think' },
             complete: { text: 'You found every factor pair for 24 without counting reversed pairs twice.', pose: 'cheer' },
           },
         },

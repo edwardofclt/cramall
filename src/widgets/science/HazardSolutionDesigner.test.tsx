@@ -127,7 +127,7 @@ test('shows every hazard tradeoff and completes a reasoned impact plan without e
   render(<HazardSolutionDesigner config={reasonedConfig} onEvent={onEvent} />);
 
   expect(screen.getByText('redirects some water')).toBeInTheDocument();
-  expect(screen.getByText('water near homes')).toBeInTheDocument();
+  expect(screen.queryByText('water near homes')).not.toBeInTheDocument();
   expect(screen.getByText('needs land and maintenance')).toBeInTheDocument();
   expect(screen.getByText('can trap water')).toBeInTheDocument();
 

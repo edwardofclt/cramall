@@ -95,17 +95,36 @@ const scienceU08L01Core = {
         }
       },
       "widgetCoach": {
-          "intro": [
-            { "speaker": "guide", "pose": "talk", "text": "Sort each resource by its lesson category, then connect it to how its supply behaves." },
-            { "speaker": "kid", "text": "I’ll place each one, then explain whether it is replenished or limited." }
-          ],
-          "reactions": {
-            "strategy": { "pose": "think", "text": "Start with the category, then use the lesson fact about replenished or limited supply." },
-            "retry": { "pose": "oops", "text": "Check the lesson source note again: renewable resources replenish; fossil fuels have limited supplies." },
-            "milestone": { "pose": "talk", "text": "Your categories fit. Now connect each resource to the effect the lesson describes." },
-            "complete": { "pose": "cheer", "text": "You connected resource categories to lesson-based supply effects." }
-          }
-        }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Resources are replaced at different rates, and using them can have effects."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll sort each resource or action, then connect a related effect."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Think about how the resource is replaced or what the action changes.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Recheck the item and revise its category or effect connection.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your category and effect connections are ready to compare.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected resource categories or conservation actions with their related effects.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u08-l01-c3",
@@ -526,17 +545,36 @@ const scienceU08L02Core = {
         }
       },
       "widgetCoach": {
-          "intro": [
-            { "speaker": "guide", "pose": "talk", "text": "Sort each resource or action, then connect it to the environmental effect in the lesson packet." },
-            { "speaker": "kid", "text": "I’ll revise my category or effect connection when the packet gives me a better reason." }
-          ],
-          "reactions": {
-            "strategy": { "pose": "think", "text": "Name the resource or action first, then connect one visible packet effect to it." },
-            "retry": { "pose": "oops", "text": "Use the packet facts: wind may affect wildlife, oil burning can pollute air, and conservation lowers demand." },
-            "milestone": { "pose": "talk", "text": "The categories are set. Connect each choice to the effect the lesson actually names." },
-            "complete": { "pose": "cheer", "text": "You connected resource use to a specific environmental effect without claiming zero impact." }
-          }
-        }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Resources are replaced at different rates, and using them can have effects."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll sort each resource or action, then connect a related effect."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Think about how the resource is replaced or what the action changes.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Recheck the item and revise its category or effect connection.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your category and effect connections are ready to compare.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected resource categories or conservation actions with their related effects.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u08-l02-c2",
@@ -1013,17 +1051,36 @@ const scienceU08L03Core = {
         }
       },
       "widgetCoach": {
-          "intro": [
-            { "speaker": "guide", "pose": "talk", "text": "Choose a protection for each hurricane impact, then inspect its strength and limit." },
-            { "speaker": "kid", "text": "I’ll connect the plan to impacts instead of hunting for a secret answer set." }
-          ],
-          "reactions": {
-            "strategy": { "pose": "think", "text": "Name the impact first: window damage and preparation time need different kinds of protection." },
-            "retry": { "pose": "oops", "text": "Use each card’s visible limit and connect a selected protection to every required impact." },
-            "milestone": { "pose": "talk", "text": "You covered the required impacts. Check the plan and remember that risk is reduced, not eliminated." },
-            "complete": { "pose": "cheer", "text": "You justified protections by their impacts, strengths, and limits; the plan reduces risk but cannot eliminate it." }
-          }
-        }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Different protections address different parts of a storm’s danger."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll build a plan, connect each protection to an impact, and check its limits."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare each protection’s job with the impact you want to reduce.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Revisit the mismatched protection or impact. Every protection still has limits.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your impact connections are ready for a plan check.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected protections with their impacts and kept the plan’s limits in view.",
+      "pose": "cheer"
+    }
+  }
+}
     }
   ],
   "workedExample": {
@@ -1444,17 +1501,36 @@ const scienceU08L04Core = {
         }
       },
       "widgetCoach": {
-          "intro": [
-            { "speaker": "guide", "pose": "talk", "text": "Compare each flood option by the impact it addresses, its strength, and its limit." },
-            { "speaker": "kid", "text": "I’ll build a plan that covers the impacts without pretending any choice removes all risk." }
-          ],
-          "reactions": {
-            "strategy": { "pose": "think", "text": "Start with the impact: water near homes needs a physical channel, while preparation time needs a warning." },
-            "retry": { "pose": "oops", "text": "Read the limits on the cards and connect selected protections to both required impacts." },
-            "milestone": { "pose": "talk", "text": "Both impacts are connected. Check the strengths and limits before you finish the plan." },
-            "complete": { "pose": "cheer", "text": "You justified a combined flood plan with visible strengths and limits; it reduces risk, not eliminates it." }
-          }
-        }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Different protections address different parts of a storm’s danger."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll build a plan, connect each protection to an impact, and check its limits."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Compare each protection’s job with the impact you want to reduce.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Revisit the mismatched protection or impact. Every protection still has limits.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your impact connections are ready for a plan check.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected protections with their impacts and kept the plan’s limits in view.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u08-l04-c3",

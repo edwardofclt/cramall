@@ -11,6 +11,7 @@ test('clamps steppers and emits ordered one-shot completion', async () => {
   render(<ArrayBuilder config={{ rows: 2, columns: 4, targetProduct: 12, editable: true }} onEvent={onEvent} />);
 
   await user.click(screen.getByRole('button', { name: 'Add one row' }));
+  await user.click(screen.getByRole('button', { name: 'Check my groups' }));
 
   expect(screen.getAllByRole('gridcell')).toHaveLength(12);
   expect(onEvent.mock.calls.slice(-3).map(([event]) => event)).toEqual([
@@ -22,9 +23,10 @@ test('clamps steppers and emits ordered one-shot completion', async () => {
   await user.click(screen.getByRole('button', { name: 'Remove one row' }));
   expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-state', 'building');
   expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-complete', 'no');
-  expect(screen.getByText('Adjust rows and columns.', { selector: 'p[role="status"]' })).toBeInTheDocument();
+  expect(screen.getByLabelText('Array check feedback')).toHaveTextContent('Your array changed.');
 
   await user.click(screen.getByRole('button', { name: 'Add one row' }));
+  await user.click(screen.getByRole('button', { name: 'Check my groups' }));
   expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-state', 'complete');
   expect(screen.getByTestId('widget-array-builder')).toHaveAttribute('data-complete', 'yes');
 
@@ -80,7 +82,7 @@ test('factor hunt keeps unique factor pairs instead of reversed duplicates', asy
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach' && event.cue === 'milestone')).toHaveLength(2);
 });
 
-test('division mode reveals the 936 ÷ 4 partial groups and remainder', async () => {
+test('division builds learner-chosen partial groups and retains the remainder', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
 
@@ -95,9 +97,10 @@ test('division mode reveals the 936 ÷ 4 partial groups and remainder', async ()
   expect(screen.getByText('Remainder: 936')).toBeInTheDocument();
   expect(screen.queryByText('800 ÷ 4 = 200')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: 'Share 800 into groups of 4' }));
-  await user.click(screen.getByRole('button', { name: 'Share 120 into groups of 4' }));
-  await user.click(screen.getByRole('button', { name: 'Share 16 into groups of 4' }));
+  for (const amount of ['200', '30', '4']) {
+    await user.type(screen.getByRole('spinbutton', { name: 'Amount for each group' }), amount);
+    await user.click(screen.getByRole('button', { name: 'Share into equal groups' }));
+  }
 
   expect(screen.getByText('800 ÷ 4 = 200')).toBeInTheDocument();
   expect(screen.getByText('120 ÷ 4 = 30')).toBeInTheDocument();

@@ -493,17 +493,36 @@ const scienceU06L02Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Match each wren structure to its job, then connect an external part with an internal part in the system map." },
-          { "speaker": "kid", "text": "I will explain how different structure jobs cooperate instead of leaving two isolated matches." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Sort outside structures from inside structures, then match each one to the function in the lesson.", "pose": "think" },
-          "retry": { "text": "Revisit the structure and function pair, then use one internal and one external match to explain cooperation.", "pose": "oops" },
-          "milestone": { "text": "Your pairs are ready to connect; look for the different jobs that support one animal system.", "pose": "talk" },
-          "complete": { "text": "You connected internal and external structures and explained how their different jobs cooperate in the animal system.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "A wren’s body parts do different jobs that help it live."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll connect each part to its job, then choose two parts that work together."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Think about what the selected body part helps the animal do.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Revisit that match or choose one internal and one external part from the same animal.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "Your matches are ready. Choose two structures for the cooperating system.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected the different jobs of an internal and an external structure.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u06-l02-c3",

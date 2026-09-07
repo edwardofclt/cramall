@@ -15,9 +15,11 @@ test('uses the effective Morse alphabet and emits send completion once', async (
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'send' },
     { type: 'change', value: { encoded: '.-' } },
-    { type: 'complete', value: { encoded: '.-', decoded: 'A' } },
+    { type: 'coach', cue: 'milestone' },
   ]);
+  await user.click(screen.getByRole('button', { name: 'Both ends use the same code' }));
   await user.click(screen.getByRole('button', { name: 'Send message' }));
+  await user.click(screen.getByRole('button', { name: 'Both ends use the same code' }));
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
 
@@ -51,6 +53,7 @@ test('keeps sent completion live when a correct code is edited', async () => {
   await user.click(screen.getByRole('button', { name: 'Add dot' }));
   await user.click(screen.getByRole('button', { name: 'Add dash' }));
   await user.click(screen.getByRole('button', { name: 'Send message' }));
+  await user.click(screen.getByRole('button', { name: 'Both ends use the same code' }));
   expect(screen.getByTestId('widget-message-sender')).toHaveAttribute('data-state', 'complete');
   await user.click(screen.getByRole('button', { name: 'Remove last symbol' }));
   expect(screen.getByTestId('widget-message-sender')).toHaveAttribute('data-state', 'encoding');

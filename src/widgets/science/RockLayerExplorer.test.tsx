@@ -22,41 +22,21 @@ test('renders the authored vertical stack order with ranks, artifacts, and the r
   expect(document.getElementById('rock-layer-convention')).toHaveTextContent(/not years or absolute ages/i);
 });
 
-test('selects before checking, permits correction, and completes only after checking the target once', async () => {
+test('checks a layer immediately, supports revision, and completes the target once', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
   render(<RockLayerExplorer config={{ layers, targetLayerId: 'bottom' }} onEvent={onEvent} />);
-
+  expect(screen.queryByRole('button', { name: 'Check layer' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Select Top sandstone layer' }));
+  expect(screen.getByLabelText('Layer conclusion feedback')).toHaveTextContent(/try again/i);
+  expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'exploring');
   const bottom = screen.getByRole('button', { name: 'Select Bottom limestone layer' });
   await user.click(bottom);
-  expect(bottom).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByTestId('rock-layer-bottom')).toHaveTextContent(/Selected/i);
-  expect(screen.getByRole('status')).toHaveTextContent(/relative-age rank 3.*oldest rank shown.*larger.*older/i);
-  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
-    { type: 'interaction', action: 'select-layer' },
-    { type: 'change', value: { selectedLayerId: 'bottom' } },
-  ]);
-  expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
-
-  await user.click(screen.getByRole('button', { name: 'Select Top sandstone layer' }));
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
-  expect(screen.getByRole('status')).toHaveTextContent(/try again/i);
-  expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'exploring');
-
-  await user.click(bottom);
-  onEvent.mockClear();
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
-  expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
-    { type: 'interaction', action: 'check' },
-    { type: 'change', value: { selectedLayerId: 'bottom' } },
-    { type: 'complete', value: { selectedLayerId: 'bottom' } },
-  ]);
+  expect(screen.getByLabelText('Layer conclusion feedback')).toHaveTextContent(/correct/i);
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'complete');
-
   await user.click(screen.getByRole('button', { name: 'Select Middle shale layer' }));
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'exploring');
   await user.click(bottom);
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);
 });
 
@@ -66,12 +46,11 @@ test('allows no-target exploration without completing and resets live state', as
   render(<RockLayerExplorer config={{ layers }} onEvent={onEvent} />);
 
   await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
   expect(screen.getByRole('status')).toHaveTextContent(/exploring.*no scored target/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
   await user.click(screen.getByRole('button', { name: 'Start over' }));
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'exploring');
-  expect(screen.getByRole('button', { name: 'Check layer' })).toBeDisabled();
+  expect(screen.queryByRole('button', { name: 'Check layer' })).not.toBeInTheDocument();
 });
 
 test('resets selection, status, checked state, and the completion latch for a new config', async () => {
@@ -80,13 +59,12 @@ test('resets selection, status, checked state, and the completion latch for a ne
   const { rerender } = render(<RockLayerExplorer config={{ layers, targetLayerId: 'bottom' }} onEvent={onEvent} />);
 
   await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'complete');
 
   rerender(<RockLayerExplorer config={{ layers: [layers[0]!, layers[1]!], targetLayerId: 'top' }} onEvent={onEvent} />);
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'exploring');
   expect(screen.getByRole('button', { name: 'Select Top sandstone layer' })).toHaveAttribute('aria-pressed', 'false');
-  expect(screen.getByRole('button', { name: 'Check layer' })).toBeDisabled();
+  expect(screen.queryByRole('button', { name: 'Check layer' })).not.toBeInTheDocument();
   expect(screen.getByRole('status')).toHaveTextContent(/select a rock layer.*larger relative-age ranks are relatively older/i);
 });
 
@@ -118,7 +96,6 @@ test('requires a fossil or rank evidence choice after the relative-age rank is c
   render(<RockLayerExplorer config={config} onEvent={onEvent} />);
 
   await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
   expect(screen.getByRole('status')).toHaveTextContent(/choose.*evidence/i);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
 
@@ -146,7 +123,6 @@ test('normalizes evidence ids when a valid authored choice differs only by case'
   }} onEvent={onEvent} />);
 
   await user.click(screen.getByRole('button', { name: 'Select Bottom limestone layer' }));
-  await user.click(screen.getByRole('button', { name: 'Check layer' }));
   await user.click(screen.getByRole('button', { name: /fossil order supports/i }));
   expect(screen.getByTestId('widget-rock-layer-explorer')).toHaveAttribute('data-state', 'complete');
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(1);

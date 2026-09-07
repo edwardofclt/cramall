@@ -38,6 +38,10 @@ export type WidgetFrameProps = {
 
 function RenderWidget(ref: WidgetFrameProps) {
   switch (ref.type) {
+    case 'regrouping-lab': {
+      const Widget = widgetRegistry['regrouping-lab'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     case 'place-value-builder': {
       const Widget = widgetRegistry['place-value-builder'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;

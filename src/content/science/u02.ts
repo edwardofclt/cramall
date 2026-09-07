@@ -90,17 +90,36 @@ const scienceU02L01Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Trace the Sun to light to paper square, then look for a change you could actually observe at the receiver." },
-          { "speaker": "kid", "text": "I will separate the path from the warmer paper observation." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Start with the source, snap in the light route, and finish at the paper square before choosing its observable effect.", "pose": "think" },
-          "retry": { "text": "That choice is not the next path step or receiver effect. Recheck source, route, receiver, then what became warmer.", "pose": "oops" },
-          "milestone": { "text": "The source-to-receiver path is connected. Now your observation can support the transfer inference.", "pose": "talk" },
-          "complete": { "text": "You traced the path and named the warmer paper as an observable effect, so the energy idea stays an inference.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Let’s compare a paper square in sunlight with one in shade."
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll predict a change, build the path, and compare the modeled warmth."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Your prediction is an idea to compare with the model.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Look at the objects and the selected connection. Revise the part that does not fit.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "The model is ready to compare with your original prediction.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected an observable modeled effect with an energy-transfer inference.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u02-l01-c3",
@@ -500,6 +519,7 @@ const scienceU02L02Core = {
       "widget": {
         "type": "energy-transfer-builder",
         "config": {
+          "experience": "tuning-fork",
           "sources": [
             "tuning fork"
           ],
@@ -523,14 +543,14 @@ const scienceU02L02Core = {
       },
       "widgetCoach": {
         "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Build tuning fork to sound to paper bits, then identify the receiver effect that your written observation could show." },
-          { "speaker": "kid", "text": "I will use the trembling paper bits as the observable effect, not as visible energy." }
+          { "speaker": "guide", "pose": "talk", "text": "How could sound make something move without touching it? Let’s model a tuning fork and nearby paper bits." },
+          { "speaker": "kid", "text": "I’ll predict what the paper will do, strike the fork, and compare." }
         ],
         "reactions": {
-          "strategy": { "text": "Ignore distractors and snap the vibrating source, sound route, and paper-bit receiver in order.", "pose": "think" },
-          "retry": { "text": "Try the next path slot again, then choose vibrating because the paper bits visibly tremble.", "pose": "oops" },
-          "milestone": { "text": "You connected the sound path. The receiver effect is the evidence to name next.", "pose": "talk" },
-          "complete": { "text": "You traced the sound transfer and used trembling paper bits as an observable effect, while keeping energy inferred.", "pose": "cheer" }
+          "strategy": { "text": "Your prediction is saved. Strike the fork to compare it with the model.", "pose": "think" },
+          "retry": { "text": "Look for a change in the objects. What moved after the strike?", "pose": "oops" },
+          "milestone": { "text": "Compare the quiet scene with the strike. What changed in the model?", "pose": "talk" },
+          "complete": { "text": "You used a change in motion to explain how sound could transfer energy. The model helps us reason; it is not physical evidence.", "pose": "cheer" }
         }
       }
     },
@@ -992,17 +1012,36 @@ const scienceU02L03Core = {
         }
       },
       "widgetCoach": {
-        "intro": [
-          { "speaker": "guide", "pose": "talk", "text": "Trace battery to electric current to motor, then connect the turning shaft to an observable receiver effect." },
-          { "speaker": "kid", "text": "I will name the motor moving before I infer that energy transferred." }
-        ],
-        "reactions": {
-          "strategy": { "text": "Choose the battery source, the electric-current route, and the motor receiver; leave the distractors aside.", "pose": "think" },
-          "retry": { "text": "Check the next path slot and choose moving as the receiver effect because the shaft can turn visibly.", "pose": "oops" },
-          "milestone": { "text": "The current path reaches the motor. Now identify the effect you can observe.", "pose": "talk" },
-          "complete": { "text": "You linked the motor’s turning to the traced path and kept energy as an inference from an observable effect.", "pose": "cheer" }
-        }
-      }
+  "intro": [
+    {
+      "speaker": "guide",
+      "pose": "talk",
+      "text": "Can you connect these parts so the battery can help the motor turn?"
+    },
+    {
+      "speaker": "kid",
+      "text": "I’ll predict a change, build the connection, and watch the shaft in the model."
+    }
+  ],
+  "reactions": {
+    "strategy": {
+      "text": "Your prediction is an idea to compare with the model.",
+      "pose": "think"
+    },
+    "retry": {
+      "text": "Look at the objects and the selected connection. Revise the part that does not fit.",
+      "pose": "think"
+    },
+    "milestone": {
+      "text": "The model is ready to compare with your original prediction.",
+      "pose": "talk"
+    },
+    "complete": {
+      "text": "You connected an observable modeled effect with an energy-transfer inference.",
+      "pose": "cheer"
+    }
+  }
+}
     },
     {
       "id": "science-u02-l03-c3",

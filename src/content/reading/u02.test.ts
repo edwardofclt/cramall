@@ -681,8 +681,8 @@ describe('Reading unit 2 literal content', () => {
     if (!card.widget || card.widget.type !== 'word-root-builder') throw new Error('word-root widget is missing');
     if (!('widgetCoach' in card) || !card.widgetCoach) throw new Error('word-root coach is missing');
     expect(card.widgetCoach.intro).toEqual([
-      expect.objectContaining({ speaker: 'guide', text: expect.stringContaining('snap') }),
-      expect.objectContaining({ speaker: 'kid', text: expect.stringContaining('left to right') }),
+      expect.objectContaining({ speaker: 'guide', text: expect.stringContaining('root') }),
+      expect.objectContaining({ speaker: 'kid', text: expect.stringContaining('check the spelling') }),
     ]);
     expect(card.widgetCoach.reactions.strategy?.text).toContain('root');
     expect(card.widgetCoach.reactions.retry?.text).toContain('whole-word meaning');

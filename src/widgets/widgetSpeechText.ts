@@ -11,6 +11,8 @@ const add = (...values: Array<string | number | undefined | null>) => values
  */
 export function widgetSpeechText(ref: WidgetRef): string[] {
   switch (ref.type) {
+    case 'regrouping-lab':
+      return add(ref.config.context, 'Choose an operation, exchange equal values, and work through the places.');
     case 'place-value-builder':
       return add(ref.config.target === undefined ? undefined : `Build ${ref.config.target}.`);
     case 'number-line-compare':
@@ -22,7 +24,7 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'area-model-multiplier':
       return add(`Area model: ${ref.config.a} times ${ref.config.b}.`, ref.config.splitA ? `Split ${ref.config.a} into ${ref.config.splitA.join(' plus ')}.` : undefined, ref.config.splitB ? `Split ${ref.config.b} into ${ref.config.splitB.join(' plus ')}.` : undefined);
     case 'array-builder':
-      return add(ref.config.taskPrompt, ref.config.task === 'factor-hunt' && ref.config.targetProduct !== undefined ? `Find factor pairs for ${ref.config.targetProduct}.` : undefined, ref.config.task === 'division' && ref.config.dividend !== undefined && ref.config.divisor !== undefined ? `Show ${ref.config.dividend} divided into groups of ${ref.config.divisor}.` : undefined);
+      return add(ref.config.taskPrompt, ref.config.task === 'factor-hunt' && ref.config.targetProduct !== undefined ? `Find factor pairs for ${ref.config.targetProduct}.` : undefined, ref.config.task === 'division' && ref.config.dividend !== undefined && ref.config.divisor !== undefined ? `Show ${ref.config.dividend} shared into ${ref.config.divisor} equal groups.` : undefined);
     case 'money-counter':
       return add(ref.config.taskPrompt, ref.config.targetCents === undefined ? undefined : `Show ${ref.config.targetCents} cents.`);
     case 'clock-elapsed-time':
@@ -32,14 +34,14 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'quarter-inch-ruler':
       return add(ref.config.taskPrompt, `Measure from ${ref.config.startInches ?? 0} inches to ${ref.config.targetInches} inches.`);
     case 'balance-scale':
-      return add(ref.config.taskPrompt, 'Compare the two pans.', ...ref.config.left.map((weight) => weight.label), ...ref.config.right.map((weight) => weight.label));
+      return add(ref.config.taskPrompt, ref.config.lengthModel ? 'Compare the two lengths.' : 'Compare the two pans.', ...ref.config.left.map((weight) => weight.label), ...ref.config.right.map((weight) => weight.label));
     case 'shape-classifier':
       return 'mode' in ref.config
-        ? add('Classify the shapes.', 'Select every class that fits.', ...ref.config.shapes.map((shape) => shape.label), ...ref.config.bins.map((bin) => bin.label))
+        ? add('Classify the shapes.', 'Select every class that fits.', ...ref.config.shapes.map((_, index) => `Shape ${String.fromCharCode(65 + index)}`), ...ref.config.bins.map((bin) => bin.label))
         : add(
           'Classify the shapes.',
           `Classify by ${ref.config.rule === 'parallelPairs' ? 'pairs of parallel sides' : ref.config.rule}.`,
-          ...ref.config.shapes.map((shape) => shape.label),
+          ...ref.config.shapes.map((_, index) => `Shape ${String.fromCharCode(65 + index)}`),
           ...ref.config.bins.map((bin) => bin.label),
         );
     case 'data-plot-builder':
@@ -62,7 +64,7 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'wave-maker':
       return add(ref.config.taskPrompt, `Wave medium: ${ref.config.medium}.`, ref.config.target?.amplitude === undefined ? undefined : `Target amplitude ${ref.config.target.amplitude}.`, ref.config.target?.frequency === undefined ? undefined : `Target frequency ${ref.config.target.frequency}.`);
     case 'light-reflection-eye':
-      return add(ref.config.taskPrompt, ref.config.task === 'trace-path' && ref.config.pathLabels ? `Connect ${ref.config.pathLabels.source}, ${ref.config.pathLabels.object}, then ${ref.config.pathLabels.eye}.` : 'Angles are measured from the dashed normal.');
+      return add(ref.config.taskPrompt, ref.config.task === 'trace-path' && ref.config.pathLabels ? `Build a possible path using ${ref.config.pathLabels.source}, ${ref.config.pathLabels.object}, and ${ref.config.pathLabels.eye}.` : 'Angles are measured from the dashed normal.');
     case 'message-sender':
       return add(`${ref.config.encoding === 'morse' ? 'Morse' : 'Binary'} code message model.`, 'Simplified in-app information-encoding model.', `Target message: ${ref.config.message}.`);
     case 'energy-conversion-designer': {
@@ -75,7 +77,7 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
       );
     }
     case 'animal-structure-matcher':
-      return add('Match each animal structure to its function.', ...ref.config.pairs.flatMap((pair) => [pair.animal, pair.structure, pair.function]));
+      return add('Match each animal structure to its function.', 'Structures:', ...ref.config.pairs.map((pair) => `${pair.animal}: ${pair.structure}`), 'Function choices:', ...[...new Set(ref.config.pairs.map((pair) => pair.function))].sort());
     case 'erosion-simulator':
       return add('Choose an erosion agent, then run the authored model.', `Terrain: ${ref.config.terrain}.`, ...(ref.config.agents), ref.config.comparison ? 'Compare bare and covered terrain.' : undefined);
     case 'rock-layer-explorer':
@@ -83,9 +85,9 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'topographic-map-explorer':
       return add('Read the contour map.', ...ref.config.contours.map((contour) => `Contour elevation ${contour.elevation} meters.`), ...ref.config.points.map((point) => `${point.label}: ${point.elevation} meters.`));
     case 'hazard-solution-designer':
-      return add(`Hazard: ${ref.config.hazard}.`, 'Choose protections for the hazard.', ...ref.config.solutions.flatMap((solution) => [solution.label, ...(solution.strengths ?? []), ...(solution.impacts ?? []), ...(solution.limits ?? [])]));
+      return add(`Hazard: ${ref.config.hazard}.`, 'Choose protections for the hazard.', ...ref.config.solutions.flatMap((solution) => [solution.label, ...(solution.strengths ?? []), ...(solution.limits ?? [])]));
     case 'resource-sorter':
-      return add('Sort each resource into an authored category.', ref.config.lessonCategory, ...ref.config.items.flatMap((item) => [item.label, item.lessonCategory, ...(item.effectChoices ?? []).map((choice) => choice.text)]), ...(ref.config.effectChoices ?? []).map((choice) => choice.text));
+      return add('Sort each resource into an authored category.', ref.config.lessonCategory, ...ref.config.items.flatMap((item) => [item.label, ...(item.effectChoices ?? []).map((choice) => choice.text)]), ...(ref.config.effectChoices ?? []).map((choice) => choice.text));
     case 'word-root-builder':
       return add('Build a word from its parts.', `Root: ${ref.config.root}.`, ...(ref.config.prefixes ?? []).map((prefix) => `Prefix: ${prefix}.`), ...(ref.config.suffixes ?? []).map((suffix) => `Suffix: ${suffix}.`));
     case 'context-clue-detective':
@@ -103,9 +105,9 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
     case 'pov-switcher':
       return add(ref.config.passage, 'Rewrite the passage from the new point of view.', ...ref.config.pronounOptions);
     case 'figurative-language-matcher':
-      return add('Match each phrase to its meaning.', ...ref.config.pairs.flatMap((pair) => [pair.phrase, pair.meaning]));
+      return add('Match each phrase to its meaning.', 'Phrases:', ...ref.config.pairs.map((pair) => pair.phrase), 'Meaning choices:', ...ref.config.pairs.map((pair) => pair.meaning).sort());
     case 'source-credibility-checker':
-      return add(ref.config.question, ...ref.config.sources.flatMap((source) => [source.title, source.author, source.date, source.publisher, source.purpose, ...(source.claims ?? []), ...(source.judgments ?? []).map((judgment) => judgment.reason)]));
+      return add(ref.config.question, ...ref.config.sources.flatMap((source) => [source.title, source.author, source.date, source.publisher, source.purpose, ...(source.claims ?? []), ...(source.judgments ?? []).map((judgment) => judgment.criterion)]));
     default: {
       const exhaustive: never = ref;
       return exhaustive;

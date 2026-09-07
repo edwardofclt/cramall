@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-math.css';
 import { useEffect, useRef, useState } from 'react';
 import type { WidgetProps } from '../registry';
 import { useCompletionLatch } from '../useCompletionLatch';
@@ -89,6 +91,9 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
   const [minutes, setMinutes] = useState(0);
   const [progress, setProgress] = useState(0);
   const [jumps, setJumps] = useState<Jump[]>([]);
+  const [prediction, setPrediction] = useState('');
+  const [savedPrediction, setSavedPrediction] = useState<string | null>(null);
+  const [jumpFeedback, setJumpFeedback] = useState('');
   const milestoneSent = useRef(false);
   const { completed, completeOnce } = useCompletionLatch(key);
   const interactiveElapsed = config.mode === 'elapsed' && config.jumpMinutes !== undefined;
@@ -104,13 +109,13 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
     : minutes;
   const matchesCurrentTarget = target !== null && minutes === target;
   const visiblyComplete = config.mode === 'elapsed'
-    ? interactiveElapsed && completed && progress === targetElapsed
+    ? interactiveElapsed && completed && jumps.length > 0 && progress === targetElapsed
     : completed && matchesCurrentTarget;
 
   useEffect(() => {
     setMinutes(0);
     setProgress(0);
-    setJumps([]);
+    setJumps([]); setPrediction(''); setSavedPrediction(null); setJumpFeedback('');
     milestoneSent.current = false;
   }, [key]);
 
@@ -127,8 +132,9 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
 
   const commitJump = (jumpMinutes: number) => {
     const remaining = targetElapsed - progress;
-    if (visiblyComplete) return;
+    if (visiblyComplete || !savedPrediction) return;
     if (jumpMinutes > remaining) {
+      setJumpFeedback(`Your ${jumpMinutes}-minute jump would pass the end. There were ${remaining} minutes left. Try a smaller jump.`);
       onEvent({ type: 'interaction', action: 'change-minute' });
       onEvent({ type: 'coach', cue: 'retry' });
       return;
@@ -154,7 +160,7 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
 
   const resetElapsed = () => {
     setProgress(0);
-    setJumps([]);
+    setJumps([]); setPrediction(''); setSavedPrediction(null); setJumpFeedback('');
     milestoneSent.current = false;
     onEvent({ type: 'interaction', action: 'reset' });
     onEvent({ type: 'change', value: clockValue(normalizeTime(start)) });
@@ -164,12 +170,12 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
     const remaining = Math.max(0, targetElapsed - progress);
     return (
       <section
-        className="card widget-experiment clock"
+        className="card widget-experiment clock activity-shell math-activity"
         data-testid="widget-clock-elapsed-time"
         data-state={visiblyComplete ? 'complete' : 'building'}
         data-complete={visiblyComplete ? 'yes' : 'no'}
       >
-        <div className="clock-display" aria-label="Elapsed time clocks">
+<ActivityWorkbench label="Explore elapsed time" revealKey={visiblyComplete ? "complete" : savedPrediction ? "jump" : "predict"} visual={<><div className="clock-display" aria-label="Elapsed time clocks">
           <div>
             <strong>Start</strong>
             <AnalogClock totalMinutes={start} testId="clock-start" />
@@ -187,15 +193,18 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
               <output data-testid="clock-end-result">{formatClock(start + targetElapsed)}</output>
             </div>
           )}
-        </div>
-        <div className="clock-controls" aria-label="Elapsed time jump controls">
+        </div></>}>
+<section className="math-task"><h4>1 · Predict the end</h4><p>Start at {formatClock(start)}. Add {targetElapsed} minutes. What time do you expect?</p><label>My predicted ending time<input type="text" placeholder="For example, 10:20 AM" value={prediction} disabled={savedPrediction !== null} onChange={event => setPrediction(event.target.value)} /></label><button type="button" disabled={!prediction.trim() || savedPrediction !== null} onClick={() => { setSavedPrediction(prediction.trim()); onEvent({ type: 'coach', cue: 'strategy' }); }}>Save prediction</button><p aria-label="Time prediction record">{savedPrediction ? `Your prediction: ${savedPrediction}. ${visiblyComplete ? `Compare it with the final clock: ${formatClock(start + targetElapsed)}.` : 'Use the jumps to check your idea.'}` : 'Your prediction is a starting idea. Save it before jumping.'}</p></section>
+
+<div className="clock-controls" aria-label="Elapsed time jump controls" data-activity-reveal={savedPrediction && !visiblyComplete ? "" : undefined}>
           {(config.jumpMinutes ?? []).map((jump) => {
-            const ariaDisabled = jump > remaining || visiblyComplete;
+            const ariaDisabled = !savedPrediction || jump > remaining || visiblyComplete;
             return (
               <button
                 key={jump}
                 aria-disabled={ariaDisabled}
                 aria-label={`Add ${jump} minutes`}
+                disabled={!savedPrediction}
                 onClick={() => commitJump(jump)}
               >
                 Add {jump} minutes
@@ -208,7 +217,8 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
             || (targetElapsed === 0 && progress === 0 && !visiblyComplete))
             && (
               <button
-                aria-disabled="false"
+                aria-disabled={!savedPrediction}
+                disabled={!savedPrediction}
                 aria-label={remaining === 0 ? 'Complete 0-minute interval' : `Add remaining ${remaining} minutes`}
                 onClick={() => commitJump(remaining)}
               >
@@ -217,30 +227,34 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
             )}
           <button onClick={resetElapsed}>Start over</button>
         </div>
-        <div className="clock-jump-history" aria-label="Elapsed-time jumps">
+<p aria-label="Jump check feedback" role="status">{jumpFeedback}</p>
+<div className="clock-jump-history" data-activity-reveal={visiblyComplete ? "" : undefined} aria-label="Elapsed-time jumps">
           {jumps.length > 0 ? jumps.map((jump, index) => (
             <p key={`${jump.from}-${jump.to}`} data-testid={`clock-jump-${index + 1}`}>
               {formatClock(jump.from)} → {jump.minutes} minutes → {formatClock(jump.to)}
             </p>
           )) : <p>No jumps yet—choose a friendly interval to move forward.</p>}
         </div>
-        <p role="status" aria-live="polite">
+<p role="status" aria-live="polite">
           {visiblyComplete
             ? `Elapsed time complete: ${formatClock(start + targetElapsed)}.`
             : `${remaining} minute${remaining === 1 ? '' : 's'} remaining. Choose a jump no larger than the remaining interval.`}
         </p>
-      </section>
+</ActivityWorkbench>
+</section>
     );
   }
 
   return (
     <section
-      className="card widget-experiment clock"
+      className="card widget-experiment clock activity-shell math-activity"
       data-testid="widget-clock-elapsed-time"
       data-state={config.mode === 'elapsed' ? 'result' : visiblyComplete ? 'complete' : 'setting'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
     >
-      {config.mode === 'set-time' && (
+<ActivityWorkbench label="Explore elapsed time" revealKey={visiblyComplete ? "complete" : savedPrediction ? "jump" : "predict"} visual={<><AnalogClock totalMinutes={shown} />
+<output data-testid="clock-result">{formatClock(shown)}</output></>}>
+{config.mode === 'set-time' && (
         <div className="clock-controls" aria-label="Set clock controls">
           <button aria-label="Decrease hour" onClick={() => commitSetTime(minutes - 60, 'change-hour')}>− hour</button>
           <button aria-label="Increase hour" onClick={() => commitSetTime(minutes + 60, 'change-hour')}>+ hour</button>
@@ -249,15 +263,14 @@ export default function ClockElapsedTime({ config, onEvent }: WidgetProps<'clock
           <button onClick={() => commitSetTime(0, 'reset')}>Start over</button>
         </div>
       )}
-      <AnalogClock totalMinutes={shown} />
-      <output data-testid="clock-result">{formatClock(shown)}</output>
-      <p role="status">
+<p role="status">
         {config.mode === 'elapsed'
           ? `Elapsed-time result: ${formatClock(shown)}.`
           : visiblyComplete
             ? 'Target time complete.'
             : `Clock shows ${formatClock(shown)}.`}
       </p>
-    </section>
+</ActivityWorkbench>
+</section>
   );
 }

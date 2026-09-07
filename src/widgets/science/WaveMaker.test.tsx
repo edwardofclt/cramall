@@ -14,7 +14,7 @@ test('changes both wave values and completes the configured target once', async 
   expect(onEvent.mock.calls.map(([event]) => event)).toEqual([
     { type: 'interaction', action: 'change-frequency' },
     { type: 'change', value: { amplitude: 3, frequency: 3 } },
-    { type: 'complete', value: { amplitude: 3, frequency: 3 } },
+
   ]);
 });
 
@@ -52,6 +52,8 @@ test('keeps its visible state live and distinguishes sound from a literal air sh
   expect(screen.getByText(/graph of changing relative pressure or displacement.*not the visible shape of air.*not direct evidence/i)).toBeInTheDocument();
   expect(screen.getByRole('img', { name: /wave graph.*baseline.*amplitude 2.*frequency 2/i })).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Increase amplitude' }));
+  await user.click(screen.getByRole('button',{name:'Compare wave patterns'}));
+  await user.click(screen.getByRole('button',{name:'The crests moved farther from the baseline'}));
   expect(screen.getByTestId('widget-wave-maker')).toHaveAttribute('data-state', 'complete');
   await user.click(screen.getByRole('button', { name: 'Decrease amplitude' }));
   expect(screen.getByTestId('widget-wave-maker')).toHaveAttribute('data-state', 'changing');
@@ -68,7 +70,7 @@ test('shows authored targets and graph effects before the learner changes contro
   expect(screen.getByText(/read frequency as cycles across this fixed width/i)).toBeInTheDocument();
 });
 
-test('coaches the first strategy and one meaningful retry without leaking the target answer', async () => {
+test('keeps adjustments neutral and coaches only a committed comparison', async () => {
   const onEvent = vi.fn();
   const user = userEvent.setup();
   render(<WaveMaker config={{ medium: 'rope', amplitude: 2, frequency: 2, target: { amplitude: 4 } }} onEvent={onEvent} />);
@@ -77,7 +79,9 @@ test('coaches the first strategy and one meaningful retry without leaking the ta
   await user.click(screen.getByRole('button', { name: 'Decrease amplitude' }));
   await user.click(screen.getByRole('button', { name: 'Decrease amplitude' }));
 
-  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['strategy', 'retry']);
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach')).toHaveLength(0);
+  await user.click(screen.getByRole('button',{name:'Compare wave patterns'}));
+  expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').map(([event]) => event.cue)).toEqual(['retry']);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'complete')).toHaveLength(0);
   expect(onEvent.mock.calls.filter(([event]) => event.type === 'coach').every(([event]) => Object.keys(event).sort().join(',') === 'cue,type')).toBe(true);
 });
@@ -87,4 +91,18 @@ test('strictly bounds wave levels and requires a nonempty partial target', () =>
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'rope', frequency: 11 }).success).toBe(false);
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'sound', target: {} }).success).toBe(false);
   expect(WaveMakerWidgetConfigSchema.safeParse({ medium: 'sound', amplitude: 4, target: { frequency: 3 } }).success).toBe(true);
+});
+
+
+test('an unmatched wave asks for adjustment without exposing one disabled answer', async () => {
+  const user = userEvent.setup();
+  render(<WaveMaker config={{ medium: 'rope', amplitude: 2, frequency: 2, target: { amplitude: 4 } }} onEvent={vi.fn()} />);
+  await user.click(screen.getByRole('button', { name: 'Increase amplitude' }));
+  await user.click(screen.getByRole('button', { name: 'Compare wave patterns' }));
+  expect(screen.queryByRole('button', { name: 'The crests moved farther from the baseline' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Only the number of cycles grows' })).not.toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Increase amplitude' }));
+  await user.click(screen.getByRole('button', { name: 'Compare wave patterns' }));
+  expect(screen.getByRole('button', { name: 'The crests moved farther from the baseline' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Only the number of cycles grows' })).toBeEnabled();
 });

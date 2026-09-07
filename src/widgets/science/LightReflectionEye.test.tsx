@@ -37,7 +37,7 @@ test('renders labelled equal-angle rays from a dashed normal and a truthful eye 
   expect(screen.getByText('Incident angle: 30° from the normal')).toBeInTheDocument();
   expect(screen.getByText('Reflected angle: 30° from the normal')).toBeInTheDocument();
   expect(screen.getByText(/Eye receiver: a labelled schematic on the reflected path/i)).toBeInTheDocument();
-  expect(screen.getByText(/not physical evidence/i)).toBeInTheDocument();
+  expect(screen.getAllByText(/not physical evidence/i).length).toBeGreaterThan(0);
 });
 
 test('keeps the current checked state live after a completed reflection changes', async () => {
@@ -70,7 +70,8 @@ test('traces source to object to eye before committing the modeled ray', async (
     pathLabels: { source: 'Lamp', object: 'Book', eye: 'Eye' },
   }} onEvent={onEvent} />);
 
-  expect(screen.getByText('Connect the source, object, and eye.')).toBeInTheDocument();
+  expect(screen.getByText('Build the path you think light follows so someone can see the object.')).toBeInTheDocument();
+  expect(screen.queryByTestId('incident-ray')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Select source: Lamp' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Select object: Book' })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Select eye: Eye' })).toBeInTheDocument();
@@ -78,7 +79,9 @@ test('traces source to object to eye before committing the modeled ray', async (
   expect(screen.getByTestId('widget-light-reflection-eye')).toHaveAttribute('data-path-committed', 'no');
 
   await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
-  expect(screen.getByRole('status')).toHaveTextContent(/start with the source/i);
+  expect(screen.getByRole('status')).toHaveTextContent(/path part saved/i);
+  expect(onEvent.mock.calls.filter(([event])=>event.type==='coach')).toHaveLength(0);
+  await user.click(screen.getByRole('button',{name:'Start over'}));
   await user.click(screen.getByRole('button', { name: 'Select source: Lamp' }));
   await user.click(screen.getByRole('button', { name: 'Select object: Book' }));
   await user.click(screen.getByRole('button', { name: 'Select eye: Eye' }));

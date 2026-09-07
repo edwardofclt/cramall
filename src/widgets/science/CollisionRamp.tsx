@@ -1,3 +1,5 @@
+import { ActivityWorkbench } from '../ActivityWorkbench';
+import './guide-led-science.css';
 import { useEffect, useState } from 'react';
 import { useReducedMotionPref } from '../../app/useReducedMotionPref';
 import { compareExactDecimals, exactDecimalFromNumber, exactDecimalToNumber, sumExactDecimals, type ExactDecimal } from '../../content/balance-decimals';
@@ -70,6 +72,8 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
   const initial: RampState = { rampAngle: config.rampAngle ?? 0, speedA: config.speedA ?? 0, speedB: config.speedB ?? 0 };
   const reduced = useReducedMotionPref();
   const [inputs, setInputs] = useState<RampState>(initial);
+  const [explained,setExplained]=useState(false);
+  const [inferenceFeedback,setInferenceFeedback]=useState('');
   const [phase, setPhase] = useState<ComparisonPhase>('setup');
   const [prediction, setPrediction] = useState<Direction | null>(null);
   const [runs, setRuns] = useState<ComparisonRun[]>([]);
@@ -86,7 +90,7 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
 
   useEffect(() => {
     setInputs(initial);
-    setPhase('setup');
+    setPhase('setup');setExplained(false);setInferenceFeedback('');
     setPrediction(null);
     setRuns([]);
     setPendingRun(null);
@@ -95,7 +99,8 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
   }, [key]);
 
   useEffect(() => {
-    if (phase !== 'running' || pendingRun === null || reduced) return;
+    if (phase !== 'running' || pendingRun === null) return;
+    if (reduced) { settleReducedRun(pendingRun); return; }
     const timer = window.setTimeout(() => {
       setRuns((previous) => [...previous, pendingRun]);
       setPendingRun(null);
@@ -170,24 +175,27 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
     return firstValue === secondValue ? 'same' : firstValue > secondValue ? 'run-1-more' : 'run-2-more';
   };
 
-  const compareRuns = () => {
-    if (comparisonChoice === null || runs.length !== 2 || phase !== 'observed') return;
+  const compareRuns = (choice: 'run-1-more' | 'same' | 'run-2-more') => {
+    if (runs.length !== 2 || (phase !== 'observed' && phase !== 'compared')) return;
+    setComparisonChoice(choice);
+    setExplained(false);
+    setInferenceFeedback('');
     onEvent({ type: 'interaction', action: 'choose-prediction' });
     onEvent({ type: 'change', value: inputs });
-    if (comparisonChoice !== comparisonCorrect()) {
+    if (choice !== comparisonCorrect()) {
+      setPhase('observed');
       onEvent({ type: 'coach', cue: 'retry' });
       setStatus(`That comparison does not match the two visible ${controlledLabel} values. Revise your comparison after reading the run cards.`);
       return;
     }
     setPhase('compared');
-    setStatus('Compared! You changed one condition, observed both modeled outcomes, and connected the evidence to the fair-test idea.');
-    const last = runs[1]!;
-    completeOnce(() => onEvent({ type: 'complete', value: { prediction: last.outcome, correct: true } }));
+    setStatus('Compared! You identified the changed condition. Now connect modeled motion to an energy idea.');
+    onEvent({type:'coach',cue:'milestone'});
   };
 
   const reset = () => {
     setInputs(initial);
-    setPhase('setup');
+    setPhase('setup');setExplained(false);setInferenceFeedback('');
     setPrediction(null);
     setRuns([]);
     setPendingRun(null);
@@ -201,13 +209,11 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
   const lockedNote = `Cart A mass ${config.massA}, Cart B mass ${config.massB}, ramp angle ${config.rampAngle ?? 0}°, and ${nonControlledLabel} ${nonControlledValue ?? 0} are locked so this is a fair comparison.`;
   const trackDirection = pendingRun?.outcome ?? (phase === 'observed' || phase === 'compared' ? runs[runs.length - 1]?.outcome : undefined) ?? 'setup';
   return (
-    <section className="card widget-experiment collision collision-comparison" data-testid="widget-collision-ramp" data-state={phase === 'compared' ? 'complete' : 'testing'} data-complete={phase === 'compared' ? 'yes' : 'no'} data-phase={phase} data-motion={reduced ? 'off' : 'on'} aria-description="A simplified fair-test collision model, not physical evidence from real carts.">
-      <header>
-        <h3>Fair collision comparison model</h3>
-        <p>This animation is a simplified model of a prediction, not physical evidence. It shows before-and-after motion so you can compare two fair runs.</p>
-      </header>
-      <p className="collision-task"><strong>Goal:</strong> {config.taskPrompt ?? `Change only ${controlledLabel} and compare two modeled runs.`}</p>
-      <p className="collision-locked" aria-label={lockedNote}>{lockedNote}</p>
+    <section className="card widget-experiment collision collision-comparison activity-shell science-activity" data-testid="widget-collision-ramp" data-state={explained ? 'complete' : 'testing'} data-complete={explained ? 'yes' : 'no'} data-phase={phase} data-motion={reduced ? 'off' : 'on'} aria-description="A simplified fair-test collision model, not physical evidence from real carts.">
+      <ActivityWorkbench label="Collision model" revealKey={`${phase}-${explained}`} visual={<>
+      <header><h3>Fair collision comparison model</h3><p className="science-model-label">Model only · not physical evidence</p></header>
+
+
       <div className="collision-track-viewport" data-testid="collision-comparison-track-viewport">
         <div className="collision-model comparison-track" data-testid="collision-comparison-track" data-phase={phase} data-motion-direction={trackDirection} aria-label="Two-cart collision model track">
           <div className={`collision-cart collision-cart-a collision-position-${trackDirection}`} role="img" aria-label={`Cart A: mass ${config.massA}, speed ${inputs.speedA ?? 0}.`}><span>Cart A</span><strong>{config.massA} mass</strong><b>{inputs.speedA ?? 0} speed →</b></div>
@@ -215,7 +221,11 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
           <div className={`collision-cart collision-cart-b collision-position-${trackDirection}`} role="img" aria-label={`Cart B: mass ${config.massB}, speed ${inputs.speedB ?? 0}.`}><span>Cart B</span><strong>{config.massB} mass</strong><b>← {inputs.speedB ?? 0} speed</b></div>
         </div>
       </div>
+
+      </>}>
+      <p className="collision-task"><strong>Goal:</strong> {config.taskPrompt ?? `Change only ${controlledLabel} and compare two modeled runs.`}</p>
       <p className="collision-quantities">Modeled push numbers: Cart A {config.massA} × {inputs.speedA ?? 0} = {exactText(multiplyExact(config.massA, inputs.speedA ?? 0))}; Cart B {config.massB} × {inputs.speedB ?? 0} = {exactText(multiplyExact(config.massB, inputs.speedB ?? 0))}. These numbers are part of this lesson model.</p>
+      <p className="collision-locked" aria-label={lockedNote}>{lockedNote}</p>
       <div className="collision-comparison-controls" data-widget-grid="controls">
         <button aria-label={`Decrease ${controlledLabel}`} disabled={phase === 'running' || runs.length >= 2 || controlledValue(inputs) <= 0} onClick={() => changeControlledSpeed(-1)}>− {controlledLabel}</button>
         <button aria-label={`Increase ${controlledLabel}`} disabled={phase === 'running' || runs.length >= 2 || controlledValue(inputs) >= 100} onClick={() => changeControlledSpeed(1)}>+ {controlledLabel}</button>
@@ -241,16 +251,21 @@ function CollisionComparison({ config, onEvent }: { config: ComparisonConfig; on
           </article>)}
         </div>
       </div>}
-      {runs.length === 2 && phase === 'observed' && <fieldset className="collision-compare-choices" aria-label="Compare the two modeled runs">
+      {runs.length === 2 && (phase === 'observed' || phase === 'compared') && <fieldset className="collision-compare-choices" aria-label="Compare the two modeled runs">
         <legend>What changed between the two runs?</legend>
-        <button type="button" aria-label={`Run 1 had more ${controlledLabel}`} aria-pressed={comparisonChoice === 'run-1-more'} onClick={() => setComparisonChoice('run-1-more')}>Run 1 had more {controlledLabel}</button>
-        <button type="button" aria-label={`Both runs used the same ${controlledLabel}`} aria-pressed={comparisonChoice === 'same'} onClick={() => setComparisonChoice('same')}>Both runs used the same {controlledLabel}</button>
-        <button type="button" aria-label={`Run 2 had more ${controlledLabel}`} aria-pressed={comparisonChoice === 'run-2-more'} onClick={() => setComparisonChoice('run-2-more')}>Run 2 had more {controlledLabel}</button>
-        <button type="button" aria-label="Compare runs" disabled={comparisonChoice === null} onClick={compareRuns}>Compare runs</button>
+        <button type="button" aria-label={`Run 1 had more ${controlledLabel}`} aria-pressed={comparisonChoice === 'run-1-more'} onClick={() => compareRuns('run-1-more')}>Run 1 had more {controlledLabel}</button>
+        <button type="button" aria-label={`Both runs used the same ${controlledLabel}`} aria-pressed={comparisonChoice === 'same'} onClick={() => compareRuns('same')}>Both runs used the same {controlledLabel}</button>
+        <button type="button" aria-label={`Run 2 had more ${controlledLabel}`} aria-pressed={comparisonChoice === 'run-2-more'} onClick={() => compareRuns('run-2-more')}>Run 2 had more {controlledLabel}</button>
         <p className="collision-comparison-hint">Read both run cards and compare the two visible {controlledLabel} values.</p>
       </fieldset>}
+      {phase === 'compared' && <section className="science-feedback" data-activity-reveal><h4>What could the motion changes support?</h4><p aria-label="Collision comparison feedback">You compared {controlledLabel} while the other setup conditions stayed fixed.</p><button onClick={()=>{setExplained(false);setInferenceFeedback('Try again. Motion can be described, but energy itself is not directly visible.');onEvent({type:'coach',cue:'retry'});}}>The model made energy itself visible</button><button onClick={()=>{setExplained(true);setInferenceFeedback('Motion changes could support an energy-transfer explanation. The model represents the idea; real observations are needed as evidence.');completeOnce(()=>onEvent({type:'complete',value:{prediction:runs[1]!.outcome,correct:true}}));}}>Motion changes could support an energy-transfer idea</button><p aria-label="Collision inference feedback" data-outcome={inferenceFeedback ? explained ? 'correct' : 'retry' : undefined}>{inferenceFeedback}</p></section>}
       <button className="collision-reset" onClick={reset}>Start over</button>
       <p role="status">{status}</p>
+      <section className="science-model-notes" aria-label="About this model"><h4>About this model</h4>
+
+        <p>This animation is a simplified model of a prediction, not physical evidence. It shows before-and-after motion so you can compare two fair runs.</p>
+      </section>
+    </ActivityWorkbench>
     </section>
   );
 }
@@ -309,13 +324,14 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
 
   return (
     <section
-      className="card widget-experiment collision"
+      className="card widget-experiment collision activity-shell science-activity"
       data-testid="widget-collision-ramp"
       data-state={visiblyComplete ? 'complete' : 'testing'}
       data-complete={visiblyComplete ? 'yes' : 'no'}
       aria-description="Simplified stuck-cart prediction model; ramp angle is setup-only and does not change the result."
     >
-      <header><h3>Collision ramp model</h3><p>This is a simplified prediction model, not physical evidence or full physics. The ramp angle is setup-only.</p></header>
+      <ActivityWorkbench label="Collision prediction model" visual={<>
+      <header><h3>Collision ramp model</h3><p className="science-model-label">Model only · not physical evidence</p></header>
       <p className="collision-angle">Ramp setup angle: {state.rampAngle}°. Setup-only: changing it does not change this model result.</p>
       <div className="collision-track-viewport" data-testid="collision-track-viewport"><div className="collision-model" aria-label="Two-cart collision track">
         <div className="collision-ramp-line" style={{ transform: `rotate(${-state.rampAngle / 8}deg)` }} aria-hidden="true" />
@@ -328,6 +344,7 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
         </div>
       </div></div>
       <p className="collision-quantities">Cart A push number: {config.massA} × {state.speedA} = {exactText(cartAQuantity)}. Cart B push number: {config.massB} × {state.speedB} = {exactText(cartBQuantity)}. {stationary ? 'Both carts remain stationary, so no collision occurs.' : 'The larger push number points the stuck carts that way.'}</p>
+      </>}>
       <div data-widget-grid="controls" className="collision-controls">
         <button aria-label="Decrease ramp angle" disabled={state.rampAngle <= 0} onClick={() => change({ ...state, rampAngle: stepExact(state.rampAngle, -1, 0, 45) }, 'change-angle')}>− angle</button>
         <button aria-label="Increase ramp angle" disabled={state.rampAngle >= 45} onClick={() => change({ ...state, rampAngle: stepExact(state.rampAngle, 1, 0, 45) }, 'change-angle')}>+ angle</button>
@@ -344,6 +361,8 @@ export default function CollisionRamp({ config, onEvent }: WidgetProps<'collisio
       </div> : <div className="collision-predictions"><button aria-label="Run collision" onClick={() => finish(currentDirection, 'run')}>Run collision model</button><p>Model result: {checked ? stationary ? 'both carts remain stationary; no collision occurs' : directionText[currentDirection] : 'run the model to compare the two push numbers'}.</p></div>}
       <button className="collision-reset" onClick={() => change(initial, 'reset')}>Start over</button>
       <p role="status">{visiblyComplete ? resultFor(currentDirection, state) : status}</p>
+      <section className="science-model-notes" aria-label="About this model"><h4>About this model</h4><p>This is a simplified prediction model, not physical evidence or full physics. The ramp angle is setup-only.</p></section>
+    </ActivityWorkbench>
     </section>
   );
 }

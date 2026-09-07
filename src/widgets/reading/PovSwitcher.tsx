@@ -1,4 +1,6 @@
 import {useEffect,useState} from 'react';
+import {ActivityWorkbench} from '../ActivityWorkbench';
+import './guide-led-reading.css';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -33,12 +35,14 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
   const key=JSON.stringify(config);
   const [selectedPronouns,setSelectedPronouns]=useState<string[]>([]);
   const [appliedText,setAppliedText]=useState<string|null>(null);
+  const [comparison,setComparison]=useState<'same'|'changed'|null>(null);
   const [attemptedApply,setAttemptedApply]=useState(false);
   const {completeOnce}=useCompletionLatch(key);
   useEffect(()=>{
     setSelectedPronouns([]);
     setAppliedText(null);
     setAttemptedApply(false);
+    setComparison(null);
   },[key]);
   const inAuthoredOrder=(values:string[])=>config.pronounOptions.filter((option)=>values.includes(option));
   const isReady=(values:string[])=>values.length===config.requiredPronouns.length
@@ -48,15 +52,19 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
     setSelectedPronouns(ordered);
     setAppliedText(null);
     setAttemptedApply(false);
+    setComparison(null);
     onEvent({type:'interaction',action});
     onEvent({type:'change',value:{selectedPronouns:ordered}});
     if(action==='select-pronoun'&&ordered.length===1) onEvent({type:'coach',cue:'strategy'});
-    if(action==='select-pronoun'&&isReady(ordered)) onEvent({type:'coach',cue:'milestone'});
+
   };
   const apply=()=>{
+    // Selection changes already clear the rewrite, so an applied text is unchanged.
+    if(appliedText!==null)return;
     const ordered=inAuthoredOrder(selectedPronouns);
     const ready=isReady(ordered);
     setAttemptedApply(true);
+    setComparison(null);
     onEvent({type:'interaction',action:'apply'});
     onEvent({type:'change',value:{selectedPronouns:ordered}});
     if(!ready){
@@ -66,24 +74,38 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
     }
     const rewrittenText=rewritePassage(config.passage,config.from,config.requiredPronouns);
     setAppliedText(rewrittenText);
-    completeOnce(()=>onEvent({type:'complete',value:{rewrittenText}}));
+    onEvent({type:'coach',cue:'milestone'});
   };
-  const ready=isReady(selectedPronouns);
-  const currentComplete=ready&&appliedText!==null;
-  const state=currentComplete?'complete':selectedPronouns.length?'revision':'choosing';
+  const compare=(answer:'same'|'changed')=>{
+    if(comparison===answer)return;
+    onEvent({type:'interaction',action:'compare'});
+    onEvent({type:'change',value:{selectedPronouns:inAuthoredOrder(selectedPronouns)}});
+    setComparison(answer);
+    if(answer==='changed')onEvent({type:'coach',cue:'retry'});
+    else if(appliedText)completeOnce(()=>onEvent({type:'complete',value:{rewrittenText:appliedText}}));
+  };
+  const ready=selectedPronouns.length===config.requiredPronouns.length;
+  const currentComplete=appliedText!==null&&comparison==='same';
+  const state=currentComplete?'complete':comparison==='changed'||attemptedApply&&!appliedText?'revision':appliedText?'comparing':'choosing';
   const status=currentComplete
     ?'Reread both passages: did the event and meaning stay the same?'
+    :comparison==='changed'
+      ?'Try again: compare who acted and what happened in both passages.'
+    :appliedText
+      ?'Rewrite applied. Compare both passages before choosing what changed.'
     :attemptedApply
-      ?'Choose two target forms, then apply your rewrite.'
+      ?'Try again: these forms do not fit the target point of view. Reread the source, choose the target forms, and apply.'
       :ready
         ?'Two target forms selected. Apply your rewrite when ready.'
         :selectedPronouns.length
           ?'Selection changed. Choose two target forms, then apply your rewrite.'
           :'Choose two target forms, then apply your rewrite.';
 
-  return <section className="card widget-experiment pov" data-testid="widget-pov-switcher" data-state={state} data-current-ready={ready?'yes':'no'}>
+  return <section className="card widget-experiment activity-shell reading-activity pov" data-testid="widget-pov-switcher" data-state={state}>
+    <ActivityWorkbench label="Point of view" visualScrollable visual={<>
     <header>
       <h3>Switch the point of view</h3>
+      <p>Change {config.from==='third'?'third person to first person':'first person to third person'}.</p>
       <p>This is one text model. Read the complete source, choose the two target forms, and apply them.</p>
     </header>
     <blockquote className="pov-source-passage" data-testid="pov-source-passage">
@@ -94,6 +116,7 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
       <strong>Rewritten passage</strong>
       <span>{appliedText}</span>
     </blockquote>}
+    </>} revealKey={appliedText ? "compare" : "rewrite"}>
     <div className="pov-pronoun-options" aria-label="Target forms">
       {config.pronounOptions.map((pronoun)=>{
         const selected=selectedPronouns.includes(pronoun);
@@ -102,16 +125,25 @@ function PovSwitcherBody({config,onEvent}:PovSwitcherProps){
           'select-pronoun',
         )}>
           <span>{pronoun}</span>
-          <span className="pov-selection-marker" aria-hidden="true">{selected?'✓ Selected':'○ Not selected'}</span>
+          <span className="pov-selection-marker" aria-hidden="true">{selected?'● Selected':'○ Not selected'}</span>
         </button>;
       })}
     </div>
-    <strong className="pov-valid-marker">{currentComplete?'✓ Rewrite applied':'○ Needs revision'}</strong>
+    <strong className="pov-valid-marker">{currentComplete?'✓ Comparison correct':comparison==='changed'?'Try again':appliedText?'Rewrite applied':attemptedApply?'Try again: revise the forms':'Choose your rewrite forms'}</strong>
     <div className="pov-controls">
       <button aria-label="Apply point of view" onClick={apply}>Apply</button>
       <button onClick={()=>emitSelection([],'reset')}>Start over</button>
     </div>
+    {appliedText&&<>
+      <p aria-label="Rewrite feedback">Rewrite applied. Both passages remain available for comparison.</p>
+      <fieldset className="reading-comparison" data-activity-reveal><legend>What changed between these passages?</legend>
+        <button type="button" aria-pressed={comparison==='changed'} data-outcome={comparison==='changed'?'incorrect':undefined} onClick={()=>compare('changed')}>The event changed</button>
+        <button type="button" aria-pressed={comparison==='same'} data-outcome={comparison==='same'?'correct':undefined} onClick={()=>compare('same')}>The narrator words changed; the event stayed the same</button>
+      </fieldset>
+      {comparison&&<p aria-label="Comparison feedback">{comparison==='same'?'Correct: the narrator words changed while the same event remained.':'Try again: compare who acted and what happened in each passage.'}</p>}
+    </>}
     <p role="status">{status}</p>
+    </ActivityWorkbench>
   </section>;
 }
 

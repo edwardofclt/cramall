@@ -1,4 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
+import {ActivityWorkbench} from '../ActivityWorkbench';
+import './guide-led-reading.css';
 import type {WidgetProps} from '../registry';
 import {useCompletionLatch} from '../useCompletionLatch';
 
@@ -17,7 +19,9 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
   const [attemptedComposition,setAttemptedComposition]=useState(false);
   const strategyAnnounced=useRef(false);
   const retryAnnounced=useRef(false);
-  const {completeOnce,completed}=useCompletionLatch(key);
+  const {completeOnce}=useCompletionLatch(key);
+  const [planChecked,setPlanChecked]=useState(false);
+  const [submitted,setSubmitted]=useState(false);
   const sourceById=useMemo(()=>new Map(config.sourceSentences.map((sentence)=>[sentence.id,sentence])),[config.sourceSentences]);
   const inAuthoredOrder=(ids:string[])=>config.sourceSentences
     .map((sentence)=>sentence.id)
@@ -43,9 +47,10 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
   const maxWords=config.maxCompositionWords??Number.POSITIVE_INFINITY;
   const compositionValid=!hasCompositionStage
     ||(wordCount>0&&wordCount>=minWords&&wordCount<=maxWords);
-  const currentValid=completed&&planValid&&compositionValid;
+  const currentValid=submitted&&planValid&&compositionValid;
 
   useEffect(()=>{
+    setPlanChecked(false); setSubmitted(false);
     setSelectedIds([]);
     setComposition('');
     setAttemptedComposition(false);
@@ -62,7 +67,7 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
 
   const emitSelection=(ids:string[],action:'toggle-sentence'|'reset',compositionOverride?:string)=>{
     const ordered=inAuthoredOrder(ids);
-    const nextPlanValid=planValidFor(ordered);
+    setPlanChecked(false); setSubmitted(false);
     if(action==='reset'){
       strategyAnnounced.current=false;
       retryAnnounced.current=false;
@@ -73,51 +78,39 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
       strategyAnnounced.current=true;
       onEvent({type:'coach',cue:'strategy'});
     }
-    if(ordered.length>0&&retryableSelectionFor(ordered)&&!retryAnnounced.current){
-      retryAnnounced.current=true;
-      onEvent({type:'coach',cue:'retry'});
-    }
-    if(nextPlanValid&&!planValid){
-      retryAnnounced.current=false;
-      onEvent({type:'coach',cue:'milestone'});
-    }
     emitValue({selectedIds:ordered,composition:compositionOverride??(composition||undefined)});
-    if(!hasCompositionStage&&nextPlanValid){
-      completeOnce(()=>onEvent({type:'complete',value:{selectedIds:ordered}}));
+  };
+
+  const checkPlan=()=>{
+    if(planChecked)return;
+    onEvent({type:'interaction',action:'check'});
+    emitValue({selectedIds,composition:composition||undefined});
+    setPlanChecked(true);
+    if(!planValid){
+      onEvent({type:'coach',cue:'retry'});
+      return;
     }
-  };
-
-  const planValidFor=(ids:string[])=>{
-    const selectedExtrasForIds=ids.filter((id)=>sourceById.get(id)?.role==='extra');
-    const unexpectedDetailsForIds=requiredDetailIds.length>0
-      ?ids.filter((id)=>sourceById.get(id)?.role==='detail'&&!requiredDetailIds.includes(id))
-      :[];
-    return config.requiredMainIds.every((id)=>ids.includes(id))
-      &&requiredDetailIds.every((id)=>ids.includes(id))
-      &&selectedExtrasForIds.length===0
-      &&unexpectedDetailsForIds.length===0
-      &&ids.length<=config.maxSentences;
-  };
-
-  const retryableSelectionFor=(ids:string[])=>{
-    const selectedExtrasForIds=ids.filter((id)=>sourceById.get(id)?.role==='extra');
-    const unexpectedDetailsForIds=requiredDetailIds.length>0
-      ?ids.filter((id)=>sourceById.get(id)?.role==='detail'&&!requiredDetailIds.includes(id))
-      :[];
-    return selectedExtrasForIds.length>0
-      ||unexpectedDetailsForIds.length>0
-      ||ids.length>config.maxSentences;
+    onEvent({type:'coach',cue:'milestone'});
+    if(!hasCompositionStage){
+      setSubmitted(true);
+      completeOnce(()=>onEvent({type:'complete',value:{selectedIds}}));
+    }
   };
 
   const updateComposition=(value:string)=>{
+    setSubmitted(false);
     setComposition(value);
     setAttemptedComposition(true);
     emitValue({selectedIds,composition:value});
   };
 
   const submitComposition=()=>{
+    if(submitted)return;
+    onEvent({type:'interaction',action:'check'});
+    emitValue({selectedIds,composition});
     setAttemptedComposition(true);
-    if(planValid&&compositionValid){
+    if(planChecked&&planValid&&compositionValid){
+      setSubmitted(true);
       completeOnce(()=>onEvent({type:'complete',value:{selectedIds,composition}}));
     } else {
       if(!retryAnnounced.current){
@@ -127,9 +120,11 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
     }
   };
 
-  const hasPlanError=selectedIds.length>0&&!planValid;
+  const hasPlanError=planChecked&&!planValid;
   const state=currentValid?'complete':hasPlanError?'revision':'building';
-  const feedback=selectedExtras.length>0
+  const feedback=!planChecked
+    ?'Build your sentence plan, then check it when you are ready.'
+    :selectedExtras.length>0
     ?'That sentence is a decorative extra. Remove it and keep evidence that explains the main idea.'
     :unexpectedDetails.length>0
       ?'That detail is not required for this concise summary. Remove it and use the named supporting detail.'
@@ -151,11 +146,15 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
 
   const removeSentence=(id:string)=>emitSelection(selectedIds.filter((selectedId)=>selectedId!==id),'toggle-sentence');
 
-  return <section className="card widget-experiment summary" data-testid="widget-summary-builder" data-state={state} data-current-valid={currentValid?'yes':'no'}>
+  return <section className="card widget-experiment activity-shell reading-activity summary" data-testid="widget-summary-builder" data-state={state} data-current-valid={currentValid?'yes':'no'}>
+    <ActivityWorkbench label="Summary builder" visualScrollable visual={<>
     <header>
       <h3>Build a concise summary</h3>
       <p>Read every source sentence. Plan with the main idea and the details that explain it.</p>
     </header>
+    <article aria-label="Complete source sentences"><h4>Read these source sentences</h4><ol>{config.sourceSentences.map(sentence=><li key={sentence.id}>{sentence.text}</li>)}</ol></article>
+    <div aria-label="Your summary board"><h4>Your selected plan</h4><ol>{selectedIds.map(id=><li key={id}>{sourceById.get(id)?.text}</li>)}</ol>{!selectedIds.length&&<p>No sentences selected yet.</p>}</div>
+    </>} revealKey={planChecked&&planValid ? "compose" : "plan"}>
     <fieldset className="summary-source-sentences">
       <legend>Source sentences</legend>
       {config.sourceSentences.map((sentence)=>{
@@ -165,7 +164,7 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
           'toggle-sentence',
         )}>
           <span>{sentence.text}</span>
-          <span className="summary-selection-marker" aria-hidden="true">{selected?'✓ Selected':'○ Not selected'}</span>
+          <span className="summary-selection-marker" aria-hidden="true">{selected?'● Selected':'○ Not selected'}</span>
         </button>;
       })}
     </fieldset>
@@ -180,9 +179,11 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
           </li>)
           :<li>No sentences selected yet.</li>}
       </ol>
-      <strong className="summary-valid-marker">{currentValid?'✓ Summary ready':planValid?'✓ Plan ready':'○ Needs revision'}</strong>
+      <strong className="summary-valid-marker">{currentValid?'Response submitted':planChecked&&planValid?'✓ Plan checked':planChecked?'Try again: revise your plan':'Build your plan'}</strong>
     </div>
-    {planValid&&hasCompositionStage&&<div className="summary-composition">
+    <button type="button" onClick={checkPlan}>Check summary plan</button>
+    <p aria-label="Plan feedback">{!planChecked?"Plan not checked yet.":planValid?"Your checked plan includes the main idea and useful supporting details.":feedback}</p>
+    {planChecked&&planValid&&hasCompositionStage&&<div className="summary-composition" data-activity-reveal>
       <h4>Say the meaning in your own words</h4>
       <p id="summary-composition-prompt">{config.compositionPrompt??'Use your plan to write a concise summary.'}</p>
       <label htmlFor="summary-composition-input">Your summary</label>
@@ -203,7 +204,9 @@ function SummaryBuilderBody({config,onEvent}:SummaryBuilderProps){
       setAttemptedComposition(false);
       emitSelection([],'reset',hasCompositionStage?'':undefined);
     }}>Start over</button></div>
-    <p role="status">{currentValid?'Summary ready. You wrote a plan and a bounded response.':feedback}</p>
+    {submitted&&<p aria-label="Response feedback">Response submitted within the word range. Reread it yourself to check the meaning against your plan.</p>}
+    <p role="status">{currentValid?'Response submitted. Your word count fits; compare your meaning with the source.':feedback}</p>
+    </ActivityWorkbench>
   </section>;
 }
 

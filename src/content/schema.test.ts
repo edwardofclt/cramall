@@ -718,3 +718,26 @@ test('Rock evidence contracts require a scored target layer', () => {
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers, ...evidence, targetLayerId: 'bottom' }).success).toBe(true);
   expect(RockLayerExplorerWidgetConfigSchema.safeParse({ layers, ...evidence }).success).toBe(false);
 });
+
+test('array grouping targets require an exact reachable row and column pair', () => {
+  const base = { rows: 2, columns: 6, editable: true, targetProduct: 12 };
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({ ...base, targetRows: 4, targetColumns: 3 }).success).toBe(true);
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({ ...base, targetRows: 4 }).success).toBe(false);
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({ ...base, targetRows: 3, targetColumns: 5 }).success).toBe(false);
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({ ...base, editable: false, targetRows: 4, targetColumns: 3 }).success).toBe(false);
+  expect(ArrayBuilderWidgetConfigSchema.safeParse({ ...base, rows: 4, columns: 3, editable: false, targetRows: 4, targetColumns: 3 }).success).toBe(true);
+});
+
+test('length comparison models describe the configured units and cannot be used as weights', () => {
+  const base = { left: [{id:'feet',label:'3 feet',value:36}], right:[{id:'inches',label:'36 inches',value:36}],task:'compare',lengthModel:{feet:3,inches:36} };
+  expect(WidgetRefSchema.safeParse({type:'balance-scale',config:base}).success).toBe(true);
+  expect(WidgetRefSchema.safeParse({type:'balance-scale',config:{...base,task:'make-equal'}}).success).toBe(false);
+  expect(WidgetRefSchema.safeParse({type:'balance-scale',config:{...base,lengthModel:{feet:4,inches:36}}}).success).toBe(false);
+  expect(WidgetRefSchema.safeParse({type:'balance-scale',config:{...base,lengthModel:{feet:3,inches:24}}}).success).toBe(false);
+});
+
+test('central-idea source contradictions cannot count toward a solvable evidence set', () => {
+  const base = { mainIdeaChoices:['Plants help water','Plants harm water'], requiredDetailCount:1, source:{title:'Plants',text:'Plants slow water.'}, details:[{id:'help',text:'Plants slow water.',supports:['Plants help water'],sourceQuote:'Plants slow water.'},{id:'harm',text:'Plants speed water.',supports:['Plants harm water'],sourceQuote:'Plants slow water.',sourceContradictsDetail:true}] };
+  expect(CentralIdeaOrganizerWidgetConfigSchema.safeParse(base).success).toBe(true);
+  expect(CentralIdeaOrganizerWidgetConfigSchema.safeParse({...base,details:base.details.map(detail=>({...detail,sourceContradictsDetail:true}))}).success).toBe(false);
+});

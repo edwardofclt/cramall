@@ -12,6 +12,22 @@ const thirdToFirst={
   requiredPronouns:['I','my'] as [string,string],
 };
 
+test.each(['same','changed'] as const)('unchanged Apply preserves the %s comparison and does not repeat coaching',async(answer)=>{
+  const user=userEvent.setup(),onEvent=vi.fn();
+  render(<PovSwitcher config={thirdToFirst} onEvent={onEvent}/>);
+  await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
+  await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
+  await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  await user.click(screen.getByRole('button',{name:answer==='same'?'The narrator words changed; the event stayed the same':'The event changed'}));
+  const feedback=screen.getByLabelText('Comparison feedback').textContent;
+  onEvent.mockClear();
+  await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  expect(screen.getByLabelText('Comparison feedback')).toHaveTextContent(feedback!);
+  expect(screen.getByTestId('widget-pov-switcher')).toHaveAttribute('data-state',answer==='same'?'complete':'revision');
+  expect(screen.getByTestId('pov-rewritten-passage')).toHaveTextContent('I carried my book.');
+  expect(onEvent).not.toHaveBeenCalled();
+});
+
 test('applies the selected target forms to the complete visible source and completes once',async()=>{
   // Hard-coded output, hidden source text, selection-time completion, or a second completion must fail this test.
   const onEvent=vi.fn(),user=userEvent.setup();
@@ -24,15 +40,20 @@ test('applies the selected target forms to the complete visible source and compl
   onEvent.mockClear();
 
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(screen.getByRole('status')).toHaveTextContent(/reread both passages/i);
   expect(screen.getByTestId('pov-source-passage')).toBeVisible();
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
     {type:'interaction',action:'apply'},
     {type:'change',value:{selectedPronouns:['I','my']}},
+    {type:'coach',cue:'milestone'},
+    {type:'interaction',action:'compare'},
+    {type:'change',value:{selectedPronouns:['I','my']}},
     {type:'complete',value:{rewrittenText:'I carried my book.'}},
   ]);
 
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(1);
 });
 
@@ -42,6 +63,7 @@ test('keeps a rewritten passage visible and prompts a post-rewrite meaning check
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(screen.getByTestId('pov-source-passage')).toHaveTextContent('Ava carried Ava’s book.');
   expect(screen.getByTestId('pov-rewritten-passage')).toHaveTextContent('I carried my book.');
   expect(screen.getByRole('status')).toHaveTextContent(/reread both passages/i);
@@ -73,6 +95,7 @@ test('keeps schema-valid canonical target forms selectable in the UI',async()=>{
   await user.click(screen.getByRole('button',{name:'Select pronoun José'}));
   await user.click(screen.getByRole('button',{name:"Select pronoun José's"}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(onEvent).toHaveBeenLastCalledWith({type:'complete',value:{rewrittenText:"José packed José's book."}});
 
   expect(PovSwitcherWidgetConfigSchema.safeParse({
@@ -105,7 +128,7 @@ test('retains revisable choices in authored order with keyboard and non-color ma
   await user.keyboard('{Enter}');
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   expect(my).toHaveAttribute('aria-pressed','true');
-  expect(my).toHaveTextContent('✓ Selected');
+  expect(my).toHaveTextContent('● Selected');
   expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'interaction',action:'select-pronoun'});
   expect(onEvent.mock.calls.map(([event])=>event)).toContainEqual({type:'change',value:{selectedPronouns:['I','my']}});
 });
@@ -116,15 +139,17 @@ test('gives bounded apply guidance and leaves completion view after a successful
   render(<PovSwitcher config={thirdToFirst} onEvent={onEvent}/>);
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
-  expect(screen.getByRole('status')).toHaveTextContent('Choose two target forms, then apply your rewrite.');
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
+  expect(screen.getByRole('status')).toHaveTextContent('Try again:');
   expect(screen.getByRole('status')).not.toHaveTextContent('my');
 
   await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(screen.getByTestId('widget-pov-switcher')).toHaveAttribute('data-state','complete');
   await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
-  expect(screen.getByTestId('widget-pov-switcher')).toHaveAttribute('data-state','revision');
-  expect(screen.getByText('○ Needs revision')).toBeVisible();
+  expect(screen.getByTestId('widget-pov-switcher')).toHaveAttribute('data-state','choosing');
+  expect(screen.getByText('Choose your rewrite forms')).toBeVisible();
 });
 
 test('emits ordered reset state without rearming the one-shot completion latch',async()=>{
@@ -134,6 +159,7 @@ test('emits ordered reset state without rearming the one-shot completion latch',
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   onEvent.mockClear();
   await user.click(screen.getByRole('button',{name:'Start over'}));
   expect(onEvent.mock.calls.map(([event])=>event)).toEqual([
@@ -144,6 +170,7 @@ test('emits ordered reset state without rearming the one-shot completion latch',
   await user.click(screen.getByRole('button',{name:'Select pronoun I'}));
   await user.click(screen.getByRole('button',{name:'Select pronoun my'}));
   await user.click(screen.getByRole('button',{name:'Apply point of view'}));
+  if(screen.queryByRole('button',{name:'The narrator words changed; the event stayed the same'}))await user.click(screen.getByRole('button',{name:'The narrator words changed; the event stayed the same'}));
   expect(onEvent.mock.calls.filter(([event])=>event.type==='complete')).toHaveLength(0);
 });
 
