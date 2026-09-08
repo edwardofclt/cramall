@@ -14,7 +14,7 @@ beforeEach(() => {
   vi.mocked(createLiveTutor).mockImplementation((options: LiveOptions) => {
     const session = {
       connect: vi.fn(async () => { options.onStatus('connecting'); options.onStatus('ready'); }),
-      sendQuestion: vi.fn(), setEvidence: vi.fn(), interrupt: vi.fn(),
+      sendQuestion: vi.fn(), setEvidence: vi.fn(), setContext: vi.fn(), interrupt: vi.fn(),
       setMicrophone: vi.fn((enabled: boolean) => options.onMicChange(enabled)),
       close: vi.fn(() => options.onMicChange(false)),
     };

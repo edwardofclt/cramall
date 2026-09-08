@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { claimAudio, releaseAudio } from './audio-focus';
 
 export type ReadAloudButtonProps = {
   /** Plain text to speak — no markup; run it through `speechText` first. */
@@ -39,31 +40,31 @@ function SpeakingButton({ text }: ReadAloudButtonProps) {
     utteranceRef.current = null;
   }
 
-  // Speech outlives React: without this, walking to the next card leaves the old card
-  // reading over the new screen with nothing left on screen to stop it.
-  useEffect(
-    () => () => {
-      releaseUtterance();
-      // Gated like every other call: teardown must never be the thing that throws.
-      if (canSpeak()) window.speechSynthesis.cancel();
-    },
-    [],
-  );
+  const stop = useCallback(() => {
+    releaseUtterance();
+    if (canSpeak()) window.speechSynthesis.cancel();
+    setSpeaking(false);
+    releaseAudio(stop);
+  }, []);
+
+  useEffect(() => () => {
+    releaseUtterance();
+    if (releaseAudio(stop) && canSpeak()) window.speechSynthesis.cancel();
+  }, [stop]);
 
   function toggle() {
-    // Cancel first either way: a second tap stops, and a fresh tap never stacks voices.
-    releaseUtterance();
+    if (speaking) { stop(); return; }
+    claimAudio(stop);
     window.speechSynthesis.cancel();
-
-    if (speaking) {
-      setSpeaking(false);
-      return;
-    }
-
     const utterance = new window.SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
-    utterance.onend = () => setSpeaking(false);
-    utterance.onerror = () => setSpeaking(false);
+    const finish = () => {
+      releaseUtterance();
+      releaseAudio(stop);
+      setSpeaking(false);
+    };
+    utterance.onend = finish;
+    utterance.onerror = finish;
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
     setSpeaking(true);

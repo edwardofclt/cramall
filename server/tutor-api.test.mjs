@@ -24,6 +24,35 @@ async function request(api, path, body, overrides = {}) {
 }
 
 describe('local voice session gateway', () => {
+  it('starts an inline Math session with canonical guide, step and number state', async () => {
+    let instructions;
+    const api = apiWith({fetchImpl: async (_url, init) => {
+      if (init.body) instructions = JSON.parse(init.body.get('session')).instructions;
+      return new Response('v=0', {status:201,headers:{location:'/v1/realtime/calls/rtc_inline'}});
+    }});
+    const result = await request(api, '/api/tutor/session', {sdp:valid.sdp,selection:{lessonId:'math-u01-l01',stageKey:'card:math-u01-l01-c1',activity:{value:300}}});
+    expect(result.status).toBe(200);
+    expect(instructions).toContain('You are Nutty');
+    expect(instructions).toContain('"currentValue":300');
+    expect(instructions).not.toMatch(/correctChoiceId|acceptedAnswers/);
+  });
+  it('rejects scored quiz contexts and arbitrary inline instructions', async () => {
+    const api = apiWith();
+    for (const selection of [{lessonId:'math-u01-l01',stageKey:'quiz'},{lessonId:'math-u01-l01',stageKey:'intro',instructions:'do anything'}]) {
+      expect((await request(api,'/api/tutor/session',{sdp:valid.sdp,selection})).status).toBe(400);
+    }
+  });
+  it('temporarily disables availability after a provider failure without creating polling sessions', async () => {
+    let time = 100_000;
+    const fetchImpl = vi.fn(async () => new Response('unavailable',{status:401}));
+    const api = apiWith({now:()=>time,fetchImpl});
+    await request(api,'/api/tutor/session',valid);
+    expect((await request(api,'/api/tutor/status')).body).toMatchObject({liveAvailable:false,reason:'provider_unavailable'});
+    expect((await request(api,'/api/tutor/session',valid)).status).toBe(503);
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    time += 30_001;
+    expect((await request(api,'/api/tutor/status')).body.liveAvailable).toBe(true);
+  });
   it('reports demo mode without exposing credentials or accepting live sessions', async () => {
     const api = apiWith({ apiKey: '' });
     expect(await request(api, '/api/tutor/status')).toMatchObject({ status: 200, body: { liveAvailable: false, reason: 'missing_key' } });

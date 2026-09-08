@@ -1,4 +1,4 @@
-# Winnie's conversational tutor prototype
+# Conversational lesson guide prototype
 
 Isolated worktree: `/private/tmp/cram-all-voice-tutor`
 
@@ -6,9 +6,39 @@ Branch: `codex/voice-tutor-prototype`
 
 Base: `0f1ecd9` (the last committed app). Concurrent uncommitted curriculum and activity work in the original checkout is untouched.
 
-## Try it
+## Current inline integration — September 8, 2026
 
-Open `http://127.0.0.1:4188/#/tutor` while the preview is running. The home page also links to the preview. The theme lesson's three learn cards link to their matching tutor focus.
+The live guide is now available through all six stages of two complete lessons:
+
+- [Winnie: Explain Explicit and Implied Themes](http://127.0.0.1:4188/#/lesson/reading-u04-l01)
+- [Nutty: Numbers to the Millions](http://127.0.0.1:4188/#/lesson/math-u01-l01)
+
+Choose **Ask Winnie** or **Ask Nutty** at any point. Opening the panel does not connect or speak. **Explain this**, **Another way**, **An example**, a typed question, or **Talk to me** starts a live conversation on demand. **Read this** explicitly requests the source passage (Reading) or current title/concepts (Math). The standalone `/tutor` sample remains available separately.
+
+The panel stays beside the lesson on wide screens and opens in document flow on narrower screens. Mobile controls let the learner move between the current step and an already-open guide. The complete Reading source remains visible either in the source reference, evidence activity, or worked example. Guide controls have 44px minimum heights; transcript and source scroll regions support keyboard focus.
+
+The guide receives the current stage, authored teaching material, and actual activity state: the built number or selected theme/quotation IDs. Context updates do not request speech. Stage navigation keeps the same connection and transcript, cancels the previous reply, and mutes microphone input. Back revisits use the newly reset activity's state. Collapsing closes the connection while retaining the in-memory transcript; reopening sends up to eight recent messages (bounded in length) for continuity. Leaving the lesson or entering a scored Quick Check closes the session and discards this transient state.
+
+Live audio and the existing device read-aloud share one owner. Starting either stops the other. The Realtime session keeps voice detection but disables automatic responses; the client requests a reply only for a still-current completed voice turn. Stop and stage changes invalidate pending voice turns, silence playback immediately, and cancel late responses. This follows the [official manual-response approach](https://developers.openai.com/api/docs/guides/realtime-conversations#keep-vad-but-disable-automatic-responses).
+
+If the local backend, key, adult-review flag, or provider is unavailable, the inline controls are disabled with **Guide unavailable**. Student-facing UI contains no key setup, billing detail, or sample fallback. Status checks do not start paid sessions. Known provider failures have a 30-second cooldown; returning focus/online checks availability again. In-flight status results cannot bypass that cooldown. Local microphone-permission errors remain retryable.
+
+`src/tutor/inline-manifest.mjs` is generated from the two authored lessons with `node scripts/build-inline-tutor-context.mjs`. The shared validator is used by browser and gateway. Parity tests cover every stage. Only teaching material, source, visible targets/choices and quotations are allowed; quiz pools, inline-check keys, evidence support maps, grading, and progress are excluded. The app's original character files, curriculum, standards and scoring are unchanged. This work remains in the isolated prototype worktree, separate from concurrent curriculum work.
+
+### Inline verification
+
+- **1,109 tests / 120 files passed**. TypeScript, normal and single builds, and diff checks passed. Focused regressions were observed failing before implementation for context, availability, audio handoff, stage changes, and delayed response/status races.
+- Artifact checks: normal Google Fonts retained; single HTML has inline scripts/styles and no Google Fonts or external script loading; no API key or server credential configuration appears in either client build. Single HTML: 6,595,214 bytes. Existing Vite chunk-size advisory remains.
+- Browser checks cover both guides, actual Math/evidence activity controls, full Reading source, conversation across stages, collapse preserving a built value of 300, Back/Forward, worked examples, wrap-up, and exclusion from scored Quick Checks and unsupported lessons. Mobile guide/lesson focus return and close focus restoration work. Layouts checked at 1440×950, 1280×500, 390×844, and 320×568: no horizontal overflow; visible guide controls at least 44px tall.
+- The self-contained build was served with an explicitly empty API key: **Guide unavailable** was disabled, while the Math activity continued to update normally. No credential file was changed.
+- Live checks used typed requests with audio output and the microphone muted. Nutty identified the built value of 300 and the result of adding another hundred as 400. Winnie correctly explained why the selected straight-garden-rows clue did not support generosity, and the same connection then followed the next concept stage. Stop and End worked; End returned to microphone off with no active-session controls.
+- Independent scoped review: **APPROVED** after fixes for late microphone replies, runtime provider disablement and the in-flight availability race. The final mobile shortcut and keyboard refinements were also approved.
+
+These observations are adult prototype checks. Spoken microphone input, acoustic quality and real learner understanding still need human evaluation. Explanations are prompted to stay under 65 words; this is not an enforced guarantee. One live Math worked-example reply confused digit values and periods; the teaching prompt was tightened to use exact authored equations and explain individual nonzero places. See the follow-up observation below. Student deployment and broader lesson rollout remain separate work.
+
+## Original standalone sample walkthrough
+
+Open `http://127.0.0.1:4188/#/tutor` while the preview is running. The home page also links to the preview. The two integrated lesson links now open the guide within the lesson.
 
 1. Click **Explain this**. Winnie briefly teaches the concept without reading the story.
 2. Try **Say it another way** or **Give me an example**.
@@ -63,7 +93,7 @@ Official implementation references, checked September 8, 2026:
 
 ## Scope and verification
 
-Only `reading-u04-l01` is supported. `src/tutor/lesson-context.json` is a minimal snapshot of its source, concepts and selectable quotations, with a parity test against the authored lesson. It contains no quiz or inline-check answer keys. It must be regenerated deliberately if the lesson changes. Character art, standards, curriculum, assessment and progress rules are unchanged.
+The original standalone sample supports only `reading-u04-l01`; the inline integration described above also supports `math-u01-l01`. `src/tutor/lesson-context.json` is a minimal snapshot of its source, concepts and selectable quotations, with a parity test against the authored lesson. It contains no quiz or inline-check answer keys. It must be regenerated deliberately if the lesson changes. Character art, standards, curriculum, assessment and progress rules are unchanged.
 
 Pre-change baseline: **1,022 tests / 110 files passed**, including 103 focused lesson-player/content-validation tests. New focused checks cover the grounded sample, source parity, typed interaction, speech lifecycle, WebRTC resource cleanup, gateway authorization, request validation, creation races and timed hangup.
 
@@ -98,3 +128,7 @@ After billing setup, one real OpenAI Realtime session completed the following br
 | End session | The app showed Session ended, microphone off, and disabled the microphone control. |
 
 These are initial adult-review observations, not a student-readiness evaluation. The three explanations were 90, 66 and 79 words, so the short-response instruction is a target rather than an enforced limit. The confusion reply mostly rephrased the original concept and introduced an abstract question about generosity; a future teaching-quality pass should push for a more concrete new example. The evidence reply also inferred how the learner was interpreting the quote, which should be made less presumptive. Spoken input and acoustic quality still need a person to test with **Turn microphone on**. The live preview remains available; click **Explain this** to start a fresh session.
+
+### Inline Math teaching recheck
+
+A broad worked-example explanation initially blurred the millions period with individual places. After tightening the instruction to use exact authored equations, a second broad explanation still incorrectly included thousands when naming the millions group. A focused follow-up correctly stated that 6 in the ten-millions place contributes 60,000,000 and 8 in the millions place contributes 8,000,000, but did not supply the entire expanded equation requested. This is a remaining model teaching-quality limitation, not a context-delivery failure. The UI integration is ready for review; broad Math summaries need further evaluation and improvement before student rollout. The prompt now explicitly distinguishes periods from individual place values and asks for direct, short explanations. The model and pricing configuration were not changed.

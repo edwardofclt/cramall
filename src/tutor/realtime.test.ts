@@ -39,6 +39,88 @@ beforeEach(() => {
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('voice transport lifecycle', () => {
+  it.each(['stop','stage'])('suppresses delayed voice events after %s until an explicit new request', async action => {
+    const hooks = {...options(),selection:{lessonId:'math-u01-l01',stageKey:'intro'}};
+    const session = createLiveTutor(hooks);
+    await session.connect();
+    session.setMicrophone(true);
+    const channel = peers[0].channel;
+    channel.emit({type:'input_audio_buffer.speech_started',item_id:'old-voice'});
+    if (action === 'stage') session.setContext({lessonId:'math-u01-l01',stageKey:'worked'});
+    else { session.setMicrophone(false); session.interrupt(); }
+    channel.emit({type:'input_audio_buffer.speech_stopped',item_id:'old-voice'});
+    channel.emit({type:'conversation.item.input_audio_transcription.completed',item_id:'old-voice',transcript:'Old question'});
+    channel.emit({type:'response.created'});
+    channel.emit({type:'output_audio_buffer.started'});
+    channel.emit({type:'response.output_audio_transcript.done',item_id:'old-reply',transcript:'Old reply'});
+    expect(hooks.onStatus).toHaveBeenLastCalledWith('ready');
+    expect(hooks.onMessage).not.toHaveBeenCalled();
+    expect(sent).toContainEqual({type:'input_audio_buffer.clear'});
+    expect(sent).toContainEqual({type:'response.cancel'});
+    expect(sent.filter(event => event.type === 'response.create')).toHaveLength(0);
+    channel.emit({type:'response.done',response:{status:'cancelled'}});
+    session.sendQuestion('New question');
+    expect(sent.filter(event => event.type === 'response.create')).toHaveLength(1);
+    session.close();
+  });
+  it('requests one reply only for a current completed voice turn', async () => {
+    const hooks = options(); const session = createLiveTutor(hooks);
+    await session.connect(); session.setMicrophone(true);
+    const channel = peers[0].channel;
+    channel.emit({type:'input_audio_buffer.speech_started',item_id:'voice-one'});
+    channel.emit({type:'input_audio_buffer.speech_stopped',item_id:'voice-one'});
+    channel.emit({type:'conversation.item.input_audio_transcription.completed',item_id:'voice-one',transcript:'What is a theme?'});
+    channel.emit({type:'conversation.item.input_audio_transcription.completed',item_id:'voice-one',transcript:'What is a theme?'});
+    expect(sent.filter(event => event.type === 'response.create')).toHaveLength(1);
+    expect(hooks.onMessage).toHaveBeenCalledOnce();
+    session.close();
+  });
+  it.each([{type:'error',error:{code:'server_error'}},{type:'response.done',response:{status:'failed'}}])('disables on runtime provider failure', async event => {
+    const onUnavailable = vi.fn(); const session = createLiveTutor({...options(),onUnavailable});
+    await session.connect(); session.sendQuestion('Explain this');
+    peers[0].channel.emit(event);
+    expect(onUnavailable).toHaveBeenCalledOnce(); expect(stopped).toBe(true);
+  });
+  it('updates stages in the same session, cancelling queued old-step requests and muting input', async () => {
+    const hooks = {...options(), selection:{lessonId:'math-u01-l01',stageKey:'card:math-u01-l01-c1',activity:{value:300}}};
+    const session = createLiveTutor(hooks);
+    await session.connect();
+    session.setMicrophone(true);
+    session.sendQuestion('Explain my number');
+    session.sendQuestion('An old-step follow-up');
+    session.setContext({lessonId:'math-u01-l01',stageKey:'worked'});
+    peers[0].channel.emit({type:'response.created'});
+    peers[0].channel.emit({type:'response.output_audio_transcript.delta',item_id:'old',delta:'Old answer'});
+    peers[0].channel.emit({type:'response.done',response:{status:'cancelled'}});
+    expect(track.enabled).toBe(false);
+    expect(sent.filter(event => event.type === 'response.create')).toHaveLength(1);
+    expect(hooks.onMessage).not.toHaveBeenCalled();
+    expect(JSON.stringify(sent)).toContain('Write 68,405,013 three ways');
+    expect(peers).toHaveLength(1);
+    session.sendQuestion('Explain this step');
+    expect(sent.filter(event => event.type === 'response.create')).toHaveLength(2);
+    session.close();
+  });
+  it('uses the latest context when a step changes during microphone permission', async () => {
+    let grant!: (stream: MediaStream) => void;
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockImplementation(() => new Promise(resolve => { grant = resolve; }));
+    const session = createLiveTutor({...options(),selection:{lessonId:'math-u01-l01',stageKey:'intro'}});
+    const start = session.connect();
+    session.setContext({lessonId:'math-u01-l01',stageKey:'worked'});
+    grant({getTracks:()=>[track],getAudioTracks:()=>[track]} as unknown as MediaStream);
+    await start;
+    const body = JSON.parse(vi.mocked(fetch).mock.calls[0][1]!.body as string);
+    expect(body.selection.stageKey).toBe('worked');
+    session.close();
+  });
+  it('signals server unavailability and releases the microphone on failed setup', async () => {
+    vi.stubGlobal('fetch',vi.fn(async()=>new Response(JSON.stringify({code:'voice_unavailable',error:'Billing details'}),{status:503})));
+    const onUnavailable = vi.fn();
+    const session = createLiveTutor({...options(),onUnavailable});
+    await session.connect();
+    expect(onUnavailable).toHaveBeenCalledOnce();
+    expect(stopped).toBe(true);
+  });
   it('starts muted and sends typed questions as conversation input', async () => {
     const session = createLiveTutor(options());
     await session.connect();
@@ -58,6 +140,7 @@ describe('voice transport lifecycle', () => {
     const session = createLiveTutor(hooks);
     await session.connect();
     const channel = peers[0].channel;
+    session.sendQuestion('Explain this');
     channel.emit({ type: 'response.created' });
     channel.emit({ type: 'output_audio_buffer.started' });
     channel.emit({ type: 'response.output_audio_transcript.done', item_id: 'reply', transcript: 'Look at his choice.' });
@@ -99,6 +182,7 @@ describe('voice transport lifecycle', () => {
   it('cancels generation and clears queued audio when interrupted', async () => {
     const session = createLiveTutor(options());
     await session.connect();
+    session.sendQuestion('Explain this');
     peers[0].channel.emit({ type: 'response.created' });
     peers[0].channel.emit({ type: 'output_audio_buffer.started' });
     session.interrupt();
@@ -145,6 +229,7 @@ describe('voice transport lifecycle', () => {
     const hooks = options();
     const session = createLiveTutor(hooks);
     await session.connect();
+    session.sendQuestion('Read this');
     peers[0].channel.emit({ type: 'response.done', response: { status: 'incomplete', status_details: { reason: 'max_output_tokens' } } });
     expect(hooks.onError).toHaveBeenCalledWith(expect.stringMatching(/cut short/i));
     expect(stopped).toBe(true);
