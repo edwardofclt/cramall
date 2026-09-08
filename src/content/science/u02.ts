@@ -1,3 +1,4 @@
+import { scienceWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 const scienceU02L01Core = {
@@ -1459,6 +1460,7 @@ const scienceU02L04Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u02-l04-c3'),
       "id": "science-u02-l04-c3",
       "title": "Build a comparison claim",
       "blocks": [

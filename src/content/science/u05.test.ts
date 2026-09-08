@@ -3,6 +3,7 @@ import { normalizeAnswerText } from '../answer-normalization';
 import { validateLesson, WidgetRefSchema, type Question } from '../schema';
 import { buildResult, type Answer } from '../../quiz/engine';
 import { unit05Lessons } from './u05';
+import { deviceRetestConfig } from './activityPrototypes';
 
 const specs = [
   {
@@ -225,7 +226,7 @@ const specs = [
       {
         "title": "Write a fair test procedure",
         "tag": "device-test-procedure",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "lamp-test-notebook"}}
       },
       {
         "title": "Record observable results",
@@ -313,7 +314,7 @@ const specs = [
       {
         "title": "Compare the retest with the first test",
         "tag": "refinement-evidence",
-        "widget": null
+        "widget": { "type": "device-retest", "config": deviceRetestConfig }
       }
     ],
     "routes": [

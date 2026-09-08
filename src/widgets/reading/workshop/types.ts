@@ -1,0 +1,12 @@
+import type { ReadingWorkshopConfig } from '../../../content/reading/workshop-schema';
+export type Activity = ReadingWorkshopConfig['activity'];
+export type Draft = Record<string, string | string[]>;
+export type Option = { id: string; text: string; quote?: string };
+export type Field = { id: string; label: string; kind: 'select' | 'pin' | 'multi' | 'text'; options: Option[]; initial?: string; excerpt?: string };
+export type Phase = { title: string; instruction: string; fields: Field[]; valid: (draft: Draft, drafts: Draft[]) => boolean; success: string; retry: string };
+export type Experience = { phases: Phase[]; surface: 'rehearsal' | 'desk' | 'weather' | 'chains' | 'forms' | 'literal' | 'inquiry' | 'folder' | 'clusters' | 'credit' };
+export const options = (values: Record<string,string>): Option[] => Object.entries(values).map(([id,text])=>({id,text}));
+export const select = (id:string,label:string,values:Record<string,string>): Field => ({id,label,kind:'select',options:options(values)});
+export const pin = (id:string,label:string,values:Record<string,string>,multiple=false): Field => ({id,label,kind:multiple?'multi':'pin',options:options(values).map(o=>({...o,quote:o.text}))});
+export const exact = (expected: Record<string,string|string[]>) => (d:Draft) => Object.entries(expected).every(([key,value])=>Array.isArray(value) ? Array.isArray(d[key])&&value.length===d[key].length&&value.every(v=>(d[key] as string[]).includes(v)) : d[key]===value);
+export const phase = (title:string,instruction:string,fields:Field[],valid:Phase['valid'],success:string,retry='Revisit the exact words and the connection you are making.'): Phase => ({title,instruction,fields,valid,success,retry});

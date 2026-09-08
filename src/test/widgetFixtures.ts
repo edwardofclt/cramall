@@ -1,13 +1,22 @@
 import { timelineConfig, mapConfig, evidenceConfig, causeConfig } from '../widgets/social-studies/history-fixtures';
 import type { WidgetCoach, WidgetRef, WidgetType } from '../content/schema';
+import { scaleReadingConfig } from '../content/math/activityPrototypes';
+import { phrasePathfinderConfig } from '../content/reading/activityPrototypes';
+import { deviceRetestConfig } from '../content/science/activityPrototypes';
 
 type RefFor<T extends WidgetType> = Extract<WidgetRef, { type: T }>;
 
 export const validWidgetRefByType = {
+  'math-workshop': { type: 'math-workshop', config: { activity: 'estimate-checkpoint' } },
+  'reading-workshop': { type: 'reading-workshop', config: { activity: 'direct-the-reading' } },
+  'science-workshop': { type: 'science-workshop', config: { activity: 'receiver-changes' } },
   'history-timeline': { type: 'history-timeline', config: timelineConfig },
   'history-map': { type: 'history-map', config: mapConfig },
   'history-evidence-board': { type: 'history-evidence-board', config: evidenceConfig },
   'history-cause-effect': { type: 'history-cause-effect', config: causeConfig },
+  'scale-reading': { type: 'scale-reading', config: scaleReadingConfig },
+  'phrase-pathfinder': { type: 'phrase-pathfinder', config: phrasePathfinderConfig },
+  'device-retest': { type: 'device-retest', config: deviceRetestConfig },
   'regrouping-lab': { type: 'regrouping-lab', config: { a: 50003, b: 26718, operation: 'subtract', context: 'Find how many seeds remain.' } },
   'place-value-builder': { type: 'place-value-builder', config: { target: 482, periods: 2 } },
   'number-line-compare': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction', denominator: 4 } },

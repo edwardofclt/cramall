@@ -109,7 +109,7 @@ const specs = [
       {
         "title": "Compare shorter and longer wavelengths",
         "tag": "wavelength-comparison",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "crest-to-crest"}}
       },
       {
         "title": "Use a qualitative wave model",
@@ -430,11 +430,11 @@ test('every card has an immediate exact missed-result review route', () => {
 
 test('wave and light widget cards carry in-step Sandy coaching for their model boundaries', () => {
   const coachedCards = unit03Lessons.flatMap((lesson) => lesson.learnCards.filter((card) => card.widget));
-  expect(coachedCards).toHaveLength(3);
+  expect(coachedCards).toHaveLength(4);
   for (const card of coachedCards) {
     expect(card.widgetCoach?.intro).toHaveLength(2);
     expect(card.widgetCoach?.intro.map(({ speaker }) => speaker)).toEqual(['guide', 'kid']);
-    expect(card.widgetCoach?.reactions.complete.text).toMatch(/model|path|amplitude|frequency|reflected light/i);
+    expect(card.widgetCoach?.reactions.complete.text).toMatch(/model|path|amplitude|frequency|reflected light|spacing|wavelength|matching points/i);
   }
   const lightCard = unit03Lessons[3]!.learnCards[1]!;
   expect(lightCard.widgetCoach?.reactions.strategy?.text).toMatch(/supplies light.*receives/i);

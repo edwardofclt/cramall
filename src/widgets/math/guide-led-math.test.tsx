@@ -7,6 +7,7 @@ import FractionModels from './FractionModels';
 import ProbabilitySpinner from './ProbabilitySpinner';
 import ShapeClassifier from './ShapeClassifier';
 import { unit11Lessons } from '../../content/math/u11';
+import type { LearnCard } from '../../content/schema';
 
 test('area asks for a committed total before revealing products and retains retry feedback', async () => {
   const user = userEvent.setup(); const onEvent = vi.fn();
@@ -47,7 +48,9 @@ test('fair sharing does not disclose each share and cannot distribute more than 
 });
 
 test('shape alternative describes geometry without listing the keyed memberships', () => {
-  const config = unit11Lessons.flatMap(l => l.learnCards).find(c => c.widget?.type === 'shape-classifier')!.widget!.config;
+  const card = unit11Lessons.flatMap<LearnCard>(l => l.learnCards).find(c => 'widget' in c && c.widget?.type === 'shape-classifier');
+  if (!card || !('widget' in card) || card.widget?.type !== 'shape-classifier') throw new Error('shape-classifier is missing');
+  const config = card.widget.config;
   render(<ShapeClassifier config={config as Parameters<typeof ShapeClassifier>[0]['config']} onEvent={vi.fn()} />);
   for (const diagram of screen.getAllByRole('img')) expect(diagram).not.toHaveAccessibleName(/Canonical classes:/);
 });
@@ -92,7 +95,9 @@ test('money collection renders each selected piece and treats changing a collect
 });
 
 test('shape memberships are neutral until checked and feedback belongs to that shape', async () => {
-  const config = unit11Lessons.flatMap(l => l.learnCards).find(c => c.widget?.type === 'shape-classifier')!.widget!.config;
+  const card = unit11Lessons.flatMap<LearnCard>(l => l.learnCards).find(c => 'widget' in c && c.widget?.type === 'shape-classifier');
+  if (!card || !('widget' in card) || card.widget?.type !== 'shape-classifier') throw new Error('shape-classifier is missing');
+  const config = card.widget.config;
   const user = userEvent.setup(); const onEvent = vi.fn();
   render(<ShapeClassifier config={config as Parameters<typeof ShapeClassifier>[0]['config']} onEvent={onEvent} />);
   await user.click(screen.getByRole('button', { name: 'Select Shape E' }));

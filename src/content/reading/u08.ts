@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -111,6 +112,7 @@ export const unit08Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u08-l01-c3'),
         "id": "reading-u08-l01-c3",
         "title": "Explain How Perspective Conveys Purpose",
         "blocks": [
@@ -610,6 +612,7 @@ export const unit08Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u08-l02-c3'),
         "id": "reading-u08-l02-c3",
         "title": "Connect Evidence to the Claim",
         "blocks": [

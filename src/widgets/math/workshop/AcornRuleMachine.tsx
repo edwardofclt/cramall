@@ -1,0 +1,21 @@
+import { useState } from 'react';
+import { Block, Choice, Entry, Explain, Feedback, Surface, useSession, type WorkshopProps } from './common';
+const rows = [{ input: 2, output: 12 }, { input: 4, output: 24 }, { input: 7, output: 42 }];
+export function ruleOutput(rule: string, input: number) { return rule === 'times6' ? input * 6 : rule === 'times4' ? input * 4 : input + 10; }
+export default function AcornRuleMachine(props: WorkshopProps) {
+    const s = useSession(props);
+    const [rule, setRule] = useState('');
+    const [tested, setTested] = useState<Record<number, number>>({});
+    const [active, setActive] = useState<number | null>(null);
+    const [seeds, setSeeds] = useState('');
+    const [bags, setBags] = useState('');
+    const [valid, setValid] = useState(false);
+    const all = rows.every(r => tested[r.input] === r.output);
+    const invalidate = () => { setValid(false); s.clear('entries'); };
+    return <Surface props={props} revealKey={valid ? 'explain' : all ? 'entries' : 'test'} visual={<><table><caption>Recorded seed table</caption><thead><tr><th>Input (bags)</th><th>Recorded output (seeds)</th><th>Your rule’s result</th></tr></thead><tbody>{rows.map(r => <tr key={r.input}><td>{r.input}</td><td>{r.output}</td><td>{tested[r.input] === undefined ? 'Not tested' : `Predicted ${tested[r.input]} seeds — ${tested[r.input] === r.output ? 'matches' : 'does not match'}`}</td></tr>)}<tr><td>5</td><td>{valid ? seeds : '?'}</td><td>Find output</td></tr><tr><td>{valid ? bags : '?'}</td><td>54</td><td>Find input</td></tr></tbody></table><div className="mw-machine">Operation tile: {rule === 'times6' ? '× 6' : rule === 'times4' ? '× 4' : rule === 'add10' ? '+ 10' : 'choose a rule'}<p>{active === null ? 'Send an input card through the machine.' : `${active} bags → ${tested[active]} predicted seeds`}</p></div>{active !== null && <div><p>Grouping picture for the proposed rule:</p><div className="mw-seed-bags" role="img" aria-label={rule === 'add10' ? `${active} bags with one starting seed each, plus ten loose seeds` : `${active} equal bags with ${rule === 'times6' ? 6 : 4} seeds each`}>{Array.from({ length: active }, (_, i) => <div className="mw-seed-bag" key={i}>Bag {i + 1}<div>{Array.from({ length: rule === 'add10' ? 1 : rule === 'times6' ? 6 : 4 }, (_, j) => <span key={j}>● </span>)}</div></div>)}{rule === 'add10' && <div>Loose seeds: ● ● ● ● ● ● ● ● ● ●</div>}</div></div>}</>}>
+ <Block title="Test one rule on every row"><Choice label="Machine rule" value={rule} onChange={v => { setRule(v); setTested({}); setActive(null); setSeeds(''); setBags(''); invalidate(); s.clear('test'); }} options={[["times6", "Multiply by 6"], ["add10", "Add 10"], ["times4", "Multiply by 4"]]}/>{rows.map(r => <button key={r.input} disabled={!rule} onClick={() => { const next = { ...tested, [r.input]: ruleOutput(rule, r.input) }; setTested(next); setActive(r.input); invalidate(); const matchingRow = next[r.input] === r.output;
+        s.say('test', !matchingRow ? 'This rule does not fit this recorded row. Compare the two outputs and revise your rule.' : Object.keys(next).length < 3 ? 'This row matches. Keep this comparison and test the other recorded rows.' : rows.every(row => next[row.input] === row.output) ? 'All three rows fit. Now use the same rule in both directions.' : 'This row matches, but another recorded row does not. Compare every row before keeping the rule.', matchingRow); }}>Send {r.input} bags</button>)}<Feedback session={s} phase="test"/></Block>
+ {all && <Block title="Extend both directions"><Entry label="Seeds for 5 bags" value={seeds} onChange={v => { setSeeds(v); invalidate(); }}/><Entry label="Bags for 54 seeds" value={bags} onChange={v => { setBags(v); invalidate(); }}/><button onClick={() => { const ok = Number(seeds) === 30 && Number(bags) === 9; setValid(ok); s.say('entries', ok ? 'Both missing entries follow the tested rule.' : 'Use your tested rule for five bags, then work backward from fifty-four seeds.', ok); }}>Check missing entries</button><Feedback session={s} phase="entries"/></Block>}
+ {valid && <Explain session={s} answer="six" options={[["first", "The rule only needs to match the first row."], ["six", "Each bag adds the same six seeds."], ["ten", "Every input needs ten extra seeds."]]}/>}
+ </Surface>;
+}

@@ -46,6 +46,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u11-l01-c3': { type: 'math-workshop', config: { activity: 'triangle-inspection-desk' } },
   'math-u11-l02-c1': { type: 'shape-classifier', config: {
     mode: 'classifications',
     shapes: [

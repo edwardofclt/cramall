@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -1101,6 +1102,7 @@ export const unit02Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u02-l03-c3'),
         "id": "reading-u02-l03-c3",
         "title": "Select the Precise Meaning",
         "blocks": [

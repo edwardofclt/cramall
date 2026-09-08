@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 // src/content/math/u05.ts
 import type { Lesson } from '../schema';
 
@@ -104,6 +105,7 @@ export const unit05Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u05-l02-c2'),
         id: 'math-u05-l02-c2',
         title: 'Write an Equation with a Variable',
         blocks: [

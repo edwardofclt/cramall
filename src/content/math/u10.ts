@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit10Lessons = [
@@ -23,6 +24,7 @@ export const unit10Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u10-l01-c2'),
         id: 'math-u10-l01-c2',
         title: 'Find an Unknown Side Length',
         blocks: [

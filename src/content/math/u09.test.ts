@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { LessonSchema, WidgetRefSchema, validateLesson, type Lesson } from '../schema';
 import { unit09Lessons } from './u09';
+import { scaleReadingConfig } from './activityPrototypes';
 
 const expected = [
   { id: 'math-u09-l01', title: 'Money Collections and Purchases', indicatorCodes: ['4.MGSR.2.1'] },
@@ -97,6 +98,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u09-l04-c3': { type: 'scale-reading', config: scaleReadingConfig },
   'math-u09-l01-c1': { type: 'money-counter', config: { targetCents: 635, denominations: [1, 5, 10, 25, 100], taskPrompt: 'Show $6.35 with coins and bills.' } },
   'math-u09-l02-c2': { type: 'clock-elapsed-time', config: { mode: 'elapsed', startTime: '09:00', elapsedMinutes: 35, minuteStep: 5, jumpMinutes: [5, 10, 15] } },
   'math-u09-l03-c2': { type: 'quarter-inch-ruler', config: { lengthInches: 5, targetInches: 4.75, startInches: 0, taskPrompt: 'Place the object endpoint at 4¾ inches.' } },

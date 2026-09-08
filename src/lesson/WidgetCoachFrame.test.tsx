@@ -55,6 +55,15 @@ function renderCoach() {
 }
 
 describe('WidgetCoachFrame', () => {
+  test('uses an authored final action while preserving one forward control and focus', async () => {
+    const user = userEvent.setup();
+    render(<WidgetCoachFrame type="place-value-builder" config={{ target: 2 }} coach={{ ...coach, startLabel: 'Build my number' }} guide="nutty" visitKey="authored-start" onEvent={vi.fn()} onIntroActiveChange={vi.fn()} />);
+    await user.click(screen.getByRole('button', { name: 'Next' }));
+    expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try it' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Build my number' }));
+    expect(screen.getByRole('button', { name: 'Emit strategy' })).toHaveFocus();
+  });
   test('walks through the in-step mini-conversation before enabling the widget', async () => {
     const user = userEvent.setup();
     const { onIntroActiveChange } = renderCoach();

@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -111,6 +112,7 @@ export const unit10Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u10-l01-c3'),
         "id": "reading-u10-l01-c3",
         "title": "Read Poetry Structure",
         "blocks": [
@@ -1116,6 +1118,7 @@ export const unit10Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u10-l03-c3'),
         "id": "reading-u10-l03-c3",
         "title": "Explain the Reader's Experience",
         "blocks": [

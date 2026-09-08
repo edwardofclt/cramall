@@ -63,6 +63,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u08-l03-c3': { type: 'math-workshop', config: { activity: 'decimal-exchange-mat' } },
   'math-u08-l01-c3': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.1, b: 0.35, step: 0.01, display: 'fraction', denominator: 100 } },
   'math-u08-l02-c1': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.48, b: 0.52, step: 0.01, display: 'number' } },
 } as const;

@@ -925,7 +925,17 @@ const expectedChecks = [
 const expectedWidgets = [
   {
     "id": "reading-u11-l01",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l01-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "question-compass"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l02",
@@ -999,15 +1009,45 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u11-l03",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l03-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "research-folder"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l04",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l04-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "research-clusters"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u11-l05",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u11-l05-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "source-credit"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

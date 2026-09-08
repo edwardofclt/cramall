@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit11Lessons = [
@@ -32,6 +33,7 @@ export const unit11Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u11-l01-c3'),
         id: 'math-u11-l01-c3',
         title: 'Give Both Triangle Classifications',
         blocks: [

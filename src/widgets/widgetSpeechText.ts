@@ -1,5 +1,8 @@
 import type { HistoryBase } from '../content/social-studies/history-schema';
 import type { WidgetRef } from '../content/schema';
+import { mathWorkshopSpeechText } from '../content/math/workshopActivities';
+import { readingWorkshopSpeechText } from '../content/reading/workshopActivities';
+import { scienceWorkshopSpeechText } from '../content/science/workshopActivities';
 
 const compact = (value: string) => value.trim().replace(/\s+/g, ' ');
 const add = (...values: Array<string | number | undefined | null>) => values
@@ -14,6 +17,9 @@ const historySources = (config: HistoryBase) => add(config.title, config.prompt,
  */
 export function widgetSpeechText(ref: WidgetRef): string[] {
   switch (ref.type) {
+    case 'math-workshop': return mathWorkshopSpeechText(ref.config);
+    case 'reading-workshop': return readingWorkshopSpeechText(ref.config);
+    case 'science-workshop': return scienceWorkshopSpeechText(ref.config);
     case 'history-timeline':
       return add(...historySources(ref.config), ...ref.config.events.flatMap(event => [event.year, event.title, event.detail]));
     case 'history-map':
@@ -22,6 +28,12 @@ export function widgetSpeechText(ref: WidgetRef): string[] {
       return add(...historySources(ref.config), ...ref.config.headings.map(heading => heading.label), ...ref.config.cards.map(card => card.text));
     case 'history-cause-effect':
       return add(...historySources(ref.config), ...ref.config.causes.map(cause => cause.text), ...ref.config.effects.map(effect => effect.text));
+    case 'scale-reading':
+      return add('Weigh the Field Kit. Read each supplied scale and record the nearest whole unit.', ...ref.config.items.map(item => `${item.label}: scale in ${{ oz: 'ounces', lb: 'pounds', g: 'grams', kg: 'kilograms' }[item.unit]}.`));
+    case 'phrase-pathfinder':
+      return add(ref.config.title, ref.config.source, 'Check the practice copy, plan word groups, and reflect on your independent reading.');
+    case 'device-retest':
+      return add(ref.config.title, 'Supplied practice records, not an experiment conducted by the app.', `Goal: remain visibly lit for ${ref.config.goalSeconds} seconds.`, `Original trial durations: ${ref.config.before.join(', ')} seconds.`, ref.config.setupNote, 'Keep the same:', ...ref.config.heldConstant);
     case 'regrouping-lab':
       return add(ref.config.context, 'Choose an operation, exchange equal values, and work through the places.');
     case 'place-value-builder':

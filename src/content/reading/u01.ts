@@ -1,5 +1,7 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
+import { phrasePathfinderConfig, phrasePathfinderCoach } from './activityPrototypes';
 
 const accuracyPassage = `On Saturday morning, Maya arrived at the community garden before the volunteers began planting. A blue sign beside the gate read, “Pollinator Patch—Please Walk Slowly.” Maya opened the garden map and traced a route from the tool shed to the sunflower bed. Her partner, Eli, carried two trowels and a small watering can. “Let’s check the labels before we dig,” Maya said.
 
@@ -52,6 +54,8 @@ export const unit01Lessons = [
       },
       {
         id: 'reading-u01-l01-c2',
+        widget: { type: 'phrase-pathfinder', config: phrasePathfinderConfig },
+        widgetCoach: phrasePathfinderCoach,
         title: 'An appropriate pace fits the text',
         blocks: [
           { kind: 'text', text: 'Appropriate rate means reading smoothly enough to connect ideas while slowing down for challenging words, important details, or complex sentences.' },
@@ -327,6 +331,7 @@ export const unit01Lessons = [
         },
       },
       {
+        ...readingWorkshopForCard('reading-u01-l02-c2'),
         id: 'reading-u01-l02-c2',
         title: 'Intonation follows ideas and punctuation',
         blocks: [

@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -623,6 +624,7 @@ export const unit09Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u09-l02-c3'),
         "id": "reading-u09-l02-c3",
         "title": "Explain the Impact on the Text",
         "blocks": [

@@ -3,6 +3,7 @@ import { READING_OE_CODES } from '../curriculum';
 import { expectUnitLessons } from '../unit-test-helpers';
 import { validateLesson, type LearnCard, type Question } from '../schema';
 import { unit01Lessons } from './u01';
+import { phrasePathfinderConfig } from './activityPrototypes';
 
 const expectedLessons = [
   {
@@ -160,12 +161,14 @@ describe('Reading unit 1 fluency lessons', () => {
     }
   });
 
-  test('keeps the authored lesson shape schema-valid and widget-free', () => {
+  test('keeps the authored lesson shape schema-valid with its exact guided practice placement', () => {
     for (const lesson of unit01Lessons) {
       expect(validateLesson(lesson)).toEqual([]);
       expect(lesson.learnCards).toHaveLength(3);
       expect(lesson.learnCards.every((card) => card.blocks.length >= 1)).toBe(true);
-      expect(lesson.learnCards.every((card) => !('widget' in card))).toBe(true);
+      expect(lesson.learnCards.flatMap(card => 'widget' in card && card.widget ? [{ id: card.id, widget: card.widget }] : [])).toEqual(
+        lesson.id === 'reading-u01-l01' ? [{ id: 'reading-u01-l01-c2', widget: { type: 'phrase-pathfinder', config: phrasePathfinderConfig } }] : [{ id: 'reading-u01-l02-c2', widget: { type: 'reading-workshop', config: { activity: 'direct-the-reading' } } }],
+      );
       expect(lesson.quiz.passThreshold).toBe(8);
       expect(lesson.quiz.pool).toHaveLength(13);
       expect(lesson.quiz.pool.map(({ id }) => id)).toEqual(
@@ -258,7 +261,7 @@ describe('Reading unit 1 fluency lessons', () => {
         expect(check).toBeDefined();
         if (!expected || !check) continue;
 
-        const cardIndex = lesson.learnCards.indexOf(card);
+        const cardIndex = lesson.learnCards.findIndex(candidate => candidate.id === card.id);
         const availableMaterial = lesson.learnCards
           .slice(0, cardIndex + 1)
           .flatMap(({ blocks }) => blocks.map(({ text }) => text))

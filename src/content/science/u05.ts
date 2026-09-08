@@ -1,4 +1,6 @@
+import { scienceWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
+import { deviceRetestConfig, deviceRetestCoach } from './activityPrototypes';
 
 const scienceU05L01Core = {
   "id": "science-u05-l01",
@@ -985,6 +987,7 @@ const scienceU05L03Core = {
   ],
   "learnCards": [
     {
+      ...scienceWorkshopForCard('science-u05-l03-c1'),
       "id": "science-u05-l03-c1",
       "title": "Write a fair test procedure",
       "blocks": [
@@ -1443,6 +1446,8 @@ const scienceU05L04Core = {
     },
     {
       "id": "science-u05-l04-c3",
+      widget: { type: 'device-retest', config: deviceRetestConfig },
+      widgetCoach: deviceRetestCoach,
       "title": "Compare the retest with the first test",
       "blocks": [
         {

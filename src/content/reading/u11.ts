@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -111,6 +112,7 @@ export const unit11Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u11-l01-c3'),
         "id": "reading-u11-l01-c3",
         "title": "Record Question-Based Findings",
         "blocks": [
@@ -1196,6 +1198,7 @@ export const unit11Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u11-l03-c3'),
         "id": "reading-u11-l03-c3",
         "title": "Explain Why a Detail Belongs",
         "blocks": [
@@ -1703,6 +1706,7 @@ export const unit11Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u11-l04-c3'),
         "id": "reading-u11-l04-c3",
         "title": "Name the Pattern in Each Group",
         "blocks": [
@@ -2214,6 +2218,7 @@ export const unit11Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u11-l05-c3'),
         "id": "reading-u11-l05-c3",
         "title": "Give Credit Every Time",
         "blocks": [

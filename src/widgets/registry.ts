@@ -1,6 +1,7 @@
 import type { HistoryEvent } from '../content/social-studies/history-schema';
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import type { WidgetConfig, WidgetType } from '../content/schema';
+import type { WorkshopActivityEvent } from './workshop-events';
 
 type BaseTenValue = {
   ones: number;
@@ -17,10 +18,25 @@ type BalanceValue = { leftTotal: number; rightTotal: number };
 type LightValue = { incidentAngle: number; reflectionAngle: number };
 
 export type WidgetEventMap = {
+  'math-workshop': WorkshopActivityEvent;
+  'reading-workshop': WorkshopActivityEvent;
+  'science-workshop': WorkshopActivityEvent;
   'history-timeline': HistoryEvent;
   'history-map': HistoryEvent;
   'history-evidence-board': HistoryEvent;
   'history-cause-effect': HistoryEvent;
+  'scale-reading':
+    | { type: 'interaction'; action: 'select-object' | 'predict' | 'place' | 'move-marker' | 'record' | 'explain' | 'reset' }
+    | { type: 'change'; value: { objectId: string; markerTenths: number } }
+    | { type: 'complete'; value: { records: Record<string, number> } };
+  'phrase-pathfinder':
+    | { type: 'interaction'; action: 'select-word' | 'repair' | 'mark-phrase' | 'preview' | 'answer' | 'reflect' | 'reset' }
+    | { type: 'change'; value: { pauseAfter: number[] } }
+    | { type: 'complete'; value: { reflectionComplete: true } };
+  'device-retest':
+    | { type: 'interaction'; action: 'identify-gap' | 'change-plan' | 'check-plan' | 'inspect-retest' | 'explain' | 'reset' }
+    | { type: 'change'; value: { changes: string[] } }
+    | { type: 'complete'; value: { metBefore: number; metAfter: number } };
   'regrouping-lab':
     | { type: 'interaction'; action: 'choose-operation' | 'exchange' | 'remove' | 'check-column' | 'explain' | 'reset' }
     | { type: 'change'; value: { counters: number[]; column: number } }
@@ -191,10 +207,16 @@ export type WidgetRegistry = {
  * it, so a new widget type cannot ship without something to render it.
  */
 export const widgetRegistry = {
+  'math-workshop': lazy(() => import('./math/MathWorkshop')),
+  'reading-workshop': lazy(() => import('./reading/ReadingWorkshop')),
+  'science-workshop': lazy(() => import('./science/ScienceWorkshop')),
   'history-timeline': lazy(() => import('./social-studies/HistoryTimeline')),
   'history-map': lazy(() => import('./social-studies/HistoryMap')),
   'history-evidence-board': lazy(() => import('./social-studies/HistoryEvidenceBoard')),
   'history-cause-effect': lazy(() => import('./social-studies/HistoryCauseEffect')),
+  'scale-reading': lazy(() => import('./math/ScaleReading')),
+  'phrase-pathfinder': lazy(() => import('./reading/PhrasePathfinder')),
+  'device-retest': lazy(() => import('./science/DeviceRetest')),
   'regrouping-lab': lazy(() => import('./math/RegroupingLab')),
   'place-value-builder': lazy(() => import('./math/PlaceValueBuilder')),
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),

@@ -561,7 +561,17 @@ const expectedChecks = [
 const expectedWidgets = [
   {
     "id": "reading-u10-l01",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u10-l01-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "one-moment-three-forms"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u10-l02",
@@ -571,7 +581,11 @@ const expectedWidgets = [
         "ref": {
           "type": "figurative-language-matcher",
           "config": {
-            "availableKinds": ["simile", "metaphor", "idiom"],
+            "availableKinds": [
+              "simile",
+              "metaphor",
+              "idiom"
+            ],
             "pairs": [
               {
                 "id": "simile",
@@ -599,7 +613,17 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u10-l03",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u10-l03-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "literal-and-vivid"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [
