@@ -84,6 +84,19 @@ describe('local voice session gateway', () => {
     expect(result.status).toBe(502);
     expect(JSON.stringify(result)).not.toContain('private upstream debug');
   });
+  it('explains exhausted API credit without exposing the provider error body', async () => {
+    const api = apiWith({ fetchImpl: async () => new Response(JSON.stringify({ error: { code: 'credit_balance_exhausted', message: 'private billing detail' } }), { status: 429 }) });
+    const result = await request(api, '/api/tutor/session', valid);
+    expect(result.status).toBe(503);
+    expect(result.body.error).toMatch(/needs API credit.*OpenAI account/i);
+    expect(JSON.stringify(result)).not.toContain('private billing detail');
+  });
+  it('does not mistake other rate limits for exhausted credit', async () => {
+    const api = apiWith({ fetchImpl: async () => new Response(JSON.stringify({ error: { code: 'rate_limit_exceeded', message: 'private rate detail' } }), { status: 429 }) });
+    const result = await request(api, '/api/tutor/session', valid);
+    expect(result.status).toBe(502);
+    expect(result.body.error).not.toMatch(/API credit|private rate detail/);
+  });
   it('hangs up and releases the slot when the provider SDP body cannot be read', async () => {
     const urls = [];
     let failBody = true;

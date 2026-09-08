@@ -44,6 +44,8 @@ TUTOR_REALTIME_MODEL=gpt-realtime-2.1-mini
 
 Never use a `VITE_` variable for the API key. The key is read by the Node middleware only. Select **Live voice · Adult review**, then **Explain this**. The browser asks for microphone permission but starts with audio input muted. Use **Turn microphone on** to ask spoken questions; turn it off to return to typing. **Stop speaking** interrupts a reply; **End session** closes the whole conversation.
 
+If the preview says **Live voice needs API credit**, check [OpenAI API billing](https://platform.openai.com/settings/organization/billing/overview). A configured key and model access do not guarantee available API credit. After adding credit, retry **Explain this**; no code change or new key is needed. The gateway recognizes the provider's explicit exhausted-credit error without exposing its raw error body.
+
 Live voice sends microphone audio when enabled, typed questions, the current focus, the complete lesson passage, and selected evidence to OpenAI. This prototype does not save the transcript or audio to Cram All storage and does not enable Realtime tracing. OpenAI's own data handling is separate from application storage.
 
 The gateway accepts loopback clients and same-origin requests only. It uses canonical lesson data rather than arbitrary supplied instructions, limits request sizes, allows two active sessions, and allows twelve starts per hour per server process. Responses are limited to 4,096 output tokens, allowing audio and transcript space for the full story; instructions still request short explanations. Incomplete responses produce an explicit error. Client and server both end sessions after five minutes; provider hangup is a best-effort network operation. These controls are prototype usage guards, not a dollar spending guarantee. Restarting the server resets rate limits.
@@ -65,7 +67,7 @@ Only `reading-u04-l01` is supported. `src/tutor/lesson-context.json` is a minima
 
 Pre-change baseline: **1,022 tests / 110 files passed**, including 103 focused lesson-player/content-validation tests. New focused checks cover the grounded sample, source parity, typed interaction, speech lifecycle, WebRTC resource cleanup, gateway authorization, request validation, creation races and timed hangup.
 
-No OpenAI API key was configured during this task. Live model responses, microphone audio quality, acoustic interruption quality and actual API charges have not been verified against OpenAI. Transport behavior is exercised with controlled browser/network substitutes.
+The initial prototype verification used no OpenAI API key. Live model responses, microphone audio quality, acoustic interruption quality and actual API charges remain unverified. Transport behavior is exercised with controlled browser/network substitutes.
 
 ### Final verification — September 8, 2026
 
@@ -77,3 +79,7 @@ No OpenAI API key was configured during this task. Live model responses, microph
 - An earlier full run concurrent with a build encountered two existing lesson-animation timing failures. Both focused rerun and two subsequent full runs passed without changes to those tests or animation behavior.
 
 Morning review: use the five-step walkthrough above in sample mode. To evaluate actual AI behavior, configure the server key and adult-review flag, restart the local preview, then try spoken misunderstandings, rapid interruption, selected-evidence follow-ups and complete-story reading. The implementation is preserved on `codex/voice-tutor-prototype`; it has not been merged or published.
+
+### Live setup follow-up
+
+The configured model's access check succeeded. A real browser session request reached OpenAI; live conversation testing awaits API billing readiness. The new exhausted-credit message was verified in the rendered preview. Focused gateway, transport and live-control tests passed (31 tests), followed by the full suite (1,073 tests / 116 files), TypeScript, normal build and diff checks. This follow-up changes only server error handling and documentation; client artifacts and teaching behavior are unchanged.

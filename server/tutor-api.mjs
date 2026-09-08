@@ -98,7 +98,13 @@ export function createTutorApi({ apiKey = '', adultReview = false, model = 'gpt-
       form.set('session', JSON.stringify({ type: 'realtime', model, instructions: instructions(context), max_output_tokens: 4096,
         audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad', create_response: true, interrupt_response: true, silence_duration_ms: 700 } }, output: { voice: 'coral' } } }));
       const response = await fetchImpl(endpoint, { method: 'POST', headers, body: form, signal: AbortSignal.timeout(20_000) });
-      if (!response.ok) throw new Error('Provider unavailable');
+      if (!response.ok) {
+        const problem = await response.json().catch(() => null);
+        if (response.status === 429 && problem?.error?.code === 'credit_balance_exhausted') {
+          return reply(res, 503, { error: 'Live voice needs API credit. Add credit in your OpenAI account, then try again. The sample is still available.' });
+        }
+        throw new Error('Provider unavailable');
+      }
       const location = response.headers.get('location');
       const url = location ? new URL(location, endpoint).href : '';
       if (!/^https:\/\/api\.openai\.com\/v1\/realtime\/calls\/[a-zA-Z0-9_-]+$/.test(url)) throw new Error('Invalid call location');
