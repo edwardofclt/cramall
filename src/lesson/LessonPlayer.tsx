@@ -297,6 +297,9 @@ function LessonStages({
         </span>
         <h1 style={{ margin: 0 }}>{lesson.title}</h1>
         <ProgressDots step={step} total={stages.length} />
+        {lesson.id === 'reading-u04-l01' && 'card' in stage && (
+          <Link className="link-quiet" to={`/tutor?focus=${stage.card.id}`}>Explain this with Winnie · preview</Link>
+        )}
       </header>
 
       <p

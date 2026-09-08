@@ -77,6 +77,7 @@ export function Home() {
       </nav>
 
       <div className="footer-links">
+        <Link className="link-quiet" to="/tutor">Preview Winnie's voice tutor</Link>
         <Link className="link-quiet" to="/progress">
           My Progress
         </Link>

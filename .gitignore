@@ -1,5 +1,7 @@
 .superpowers/
-node_modules/
+node_modules
 dist/
 dist-single/
 .DS_Store
+.env.local
+.env.*.local
