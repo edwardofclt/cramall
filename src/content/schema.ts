@@ -1,3 +1,4 @@
+import { HistoryTimelineWidgetRefSchema, HistoryMapWidgetRefSchema, HistoryEvidenceBoardWidgetRefSchema, HistoryCauseEffectWidgetRefSchema } from './social-studies/history-schema';
 import { z } from 'zod';
 import { normalizeAnswerText } from './answer-normalization';
 import {
@@ -10,6 +11,10 @@ import {
 } from './balance-decimals';
 
 export const WIDGET_TYPES = [
+  'history-timeline',
+  'history-map',
+  'history-evidence-board',
+  'history-cause-effect',
   'place-value-builder',
   'number-line-compare',
   'base-ten-blocks',
@@ -48,24 +53,24 @@ export const WIDGET_TYPES = [
   'source-credibility-checker',
 ] as const;
 
-export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
-export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy']);
+export const SubjectIdSchema = z.enum(['math', 'reading', 'science', 'social-studies']);
+export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy', 'pip']);
 export const PoseSchema = z.enum(['idle', 'talk', 'think', 'cheer', 'oops']);
 
 export const UnitIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}$/,
+  /^(math|reading|science|social-studies)-u\d{2}$/,
   'invalid canonical unit id',
 );
 export const LessonIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}$/,
   'invalid canonical lesson id',
 );
 export const LearnCardIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}-c\d+$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}-c\d+$/,
   'invalid canonical learn card id',
 );
 export const QuestionIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}-q\d{2,}$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}-q\d{2,}$/,
   'invalid canonical question id',
 );
 const OptionIdSchema = z.string().regex(
@@ -1830,6 +1835,8 @@ export const SourceCredibilityCheckerWidgetRefSchema=z.object({
 }).strict();
 
 export const WidgetRefSchema = z.discriminatedUnion('type', [
+  HistoryTimelineWidgetRefSchema, HistoryMapWidgetRefSchema,
+  HistoryEvidenceBoardWidgetRefSchema, HistoryCauseEffectWidgetRefSchema,
   z.object({
     type: z.literal('place-value-builder'),
     config: PlaceValueWidgetConfigSchema,

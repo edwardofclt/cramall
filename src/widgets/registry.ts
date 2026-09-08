@@ -1,3 +1,4 @@
+import type { HistoryEvent } from '../content/social-studies/history-schema';
 import { lazy, type ComponentType, type LazyExoticComponent } from 'react';
 import type { WidgetConfig, WidgetType } from '../content/schema';
 
@@ -16,6 +17,10 @@ type BalanceValue = { leftTotal: number; rightTotal: number };
 type LightValue = { incidentAngle: number; reflectionAngle: number };
 
 export type WidgetEventMap = {
+  'history-timeline': HistoryEvent;
+  'history-map': HistoryEvent;
+  'history-evidence-board': HistoryEvent;
+  'history-cause-effect': HistoryEvent;
   'regrouping-lab':
     | { type: 'interaction'; action: 'choose-operation' | 'exchange' | 'remove' | 'check-column' | 'explain' | 'reset' }
     | { type: 'change'; value: { counters: number[]; column: number } }
@@ -186,6 +191,10 @@ export type WidgetRegistry = {
  * it, so a new widget type cannot ship without something to render it.
  */
 export const widgetRegistry = {
+  'history-timeline': lazy(() => import('./social-studies/HistoryTimeline')),
+  'history-map': lazy(() => import('./social-studies/HistoryMap')),
+  'history-evidence-board': lazy(() => import('./social-studies/HistoryEvidenceBoard')),
+  'history-cause-effect': lazy(() => import('./social-studies/HistoryCauseEffect')),
   'regrouping-lab': lazy(() => import('./math/RegroupingLab')),
   'place-value-builder': lazy(() => import('./math/PlaceValueBuilder')),
   'number-line-compare': lazy(() => import('./math/NumberLineCompare')),

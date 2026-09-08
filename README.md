@@ -1,6 +1,6 @@
 # Cram All
 
-Cram All is a browser-only, fourth-grade learning app with 89 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, and 32 Science lessons in 8 units. There is no account, server, or cloud sync: the app and its data stay in the browser.
+Cram All is a browser-only, fourth-grade learning app with 119 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, 32 Science lessons in 8 units, and 30 Social Studies lessons in 5 units. Pip the Carolina wren guides Social Studies through colonial history, the American Revolution, westward expansion, the Civil War, and Reconstruction. Every Social Studies lesson includes a guided timeline, map, evidence board, or cause-and-effect activity. There is no account, server, or cloud sync: the app and its data stay in the browser.
 
 ## Quick start (under 5 minutes)
 
@@ -47,10 +47,10 @@ Because there is no backend, Cram All has no login, cross-device sync, remote ba
 
 ## Content layout
 
-- `src/content/curriculum.ts` is the authored 89-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
+- `src/content/curriculum.ts` is the authored 119-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
 - `src/content/schema.ts` defines lesson/question/widget schemas and permanent content validation rules.
-- `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, and Science.
-- `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, and `src/content/science/u01.ts` through `u08.ts` contain learner-facing authored lessons.
+- `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, Science, and Social Studies.
+- `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, `src/content/science/u01.ts` through `u08.ts`, and `src/content/social-studies/u01.ts` through `u05.ts` contain learner-facing authored lessons.
 - Each subject's `index.ts` registers one exported `unitNNLessons` array under its canonical unit ID.
 - `src/content/standards/standards.json` is generated only by `node scripts/build-standards.mjs` from `docs/research/sc-grade4-standards.json`; never hand-edit it.
 - `src/content/content-validation.test.ts` checks exact catalog identity, standards coverage, OE policy, pass thresholds, and review-card relationships.
@@ -77,3 +77,6 @@ To add a widget type, implement a component that accepts `WidgetProps`, add its 
 - [Product and interaction design](docs/superpowers/specs/2026-08-29-cram-all-design.md)
 - [Plan A implementation plan](docs/superpowers/plans/2026-08-29-plan-a-foundation.md)
 - [South Carolina grade 4 standards research snapshot](docs/research/sc-grade4-standards.json)
+
+- [Social Studies design and lesson map](docs/superpowers/specs/2026-09-07-social-studies-design.md)
+- [Social Studies standards, historical sources, and Pip artwork provenance](docs/research/sc-grade4-social-studies-sources.md)

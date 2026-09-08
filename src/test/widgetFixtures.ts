@@ -1,8 +1,13 @@
+import { timelineConfig, mapConfig, evidenceConfig, causeConfig } from '../widgets/social-studies/history-fixtures';
 import type { WidgetCoach, WidgetRef, WidgetType } from '../content/schema';
 
 type RefFor<T extends WidgetType> = Extract<WidgetRef, { type: T }>;
 
 export const validWidgetRefByType = {
+  'history-timeline': { type: 'history-timeline', config: timelineConfig },
+  'history-map': { type: 'history-map', config: mapConfig },
+  'history-evidence-board': { type: 'history-evidence-board', config: evidenceConfig },
+  'history-cause-effect': { type: 'history-cause-effect', config: causeConfig },
   'regrouping-lab': { type: 'regrouping-lab', config: { a: 50003, b: 26718, operation: 'subtract', context: 'Find how many seeds remain.' } },
   'place-value-builder': { type: 'place-value-builder', config: { target: 482, periods: 2 } },
   'number-line-compare': { type: 'number-line-compare', config: { min: 0, max: 1, a: 0.25, b: 0.75, step: 0.25, display: 'fraction', denominator: 4 } },

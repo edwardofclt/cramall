@@ -76,7 +76,10 @@ describe('ProgressScreen', () => {
       'aria-valuemax',
       String(getSubject('science').units.flatMap((unit) => unit.lessons).length),
     );
-    expect(screen.getAllByRole('progressbar')).toHaveLength(3);
+    const social = screen.getByRole('progressbar', { name: 'Social Studies completion' });
+    expect(social).toHaveAttribute('aria-valuenow', '0');
+    expect(social).toHaveAttribute('aria-valuemax', '30');
+    expect(screen.getAllByRole('progressbar')).toHaveLength(4);
     expect(screen.queryByText(/no authored lessons yet/i)).toBeNull();
   });
 

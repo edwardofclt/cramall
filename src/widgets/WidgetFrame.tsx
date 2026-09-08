@@ -38,6 +38,22 @@ export type WidgetFrameProps = {
 
 function RenderWidget(ref: WidgetFrameProps) {
   switch (ref.type) {
+    case 'history-timeline': {
+      const Widget = widgetRegistry['history-timeline'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-map': {
+      const Widget = widgetRegistry['history-map'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-evidence-board': {
+      const Widget = widgetRegistry['history-evidence-board'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-cause-effect': {
+      const Widget = widgetRegistry['history-cause-effect'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     case 'regrouping-lab': {
       const Widget = widgetRegistry['regrouping-lab'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;

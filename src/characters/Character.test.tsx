@@ -6,7 +6,7 @@ import { Character } from './Character';
 import { SpeechBubble } from './SpeechBubble';
 import { DialoguePlayer } from './DialoguePlayer';
 
-const GUIDES: GuideId[] = ['nutty', 'winnie', 'sandy'];
+const GUIDES: GuideId[] = ['nutty', 'winnie', 'sandy', 'pip'];
 const POSES: Pose[] = ['idle', 'talk', 'think', 'cheer', 'oops'];
 
 describe('Character', () => {

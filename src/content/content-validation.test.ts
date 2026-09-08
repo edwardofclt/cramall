@@ -1,6 +1,7 @@
 import { lessonsByUnit as mathLessons } from './math';
 import { lessonsByUnit as readingLessons } from './reading';
 import { lessonsByUnit as scienceLessons } from './science';
+import { lessonsByUnit as socialStudiesLessons } from './social-studies';
 import { PLANNED_LESSONS, READING_OE_CODES } from './curriculum';
 import { allLessons, SUBJECTS, getSubject, standards } from './subjects';
 import * as contentSchema from './schema';
@@ -21,6 +22,7 @@ const REGISTRIES: Record<SubjectId, Record<string, Lesson[]>> = {
   math: mathLessons,
   reading: readingLessons,
   science: scienceLessons,
+  'social-studies': socialStudiesLessons,
 };
 
 /**
@@ -456,7 +458,7 @@ test('a concept tag may use each lesson’s own review card', () => {
   ])).not.toThrow();
 });
 
-test('runtime catalog equals the exact 89-row authored manifest', () => {
+test('runtime catalog equals the exact 119-row authored manifest', () => {
   expect(allLessons().map(({ id, unitId, title, indicatorCodes }) => ({
     id, unitId, title, indicatorCodes,
   }))).toEqual(PLANNED_LESSONS.map(({ id, unitId, title, indicatorCodes }) => ({
@@ -464,18 +466,19 @@ test('runtime catalog equals the exact 89-row authored manifest', () => {
   })));
 });
 
-test('all 31 units are populated with the exact subject totals', () => {
-  expect(SUBJECTS.flatMap(({ units }) => units)).toHaveLength(31);
+test('all 36 units are populated with the exact subject totals', () => {
+  expect(SUBJECTS.flatMap(({ units }) => units)).toHaveLength(36);
   expect(SUBJECTS.every(({ units }) => units.every(({ lessons }) => lessons.length > 0))).toBe(true);
   expect(getSubject('math').units.flatMap(({ lessons }) => lessons)).toHaveLength(33);
   expect(getSubject('reading').units.flatMap(({ lessons }) => lessons)).toHaveLength(24);
   expect(getSubject('science').units.flatMap(({ lessons }) => lessons)).toHaveLength(32);
+  expect(getSubject('social-studies').units.flatMap(({ lessons }) => lessons)).toHaveLength(30);
 });
 
 test('the full catalog has exact card, question, and threshold totals', () => {
   const lessons = allLessons();
-  expect(lessons.flatMap(({ learnCards }) => learnCards)).toHaveLength(267);
-  expect(lessons.flatMap(({ quiz }) => quiz.pool)).toHaveLength(1_157);
+  expect(lessons.flatMap(({ learnCards }) => learnCards)).toHaveLength(357);
+  expect(lessons.flatMap(({ quiz }) => quiz.pool)).toHaveLength(1_547);
   for (const lesson of lessons) {
     expect(lesson.learnCards).toHaveLength(3);
     expect(lesson.quiz.pool).toHaveLength(13);

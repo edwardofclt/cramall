@@ -110,9 +110,11 @@ function WorkedSteps({ steps }: { steps: string[] }) {
 function WorkedExample({
   worked,
   showPassage,
+  coachingTitle,
 }: {
   worked: Lesson['workedExample'];
   showPassage: boolean;
+  coachingTitle: string;
 }) {
   const passage = showPassage ? worked.passage : undefined;
   if (passage) {
@@ -143,7 +145,7 @@ function WorkedExample({
             </div>
           </article>
           <aside className="worked-coaching" aria-labelledby={coachingTitleId} tabIndex={0}>
-            <h3 id={coachingTitleId}>How to read it</h3>
+            <h3 id={coachingTitleId}>{coachingTitle}</h3>
             <WorkedSteps steps={worked.steps} />
           </aside>
         </div>
@@ -165,10 +167,14 @@ function WorkedExample({
 }
 
 function Outro({ lesson, subject }: { lesson: Lesson; subject: Subject }) {
+  const reflection = subject.id === 'social-studies'
+    ? lesson.learnCards.find(card => card.widgetCoach)?.widgetCoach?.reactions.complete.text
+    : undefined;
   return (
     <section className="card stack lesson-outro">
       <Character guide={subject.guide} pose="cheer" size={132} />
       <h2 style={{ margin: 0 }}>You learned it all!</h2>
+      {reflection && <p style={{ margin: 0 }}>{reflection}</p>}
       <p style={{ margin: 0 }}>Ready to show what you know?</p>
       <Link className="btn btn-primary" to={`/lesson/${lesson.id}/quiz`}>
         Start Quick Check <span aria-hidden="true">&nbsp;✓</span>
@@ -196,7 +202,7 @@ function LessonStages({
   const reduced = useReducedMotionPref();
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
   const hasWorkedPassage =
-    stage.key === 'worked' && subject.id === 'reading' && Boolean(lesson.workedExample.passage);
+    stage.key === 'worked' && (subject.id === 'reading' || subject.id === 'social-studies') && Boolean(lesson.workedExample.passage);
 
   const last = stages.length - 1;
   const setStage = useCallback(
@@ -340,7 +346,8 @@ function LessonStages({
             />
           )}
           {stage.key === 'worked' && (
-            <WorkedExample worked={lesson.workedExample} showPassage={hasWorkedPassage} />
+            <WorkedExample worked={lesson.workedExample} showPassage={hasWorkedPassage}
+              coachingTitle={subject.id === 'social-studies' ? 'How to use the evidence' : 'How to read it'} />
           )}
           {stage.key === 'outro' && <Outro lesson={lesson} subject={subject} />}
         </motion.div>

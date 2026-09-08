@@ -19,8 +19,9 @@ const SUBJECT_KEY_MAP = {
   math: 'math',
   'ela-reading': 'reading',
   science: 'science',
+  'social-studies': 'social-studies',
 };
-const SUBJECT_IDS = ['math', 'reading', 'science'];
+const SUBJECT_IDS = ['math', 'reading', 'science', 'social-studies'];
 const OE_CODE_PATTERN = /^ELA\.4\.OE\./;
 const OE_CODES = Array.from({ length: 6 }, (_, index) => `ELA.4.OE.${index + 1}`);
 
@@ -46,6 +47,7 @@ export const GeneratedStandardsSchema = z.object({
   math: GeneratedSubjectSchema,
   reading: GeneratedSubjectSchema,
   science: GeneratedSubjectSchema,
+  'social-studies': GeneratedSubjectSchema,
 }).strict().superRefine((data, context) => {
   for (const subjectId of SUBJECT_IDS) {
     const subject = data[subjectId];
@@ -101,7 +103,7 @@ export const GeneratedStandardsSchema = z.object({
       message: 'reading OE codes must be cross-cutting only',
     });
   }
-  if (data.math.crossCuttingExpectations.length || data.science.crossCuttingExpectations.length) {
+  if (data.math.crossCuttingExpectations.length || data.science.crossCuttingExpectations.length || data['social-studies'].crossCuttingExpectations.length) {
     context.addIssue({ code: z.ZodIssueCode.custom, message: 'only reading may define cross-cutting expectations' });
   }
 });
@@ -123,6 +125,7 @@ const SourceSchema = z.object({
     math: SourceSubjectSchema,
     'ela-reading': SourceSubjectSchema,
     science: SourceSubjectSchema,
+    'social-studies': SourceSubjectSchema,
   }).passthrough(),
 }).passthrough();
 

@@ -3,17 +3,20 @@ import type { GuideId, Pose } from '../content/schema';
 import { Nutty } from './art/Nutty';
 import { Winnie } from './art/Winnie';
 import { Sandy } from './art/Sandy';
+import { Pip } from './art/Pip';
 
 const ART: Record<GuideId, ComponentType<{ pose: Pose }>> = {
   nutty: Nutty,
   winnie: Winnie,
   sandy: Sandy,
+  pip: Pip,
 };
 
 export const GUIDE_NAMES: Record<GuideId, string> = {
   nutty: 'Nutty the fox squirrel',
   winnie: 'Winnie the river otter',
   sandy: 'Sandy the sea turtle',
+  pip: 'Pip the Carolina wren',
 };
 
 export type CharacterProps = {

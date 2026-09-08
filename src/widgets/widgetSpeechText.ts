@@ -1,3 +1,4 @@
+import type { HistoryBase } from '../content/social-studies/history-schema';
 import type { WidgetRef } from '../content/schema';
 
 const compact = (value: string) => value.trim().replace(/\s+/g, ' ');
@@ -5,12 +6,22 @@ const add = (...values: Array<string | number | undefined | null>) => values
   .flatMap((value) => value === undefined || value === null ? [] : [compact(String(value))])
   .filter(Boolean);
 
+const historySources = (config: HistoryBase) => add(config.title, config.prompt, ...config.sources.flatMap(source => [source.title, source.text, source.attribution]));
+
 /**
  * Returns prose and labels that a learner can see before committing a widget.
  * Identifiers, answer keys, classifications, and result text deliberately stay out.
  */
 export function widgetSpeechText(ref: WidgetRef): string[] {
   switch (ref.type) {
+    case 'history-timeline':
+      return add(...historySources(ref.config), ...ref.config.events.flatMap(event => [event.year, event.title, event.detail]));
+    case 'history-map':
+      return add(...historySources(ref.config), ref.config.period, 'Schematic map, not to scale. North is up; east is right.', ...ref.config.locations.flatMap(location => [location.label, location.detail]), ...ref.config.cards.map(card => card.text));
+    case 'history-evidence-board':
+      return add(...historySources(ref.config), ...ref.config.headings.map(heading => heading.label), ...ref.config.cards.map(card => card.text));
+    case 'history-cause-effect':
+      return add(...historySources(ref.config), ...ref.config.causes.map(cause => cause.text), ...ref.config.effects.map(effect => effect.text));
     case 'regrouping-lab':
       return add(ref.config.context, 'Choose an operation, exchange equal values, and work through the places.');
     case 'place-value-builder':

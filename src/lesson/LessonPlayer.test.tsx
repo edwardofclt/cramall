@@ -389,7 +389,8 @@ describe('LessonPlayer', () => {
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
     await user.click(screen.getByRole('button', { name: /browser back/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${cardId}`));
-    expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
+    // The URL changes before AnimatePresence finishes replacing the outgoing card.
+    expect(await screen.findByRole('button', { name: 'Next' })).toBeInTheDocument();
     expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /browser forward/i }));
     await waitFor(() => expect(currentSearchParams().get('step')).toBe(`card:${nextCardId}`));
