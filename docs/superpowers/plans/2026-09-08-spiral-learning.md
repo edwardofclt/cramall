@@ -65,4 +65,8 @@ expect(screen.getByRole('region', {name: /Source/})).toBeVisible();
 - [x] Run `npm test`, `npx tsc -b --pretty false`, `npm run build`, `npm run build:single`, `git diff --check`.
 - [x] Inspect both artifacts and browser-test normal/single builds, memory warmup, missed answer, source panel, refresh/history, saved review state, completed subject, desktop/mobile overflow and reduced motion.
 - [x] Request independent scoped review, fix findings with focused evidence, and rerun affected gates.
-- [ ] Stage exact changed paths, inspect staged names, commit, push `codex/spiral-learning`, open a PR explaining behavior and validation. No merge.
+- [x] Stage exact changed paths, inspect staged names, commit, push `codex/spiral-learning`, open a PR explaining behavior and validation. No merge.
+
+## Completion evidence
+
+Implemented at source commit `b380afb`. Final gates: 1,182 tests, clean TypeScript, standards parity, normal/single builds and artifact checks. Browser checks and independent review are approved; see the verification report. [Pull request #3](https://github.com/edwardofclt/cramall/pull/3) is open against `main`. The worktree is retained for review feedback.
