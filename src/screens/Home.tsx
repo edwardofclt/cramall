@@ -7,6 +7,8 @@ import { Character } from '../characters/Character';
 import { SUBJECTS, allLessons } from '../content/subjects';
 import { effectiveStreak, lessonStars, localDateIso, subjectCompletion } from '../progress/logic';
 import { useProgress } from '../progress/ProgressContext';
+import { dueConceptCount } from '../review/selection';
+import '../review/review.css';
 
 const MotionLink = motion.create(Link);
 
@@ -52,6 +54,8 @@ export function Home() {
       <nav className="subject-grid" aria-label="Subjects">
         {SUBJECTS.map((subject) => {
           const { passed, total } = subjectCompletion(save, subject);
+          const due = dueConceptCount(save, subject, localDateIso());
+          const reviewLabel = `${due} ${due === 1 ? 'idea' : 'ideas'} ready to revisit`;
           return (
             <MotionLink
               key={subject.id}
@@ -61,7 +65,7 @@ export function Home() {
                 '--accent': subject.color,
                 '--accent-action': subject.actionColor,
               } as CSSProperties}
-              aria-label={`${subject.title} — ${passed} of ${total} lessons done`}
+              aria-label={`${subject.title} — ${passed} of ${total} lessons done${passed > 0 ? ` · ${reviewLabel}` : ''}`}
               whileHover={hover}
               whileTap={tap}
               transition={springy}
@@ -71,6 +75,7 @@ export function Home() {
               <span className="subject-card-progress">
                 {passed} / {total} lessons
               </span>
+              {passed > 0 && <span className="subject-card-review">Keep it growing · {reviewLabel}</span>}
             </MotionLink>
           );
         })}

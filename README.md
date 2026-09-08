@@ -35,7 +35,7 @@ The single-file build is portable. After `npm run build:single`, double-click `d
 
 ## Progress and Parent Corner
 
-Cram All saves lesson attempts, best scores, stars, streaks, settings, and parent spot-checks in browser `localStorage` under `cramall.v1`. Progress remains after reloads in the same browser and origin. Clearing site data, changing browser/profile, or moving between an HTTP origin and a `file://` page creates a separate local record.
+Cram All saves lesson attempts, best scores, stars, streaks, concept review history, settings, and parent spot-checks in browser `localStorage` under `cramall.v1`. Progress remains after reloads in the same browser and origin. Clearing site data, changing browser/profile, or moving between an HTTP origin and a `file://` page creates a separate local record.
 
 **Parent Corner** provides three maintenance actions:
 
@@ -45,9 +45,24 @@ Cram All saves lesson attempts, best scores, stars, streaks, settings, and paren
 
 Because there is no backend, Cram All has no login, cross-device sync, remote backup, classroom dashboard, or server-side recovery. Export a progress file before clearing browser data or moving to another device.
 
+## Build knowledge over time
+
+**Warm up your memory** begins a lesson with up to three practice questions from earlier lessons the student has passed. It brings back a relevant foundation and mixes in older concepts. The first lesson starts directly with its introduction.
+
+**Connect it** follows the worked example in each unit’s final lesson. These original application questions ask the student to combine the unit’s ideas with an earlier foundation, then explain the reasoning. Reading sources remain visible while the student answers.
+
+**Keep it growing** on the subject map offers short mixed review sessions when concepts are due, including after the subject is complete. Home shows which subjects have review ready. Mistakes receive immediate explanations and a link to the exact teaching card.
+
+Concepts first return the day after a Quick Check. Successful recall on later due dates extends review intervals through 1, 3, 7, 14, and 30 days; a mistake brings the concept back the next day. Repeating answers early does not push a review date forward. These are adjustable scheduling defaults, not a guarantee that a skill is permanently retained. Practice leaves earned lesson passes and stars intact; the original 10-question Quick Checks still assess each lesson.
+
+Review history is included in progress exports and removed by Reset progress. Existing version-1 saves without review history still load. Review dates use the local calendar; changing the clock backward cannot overwrite later review evidence.
+
+The approach combines cumulative applications with delayed retrieval. Background: [IES guidance on spacing and quizzing](https://ies.ed.gov/ncee/WWC/PracticeGuide/1) and [spiral curriculum principles](https://www.qmul.ac.uk/queenmaryacademy/educators/resources/degree-apprenticeships/curriculum-design/spiral-curriculum/).
+
 ## Content layout
 
 - `src/content/curriculum.ts` is the authored 89-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
+- `src/review/` contains concept review scheduling, practice selection, the review interface, and original unit connection questions. Its catalog tests require a connection for every registered unit’s final lesson.
 - `src/content/schema.ts` defines lesson/question/widget schemas and permanent content validation rules.
 - `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, and Science.
 - `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, and `src/content/science/u01.ts` through `u08.ts` contain learner-facing authored lessons.
@@ -64,7 +79,8 @@ Because there is no backend, Cram All has no login, cross-device sync, remote ba
 4. For Reading only, spread `READING_OE_CODES` into `crossCuttingExpectationCodes`; never put an OE code in `indicatorCodes`.
 5. Use a widget only when its exact `{ type, config }` parses `WidgetRefSchema` and the type exists in `widgetRegistry`. The card prose and quiz must remain understandable without the widget.
 6. Run the unit test, `src/content/schema.test.ts`, `src/content/content-validation.test.ts`, `src/content/lesson-quality.test.ts`, and `npx tsc -b --pretty false`. Independently review standards fidelity, every answer, original-text provenance, and child-safe wording.
-7. Run `npm run standards:check`, the full test suite, both builds, and the browser/review-link smoke path before release.
+7. When adding a unit, author its terminal “Connect it” application in `src/review/connections.ts` (or its subject content module), with a clear earlier-knowledge connection, source text for Reading, and a valid teaching-card review target. Run `src/review/connections.test.ts`.
+8. Run `npm run standards:check`, the full test suite, both builds, and the browser/review-link smoke path before release.
 
 ## Widgets
 
