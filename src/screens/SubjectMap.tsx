@@ -6,6 +6,7 @@ import { SUBJECTS } from '../content/subjects';
 import { isLessonPassed, isLessonReady, isUnitComplete, lessonStars, subjectCompletion, upNext } from '../progress/logic';
 import { useProgress } from '../progress/ProgressContext';
 import type { SaveData } from '../progress/storage';
+import { ReviewInvitation } from '../review/ReviewInvitation';
 
 type NodeState = 'passed' | 'start' | 'ready' | 'locked';
 
@@ -173,6 +174,8 @@ export function SubjectMap() {
           </p>
         </div>
       </header>
+
+      <ReviewInvitation subject={subject} />
 
       {subject.units.map((unit) => (
         <UnitSection key={unit.id} save={save} subject={subject} unit={unit} next={next} />

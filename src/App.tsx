@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { HashRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
 import { pageVariants } from './app/motion';
 import { useReducedMotionPref } from './app/useReducedMotionPref';
-import { LessonPlayer } from './lesson/LessonPlayer';
+import { SpiralLesson } from './review/SpiralLesson';
+import { ReviewScreen } from './review/ReviewScreen';
 import { ProgressProvider } from './progress/ProgressContext';
 import { QuickCheck } from './quiz/QuickCheck';
 import { Home } from './screens/Home';
@@ -61,10 +62,14 @@ function AnimatedRoutes() {
           }
         />
         <Route
+          path="/subject/:subjectId/review"
+          element={<Page><ReviewScreen /></Page>}
+        />
+        <Route
           path="/lesson/:lessonId"
           element={
             <Page>
-              <LessonPlayer />
+              <SpiralLesson />
             </Page>
           }
         />
