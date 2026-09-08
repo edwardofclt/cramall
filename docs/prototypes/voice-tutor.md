@@ -67,7 +67,7 @@ Only `reading-u04-l01` is supported. `src/tutor/lesson-context.json` is a minima
 
 Pre-change baseline: **1,022 tests / 110 files passed**, including 103 focused lesson-player/content-validation tests. New focused checks cover the grounded sample, source parity, typed interaction, speech lifecycle, WebRTC resource cleanup, gateway authorization, request validation, creation races and timed hangup.
 
-The initial prototype verification used no OpenAI API key. Live model responses, microphone audio quality, acoustic interruption quality and actual API charges remain unverified. Transport behavior is exercised with controlled browser/network substitutes.
+The initial prototype verification used no OpenAI API key. The later live review below verifies real model responses and voice playback through the browser. Spoken microphone input, acoustic quality, voice-triggered interruption and actual API charges remain unverified. Automated transport tests use controlled browser/network substitutes.
 
 ### Final verification — September 8, 2026
 
@@ -82,4 +82,19 @@ Morning review: use the five-step walkthrough above in sample mode. To evaluate 
 
 ### Live setup follow-up
 
-The configured model's access check succeeded. A real browser session request reached OpenAI; live conversation testing awaits API billing readiness. The new exhausted-credit message was verified in the rendered preview. Focused gateway, transport and live-control tests passed (31 tests), followed by the full suite (1,073 tests / 116 files), TypeScript, normal build and diff checks. This follow-up changes only server error handling and documentation; client artifacts and teaching behavior are unchanged.
+The configured model's access check succeeded. A real browser session request reached OpenAI; the initial live attempt encountered the provider's exhausted-credit response. The new message was verified in the rendered preview. Focused gateway, transport and live-control tests passed (31 tests), followed by the full suite (1,073 tests / 116 files), TypeScript, normal build and diff checks. This follow-up changes only server error handling and documentation; client artifacts and teaching behavior are unchanged.
+
+### Live conversation review — September 8, 2026
+
+After billing setup, one real OpenAI Realtime session completed the following browser checks using typed requests with audio output. The microphone remained muted throughout.
+
+| Request or action | Observed result |
+| --- | --- |
+| Explain this | Winnie explained topic versus theme, connected the idea to Mateo's choice, and offered an invented example without reading the source. |
+| Stop speaking | Playback status returned to Ready and a follow-up request worked in the same session. |
+| “I still don't get it. Can you use a simpler example?” | Winnie rephrased the topic/theme distinction in simpler words and asked one question. |
+| Select the straight-garden-rows quote; ask whether it supports reciprocal help | Winnie correctly distinguished planning from helping and directed the learner toward character actions showing cooperation. |
+| Read the story | The complete live transcript exactly matched the visible title and all three source paragraphs. Playback finished normally. |
+| End session | The app showed Session ended, microphone off, and disabled the microphone control. |
+
+These are initial adult-review observations, not a student-readiness evaluation. The three explanations were 90, 66 and 79 words, so the short-response instruction is a target rather than an enforced limit. The confusion reply mostly rephrased the original concept and introduced an abstract question about generosity; a future teaching-quality pass should push for a more concrete new example. The evidence reply also inferred how the learner was interpreting the quote, which should be made less presumptive. Spoken input and acoustic quality still need a person to test with **Turn microphone on**. The live preview remains available; click **Explain this** to start a fresh session.
