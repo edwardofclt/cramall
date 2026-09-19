@@ -1,0 +1,25 @@
+.review-session, .review-source, .review-complete { min-width: 0; }
+.review-header { gap: .4rem; }
+.review-header h2, .review-header p, .review-source h3, .review-complete h2 { margin: 0; }
+.review-header h2, .review-complete h2 { scroll-margin-top: 1.5rem; }
+.review-eyebrow { color: var(--c-ink-soft); font-weight: 800; font-size: .88rem; }
+.review-source { border-top: 5px solid var(--accent-action); }
+.review-source-header { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.review-source-header h3 { margin-top: .35rem; }
+.review-source-text { white-space: pre-wrap; line-height: 1.75; overflow-wrap: anywhere; }
+.review-session .quiz-prompt { white-space: pre-wrap; overflow-wrap: anywhere; }
+.review-revisit { padding: 1rem; }
+.review-revisit p { margin: 0 0 .75rem; }
+.review-revisit .btn { display: inline-flex; flex-wrap: wrap; gap: .3rem; white-space: normal; }
+.review-link-note { font-size: .85em; font-weight: 500; }
+.review-invitation { border: 2px solid var(--accent-action); }
+.review-invitation h2, .review-invitation p { margin: 0; }
+.review-invitation .btn, .review-complete .btn { align-self: start; }
+.subject-card-review { color: var(--accent-action); font-size: .9rem; font-weight: 800; }
+.review-connection-foundation { border-left: 5px solid var(--accent-action); padding-left: 1rem; line-height: 1.6; }
+@media (max-width: 480px) {
+  .review-session .quiz-prompt-row { flex-wrap: wrap; }
+  .review-session .quiz-prompt { flex-basis: 100%; order: 1; }
+  .review-source-header { gap: .5rem; }
+  .review-invitation .btn, .review-complete .btn { align-self: stretch; }
+}

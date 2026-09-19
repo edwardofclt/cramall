@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import { findLesson } from '../content/subjects';
+import {
+  nextReviewRecord, ReviewAnswerSchema, ReviewRecordSchema, reviewEvidenceDate, reviewKey,
+  type ReviewAnswer, type ReviewRecord,
+} from '../review/model';
 
 export type Attempt = { date: string; score: number; total: number; missedConceptTags: string[] };
 export type LessonProgress = { status: 'in-progress' | 'passed'; bestScore: number; attempts: Attempt[] };
@@ -9,6 +14,7 @@ export type SaveData = {
   lessons: Record<string, LessonProgress>;
   streak: { lastActiveDate: string; count: number };
   parentChecked: Record<string, boolean>;
+  reviews?: Record<string, ReviewRecord>;
 };
 
 const STORAGE_KEY = 'cramall.v1';
@@ -82,6 +88,11 @@ const SettingsSchema = z.object({
   ttsOn: z.boolean(),
 }).strict();
 
+// Validate keys before Zod constructs the object, since it deliberately drops __proto__.
+const ReviewsSchema = z.record(z.string().refine((key) => key !== '__proto__', {
+  message: 'review key must reference a lesson concept',
+}), ReviewRecordSchema);
+
 const LegacyLessonProgressSchema = z.object({
   status: z.enum(['in-progress', 'passed']),
   bestScore: z.number().int().min(0).max(10),
@@ -97,6 +108,7 @@ const LegacyV1SaveSchema = z.object({
     count: z.number().int().min(0).max(36_600),
   }).strict(),
   parentChecked: z.record(z.boolean()),
+  reviews: ReviewsSchema.optional(),
 }).strict();
 
 function deriveStreak(lessons: Record<string, LessonProgress>): SaveData['streak'] {
@@ -125,6 +137,7 @@ const SaveDataSchema = z.object({
     count: z.number().int().min(0).max(36_600),
   }).strict(),
   parentChecked: z.record(z.boolean()),
+  reviews: ReviewsSchema.optional(),
 }).strict().superRefine((save, context) => {
   const maximumPossible = deriveStreak(save.lessons);
   const validEmpty = maximumPossible.count === 0 &&
@@ -142,6 +155,18 @@ const SaveDataSchema = z.object({
       path: ['streak'],
       message: `streak must end on the latest attempt date with a consistent count (maximum ${maximumPossible.count})`,
     });
+  }
+  for (const [key, record] of Object.entries(save.reviews ?? {})) {
+    const lessonId = key.slice(0, key.indexOf(':'));
+    const lesson = findLesson(lessonId)?.lesson;
+    const question = lesson?.quiz.pool.find((item) => item.id === record.questionId);
+    if (save.lessons[lessonId]?.status !== 'passed' || !question || reviewKey(lessonId, question.conceptTag) !== key) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['reviews', key],
+        message: 'review must reference a question and concept in a passed catalog lesson',
+      });
+    }
   }
 });
 
@@ -317,9 +342,23 @@ export function recordAttempt(
           ? { lastActiveDate: parsedAttempt.date, count: save.streak.count + 1 }
           : { lastActiveDate: parsedAttempt.date, count: 1 };
 
+  let reviews = save.reviews;
+  for (const conceptTag of parsedAttempt.missedConceptTags) {
+    const key = reviewKey(lessonId, conceptTag);
+    const review = reviews?.[key];
+    // A later quiz miss, including one on the review day, is fresh evidence. An older
+    // calendar-dated quiz still belongs in attempt history without replacing newer recall.
+    if (review && parsedAttempt.date >= reviewEvidenceDate(review)) {
+      reviews = { ...reviews, [key]: {
+        date: parsedAttempt.date, questionId: review.questionId, correct: false, level: 0,
+      } };
+    }
+  }
+
   return {
     ...save,
     lessons,
+    ...(reviews ? { reviews } : {}),
     // A clock that moves backward records learning without rewinding the live streak.
     streak,
   };
@@ -330,6 +369,21 @@ export function setParentChecked(save: SaveData, lessonId: string, checked: bool
     ...save,
     parentChecked: { ...save.parentChecked, [lessonId]: checked },
   };
+}
+
+export function recordReview(save: SaveData, answer: ReviewAnswer): SaveData {
+  const parsed = ReviewAnswerSchema.parse(answer);
+  const progress = save.lessons[parsed.lessonId];
+  // A reset/import may occur while a practice screen still holds an earlier question.
+  if (progress?.status !== 'passed') return save;
+  const lesson = findLesson(parsed.lessonId)?.lesson;
+  if (!lesson?.quiz.pool.some((question) => question.id === parsed.questionId && question.conceptTag === parsed.conceptTag)) {
+    throw new Error('review answer must belong to its lesson and concept');
+  }
+  const key = reviewKey(parsed.lessonId, parsed.conceptTag);
+  const previous = save.reviews?.[key];
+  const next = nextReviewRecord(progress, previous, parsed);
+  return !next || next === previous ? save : { ...save, reviews: { ...save.reviews, [key]: next } };
 }
 
 export function exportSave(save: SaveData): string {

@@ -43,6 +43,8 @@ export type QuestionCardProps = {
   onAnswered: (answer: Answer) => void;
   /** Fired when the kid taps Next after reading the feedback. */
   onNext: () => void;
+  /** Practice can name its final action without implying a score. */
+  nextLabel?: string;
 };
 
 /**
@@ -57,8 +59,10 @@ export function QuestionCard({
   total,
   onAnswered,
   onNext,
+  nextLabel,
 }: QuestionCardProps) {
   const [submitted, setSubmitted] = useState<Submission | null>(null);
+  const submittedRef = useRef(false);
   const cardRef = useRef<HTMLElement>(null);
   const reduced = useReducedMotionPref();
 
@@ -69,7 +73,8 @@ export function QuestionCard({
   const submit: SubmitFn = (answer) => {
     // Belt and braces: every input is disabled after the first answer, but a stray
     // double-fire must never re-grade or double-count the question.
-    if (submitted) return;
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     setSubmitted({ answer, correct: gradeAnswer(question, answer) });
     onAnswered(answer);
   };
@@ -146,7 +151,7 @@ export function QuestionCard({
             autoFocus
             onClick={onNext}
           >
-            {isLast ? 'See my score' : 'Next'}
+            {nextLabel ?? (isLast ? 'See my score' : 'Next')}
             <span aria-hidden="true">&nbsp;→</span>
           </button>
         </div>
