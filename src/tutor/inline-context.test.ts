@@ -66,6 +66,8 @@ describe('inline lesson context', () => {
   });
   it.each([
     {lessonId:'math-u01-l01',stageKey:'quiz'},
+    {lessonId:'math-u01-l01',stageKey:'recall'},
+    {lessonId:'math-u01-l01',stageKey:'connect'},
     {lessonId:'not-a-lesson',stageKey:'intro'},
     {lessonId:'math-u01-l01',stageKey:'intro',activity:{value:3}},
     {lessonId:'math-u01-l01',stageKey:'card:math-u01-l01-c3',activity:{value:1e9}},

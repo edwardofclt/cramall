@@ -2,7 +2,7 @@ import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { LessonPlayer } from '../lesson/LessonPlayer';
+import { LessonPlayer, type LessonReviewStages } from '../lesson/LessonPlayer';
 import { createLiveTutor, type LiveOptions } from './realtime';
 import { allLessons } from '../content/subjects';
 vi.mock('./realtime', () => ({ createLiveTutor: vi.fn() }));
@@ -22,8 +22,8 @@ function Navigation() {
   const navigate = useNavigate();
   return <><button onClick={() => navigate(-1)}>Browser back</button><button onClick={() => navigate('/lesson/math-u01-l01/quiz')}>Open scored check</button></>;
 }
-function mount(path:string) {
-  render(<MemoryRouter initialEntries={[path]}><Navigation /><Routes><Route path="/lesson/:lessonId" element={<LessonPlayer />} /><Route path="/lesson/:lessonId/quiz" element={<h1>Scored check</h1>} /></Routes></MemoryRouter>);
+function mount(path:string, review?:LessonReviewStages) {
+  render(<MemoryRouter initialEntries={[path]}><Navigation /><Routes><Route path="/lesson/:lessonId" element={<LessonPlayer review={review} />} /><Route path="/lesson/:lessonId/quiz" element={<h1>Scored check</h1>} /></Routes></MemoryRouter>);
   return userEvent.setup();
 }
 async function startActivity(user:ReturnType<typeof userEvent.setup>) {
@@ -34,6 +34,21 @@ async function startActivity(user:ReturnType<typeof userEvent.setup>) {
   }
   throw new Error('Activity intro did not finish');
 }
+it('ends voice help for connection practice and returns to a collapsed guide afterward', async () => {
+  const user = mount('/lesson/math-u01-l01?step=worked', {
+    connect:onDone => <button onClick={onDone}>Finish connection practice</button>,
+  });
+  await user.click(await screen.findByRole('button',{name:'Ask Nutty'}));
+  await user.click(screen.getByRole('button',{name:'Explain this'}));
+  expect(document.querySelector('.guided-lesson-layout')).toHaveClass('is-open');
+  await user.click(screen.getByRole('button',{name:'Next step'}));
+  expect(sessions[0].close).toHaveBeenCalled();
+  expect(screen.queryByRole('complementary',{name:/AI guide/})).not.toBeInTheDocument();
+  await user.click(await screen.findByRole('button',{name:'Finish connection practice'}));
+  expect(await screen.findByRole('button',{name:'Ask Nutty'})).toHaveAttribute('aria-expanded','false');
+  expect(document.querySelector('.guided-lesson-layout')).not.toHaveClass('is-open');
+  expect(createLiveTutor).toHaveBeenCalledOnce();
+});
 it('uses the actual number, keeps the widget through collapse, updates on navigation, and stops for a scored check', async () => {
   const user = mount('/lesson/math-u01-l01?step=card:math-u01-l01-c1');
   await startActivity(user);

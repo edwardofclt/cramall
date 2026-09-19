@@ -5,15 +5,20 @@ import {
   loadSaveResult,
   persist,
   recordAttempt as recordAttemptPure,
+  recordReview as recordReviewPure,
   setParentChecked as setParentCheckedPure,
   type Attempt,
   type SaveData,
   type Settings,
 } from './storage';
+import type { ReviewAnswer } from '../review/model';
 
 export type ProgressContextValue = {
   save: SaveData;
+  /** Invalidates frozen practice sessions after an explicit progress replacement. */
+  reviewEpoch: number;
   recordAttempt: (lessonId: string, attempt: Attempt, passThreshold: number) => void;
+  recordReview: (answer: ReviewAnswer) => void;
   setParentChecked: (lessonId: string, checked: boolean) => void;
   updateSettings: (partial: Partial<Settings>) => void;
   /** Throws (`invalid save file`) when the JSON does not parse as a save — callers report it. */
@@ -34,22 +39,29 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return {
       save: loaded.save,
       notice: loaded.issue,
+      reviewEpoch: 0,
     };
   });
-  const { save, notice } = state;
+  const { save, notice, reviewEpoch } = state;
 
   // Actions derive the next save from the *latest* state inside the updater, so several of
   // them can fire in one tick without clobbering each other, and so none of them close over
-  // `save` — their identities stay stable for the life of the provider and are safe to put in
-  // a consumer's effect dependency array. Persisting inside the updater is a deliberate
+  // `save`. Action identities stay stable during ordinary saves; review callbacks renew only
+  // after reset/import so an old session cannot write into replaced progress.
+  // Persisting inside the updater is a deliberate
   // exception to updater purity: it is an idempotent write of the value being returned, so
   // StrictMode's double-invoke just writes the same JSON twice.
-  const commit = useCallback((derive: (current: SaveData) => SaveData) => {
+  const commit = useCallback((
+    derive: (current: SaveData) => SaveData,
+    options: { replaceProgress?: boolean; expectedReviewEpoch?: number } = {},
+  ) => {
     setState((current) => {
+      if (options.expectedReviewEpoch !== undefined && options.expectedReviewEpoch !== current.reviewEpoch) return current;
       const next = derive(current.save);
       const saved = persist(next);
       return {
         save: next,
+        reviewEpoch: current.reviewEpoch + (options.replaceProgress ? 1 : 0),
         notice: saved
           ? null
           : 'Progress is saved only while this tab is open because browser storage is unavailable.',
@@ -61,6 +73,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     (lessonId, attempt, passThreshold) =>
       commit((current) => recordAttemptPure(current, lessonId, attempt, passThreshold)),
     [commit],
+  );
+
+  const recordReview = useCallback<ProgressContextValue['recordReview']>(
+    (answer) => commit((current) => recordReviewPure(current, answer), { expectedReviewEpoch: reviewEpoch }),
+    [commit, reviewEpoch],
   );
 
   const setParentChecked = useCallback<ProgressContextValue['setParentChecked']>(
@@ -79,19 +96,19 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       // Parsed before the updater runs, so an invalid file throws synchronously to the caller
       // and leaves both state and storage untouched.
       const imported = importSave(json);
-      commit(() => imported);
+      commit(() => imported, { replaceProgress: true });
     },
     [commit],
   );
 
   const reset = useCallback<ProgressContextValue['reset']>(
-    () => commit(() => defaultSave()),
+    () => commit(() => defaultSave(), { replaceProgress: true }),
     [commit],
   );
 
   const value = useMemo<ProgressContextValue>(
-    () => ({ save, recordAttempt, setParentChecked, updateSettings, importJson, reset }),
-    [save, recordAttempt, setParentChecked, updateSettings, importJson, reset],
+    () => ({ save, reviewEpoch, recordAttempt, recordReview, setParentChecked, updateSettings, importJson, reset }),
+    [save, reviewEpoch, recordAttempt, recordReview, setParentChecked, updateSettings, importJson, reset],
   );
 
   return (

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { cardVariants } from '../app/motion';
@@ -14,17 +14,26 @@ import { AnnouncingDialogue } from './AnnouncingDialogue';
 import { InlineTutor } from '../tutor/InlineTutor';
 import { buildInlineContext, getInlineLesson, type GuideSelection } from '../tutor/inline-context.mjs';
 
+export type LessonReviewStages = {
+  recall?: (onDone: () => void) => ReactNode;
+  connect?: (onDone: () => void) => ReactNode;
+};
+
 type Stage =
+  | { key: 'recall' }
+  | { key: 'connect' }
   | { key: 'intro' }
   | { key: `card:${string}`; card: LearnCardData }
   | { key: 'worked' }
   | { key: 'outro' };
 
-function buildStages(lesson: Lesson): Stage[] {
+function buildStages(lesson: Lesson, review?: LessonReviewStages): Stage[] {
   return [
+    ...(review?.recall ? [{ key: 'recall' } as const] : []),
     { key: 'intro' },
     ...lesson.learnCards.map((card): Stage => ({ key: `card:${card.id}`, card })),
     { key: 'worked' },
+    ...(review?.connect ? [{ key: 'connect' } as const] : []),
     { key: 'outro' },
   ];
 }
@@ -187,13 +196,15 @@ function LessonStages({
   subject,
   unit,
   lesson,
+  review,
 }: {
   subject: Subject;
   unit: Unit;
   lesson: Lesson;
+  review?: LessonReviewStages;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const stages = useMemo(() => buildStages(lesson), [lesson]);
+  const stages = useMemo(() => buildStages(lesson, review), [lesson, review?.recall, review?.connect]);
   const step = findStageIndex(stages, searchParams.get('step'), searchParams.get('card'));
   const stage = stages[step];
   const [peekDismissed, setPeekDismissed] = useState(false);
@@ -203,6 +214,11 @@ function LessonStages({
   const [guideExpanded, setGuideExpanded] = useState(false);
   const [activitySnapshot, setActivitySnapshot] = useState<{visitId:number; activity:GuideSelection['activity']}>();
   const stageNode = useRef<HTMLDivElement | null>(null);
+  // Review questions unmount the guide and close its session. A later teaching
+  // step mounts a collapsed guide, so its parent layout must collapse as well.
+  useEffect(() => {
+    if (!inlineLesson) setGuideExpanded(false);
+  }, [inlineLesson]);
 
   const reduced = useReducedMotionPref();
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
@@ -360,6 +376,9 @@ function LessonStages({
           data-testid="lesson-stage"
           {...animation}
         >
+          {(stage.key === 'recall' || stage.key === 'connect') && review?.[stage.key]?.(() => {
+            if (activeStageVisit.current === stageVisit) goNext();
+          })}
           {stage.key === 'intro' && (
             <AnnouncingDialogue
               lines={lesson.intro}
@@ -395,7 +414,7 @@ function LessonStages({
             <span aria-hidden="true">←&nbsp;</span>Back
           </button>
         )}
-        {stage.key !== 'intro' && !cardDialogueActive && !widgetCoachIntroActive && step < last && (
+        {stage.key !== 'intro' && stage.key !== 'recall' && stage.key !== 'connect' && !cardDialogueActive && !widgetCoachIntroActive && step < last && (
           <button
             type="button"
             className="btn btn-primary lesson-nav-next"
@@ -416,10 +435,10 @@ function LessonStages({
  * The lesson itself: intro dialogue → learn cards → worked example → Quick Check hand-off,
  * one stage at a time with Back/Next.
  */
-export function LessonPlayer() {
+export function LessonPlayer({ review }: { review?: LessonReviewStages } = {}) {
   const { lessonId } = useParams();
   const found = lessonId ? findLesson(lessonId) : null;
   if (!found) return <LessonNotFound />;
 
-  return <LessonStages key={found.lesson.id} subject={found.subject} unit={found.unit} lesson={found.lesson} />;
+  return <LessonStages key={found.lesson.id} subject={found.subject} unit={found.unit} lesson={found.lesson} review={review} />;
 }
