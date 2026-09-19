@@ -5,13 +5,14 @@ import { PLANNED_LESSONS, READING_OE_CODES } from './curriculum';
 import { StandardsDataSchema } from './standards/schema';
 
 describe('full-year curriculum contract', () => {
-  test('freezes 89 unique lessons across 31 exact units', () => {
-    expect(PLANNED_LESSONS).toHaveLength(89);
-    expect(new Set(PLANNED_LESSONS.map(({ id }) => id)).size).toBe(89);
-    expect(new Set(PLANNED_LESSONS.map(({ unitId }) => unitId)).size).toBe(31);
+  test('freezes 119 unique lessons across 36 exact units', () => {
+    expect(PLANNED_LESSONS).toHaveLength(119);
+    expect(new Set(PLANNED_LESSONS.map(({ id }) => id)).size).toBe(119);
+    expect(new Set(PLANNED_LESSONS.map(({ unitId }) => unitId)).size).toBe(36);
     expect(PLANNED_LESSONS.filter(({ id }) => id.startsWith('math-'))).toHaveLength(33);
     expect(PLANNED_LESSONS.filter(({ id }) => id.startsWith('reading-'))).toHaveLength(24);
     expect(PLANNED_LESSONS.filter(({ id }) => id.startsWith('science-'))).toHaveLength(32);
+    expect(PLANNED_LESSONS.filter(({ id }) => id.startsWith('social-studies-'))).toHaveLength(30);
   });
 
   test('derives the exact Reading OE source of truth from validated standards', () => {
@@ -27,7 +28,7 @@ describe('full-year curriculum contract', () => {
 
   test('uses canonical IDs and keeps each lesson inside its unit', () => {
     for (const lesson of PLANNED_LESSONS) {
-      expect(lesson.id).toMatch(/^(math|reading|science)-u\d{2}-l\d{2}$/);
+      expect(lesson.id).toMatch(/^(math|reading|science|social-studies)-u\d{2}-l\d{2}$/);
       expect(lesson.unitId).toBe(lesson.id.slice(0, lesson.id.lastIndexOf('-l')));
       expect(lesson.title.length).toBeGreaterThan(0);
       expect(lesson.indicatorCodes.length).toBeGreaterThan(0);

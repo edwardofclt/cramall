@@ -1,6 +1,6 @@
 # Cram All
 
-Cram All is a browser-only, fourth-grade learning app with 89 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, and 32 Science lessons in 8 units. There is no account, server, or cloud sync: the app and its data stay in the browser.
+Cram All is a browser-only, fourth-grade learning app with 119 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, 32 Science lessons in 8 units, and 30 Social Studies lessons in 5 units. Pip the Carolina wren guides Social Studies through colonial history, the American Revolution, westward expansion, the Civil War, and Reconstruction. Every Social Studies lesson includes a guided timeline, map, evidence board, or cause-and-effect activity. There is no account, server, or cloud sync: the app and its data stay in the browser.
 
 ## Quick start (under 5 minutes)
 
@@ -49,7 +49,7 @@ Because there is no backend, Cram All has no login, cross-device sync, remote ba
 
 **Warm up your memory** begins a lesson with up to three practice questions from earlier lessons the student has passed. It brings back a relevant foundation and mixes in older concepts. The first lesson starts directly with its introduction.
 
-**Connect it** follows the worked example in each unit’s final lesson. These original application questions ask the student to combine the unit’s ideas with an earlier foundation, then explain the reasoning. Reading sources remain visible while the student answers.
+**Connect it** follows the worked example in each of the 36 units’ final lessons. These original application questions ask the student to combine the unit’s ideas with an earlier foundation, then explain the reasoning. Reading and Social Studies sources remain visible while the student answers.
 
 **Keep it growing** on the subject map offers short mixed review sessions when concepts are due, including after the subject is complete. Home shows which subjects have review ready. Mistakes receive immediate explanations and a link to the exact teaching card.
 
@@ -61,11 +61,11 @@ The approach combines cumulative applications with delayed retrieval. Background
 
 ## Content layout
 
-- `src/content/curriculum.ts` is the authored 89-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
+- `src/content/curriculum.ts` is the authored 119-row identity, title, unit, and indicator-allocation contract; its Reading OE array is derived from validated generated metadata.
 - `src/review/` contains concept review scheduling, practice selection, the review interface, and original unit connection questions. Its catalog tests require a connection for every registered unit’s final lesson.
 - `src/content/schema.ts` defines lesson/question/widget schemas and permanent content validation rules.
-- `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, and Science.
-- `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, and `src/content/science/u01.ts` through `u08.ts` contain learner-facing authored lessons.
+- `src/content/subjects.ts` combines generated standards units with the registered lessons for Math, Reading, Science, and Social Studies.
+- `src/content/math/u01.ts` through `u12.ts`, `src/content/reading/u01.ts` through `u11.ts`, `src/content/science/u01.ts` through `u08.ts`, and `src/content/social-studies/u01.ts` through `u05.ts` contain learner-facing authored lessons.
 - Each subject's `index.ts` registers one exported `unitNNLessons` array under its canonical unit ID.
 - `src/content/standards/standards.json` is generated only by `node scripts/build-standards.mjs` from `docs/research/sc-grade4-standards.json`; never hand-edit it.
 - `src/content/content-validation.test.ts` checks exact catalog identity, standards coverage, OE policy, pass thresholds, and review-card relationships.
@@ -79,7 +79,7 @@ The approach combines cumulative applications with delayed retrieval. Background
 4. For Reading only, spread `READING_OE_CODES` into `crossCuttingExpectationCodes`; never put an OE code in `indicatorCodes`.
 5. Use a widget only when its exact `{ type, config }` parses `WidgetRefSchema` and the type exists in `widgetRegistry`. The card prose and quiz must remain understandable without the widget.
 6. Run the unit test, `src/content/schema.test.ts`, `src/content/content-validation.test.ts`, `src/content/lesson-quality.test.ts`, and `npx tsc -b --pretty false`. Independently review standards fidelity, every answer, original-text provenance, and child-safe wording.
-7. When adding a unit, author its terminal “Connect it” application in `src/review/connections.ts` (or its subject content module), with a clear earlier-knowledge connection, source text for Reading, and a valid teaching-card review target. Run `src/review/connections.test.ts`.
+7. When adding a unit, author its terminal “Connect it” application in `src/review/connections.ts` (or its subject content module), with a clear earlier-knowledge connection, source text for Reading and Social Studies, and a valid teaching-card review target. Run `src/review/connections.test.ts`.
 8. Run `npm run standards:check`, the full test suite, both builds, and the browser/review-link smoke path before release.
 
 ## Widgets
@@ -93,3 +93,6 @@ To add a widget type, implement a component that accepts `WidgetProps`, add its 
 - [Product and interaction design](docs/superpowers/specs/2026-08-29-cram-all-design.md)
 - [Plan A implementation plan](docs/superpowers/plans/2026-08-29-plan-a-foundation.md)
 - [South Carolina grade 4 standards research snapshot](docs/research/sc-grade4-standards.json)
+
+- [Social Studies design and lesson map](docs/superpowers/specs/2026-09-07-social-studies-design.md)
+- [Social Studies standards, historical sources, and Pip artwork provenance](docs/research/sc-grade4-social-studies-sources.md)

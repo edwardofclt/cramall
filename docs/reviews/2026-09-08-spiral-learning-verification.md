@@ -1,5 +1,33 @@
 # Spiral learning verification
 
+## September 19 integration verification
+
+Integrated `main` at `15ab273` with PR #3 at `4c005d9` in the restored isolated checkout `/Users/eherbert/.codex/worktrees/spiral-learning-integration/cram-all`. This supersedes the three-subject scope of the historical September 8 evidence below. The current curriculum has 119 lessons and 36 units across four subjects. Curriculum, guide artwork, widgets, and activity coaching are identical to `main`.
+
+The README conflict retains both the current catalog size and the review documentation. The automatic lesson-player merge preserves historical field notes and Pip’s closing reflections alongside recall/connect stages. Five new Social Studies applications connect earlier ideas about labor, political power, representation, evidence, freedom, and citizenship. Their original source summaries use facts from the existing reviewed lessons and remain visible during feedback.
+
+Fresh automated gates:
+
+- Focused review/progress/lesson/workshop checks: **331 passed in 10 files**.
+- Full `npm test`: **1,496 passed in 143 files**, without the unrelated nested checkout included in older workspace totals.
+- TypeScript, four-subject standards parity, normal build, single-file build, and whitespace checks: passed.
+- Single output is solely `index.html`, 9,272,755 bytes, with no external script/stylesheet tags or Google Font links. The normal build retains Google Font links. The existing normal-build large-chunk advisory remains.
+- Permanent catalog checks first failed for all five missing Social Studies connections, then passed after authoring. Source-preservation and rendered worked → connect → reflection checks now cover both Reading and Social Studies. The rendered tests await the existing entry animation before checking visibility.
+
+Fresh browser checks against the production builds served on ports 4196/4197:
+
+- All five Social Studies connections render their source, grade the answer, explain the result, and reach the existing reflection/Quick Check handoff.
+- An intentional wrong answer retains its source and links to the exact teaching card. Keyboard completion, Back, reload, and unrelated query preservation work.
+- Settled layouts have no horizontal overflow at 390 × 844 or 1280 × 500; measured mobile buttons are at least 44px tall.
+- A three-question Social Studies warm-up draws from three earlier lessons, keeps full field notes visible, and continues into the original introduction. After reload, the completed-subject map shows 87 due ideas and all 30 lessons still passed with three stars each. The disposable fixture began with 90 due ideas.
+- The single-file build completes the Reconstruction connection and retains the correct reflection/outro route after reload. Both browser tabs report zero console errors.
+
+The disposable learner fixture page existed only in ignored normal-build output and was removed after the check. No learner data ships with this change. Direct `file://` execution is not claimed; the exact single artifact was served over localhost. Existing reduced-motion tests are included in the full suite.
+
+**Independent integration review: APPROVED, no actionable findings.** The reviewer checked all five new answer keys against existing lesson facts, all 36 unit registrations, full visible sources, review targets, automatic lesson-player merge, progress behavior, and preservation of newer activities. Its independent focused run passed 128 tests. The user explicitly authorized resolving conflicts and merging PR #3 on September 19.
+
+## Historical September 8 evidence
+
 Scope: cumulative practice and delayed review on branch `codex/spiral-learning`, based on `0f1ecd9`. Implementation and verification used the separate worktree `/private/tmp/cram-all-spiral-learning`. Concurrent original-checkout Social Studies and activity edits are excluded.
 
 ## Final automated gates

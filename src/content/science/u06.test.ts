@@ -25,7 +25,7 @@ const specs = [
       {
         "title": "Argue how structures work together",
         "tag": "plant-system-argument",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "plant-system"}}
       }
     ],
     "routes": [
@@ -208,7 +208,7 @@ const specs = [
       {
         "title": "Connect evidence with reasoning",
         "tag": "structure-argument",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "survival-evidence"}}
       }
     ],
     "routes": [
@@ -286,7 +286,7 @@ const specs = [
       {
         "title": "Connect information to a response",
         "tag": "sense-response-system",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "sense-response"}}
       }
     ],
     "routes": [

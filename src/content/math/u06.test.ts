@@ -81,6 +81,8 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u06-l02-c3': { type: 'math-workshop', config: { activity: 'fraction-picnic' } },
+  'math-u06-l03-c2': { type: 'math-workshop', config: { activity: 'bundle-the-fourths' } },
   'math-u06-l01-c2': { type: 'fraction-models', config: { mode: 'both', denominator: 4, numerator: 0, target: { numerator: 1, denominator: 2 }, allowEquivalent: true, task: 'equivalent', comparisonTarget: { numerator: 1, denominator: 2 }, taskPrompt: 'Build 1/2 with fourths.' } },
   'math-u06-l04-c1': { type: 'number-line-compare', config: { min: 0, max: 2, a: 0.5, b: 1.5, step: 0.25, display: 'fraction', denominator: 4 } },
 } as const;

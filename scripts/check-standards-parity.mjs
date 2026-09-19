@@ -9,10 +9,11 @@ const sourceKey = {
   math: 'math',
   reading: 'ela-reading',
   science: 'science',
+  'social-studies': 'social-studies',
 };
-const expectedUnitCounts = { math: 12, reading: 11, science: 8 };
+const expectedUnitCounts = { math: 12, reading: 11, science: 8, 'social-studies': 5 };
 
-for (const subjectId of ['math', 'reading', 'science']) {
+for (const subjectId of ['math', 'reading', 'science', 'social-studies']) {
   const raw = source.bySubject[sourceKey[subjectId]];
   const built = generated[subjectId];
   const regular = raw.indicators.filter(({ code }) => subjectId !== 'reading' || !OE_PATTERN.test(code));
@@ -21,8 +22,8 @@ for (const subjectId of ['math', 'reading', 'science']) {
     : [];
 
   assert.deepEqual(
-    built.indicators.map(({ code }) => code),
-    regular.map(({ code }) => code),
+    built.indicators,
+    regular,
     `${subjectId} regular indicator codes drifted`,
   );
   assert.deepEqual(
@@ -51,4 +52,4 @@ assert.deepEqual(
   'Reading OE codes must remain exact and ordered',
 );
 
-console.log('standards parity: math 33/12, reading 20+6 OE/11, science 14/8');
+console.log('standards parity: math 33/12, reading 20+6 OE/11, science 14/8, social studies 30/5');

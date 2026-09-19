@@ -192,7 +192,7 @@ const specs = [
       {
         "title": "Find and repair a mismatch",
         "tag": "binary-grid-debugging",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "pixel-post"}}
       }
     ],
     "routes": [
@@ -269,7 +269,7 @@ const specs = [
       {
         "title": "Choose and justify a solution",
         "tag": "message-solution-choice",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "message-design-trials"}}
       }
     ],
     "routes": [

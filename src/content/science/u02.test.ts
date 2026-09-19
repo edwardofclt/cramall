@@ -329,7 +329,7 @@ const specs = [
       {
         "title": "Build a comparison claim",
         "tag": "transfer-comparison-claim",
-        "widget": null
+        "widget": {"type": "science-workshop", "config": {"activity": "receiver-changes"}}
       }
     ],
     "routes": [

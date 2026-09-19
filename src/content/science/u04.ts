@@ -1,3 +1,4 @@
+import { scienceWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 const scienceU04L01Core = {
@@ -958,6 +959,7 @@ const scienceU04L03Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u04-l03-c3'),
       "id": "science-u04-l03-c3",
       "title": "Find and repair a mismatch",
       "blocks": [
@@ -1373,6 +1375,7 @@ const scienceU04L04Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u04-l04-c3'),
       "id": "science-u04-l04-c3",
       "title": "Choose and justify a solution",
       "blocks": [

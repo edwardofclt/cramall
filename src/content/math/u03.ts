@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit03Lessons = [
@@ -103,6 +104,7 @@ export const unit03Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u03-l02-c2'),
         id: 'math-u03-l02-c2',
         title: 'Complete a Function Table',
         blocks: [

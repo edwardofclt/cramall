@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { READING_OE_CODES } from '../curriculum';
-import { WidgetRefSchema, validateLesson, type Question } from '../schema';
+import { WidgetRefSchema, validateLesson, type LearnCard, type Question } from '../schema';
 import { expectUnitLessons } from '../unit-test-helpers';
 import { unit09Lessons } from './u09';
 
@@ -385,7 +385,7 @@ const expectedWidgets = [
         "ref": {
           "type": "pov-switcher",
           "config": {
-            "passage": "Lila carried Lila’s marker to the trail.",
+            "passage": "Lila carried Lila\u2019s marker to the trail.",
             "from": "third",
             "target": "first",
             "pronounOptions": [
@@ -404,7 +404,17 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u09-l02",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u09-l02-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "two-views-one-event"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [
@@ -480,7 +490,8 @@ describe('Reading unit 9 literal content', () => {
   });
 
   test('connects the point-of-view manipulative to a two-line Winnie bridge and reactions', () => {
-    const card = unit09Lessons.find(({ id }) => id === 'reading-u09-l01')!.learnCards.find(({ id }) => id === 'reading-u09-l01-c3')!;
+    const card = unit09Lessons.flatMap<LearnCard>(lesson => lesson.learnCards).find(({ id }) => id === 'reading-u09-l01-c3')!;
+    if (!('widgetCoach' in card) || !card.widgetCoach) throw new Error('point-of-view coach is missing');
     expect(card.widgetCoach?.intro).toHaveLength(2);
     expect(card.widgetCoach?.intro.map(line => line.speaker)).toEqual(['guide', 'kid']);
     expect(card.widgetCoach?.reactions).toEqual(expect.objectContaining({

@@ -70,3 +70,16 @@ expect(screen.getByRole('region', {name: /Source/})).toBeVisible();
 ## Completion evidence
 
 Implemented at source commit `b380afb`. Final gates: 1,182 tests, clean TypeScript, standards parity, normal/single builds and artifact checks. Browser checks and independent review are approved; see the verification report. [Pull request #3](https://github.com/edwardofclt/cramall/pull/3) is open against `main`. The worktree is retained for review feedback.
+
+## September 19 integration and merge
+
+The user explicitly authorized resolving conflicts and merging PR #3. Integrate `origin/main` at `15ab273`, preserving the Social Studies curriculum and guided activities. The original temporary checkout was removed outside this task; continue from `4c005d9` in `/Users/eherbert/.codex/worktrees/spiral-learning-integration/cram-all`.
+
+Scope: resolve the README catalog conflict; preserve both lesson-player changes; add `src/review/connection-content/social-studies.ts` and its registration in `connections.ts`; extend connection and rendered-flow tests for Social Studies sources and the worked → connect → reflection sequence. Update this plan and the verification report with fresh gates. Do not modify the original dirty checkout.
+
+- [x] Reproduce missing Social Studies unit connections with the permanent catalog tests (11 failures).
+- [x] Add five cumulative applications using the existing reviewed lesson facts and full visible source summaries.
+- [x] Pass focused tests, full baseline, standards parity, TypeScript and both builds; inspect artifacts and browser-check integration.
+- [x] Obtain independent scoped review before publishing the integration.
+
+Integration evidence: 331 focused tests and 1,496 full-suite tests pass; TypeScript, four-subject standards parity, normal/single builds, artifact checks, and browser checks pass. Independent scoped review is approved with no actionable findings. The user has authorized merging this verified integration through PR #3; GitHub records the final merge status.

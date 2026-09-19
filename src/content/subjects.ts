@@ -11,10 +11,11 @@ import {
 import { lessonsByUnit as mathLessons } from './math';
 import { lessonsByUnit as readingLessons } from './reading';
 import { lessonsByUnit as scienceLessons } from './science';
+import { lessonsByUnit as socialStudiesLessons } from './social-studies';
 
 export const standards = StandardsDataSchema.parse(standardsData);
 
-const SUBJECT_ORDER: SubjectId[] = ['math', 'reading', 'science'];
+const SUBJECT_ORDER: SubjectId[] = ['math', 'reading', 'science', 'social-studies'];
 
 const SUBJECT_META: Record<
   SubjectId,
@@ -32,6 +33,9 @@ const SUBJECT_META: Record<
   reading: {
     title: 'Reading', guide: 'winnie', color: '#8b5cf6', actionColor: '#6d28d9', lessonsByUnit: readingLessons,
   },
+  'social-studies': {
+    title: 'Social Studies', guide: 'pip', color: '#3b82f6', actionColor: '#1d4ed8', lessonsByUnit: socialStudiesLessons,
+  },
   science: {
     title: 'Science', guide: 'sandy', color: '#10b981', actionColor: '#047857', lessonsByUnit: scienceLessons,
   },
@@ -41,6 +45,7 @@ export const CONTENT_REGISTRIES: Record<SubjectId, Record<string, Lesson[]>> = {
   math: mathLessons,
   reading: readingLessons,
   science: scienceLessons,
+  'social-studies': socialStudiesLessons,
 };
 
 function unitId(subjectId: SubjectId, number: number): string {

@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit08Lessons = [
@@ -192,6 +193,7 @@ export const unit08Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u08-l03-c3'),
         id: 'math-u08-l03-c3',
         title: 'Operate with Mixed Quantities',
         blocks: [

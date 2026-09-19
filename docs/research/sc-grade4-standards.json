@@ -860,6 +860,250 @@
       ],
       "confidence": "high",
       "caveats": "Indicator statements, clarification statements, and state assessment boundaries were extracted verbatim from the official SCDE PDF (Grade 4 section, document pages 66-82; local copy at /private/tmp/claude-501/-Users-eherbert-cram-all/a66cf53a-6672-47a0-bdd8-a58247c40a14/scratchpad/sc_science_2021.pdf); line breaks and hyphenation from PDF extraction were rejoined. The bracketed SEP/CCC/DCI notes appended to each indicator summarize that PE's official foundation-box dimensions and are labels, not part of the verbatim PE sentence. The 2021 document contains no separate grades 3-5 engineering design PEs (ETS content is integrated into the 14 PEs listed). The unit sequence is a recommended teaching order, not an official SCDE pacing guide; districts may bundle PEs differently."
+    },
+    "social-studies": {
+      "subject": "Social Studies (Grade 4): United States & South Carolina Studies Part I",
+      "document": {
+        "title": "2019 South Carolina Social Studies College- and Career-Ready Standards",
+        "adoptionYear": "2019",
+        "url": "https://www.ed.sc.gov/instruction/standards/social-studies/standards/2019-south-carolina-social-studies-college-and-career-ready-standards/",
+        "notes": "Grade 4 printed pages 28–37; indicator text pages 32–37. SCDE continues to list the 2019 standards as checked September 7, 2026. The May 2024 Grade 4 alignment guide supplies instructional guidance, not replacement standards. Line-wrap whitespace has been normalized."
+      },
+      "indicators": [
+        {
+          "code": "4.1.CO",
+          "text": "Compare the interactions among cultural groups as a result of European colonization.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.1.CE",
+          "text": "Identify the effects of changing economic systems on the diverse populations in British North America.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.1.P",
+          "text": "Explain the development of political institutions and social characteristics that defined the British colonial regions.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.1.CX",
+          "text": "Contextualize the experience of Africans, Europeans, and Native Americans in South Carolina.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.1.CC",
+          "text": "Identify patterns of change and continuity in the development of economic systems in British North America.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.1.E",
+          "text": "Analyze multiple perspectives on the economic, political, and social developments of British North America and South Carolina.",
+          "strand": "Colonization"
+        },
+        {
+          "code": "4.2.CO",
+          "text": "Compare the roles of marginalized groups during the American Revolution.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.2.CE",
+          "text": "Examine the economic and political motivations for colonists to declare independence from Great Britain.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.2.P",
+          "text": "Analyze the sequence of events that led to the establishment of the U. S. as a democratic republic.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.2.CX",
+          "text": "Contextualize South Carolina’s role in the development of the new nation.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.2.CC",
+          "text": "Explain the continuities and changes in natural rights as seen from the French and Indian War to the creation of the Bill of Rights.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.2.E",
+          "text": "Analyze multiple perspectives on the economic, political, and social developments of the new nation.",
+          "strand": "A New Nation"
+        },
+        {
+          "code": "4.3.CO",
+          "text": "Compare the motivations for and reactions to various expeditions into the Western territories.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.3.CE",
+          "text": "Analyze the effects of government policies in promoting United States territorial expansion into the west.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.3.P",
+          "text": "Analyze the role of technology and the environmental impact during the period of Westward Expansion.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.3.CX",
+          "text": "Contextualize South Carolina’s role in the development of sectionalism during the antebellum period.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.3.CC",
+          "text": "Recognize patterns of continuity and change in the experiences of Native Americans and Spanish-speaking people as the U. S. expanded westward.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.3.E",
+          "text": "Analyze multiple perspectives of early westward expansion, including the addition of slave and free territories and states.",
+          "strand": "Expansion and Sectionalism"
+        },
+        {
+          "code": "4.4.CO",
+          "text": "Compare the economic and political causes of the Civil War.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.4.CE",
+          "text": "Explain the effects of military strategies utilized by the Union and the Confederacy.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.4.P",
+          "text": "Explain how emancipation was achieved as a result of civic participation.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.4.CX",
+          "text": "Contextualize South Carolina’s experience during the Civil War.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.4.CC",
+          "text": "Identify and evaluate the economic, political, and social changes experienced throughout the Civil War.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.4.E",
+          "text": "Analyze the economic, political, and social divisions during the Civil War.",
+          "strand": "A Divided Nation"
+        },
+        {
+          "code": "4.5.CO",
+          "text": "Compare the roles of various groups on Reconstruction.",
+          "strand": "Rebuilding"
+        },
+        {
+          "code": "4.5.CE",
+          "text": "Analyze the impact of federal legislation on the South during Reconstruction.",
+          "strand": "Rebuilding"
+        },
+        {
+          "code": "4.5.P",
+          "text": "Summarize Reconstruction as a turning point in American history.",
+          "strand": "Rebuilding"
+        },
+        {
+          "code": "4.5.CX",
+          "text": "Contextualize the economic, labor, political, and social conditions in South Carolina during the period of Reconstruction.",
+          "strand": "Rebuilding"
+        },
+        {
+          "code": "4.5.CC",
+          "text": "Identify and evaluate the impact of economic, political, and social events on the African American experience throughout Reconstruction.",
+          "strand": "Rebuilding"
+        },
+        {
+          "code": "4.5.E",
+          "text": "Analyze multiple perspectives of the economic, political, and social effects of Reconstruction on different populations in the South and in other regions of the U. S.",
+          "strand": "Rebuilding"
+        }
+      ],
+      "suggestedUnitSequence": [
+        {
+          "unitNumber": 1,
+          "title": "People and Colonies",
+          "indicatorCodes": [
+            "4.1.CO",
+            "4.1.CE",
+            "4.1.P",
+            "4.1.CX",
+            "4.1.CC",
+            "4.1.E"
+          ],
+          "prerequisiteUnits": []
+        },
+        {
+          "unitNumber": 2,
+          "title": "Building a New Nation",
+          "indicatorCodes": [
+            "4.2.CO",
+            "4.2.CE",
+            "4.2.P",
+            "4.2.CX",
+            "4.2.CC",
+            "4.2.E"
+          ],
+          "prerequisiteUnits": [
+            1
+          ]
+        },
+        {
+          "unitNumber": 3,
+          "title": "A Growing and Divided Country",
+          "indicatorCodes": [
+            "4.3.CO",
+            "4.3.CE",
+            "4.3.P",
+            "4.3.CX",
+            "4.3.CC",
+            "4.3.E"
+          ],
+          "prerequisiteUnits": [
+            2
+          ]
+        },
+        {
+          "unitNumber": 4,
+          "title": "Civil War and Freedom",
+          "indicatorCodes": [
+            "4.4.CO",
+            "4.4.CE",
+            "4.4.P",
+            "4.4.CX",
+            "4.4.CC",
+            "4.4.E"
+          ],
+          "prerequisiteUnits": [
+            3
+          ]
+        },
+        {
+          "unitNumber": 5,
+          "title": "Rebuilding and Seeking Equal Rights",
+          "indicatorCodes": [
+            "4.5.CO",
+            "4.5.CE",
+            "4.5.P",
+            "4.5.CX",
+            "4.5.CC",
+            "4.5.E"
+          ],
+          "prerequisiteUnits": [
+            4
+          ]
+        }
+      ],
+      "verification": {
+        "checkedOn": "2026-09-07",
+        "scope": "Social studies addition only; earlier review records describe the original three subjects.",
+        "indicatorCount": 30,
+        "standardsPrintedPages": "32–37",
+        "alignmentGuideUrl": "https://www.ed.sc.gov/instruction/standards/social-studies/instructional-resources/grade-4-us-sc-studies-part-i-alignment-guide-2024-may-2024/",
+        "note": "Normative indicator wording follows the standards PDF. Historical lesson facts must be checked against authoritative sources; explanatory examples in the alignment guide are not treated as infallible."
+      }
     }
   },
   "verification": {

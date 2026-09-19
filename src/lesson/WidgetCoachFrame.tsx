@@ -59,7 +59,7 @@ function WidgetCoachRun({
   ...widget
 }: WidgetCoachFrameProps) {
   const tuningFork = widget.type === 'energy-transfer-builder' && widget.config.experience === 'tuning-fork';
-  const startLabel = tuningFork ? 'Start the model' : 'Try it';
+  const startLabel = coach.startLabel ?? (tuningFork ? 'Start the model' : 'Try it');
   const [phase, setPhase] = useState<Phase>('intro');
   const [introIndex, setIntroIndex] = useState(0);
   const [reaction, setReaction] = useState<WidgetCoach['reactions']['complete'] | null>(null);

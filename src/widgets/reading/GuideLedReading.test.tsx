@@ -12,6 +12,8 @@ import TextStructureSorter from './TextStructureSorter';
 import PovSwitcher from './PovSwitcher';
 import FigurativeLanguageMatcher from './FigurativeLanguageMatcher';
 import SourceCredibilityChecker from './SourceCredibilityChecker';
+import PhrasePathfinder from './PhrasePathfinder';
+import ReadingWorkshop from './ReadingWorkshop';
 import type {WidgetRef} from '../../content/schema';
 
 afterEach(cleanup);
@@ -21,6 +23,8 @@ const components={
   'central-idea-organizer':CentralIdeaOrganizer,'summary-builder':SummaryBuilder,
   'text-structure-sorter':TextStructureSorter,'pov-switcher':PovSwitcher,
   'figurative-language-matcher':FigurativeLanguageMatcher,'source-credibility-checker':SourceCredibilityChecker,
+  'phrase-pathfinder':PhrasePathfinder,
+  'reading-workshop':ReadingWorkshop,
 };
 const placements=Object.values(lessonsByUnit).flat().flatMap(lesson=>lesson.learnCards.flatMap(card=>card.widget?[{cardId:card.id,widget:card.widget}]:[]));
 function activity(type:WidgetRef['type']) {return placements.find(item=>item.widget.type===type)!.widget;}

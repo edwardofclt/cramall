@@ -67,7 +67,7 @@ describe('authored practice contracts', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  test.each(units.filter(({ subject }) => subject.id === 'reading'))(
+  test.each(units.filter(({ subject }) => ['reading', 'social-studies'].includes(subject.id)))(
     '$unit.id carries its own complete source before the question can be rendered',
     ({ subject, unit }) => {
       const connection = connectionForLesson(subject, unit.lessons[unit.lessons.length - 1]);

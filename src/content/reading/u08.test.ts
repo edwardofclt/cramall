@@ -379,11 +379,31 @@ const expectedChecks = [
 const expectedWidgets = [
   {
     "id": "reading-u08-l01",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u08-l01-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "authors-lens"
+          }
+        }
+      }
+    ]
   },
   {
     "id": "reading-u08-l02",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u08-l02-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "support-chain"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

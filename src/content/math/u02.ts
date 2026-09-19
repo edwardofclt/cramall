@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit02Lessons = [
@@ -168,6 +169,7 @@ export const unit02Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u02-l02-c3'),
         id: 'math-u02-l02-c3',
         title: 'Judge Whether an Answer Is Reasonable',
         blocks: [

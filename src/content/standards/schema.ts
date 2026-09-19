@@ -29,8 +29,9 @@ export const StandardsDataSchema = z.object({
   math: StandardsSubjectSchema,
   reading: StandardsSubjectSchema,
   science: StandardsSubjectSchema,
+  'social-studies': StandardsSubjectSchema,
 }).strict().superRefine((data, context) => {
-  for (const subjectId of ['math', 'reading', 'science'] as const) {
+  for (const subjectId of ['math', 'reading', 'science', 'social-studies'] as const) {
     const subject = data[subjectId];
     const indicatorCodes = subject.indicators.map(({ code }) => code);
     const crossCuttingCodes = subject.crossCuttingExpectations.map(({ code }) => code);
@@ -115,7 +116,7 @@ export const StandardsDataSchema = z.object({
       message: 'reading OE codes must be cross-cutting, not regular indicators',
     });
   }
-  for (const subjectId of ['math', 'science'] as const) {
+  for (const subjectId of ['math', 'science', 'social-studies'] as const) {
     if (data[subjectId].crossCuttingExpectations.length > 0) {
       context.addIssue({
         code: z.ZodIssueCode.custom,

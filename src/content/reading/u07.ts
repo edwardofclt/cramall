@@ -1,3 +1,4 @@
+import { readingWorkshopForCard } from './workshop-registration';
 import { READING_OE_CODES } from '../curriculum';
 import type { Lesson } from '../schema';
 
@@ -649,6 +650,7 @@ export const unit07Lessons = [
         }
       },
       {
+        ...readingWorkshopForCard('reading-u07-l02-c3'),
         "id": "reading-u07-l02-c3",
         "title": "Explain a Multimedia Contribution",
         "blocks": [

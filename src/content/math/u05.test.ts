@@ -47,6 +47,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u05-l02-c2': { type: 'math-workshop', config: { activity: 'pack-use-rebuild' } },
   'math-u05-l01-c1': { type: 'array-builder', config: { rows: 1, columns: 1, targetProduct: 234, editable: true, task: 'division', dividend: 936, divisor: 4, taskPrompt: 'Share 936 into 4 equal groups.' } },
 } as const;
 

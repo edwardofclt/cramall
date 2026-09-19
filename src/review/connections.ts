@@ -2,6 +2,7 @@ import type { Lesson, Question, Subject } from '../content/schema';
 import { mathConnections } from './connection-content/math';
 import { readingConnections } from './connection-content/reading';
 import { scienceConnections } from './connection-content/science';
+import { socialStudiesConnections } from './connection-content/social-studies';
 
 export type UnitConnection = {
   unitId: string;
@@ -15,6 +16,7 @@ export const connections: UnitConnection[] = [
   ...mathConnections,
   ...readingConnections,
   ...scienceConnections,
+  ...socialStudiesConnections,
 ];
 
 export function connectionForLesson(subject: Subject, lesson: Lesson): UnitConnection | undefined {

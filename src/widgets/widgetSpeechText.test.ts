@@ -1,10 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import { WidgetRefSchema, type WidgetRef } from '../content/schema';
 import { widgetSpeechText } from './widgetSpeechText';
+import { scaleReadingConfig } from '../content/math/activityPrototypes';
 
 const parse = (value: unknown) => WidgetRefSchema.parse(value) as WidgetRef;
 
 describe('widgetSpeechText', () => {
+  test('reads complete scale unit names without revealing rounded measurements', () => {
+    const spoken = widgetSpeechText({ type: 'scale-reading', config: scaleReadingConfig }).join(' ');
+    expect(spoken).toContain('Camping kit: scale in kilograms.');
+    expect(spoken).toContain('Apple: scale in ounces.');
+    expect(spoken).not.toContain('4 kilograms');
+  });
   test('includes visible Reading source material and choices', () => {
     const ref = parse({
       type: 'story-elements-mapper',

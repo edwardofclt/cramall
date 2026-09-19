@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 // src/content/math/u06.ts
 import type { Lesson } from '../schema';
 
@@ -113,6 +114,7 @@ export const unit06Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u06-l02-c3'),
         id: 'math-u06-l02-c3',
         title: 'Represent a Mixed Quantity',
         blocks: [
@@ -171,6 +173,7 @@ export const unit06Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u06-l03-c2'),
         id: 'math-u06-l03-c2',
         title: 'Write an Equivalent Mixed Number',
         blocks: [

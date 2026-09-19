@@ -1,3 +1,4 @@
+import { scienceWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 const scienceU06L01Core = {
@@ -67,6 +68,7 @@ const scienceU06L01Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u06-l01-c3'),
       "id": "science-u06-l01-c3",
       "title": "Argue how structures work together",
       "blocks": [
@@ -925,6 +927,7 @@ const scienceU06L03Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u06-l03-c3'),
       "id": "science-u06-l03-c3",
       "title": "Connect evidence with reasoning",
       "blocks": [
@@ -1324,6 +1327,7 @@ const scienceU06L04Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u06-l04-c3'),
       "id": "science-u06-l04-c3",
       "title": "Connect information to a response",
       "blocks": [

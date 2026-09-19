@@ -619,7 +619,17 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u02-l03",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u02-l03-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "word-desk"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [
@@ -678,7 +688,7 @@ const visible = (question: Question): readonly { id: string; text: string }[] =>
 describe('Reading unit 2 literal content', () => {
   test('bridges the roots lesson into a Winnie-coached word build', () => {
     const card = unit02Lessons[0]!.learnCards[1]!;
-    if (!card.widget || card.widget.type !== 'word-root-builder') throw new Error('word-root widget is missing');
+    if (!('widget' in card) || !card.widget || card.widget.type !== 'word-root-builder') throw new Error('word-root widget is missing');
     if (!('widgetCoach' in card) || !card.widgetCoach) throw new Error('word-root coach is missing');
     expect(card.widgetCoach.intro).toEqual([
       expect.objectContaining({ speaker: 'guide', text: expect.stringContaining('root') }),

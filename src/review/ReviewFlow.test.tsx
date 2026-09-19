@@ -76,6 +76,7 @@ import { ReviewSession } from './ReviewSession';
 import type { ReviewItem } from './selection';
 
 const reading = SUBJECTS.find((subject) => subject.id === 'reading')!;
+const socialStudies = SUBJECTS.find((subject) => subject.id === 'social-studies')!;
 const sourceLesson = reading.units.flatMap((unit) => unit.lessons).find((candidate) => candidate.quiz.reference)!;
 const question = sourceLesson.quiz.pool.find((candidate) => candidate.type === 'multiple-choice')!;
 const secondQuestion = sourceLesson.quiz.pool.find((candidate) => candidate.conceptTag !== question.conceptTag)!;
@@ -270,17 +271,22 @@ describe('curriculum review routes', () => {
     expect(screen.queryByRole('heading', { name: 'Warm up your memory' })).not.toBeInTheDocument();
   });
 
-  test('warmup uses earlier passed ideas, keeps its selection as answers save, and continues to intro', async () => {
-    const save = passedSave();
+  test.each([reading, socialStudies])('$id warmup keeps earlier sources visible as answers save, then continues to intro', async (subject) => {
+    const earlierLesson = subject.units[0]!.lessons[0]!;
+    const save = passedSave([earlierLesson]);
     persist(save);
-    const nextLesson = reading.units.flatMap((unit) => unit.lessons)[1]!;
-    const selected = selectReview(save, reading, localDateIso(), nextLesson.id);
+    const nextLesson = subject.units.flatMap((unit) => unit.lessons)[1]!;
+    const selected = selectReview(save, subject, localDateIso(), nextLesson.id);
     expect(selected.length).toBeGreaterThan(0);
     mountFlow(`/lesson/${nextLesson.id}?keep=yes`);
     expect(screen.getByRole('heading', { name: 'Warm up your memory' })).toBeVisible();
     for (const item of selected) {
       expect(screen.getByTestId('quiz-prompt')).toHaveTextContent(item.question.prompt);
+      const source = screen.getByRole('region', { name: `Source: ${item.lesson.quiz.reference!.title}` });
+      expect(source.textContent).toContain(item.lesson.quiz.reference!.text);
+      expect(source.compareDocumentPosition(screen.getByTestId('quiz-prompt')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       answer(item.question);
+      expect(source).toBeVisible();
       fireEvent.click(screen.getByTestId('quiz-next'));
     }
     fireEvent.click(screen.getByRole('button', { name: 'Continue to lesson' }));
@@ -311,13 +317,15 @@ describe('curriculum review routes', () => {
     expect(screen.queryByTestId('quiz-card')).not.toBeInTheDocument();
   });
 
-  test('connect asks the authored application, explains it and reaches outro without review evidence', async () => {
-    const unit = reading.units[0]!;
+  test.each([reading, socialStudies])('$id connects after the worked example and preserves the source and outro', async (subject) => {
+    const unit = subject.units[0]!;
     const terminal = unit.lessons[unit.lessons.length - 1]!;
-    const connection = connectionForLesson(reading, terminal)!;
-    mountFlow(`/lesson/${terminal.id}?step=connect&keep=yes`);
-    expect(screen.getByRole('heading', { name: 'Connect it' })).toBeVisible();
-    expect(screen.getByText(connection.foundation)).toBeVisible();
+    const connection = connectionForLesson(subject, terminal)!;
+    mountFlow(`/lesson/${terminal.id}?step=worked&keep=yes`);
+    expect(screen.getByRole('region', { name: `Passage: ${terminal.workedExample.passage!.title}` })).toBeVisible();
+    fireEvent.click(screen.getByRole('button', { name: 'Next step' }));
+    await screen.findByRole('heading', { name: 'Connect it' });
+    await waitFor(() => expect(screen.getByText(connection.foundation)).toBeVisible());
     const source = screen.getByRole('region', { name: `Source: ${connection.source!.title}` });
     expect(source.textContent).toContain(connection.source!.text);
     expect(source.compareDocumentPosition(screen.getByTestId('quiz-prompt')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -326,7 +334,11 @@ describe('curriculum review routes', () => {
     expect(screen.getByTestId('quiz-feedback')).toHaveTextContent(connection.question.explanation);
     expect(source).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Continue lesson' }));
-    await screen.findByRole('heading', { name: 'You learned it all!' });
+    await waitFor(() => expect(screen.getByRole('heading', { name: 'You learned it all!' })).toBeVisible());
+    if (subject.id === 'social-studies') {
+      expect(screen.getByText(terminal.learnCards.find(card => card.widgetCoach)!.widgetCoach!.reactions.complete.text)).toBeVisible();
+      expect(screen.getByRole('img', { name: 'Pip the Carolina wren' })).toBeVisible();
+    }
     expect(screen.getByTestId('location')).toHaveTextContent('step=outro&keep=yes');
     expect(loadSave()).toEqual(defaultSave());
   });

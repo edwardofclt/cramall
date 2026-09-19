@@ -122,7 +122,7 @@ executable source plans. Reading Unit 1 and Science Unit 1 are registered and
 visible since commit `05b46b9`; later subject registration remains Plan C work.
 Do not infer completion from filenames or stale plan checkboxes.
 
-## Current handoff (update when the baseline changes)
+## Historical handoff through `388b540`
 
 Reading Unit 1 and Science Unit 1 have been registered and visible since
 `05b46b9`. Commit `d91a1b3` deepens those five lessons with persistent Reading
@@ -152,3 +152,19 @@ review is APPROVED.
 Re-run the relevant gates before relying on this handoff after later changes.
 Do not implement the Plan A closure-remediation items without new explicit
 authorization, even if their residuals appear in a review ledger.
+
+## Social Studies handoff — September 8, 2026
+
+The user-approved Social Studies feature adds Pip the Carolina wren and five units with 30 lessons. Every new lesson has three cards, 13 authored quiz questions, and a coached timeline, map, evidence board, or cause-and-effect activity. The complete catalog has 119 lessons, 36 units, 357 cards, and 1,547 questions. The original 89 lesson identities and three subject standards records remain intact.
+
+Use [the approved Social Studies plan](docs/superpowers/plans/2026-09-07-social-studies.md), [release verification](docs/reviews/2026-09-08-social-studies-release.md), and [source index](docs/research/sc-grade4-social-studies-sources.md) for this wave. Standards remain generated from the research JSON; the new subject preserves all 30 official 2019 indicators. Worked examples retain field notes and each lesson closes with its authored reflection.
+
+The release candidate was isolated on `codex/social-studies` from `0f1ecd9`, excluding concurrent guided-activity prototypes and workshops. Its baseline passed 1,022 tests; the Social Studies candidate passes 1,093 tests in 123 files, TypeScript, standards parity, and normal/self-contained builds. All 30 activity routes were checked again in the isolated normal build, with additional portable-build, keyboard, 320px layout, retry/completion/reset, and field-note refresh checks. The broader feature browser review covered each activity family, a 9/10 quiz, review links, history, and old/new parent checks. Independent content and release-extraction reviews are APPROVED. Browser media/native zoom emulation was unavailable; four rendered integration tests cover reduced motion.
+
+The user's September 8 instruction authorizes committing this feature, merging it into `main`, and pushing. Concurrent work in the original checkout is preserved and is not part of this release. The old Plan-A closure restriction remains in force.
+
+## Current handoff — Guided activities, September 8, 2026
+
+All 32 previously uncovered Math, Reading, and Science lessons now contain a guided activity: three reviewed prototypes and 29 subject workshops. All 119 registered lessons, including Social Studies, have at least one eligible guided activity. The strict selector and exact-placement tests protect the registrations. Workshop practice keeps complete source text visible, uses local component state, and does not write scores or progress.
+
+Use the [approved designs](docs/superpowers/specs/2026-09-07-missing-guided-activities-design.md), [completed implementation plan](docs/superpowers/plans/2026-09-07-complete-guided-activities.md), [independent review record](docs/reviews/2026-09-08-complete-guided-activities.md), and [isolated release verification](docs/reviews/2026-09-08-guided-activities-release.md). The activity release is based on the Social Studies commit `af255d5`; it preserves that feature and excludes unrelated working-copy changes. Fresh isolated checks pass 1,319 tests in 139 files, TypeScript, standards parity, and both build modes. The user's September 8 instruction authorizes committing, merging into `main`, and pushing this activity work. The old Plan-A closure restriction remains in force.

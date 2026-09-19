@@ -1,4 +1,5 @@
 import type { Lesson } from '../schema';
+import { scaleReadingConfig, scaleReadingCoach } from './activityPrototypes';
 
 export const unit09Lessons = [
   {
@@ -273,6 +274,8 @@ export const unit09Lessons = [
       },
       {
         id: 'math-u09-l04-c3',
+        widget: { type: 'scale-reading', config: scaleReadingConfig },
+        widgetCoach: scaleReadingCoach,
         title: 'Record the Nearest Whole Unit',
         blocks: [
           { kind: 'text', text: 'Read the scale value, compare it with neighboring whole units, and record the closer whole number.' },

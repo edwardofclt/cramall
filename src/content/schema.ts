@@ -1,4 +1,9 @@
+import { HistoryTimelineWidgetRefSchema, HistoryMapWidgetRefSchema, HistoryEvidenceBoardWidgetRefSchema, HistoryCauseEffectWidgetRefSchema } from './social-studies/history-schema';
 import { z } from 'zod';
+import { MathWorkshopRefSchema } from './math/workshop-schema';
+import { ReadingWorkshopRefSchema } from './reading/workshop-schema';
+import { ScienceWorkshopRefSchema } from './science/workshop-schema';
+import { ScaleReadingWidgetRefSchema, PhrasePathfinderWidgetRefSchema, DeviceRetestWidgetRefSchema } from './activity-prototype-schema';
 import { normalizeAnswerText } from './answer-normalization';
 import {
   MAX_BALANCE_DECIMAL_PLACES,
@@ -10,6 +15,16 @@ import {
 } from './balance-decimals';
 
 export const WIDGET_TYPES = [
+  'math-workshop',
+  'reading-workshop',
+  'science-workshop',
+  'history-timeline',
+  'history-map',
+  'history-evidence-board',
+  'history-cause-effect',
+  'scale-reading',
+  'phrase-pathfinder',
+  'device-retest',
   'place-value-builder',
   'number-line-compare',
   'base-ten-blocks',
@@ -48,24 +63,24 @@ export const WIDGET_TYPES = [
   'source-credibility-checker',
 ] as const;
 
-export const SubjectIdSchema = z.enum(['math', 'reading', 'science']);
-export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy']);
+export const SubjectIdSchema = z.enum(['math', 'reading', 'science', 'social-studies']);
+export const GuideIdSchema = z.enum(['nutty', 'winnie', 'sandy', 'pip']);
 export const PoseSchema = z.enum(['idle', 'talk', 'think', 'cheer', 'oops']);
 
 export const UnitIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}$/,
+  /^(math|reading|science|social-studies)-u\d{2}$/,
   'invalid canonical unit id',
 );
 export const LessonIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}$/,
   'invalid canonical lesson id',
 );
 export const LearnCardIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}-c\d+$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}-c\d+$/,
   'invalid canonical learn card id',
 );
 export const QuestionIdSchema = z.string().regex(
-  /^(math|reading|science)-u\d{2}-l\d{2}-q\d{2,}$/,
+  /^(math|reading|science|social-studies)-u\d{2}-l\d{2}-q\d{2,}$/,
   'invalid canonical question id',
 );
 const OptionIdSchema = z.string().regex(
@@ -102,6 +117,7 @@ export const WidgetCoachReactionSchema = z.object({
 
 /** Authored in-step introduction and optional meaningful-action reactions. */
 export const WidgetCoachSchema = z.object({
+  startLabel: z.string().trim().min(1).max(60).optional(),
   intro: z.array(WidgetCoachLineSchema).min(2).max(3),
   reactions: z.object({
     strategy: WidgetCoachReactionSchema.optional(),
@@ -1830,6 +1846,12 @@ export const SourceCredibilityCheckerWidgetRefSchema=z.object({
 }).strict();
 
 export const WidgetRefSchema = z.discriminatedUnion('type', [
+  MathWorkshopRefSchema, ReadingWorkshopRefSchema, ScienceWorkshopRefSchema,
+  HistoryTimelineWidgetRefSchema, HistoryMapWidgetRefSchema,
+  HistoryEvidenceBoardWidgetRefSchema, HistoryCauseEffectWidgetRefSchema,
+  ScaleReadingWidgetRefSchema,
+  PhrasePathfinderWidgetRefSchema,
+  DeviceRetestWidgetRefSchema,
   z.object({
     type: z.literal('place-value-builder'),
     config: PlaceValueWidgetConfigSchema,

@@ -385,7 +385,11 @@ const expectedWidgets = [
         "ref": {
           "type": "text-structure-sorter",
           "config": {
-            "availableStructures": ["problem-solution", "sequence", "compare-contrast"],
+            "availableStructures": [
+              "problem-solution",
+              "sequence",
+              "compare-contrast"
+            ],
             "excerpts": [
               {
                 "id": "repair",
@@ -410,7 +414,17 @@ const expectedWidgets = [
   },
   {
     "id": "reading-u07-l02",
-    "widgets": []
+    "widgets": [
+      {
+        "cardId": "reading-u07-l02-c3",
+        "ref": {
+          "type": "reading-workshop",
+          "config": {
+            "activity": "connect-weather-report"
+          }
+        }
+      }
+    ]
   }
 ] as const;
 const expectedSources = [

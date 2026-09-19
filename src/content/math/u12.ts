@@ -1,3 +1,4 @@
+import { mathWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 export const unit12Lessons = [
@@ -112,6 +113,7 @@ export const unit12Lessons = [
         ],
       },
       {
+        ...mathWorkshopForCard('math-u12-l02-c3'),
         id: 'math-u12-l02-c3',
         title: 'Solve with Whole or Fractional Data',
         blocks: [

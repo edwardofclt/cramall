@@ -1,3 +1,4 @@
+import { scienceWorkshopForCard } from './workshop-registration';
 import type { Lesson } from '../schema';
 
 const scienceU03L01Core = {
@@ -507,6 +508,7 @@ const scienceU03L02Core = {
       ]
     },
     {
+      ...scienceWorkshopForCard('science-u03-l02-c2'),
       "id": "science-u03-l02-c2",
       "title": "Compare shorter and longer wavelengths",
       "blocks": [

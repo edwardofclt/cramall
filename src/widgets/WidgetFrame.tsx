@@ -38,6 +38,47 @@ export type WidgetFrameProps = {
 
 function RenderWidget(ref: WidgetFrameProps) {
   switch (ref.type) {
+    case 'math-workshop': {
+      const Widget = widgetRegistry['math-workshop'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'reading-workshop': {
+      const Widget = widgetRegistry['reading-workshop'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'science-workshop': {
+      const Widget = widgetRegistry['science-workshop'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-timeline': {
+      const Widget = widgetRegistry['history-timeline'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-map': {
+      const Widget = widgetRegistry['history-map'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-evidence-board': {
+      const Widget = widgetRegistry['history-evidence-board'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'history-cause-effect': {
+      const Widget = widgetRegistry['history-cause-effect'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+
+    case 'scale-reading': {
+      const Widget = widgetRegistry['scale-reading'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'phrase-pathfinder': {
+      const Widget = widgetRegistry['phrase-pathfinder'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
+    case 'device-retest': {
+      const Widget = widgetRegistry['device-retest'];
+      return <Widget config={ref.config} onEvent={ref.onEvent} />;
+    }
     case 'regrouping-lab': {
       const Widget = widgetRegistry['regrouping-lab'];
       return <Widget config={ref.config} onEvent={ref.onEvent} />;

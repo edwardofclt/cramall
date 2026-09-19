@@ -68,7 +68,7 @@ test('u02 is the exact validated two-lesson unit', () => {
     );
     if (lesson.id === 'math-u02-l01') {
       expect(lesson.learnCards.every(card => card.widget?.type === 'regrouping-lab' && card.widgetCoach?.intro.length === 2)).toBe(true);
-    } else expect(lesson.learnCards.every(card => card.widget === undefined)).toBe(true);
+    } else expect(lesson.learnCards.map(card => card.widget)).toEqual([undefined, undefined, { type: 'math-workshop', config: { activity: 'estimate-checkpoint' } }]);
 
     const cardSpecs = expectedCards[lesson.id as keyof typeof expectedCards];
     expect(lesson.learnCards.map((card, index) => [

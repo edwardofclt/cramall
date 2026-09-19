@@ -46,6 +46,7 @@ const expectedRoutes = {
 } as const;
 
 const expectedWidgets = {
+  'math-u03-l02-c2': { type: 'math-workshop', config: { activity: 'acorn-rule-machine' } },
   'math-u03-l01-c1': { type: 'array-builder', config: { rows: 4, columns: 6, targetProduct: 24, editable: true, task: 'factor-hunt', taskPrompt: 'Find every factor pair for 24.' } },
 } as const;
 

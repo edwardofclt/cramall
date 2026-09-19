@@ -87,9 +87,9 @@ describe('deterministic full-catalog lesson audit', () => {
       PLANNED_LESSONS.map(({ id }) => id),
     );
     expect(auditSummary, JSON.stringify(auditSummary)).toMatchObject({
-      lessons: 89,
-      cards: 267,
-      questions: 1_157,
+      lessons: 119,
+      cards: 357,
+      questions: 1_547,
     });
   });
 

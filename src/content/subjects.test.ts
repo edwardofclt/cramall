@@ -1,11 +1,13 @@
 import { SUBJECTS, getSubject, findLesson, indicatorText, standards } from './subjects';
 
-test('three subjects with correct guides and unit counts', () => {
-  expect(SUBJECTS.map((s) => s.id)).toEqual(['math', 'reading', 'science']);
+test('four subjects with correct guides and unit counts', () => {
+  expect(SUBJECTS.map((s) => s.id)).toEqual(['math', 'reading', 'science', 'social-studies']);
   expect(getSubject('math').guide).toBe('nutty');
   expect(getSubject('math').units).toHaveLength(12);
   expect(getSubject('reading').units).toHaveLength(11);
   expect(getSubject('science').units).toHaveLength(8);
+  expect(getSubject('social-studies').guide).toBe('pip');
+  expect(getSubject('social-studies').units).toHaveLength(5);
 });
 test('unit ids and prerequisites resolve', () => {
   for (const s of SUBJECTS) {
