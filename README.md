@@ -1,6 +1,6 @@
 # Cram All
 
-Cram All is a browser-only, fourth-grade learning app with 119 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, 32 Science lessons in 8 units, and 30 Social Studies lessons in 5 units. Pip the Carolina wren guides Social Studies through colonial history, the American Revolution, westward expansion, the Civil War, and Reconstruction. Every Social Studies lesson includes a guided timeline, map, evidence board, or cause-and-effect activity. There is no account, server, or cloud sync: the app and its data stay in the browser.
+Cram All is a fourth-grade learning app with 119 guided lessons, worked examples, tactile experiments, and 10-question Quick Checks. Its complete South Carolina Grade 4 catalog contains 33 Math lessons in 12 units, 24 Reading lessons in 11 units, 32 Science lessons in 8 units, and 30 Social Studies lessons in 5 units. Pip the Carolina wren guides Social Studies through colonial history, the American Revolution, westward expansion, the Civil War, and Reconstruction. Every Social Studies lesson includes a guided timeline, map, evidence board, or cause-and-effect activity. Lessons and progress work entirely in the browser, without accounts or cloud sync. Optional AI voice help uses a local server and OpenAI.
 
 ## Quick start (under 5 minutes)
 
@@ -12,6 +12,22 @@ npm run dev
 ```
 
 Open the local URL printed by Vite, choose **Math**, and start **Numbers to the Millions**.
+
+## Optional AI lesson guides
+
+Every lesson has **Ask Nutty**, **Ask Winnie**, **Ask Sandy**, or **Ask Pip**. The guide explains the current step, offers examples, and answers lesson questions. It reads the source or step only when requested. Opening the panel is silent; a help action starts the connection. The microphone stays off until **Talk to me**. **Stop**, closing the panel, and leaving the lesson stop voice help. Moving between steps keeps the conversation, interrupts speech, and turns the microphone off. Quick Checks have no AI guide.
+
+For an adult-enabled local session:
+
+1. Copy `.env.example` to `.env.local` and set `OPENAI_API_KEY` there. Keep `TUTOR_ADULT_REVIEW=true` to enable voice help.
+2. Restart `npm run dev`, or run `npm run build` followed by `npx vite preview --host 127.0.0.1`.
+3. Open a lesson and choose its **Ask** button.
+
+The key stays in Node and is never included in the browser build. Do not use a `VITE_` key variable. No key, disabled adult configuration, an unreachable gateway, or a known provider failure leaves **Guide unavailable** disabled; lessons and ordinary device read-aloud still work. Status checks do not create paid sessions. Set `TUTOR_ADULT_REVIEW=false` to turn the service off. OpenAI API usage is billed separately from a ChatGPT subscription. The current WebRTC setup requires microphone permission even for typed help, but input stays muted until **Talk to me**.
+
+Voice and typed questions go to OpenAI only when help is requested. The app keeps conversation text in memory only and never writes it into learner progress. Sessions last at most five minutes. The gateway is restricted to this computer and same-origin requests, with two concurrent sessions and twelve starts per hour. A standalone static or single-file build has no voice backend and keeps the guide disabled. Public hosting would require a separately authenticated gateway; this local gateway must not be exposed publicly.
+
+The generated `src/tutor/inline-manifest.mjs` includes teaching text and safe visible activity materials for all registered lessons, without assessment keys. Context updates follow the current step; supported snapshots include place-value numbers, theme evidence, and Social Studies placements. Other activities provide their authored materials without claiming to know unreported choices. Run `npm run tutor:context` after changing curriculum; dev and both builds regenerate automatically, and parity tests detect stale content. The original adult preview remains at `#/tutor` for development review.
 
 ## Test and build
 
@@ -43,7 +59,7 @@ Cram All saves lesson attempts, best scores, stars, streaks, settings, and paren
 - **Import progress file** validates and restores a compatible exported JSON file.
 - **Reset progress** clears the current save after the parent types `RESET`.
 
-Because there is no backend, Cram All has no login, cross-device sync, remote backup, classroom dashboard, or server-side recovery. Export a progress file before clearing browser data or moving to another device.
+Progress has no backend: Cram All has no login, cross-device sync, remote backup, classroom dashboard, or server-side recovery. Export a progress file before clearing browser data or moving to another device.
 
 ## Content layout
 

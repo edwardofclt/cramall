@@ -315,7 +315,7 @@ describe('LessonPlayer', () => {
     renderPlayer(`/lesson/${lessonId}?step=card:${cardId}&peek=1&focus=flow`);
 
     expect(await screen.findByRole('heading', { level: 2 })).toBeInTheDocument();
-    expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
+    expect(within(screen.getByTestId('lesson-stage')).getByTestId(`character-${guide}`)).toBeInTheDocument();
     expect(screen.queryByTestId('widget-coach-activity')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument();
     expect(screen.getByTestId('router-location')).toHaveTextContent(`focus=flow`);
@@ -371,7 +371,7 @@ describe('LessonPlayer', () => {
     expect(storageSpy).not.toHaveBeenCalled();
     expect(within(screen.getByTestId('widget-coach-reaction')).getByRole('status')).toHaveTextContent(completeText);
     expect(screen.getAllByTestId(`character-${guide}`).some((character) => character.getAttribute('data-pose') === completePose)).toBe(true);
-    expect(screen.getByTestId(`character-${guide}`)).toBeInTheDocument();
+    expect(within(screen.getByTestId('lesson-stage')).getByTestId(`character-${guide}`)).toBeInTheDocument();
 
     const nextCardId = cardId.replace(/c2$/, 'c3');
     const firstCardId = cardId.replace(/c2$/, 'c1');
