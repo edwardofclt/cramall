@@ -11,8 +11,8 @@ import { ReadAloudButton } from './ReadAloudButton';
 import { RichText, speechText } from './Rich';
 import type { WidgetEventHandler } from '../widgets/registry';
 import { AnnouncingDialogue } from './AnnouncingDialogue';
-
-const ignoreWidgetEvent: WidgetEventHandler = () => {};
+import { InlineTutor } from '../tutor/InlineTutor';
+import { buildInlineContext, getInlineLesson, type GuideSelection } from '../tutor/inline-context.mjs';
 
 export type LessonReviewStages = {
   recall?: (onDone: () => void) => ReactNode;
@@ -209,6 +209,16 @@ function LessonStages({
   const stage = stages[step];
   const [peekDismissed, setPeekDismissed] = useState(false);
   const [dialogueAnnouncement, setDialogueAnnouncement] = useState('');
+  const manifest = getInlineLesson(lesson.id);
+  const inlineLesson = manifest?.stages.some(item => item.key === stage.key) ? manifest : undefined;
+  const [guideExpanded, setGuideExpanded] = useState(false);
+  const [activitySnapshot, setActivitySnapshot] = useState<{visitId:number; activity:GuideSelection['activity']}>();
+  const stageNode = useRef<HTMLDivElement | null>(null);
+  // Review questions unmount the guide and close its session. A later teaching
+  // step mounts a collapsed guide, so its parent layout must collapse as well.
+  useEffect(() => {
+    if (!inlineLesson) setGuideExpanded(false);
+  }, [inlineLesson]);
 
   const reduced = useReducedMotionPref();
   const showPeek = searchParams.get('peek') === '1' && !peekDismissed;
@@ -288,13 +298,38 @@ function LessonStages({
     [],
   );
   const focusStage = useCallback((node: HTMLDivElement | null) => {
+    stageNode.current = node;
     node?.focus();
   }, []);
+  const guideStage = inlineLesson?.stages.find(item => item.key === stage.key);
+  const guideActivity = guideStage?.activity;
+  const selection: GuideSelection = {lessonId:lesson.id, stageKey:stage.key};
+  if (guideActivity?.stateKind && !widgetCoachIntroActive) {
+    selection.activity = activitySnapshot?.visitId === stageVisit.id ? activitySnapshot.activity
+      : guideActivity.stateKind === 'number' ? {value:0}
+      : guideActivity.stateKind === 'theme' ? {theme:null,evidenceIds:[]} : {placements:{}};
+  }
+  const onWidgetEvent: WidgetEventHandler = event => {
+    if (!inlineLesson || !guideActivity || event.type !== 'change' || activeStageVisit.current.id !== stageVisit.id) return;
+    const value = event.value;
+    let activity: GuideSelection['activity'];
+    if (guideActivity.type === 'place-value-builder' && typeof value === 'number') activity = {value};
+    else if (guideActivity.type === 'theme-evidence-collector' && typeof value === 'object' && value !== null && 'theme' in value && 'evidenceIds' in value) {
+      activity = {theme:value.theme, evidenceIds:value.evidenceIds};
+    } else if (guideActivity.stateKind === 'placements' && typeof value === 'object' && value !== null && 'placements' in value) {
+      activity = {placements:value.placements};
+    } else return;
+    try { buildInlineContext({...selection, activity}); } catch { return; }
+    setActivitySnapshot({visitId:stageVisit.id, activity});
+  };
+  const source = guideStage?.source ?? inlineLesson?.source;
+  const showInlineSource = source && !hasWorkedPassage && !(guideStage?.source && guideActivity && !widgetCoachIntroActive);
   const animation = reduced
     ? {}
     : { variants: cardVariants, initial: 'initial', animate: 'enter', exit: 'exit' };
 
   return (
+    <div className={inlineLesson ? `guided-lesson-layout${guideExpanded ? ' is-open' : ''}` : undefined}>
     <div
       className="page stack lesson-page"
       data-stage={stage.key}
@@ -326,6 +361,12 @@ function LessonStages({
         {dialogueAnnouncement}
       </p>
 
+      {showInlineSource && <article className="inline-lesson-source" aria-labelledby="inline-source-title">
+        <header><div><span className="inline-guide-eyebrow">Keep the source close</span><h2 id="inline-source-title">{source.title}</h2></div><ReadAloudButton text={source.text} /></header>
+        <div className="inline-lesson-passage" role="region" tabIndex={0} aria-label={`Lesson source: ${source.title}`}>
+          {source.text.split(/\n\s*\n/).filter(paragraph => paragraph !== source.title).map((paragraph,index) => <p key={index}>{paragraph}</p>)}
+        </div>
+      </article>}
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={stage.key}
@@ -349,7 +390,7 @@ function LessonStages({
           {'card' in stage && (
             <LearnCard
               card={stage.card}
-              onWidgetEvent={ignoreWidgetEvent}
+              onWidgetEvent={onWidgetEvent}
               onDialogueAnnouncement={setDialogueAnnouncement}
               onDialogueDone={() => finishCardDialogue(stageVisit)}
               guide={subject.guide}
@@ -384,6 +425,8 @@ function LessonStages({
           </button>
         )}
       </nav>
+    </div>
+    {inlineLesson && <InlineTutor selection={selection} onExpandedChange={setGuideExpanded} onReturnToLesson={() => { stageNode.current?.focus(); stageNode.current?.scrollIntoView({block:'start'}); }} />}
     </div>
   );
 }

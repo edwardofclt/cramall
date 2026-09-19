@@ -29,6 +29,6 @@ test('Pip closes with a lesson-specific reflection before the Quick Check', asyn
     <Routes><Route path="/lesson/:lessonId" element={<LessonPlayer />} /></Routes>
   </MemoryRouter>);
   expect(await screen.findByText('You used different details to explain a shared pattern of land disputes.')).toBeInTheDocument();
-  expect(screen.getByRole('img', { name: 'Pip the Carolina wren' })).toBeInTheDocument();
+  expect(within(screen.getByTestId('lesson-stage')).getByRole('img', { name: 'Pip the Carolina wren' })).toBeInTheDocument();
   expect(screen.getByRole('link', { name: /Start Quick Check/ })).toBeInTheDocument();
 });

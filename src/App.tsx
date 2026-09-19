@@ -11,6 +11,7 @@ import { Home } from './screens/Home';
 import { ParentCorner } from './screens/ParentCorner';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { SubjectMap } from './screens/SubjectMap';
+import { TutorPage } from './tutor/TutorPage';
 
 /** Wraps a routed screen so it slides in/out with the shared page transition. */
 function Page({ children }: { children: ReactNode }) {
@@ -45,6 +46,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
+        <Route path="/tutor" element={<Page><TutorPage /></Page>} />
         <Route
           path="/"
           element={

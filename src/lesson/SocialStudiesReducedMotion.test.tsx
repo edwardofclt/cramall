@@ -27,9 +27,9 @@ test.each([
   render(<MemoryRouter initialEntries={[`/lesson/${id}?step=card:${id}-c2`]}>
     <Routes><Route path="/lesson/:lessonId" element={<LessonPlayer />} /></Routes>
   </MemoryRouter>);
-  expect(screen.getByTestId('character-pip')).toHaveAttribute('data-pose', 'talk');
+  expect(within(screen.getByTestId('lesson-stage')).getByTestId('character-pip')).toHaveAttribute('data-pose', 'talk');
   await user.click(screen.getByRole('button', { name: 'Next' }));
-  expect(screen.getByTestId('character-pip')).toHaveAttribute('data-pose', 'idle');
+  expect(within(screen.getByTestId('lesson-stage')).getByTestId('character-pip')).toHaveAttribute('data-pose', 'idle');
   await user.click(screen.getByRole('button', { name: 'Try it' }));
   expect(await screen.findByTestId(`widget-${type}`)).toHaveAttribute('data-state', 'building');
   const card = within(screen.getByRole('group', { name: '1. Select a source card' })).getAllByRole('button')[0];

@@ -337,7 +337,7 @@ describe('curriculum review routes', () => {
     await waitFor(() => expect(screen.getByRole('heading', { name: 'You learned it all!' })).toBeVisible());
     if (subject.id === 'social-studies') {
       expect(screen.getByText(terminal.learnCards.find(card => card.widgetCoach)!.widgetCoach!.reactions.complete.text)).toBeVisible();
-      expect(screen.getByRole('img', { name: 'Pip the Carolina wren' })).toBeVisible();
+      expect(within(screen.getByTestId('lesson-stage')).getByRole('img', { name: 'Pip the Carolina wren' })).toBeVisible();
     }
     expect(screen.getByTestId('location')).toHaveTextContent('step=outro&keep=yes');
     expect(loadSave()).toEqual(defaultSave());
